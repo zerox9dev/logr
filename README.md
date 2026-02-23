@@ -20,6 +20,11 @@ npm run dev
 
 Open: `http://localhost:3000`
 
+## Routes
+
+- `/` — marketing landing page (`logr-landing.html` integrated into Next.js)
+- `/tracker` — application (time tracker)
+
 ## Supabase Setup
 
 1. Create a Supabase project.
