@@ -20,8 +20,42 @@ import StatsAndExports from "./ui/StatsAndExports";
 import SessionsList from "./ui/SessionsList";
 import SummaryDashboard from "./ui/SummaryDashboard";
 import ProfileSettings from "./ui/ProfileSettings";
+import GuidedTour from "./ui/GuidedTour";
 
 const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
+const ONBOARDING_CACHE_KEY = "logr-onboarding-completed-v1";
+const TOUR_STEPS = [
+  {
+    selector: '[data-tour="add-client-btn"]',
+    title: "1) Add a client",
+    description: "Click + CLIENT in the left sidebar. Tracking cannot start without a client.",
+  },
+  {
+    selector: '[data-tour="add-project-btn"]',
+    title: "2) Add a project",
+    description: "This is optional, but useful for grouping tasks and invoices by project.",
+  },
+  {
+    selector: '[data-tour="task-name-input"]',
+    title: "3) Enter task details",
+    description: "Describe what you are working on. HOURLY can run a timer; DONE/PENDING saves immediately.",
+  },
+  {
+    selector: '[data-tour="status-select"]',
+    title: "4) Choose status",
+    description: "ACTIVE starts the timer, PENDING keeps it for later, DONE goes to stats and exports right away.",
+  },
+  {
+    selector: '[data-tour="submit-task-btn"]',
+    title: "5) Save the entry",
+    description: "Use this button to add the task or start the timer.",
+  },
+  {
+    selector: '[data-tour="invoice-btn"]',
+    title: "6) Export invoice",
+    description: "The PDF button appears after DONE tasks exist. The invoice includes only UNPAID items.",
+  },
+];
 
 function getNowDateTimeLocal() {
   const now = new Date();
@@ -87,6 +121,15 @@ export default function LogrApp() {
 
   const [editId, setEditId] = useState(null);
   const [editValues, setEditValues] = useState({});
+  const [showTour, setShowTour] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(ONBOARDING_CACHE_KEY) !== "1";
+    } catch {
+      return false;
+    }
+  });
+  const [tourStep, setTourStep] = useState(0);
 
   const resolvedActiveClientId = activeClientId ?? clients[0]?.id ?? null;
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);
@@ -881,6 +924,21 @@ export default function LogrApp() {
     popup.document.close();
   }
 
+  function closeTour(markCompleted) {
+    setShowTour(false);
+    if (!markCompleted) return;
+    try {
+      window.localStorage.setItem(ONBOARDING_CACHE_KEY, "1");
+    } catch {}
+  }
+
+  function openTour() {
+    setScreen("tracker");
+    setMobileView("main");
+    setTourStep(0);
+    setShowTour(true);
+  }
+
   if (!isSupabaseConfigured()) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif" }}>
@@ -980,6 +1038,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
             }
           }}
           onToggleTheme={() => setDark((value) => !value)}
+          onOpenOnboarding={openTour}
         />
 
         <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 1160 }}>
@@ -1093,6 +1152,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           )}
         </div>
       </div>
+      {showTour ? (
+        <GuidedTour
+          theme={theme}
+          steps={TOUR_STEPS}
+          stepIndex={tourStep}
+          onBack={() => setTourStep((prev) => Math.max(prev - 1, 0))}
+          onNext={() => setTourStep((prev) => Math.min(prev + 1, TOUR_STEPS.length - 1))}
+          onClose={() => closeTour(true)}
+          onFinish={() => closeTour(true)}
+        />
+      ) : null}
     </div>
   );
 }

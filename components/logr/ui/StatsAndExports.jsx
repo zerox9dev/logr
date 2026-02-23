@@ -24,6 +24,7 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
           ↓ CSV
         </button>
         <button
+          data-tour="invoice-btn"
           onClick={onExportInvoicePdf}
           disabled={!hasUnpaidSessions}
           style={{

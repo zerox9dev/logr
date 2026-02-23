@@ -111,6 +111,7 @@ export default function ProjectAndDateFilters({
             </div>
           ) : (
             <button
+              data-tour="add-project-btn"
               onClick={() => setShowAddProject(true)}
               style={{ padding: "5px 10px", background: "none", border: `1px dashed ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 10, letterSpacing: "0.1em" }}
             >

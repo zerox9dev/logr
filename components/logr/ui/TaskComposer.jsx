@@ -42,7 +42,7 @@ export default function TaskComposer({
           <div className="task-top-row" style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <div style={{ flex: 1, border: `1px solid ${theme.border}`, padding: "10px 14px" }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>TASK</div>
-              <input value={taskName} onChange={(event) => setTaskName(event.target.value)} placeholder="what are you working on?" style={{ ...inputStyle, width: "100%", fontSize: 14 }} onKeyDown={(event) => event.key === "Enter" && onSubmit()} />
+              <input data-tour="task-name-input" value={taskName} onChange={(event) => setTaskName(event.target.value)} placeholder="what are you working on?" style={{ ...inputStyle, width: "100%", fontSize: 14 }} onKeyDown={(event) => event.key === "Enter" && onSubmit()} />
             </div>
             <div className="task-date-box" style={{ width: 186, border: `1px solid ${theme.border}`, padding: "10px 14px" }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>DATE & TIME</div>
@@ -114,6 +114,7 @@ export default function TaskComposer({
             <div style={{ width: 150, border: `1px solid ${theme.border}`, padding: "8px 10px" }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>STATUS</div>
               <select
+                data-tour="status-select"
                 value={taskStatus}
                 onChange={(event) => setTaskStatus(event.target.value)}
                 style={{ ...inputStyle, width: "100%", fontSize: 11, colorScheme: theme.colorScheme }}
@@ -124,6 +125,7 @@ export default function TaskComposer({
               </select>
             </div>
             <button
+              data-tour="submit-task-btn"
               onClick={onSubmit}
               disabled={!taskName.trim()}
               style={{ flex: 1, padding: "12px", background: theme.btnBg, color: theme.btnColor, border: `1px solid ${theme.border}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", opacity: !taskName.trim() ? 0.3 : 1 }}

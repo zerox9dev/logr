@@ -17,6 +17,7 @@ export default function Sidebar({
   onRenameClient,
   onSelectScreen,
   onToggleTheme,
+  onOpenOnboarding,
 }) {
   const [editClientId, setEditClientId] = useState(null);
   const [editClientName, setEditClientName] = useState("");
@@ -64,6 +65,7 @@ export default function Sidebar({
         {[["dashboard", "DASHBOARD"], ["tracker", "TRACKER"]].map(([value, label]) => (
           <button
             key={value}
+            data-tour={value === "tracker" ? "tracker-tab" : undefined}
             onClick={() => onSelectScreen(value)}
             style={{
               padding: "6px 10px",
@@ -182,6 +184,7 @@ export default function Sidebar({
             </div>
           ) : (
             <button
+              data-tour="add-client-btn"
               onClick={() => setShowAddClient(true)}
               style={{ margin: "8px 20px 0", padding: "6px 0", background: "none", border: `1px dashed ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.1em" }}
             >
@@ -203,6 +206,12 @@ export default function Sidebar({
           style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "6px 10px", fontSize: 10, fontFamily: "inherit", letterSpacing: "0.1em", width: "100%" }}
         >
           {dark ? "☀ LIGHT" : "☾ DARK"}
+        </button>
+        <button
+          onClick={onOpenOnboarding}
+          style={{ width: "100%", marginTop: 10, background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "6px 10px", fontSize: 10, fontFamily: "inherit", letterSpacing: "0.1em" }}
+        >
+          ONBOARDING
         </button>
         <div
           style={{
