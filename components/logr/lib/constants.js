@@ -20,7 +20,7 @@ export const DARK_THEME = {
 };
 
 export const LIGHT_THEME = {
-  bg: "#f5f2ee",
+  bg: "#ffffff",
   text: "#1a1a1a",
   muted: "#999",
   faint: "#eee",
