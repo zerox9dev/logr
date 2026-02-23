@@ -445,6 +445,10 @@ export default function LogrApp() {
     const inputAmount = parseFloat(taskFixedAmount || 0);
     const fixedAmount = taskBillingType === "fixed_project" ? inputAmount : 0;
     const duration = taskDurationSeconds();
+    const days = parseFloat(taskDays || 0);
+    const hours = parseFloat(taskHours || 0);
+    const minutes = parseFloat(taskMinutes || 0);
+    const workdayHours = parseFloat(profileWorkdayHours || 8);
     const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
     const earned = taskBillingType === "hourly" ? earnedFromDuration(duration, hourlyRate) : 0;
 
@@ -456,6 +460,10 @@ export default function LogrApp() {
         name: taskName.trim(),
         notes: taskNotes.trim(),
         duration,
+        days: Number.isFinite(days) ? days : 0,
+        hours: Number.isFinite(hours) ? hours : 0,
+        minutes: Number.isFinite(minutes) ? minutes : 0,
+        workdayHours: Number.isFinite(workdayHours) && workdayHours > 0 ? workdayHours : 8,
         earned,
         rate: hourlyRate,
         billingType: taskBillingType,
@@ -502,6 +510,10 @@ export default function LogrApp() {
     const taskTimestamp = Number.isFinite(Date.parse(taskDateTime)) ? Date.parse(taskDateTime) : Date.now();
     const inputAmount = parseFloat(taskFixedAmount || 0);
     const fixedAmount = taskBillingType === "fixed_project" ? inputAmount : 0;
+    const days = parseFloat(taskDays || 0);
+    const hours = parseFloat(taskHours || 0);
+    const minutes = parseFloat(taskMinutes || 0);
+    const workdayHours = parseFloat(profileWorkdayHours || 8);
     const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
     const duration = taskDurationSeconds();
     if (duration === 0) {
@@ -518,6 +530,10 @@ export default function LogrApp() {
         name: taskName.trim(),
         notes: taskNotes.trim(),
         duration,
+        days: Number.isFinite(days) ? days : 0,
+        hours: Number.isFinite(hours) ? hours : 0,
+        minutes: Number.isFinite(minutes) ? minutes : 0,
+        workdayHours: Number.isFinite(workdayHours) && workdayHours > 0 ? workdayHours : 8,
         earned,
         rate: hourlyRate,
         billingType: taskBillingType,
@@ -637,7 +653,7 @@ export default function LogrApp() {
     if (running) return;
 
     if ((session.billingType || "hourly") !== "hourly") {
-      setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "DONE", duration: 0, earned: 0 } : item)));
+      setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "DONE" } : item)));
       return;
     }
 
