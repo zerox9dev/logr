@@ -21,6 +21,8 @@ import SessionsList from "./ui/SessionsList";
 import SummaryDashboard from "./ui/SummaryDashboard";
 import ProfileSettings from "./ui/ProfileSettings";
 
+const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
+
 function getNowDateTimeLocal() {
   const now = new Date();
   const offsetMs = now.getTimezoneOffset() * 60000;
@@ -178,9 +180,30 @@ export default function LogrApp() {
     if (!supabase || !user) return;
 
     let ignore = false;
+    let usedCachedState = false;
+
+    try {
+      const raw = window.sessionStorage.getItem(CLOUD_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached?.userId === user.id) {
+          const settings = cached.settings || {};
+          window.queueMicrotask(() => {
+            setClients(Array.isArray(cached.clients) ? cached.clients : []);
+            setSessions(Array.isArray(cached.sessions) ? cached.sessions : []);
+            setProfileHourlyRate(settings.hourlyRate || "50");
+            setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
+            setProfileWorkdayHours(settings.workdayHours || "8");
+            setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
+            setSyncReady(true);
+          });
+          usedCachedState = true;
+        }
+      }
+    } catch {}
 
     async function loadUserState() {
-      setSyncReady(false);
+      if (!usedCachedState) setSyncReady(false);
       setSyncError("");
 
       const { data, error, status } = await supabase
@@ -243,6 +266,28 @@ export default function LogrApp() {
       ignore = true;
     };
   }, [supabase, user]);
+
+  useEffect(() => {
+    if (!user || !syncReady) return;
+
+    try {
+      window.sessionStorage.setItem(
+        CLOUD_CACHE_KEY,
+        JSON.stringify({
+          userId: user.id,
+          clients,
+          sessions,
+          settings: {
+            hourlyRate: profileHourlyRate,
+            targetHourlyRate: profileTargetHourlyRate,
+            workdayHours: profileWorkdayHours,
+            requireProjectForFixed: profileRequireProjectForFixed,
+          },
+          cachedAt: Date.now(),
+        }),
+      );
+    } catch {}
+  }, [user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (!supabase || !user || !syncReady) return;
@@ -356,7 +401,12 @@ export default function LogrApp() {
     const { error } = await supabase.auth.signOut();
     if (error) {
       showError("auth", `Sign out failed: ${error.message}`);
+      return;
     }
+
+    try {
+      window.sessionStorage.removeItem(CLOUD_CACHE_KEY);
+    } catch {}
   }
 
   function addClient() {

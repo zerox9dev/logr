@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 function formatClock(seconds: number) {
@@ -58,9 +59,9 @@ export default function LandingPage() {
           <a href="#features">Features</a>
           <a href="#how">How it works</a>
           <a href="#pricing">Pricing</a>
-          <a href="/tracker" className="nav-cta">
+          <Link href="/tracker" className="nav-cta">
             Try Free
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -76,9 +77,9 @@ export default function LandingPage() {
           Logr tracks your time, organizes clients and projects, and generates invoices so you get paid for every minute you work.
         </p>
         <div className="hero-actions">
-          <a href="/tracker" className="btn-primary">
+          <Link href="/tracker" className="btn-primary">
             Start Tracking Free
-          </a>
+          </Link>
           <a href="#how" className="btn-ghost">
             See how it works
           </a>
@@ -246,9 +247,9 @@ export default function LandingPage() {
               <li className="inactive">Multi-device</li>
               <li className="inactive">Priority support</li>
             </ul>
-            <a href="/tracker" className="btn-plan btn-plan-outline">
+            <Link href="/tracker" className="btn-plan btn-plan-outline">
               Start Free
-            </a>
+            </Link>
           </div>
           <div className="pricing-card featured reveal">
             <div className="pricing-plan">Pro</div>
@@ -265,9 +266,9 @@ export default function LandingPage() {
               <li>Multi-device</li>
               <li>Priority support</li>
             </ul>
-            <a href="/tracker" className="btn-plan btn-plan-solid">
+            <Link href="/tracker" className="btn-plan btn-plan-solid">
               Get Pro
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -281,9 +282,9 @@ export default function LandingPage() {
           <em>Start Earning More.</em>
         </h2>
         <div className="hero-actions reveal">
-          <a href="/tracker" className="btn-primary">
+          <Link href="/tracker" className="btn-primary">
             Try Logr Free
-          </a>
+          </Link>
           <a href="#features" className="btn-ghost">
             See all features
           </a>
@@ -294,7 +295,7 @@ export default function LandingPage() {
         <div className="footer-logo">Logr</div>
         <div className="footer-copy">© 2026 Logr. Built for freelancers.</div>
         <div className="footer-links">
-          <a href="/tracker">App</a>
+          <Link href="/tracker">App</Link>
           <a href="#pricing">Pricing</a>
           <a href="#">Privacy</a>
           <a href="#">Terms</a>
