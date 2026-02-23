@@ -62,7 +62,15 @@ export default function SessionsList({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, color: theme.sessionText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{session.name}</div>
                   {(project || session.notes) && (
-                    <div style={{ fontSize: 10, color: theme.muted, marginTop: 2 }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: theme.muted,
+                        marginTop: 2,
+                        overflowWrap: "anywhere",
+                        wordBreak: "break-word",
+                      }}
+                    >
                       {project ? `[${project.name}] ` : ""}
                       {session.notes || ""}
                     </div>
