@@ -324,6 +324,12 @@ export default function LogrApp() {
     setActiveClientId((prev) => (prev === clientId ? null : prev));
   }
 
+  function renameClient(clientId, nextName) {
+    const trimmedName = nextName.trim();
+    if (!trimmedName) return;
+    setClients((prev) => prev.map((client) => (client.id === clientId ? { ...client, name: trimmedName } : client)));
+  }
+
   function startNewSession() {
     if (!taskName.trim()) {
       showError("task", "Task name required");
@@ -673,6 +679,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
             setMobileView("main");
           }}
           onRemoveClient={removeClient}
+          onRenameClient={renameClient}
           onToggleTheme={() => setDark((value) => !value)}
         />
 

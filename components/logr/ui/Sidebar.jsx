@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export default function Sidebar({
   theme,
   dark,
@@ -11,8 +13,12 @@ export default function Sidebar({
   onAddClient,
   onSelectClient,
   onRemoveClient,
+  onRenameClient,
   onToggleTheme,
 }) {
+  const [editClientId, setEditClientId] = useState(null);
+  const [editClientName, setEditClientName] = useState("");
+
   const inputStyle = {
     background: "transparent",
     border: "none",
@@ -20,6 +26,21 @@ export default function Sidebar({
     fontFamily: "inherit",
     color: theme.inputColor,
   };
+
+  function startRename(client) {
+    setEditClientId(client.id);
+    setEditClientName(client.name);
+  }
+
+  function cancelRename() {
+    setEditClientId(null);
+    setEditClientName("");
+  }
+
+  function submitRename(clientId) {
+    onRenameClient(clientId, editClientName);
+    cancelRename();
+  }
 
   return (
     <div
@@ -42,18 +63,59 @@ export default function Sidebar({
           }}
           onClick={() => onSelectClient(client.id)}
         >
-          <div
-            style={{
-              flex: 1,
-              fontSize: 12,
-              color: client.id === activeClientId ? theme.tabActive : theme.tabInactive,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+          {editClientId === client.id ? (
+            <input
+              autoFocus
+              value={editClientName}
+              onChange={(event) => setEditClientName(event.target.value)}
+              onClick={(event) => event.stopPropagation()}
+              onBlur={() => submitRename(client.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") submitRename(client.id);
+                if (event.key === "Escape") {
+                  event.stopPropagation();
+                  cancelRename();
+                }
+              }}
+              style={{
+                ...inputStyle,
+                flex: 1,
+                fontSize: 12,
+                color: client.id === activeClientId ? theme.tabActive : theme.tabInactive,
+                borderBottom: `1px solid ${theme.border}`,
+                paddingBottom: 2,
+              }}
+            />
+          ) : (
+            <div
+              onDoubleClick={(event) => {
+                event.stopPropagation();
+                startRename(client);
+              }}
+              style={{
+                flex: 1,
+                fontSize: 12,
+                color: client.id === activeClientId ? theme.tabActive : theme.tabInactive,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {client.name}
+            </div>
+          )}
+          <button
+            className="del"
+            onClick={(event) => {
+              event.stopPropagation();
+              startRename(client);
             }}
+            style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 12, transition: "opacity 0.15s", padding: "0 2px" }}
+            aria-label="Edit client name"
+            title="Edit client name"
           >
-            {client.name}
-          </div>
+            ✎
+          </button>
           <button
             className="del"
             onClick={(event) => {
