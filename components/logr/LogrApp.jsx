@@ -669,6 +669,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           theme={theme}
           dark={dark}
           screen={screen}
+          user={user}
+          syncError={syncError}
           clients={clients}
           activeClientId={resolvedActiveClientId}
           mobileView={mobileView}
@@ -690,24 +692,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               setMobileView("main");
             }
           }}
+          onSignOut={signOut}
           onToggleTheme={() => setDark((value) => !value)}
         />
 
         <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 760 }}>
           <div className="mobile-bar" style={{ height: 52 }} />
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <div style={{ fontSize: 12, color: theme.muted }}>
-              Signed in as {user.email}
-              {syncError ? <span style={{ color: "#cc2222", marginLeft: 10 }}>{syncError}</span> : <span style={{ marginLeft: 10 }}>Synced with Supabase</span>}
-            </div>
-            <button
-              onClick={signOut}
-              style={{ border: `1px solid ${theme.border}`, borderRadius: 8, padding: "8px 12px", background: "transparent", color: theme.text, cursor: "pointer" }}
-            >
-              Sign out
-            </button>
-          </div>
 
           {screen === "dashboard" ? (
             <SummaryDashboard theme={theme} clients={clients} sessions={sessions} />

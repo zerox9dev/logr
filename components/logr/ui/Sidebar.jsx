@@ -4,6 +4,8 @@ export default function Sidebar({
   theme,
   dark,
   screen,
+  user,
+  syncError,
   clients,
   activeClientId,
   mobileView,
@@ -16,6 +18,7 @@ export default function Sidebar({
   onRemoveClient,
   onRenameClient,
   onSelectScreen,
+  onSignOut,
   onToggleTheme,
 }) {
   const [editClientId, setEditClientId] = useState(null);
@@ -192,6 +195,42 @@ export default function Sidebar({
       ) : null}
 
       <div style={{ marginTop: "auto", padding: "0 20px" }}>
+        <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 12, marginBottom: 10 }}>
+          <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 6 }}>PROFILE</div>
+          <div
+            style={{
+              fontSize: 11,
+              color: theme.sessionText,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              marginBottom: 5,
+            }}
+            title={user?.email || ""}
+          >
+            {user?.email || "No user"}
+          </div>
+          <div style={{ fontSize: 10, color: syncError ? "#cc2222" : theme.muted, marginBottom: 8 }}>
+            {syncError ? syncError : "Synced with Supabase"}
+          </div>
+          <button
+            onClick={onSignOut}
+            style={{
+              width: "100%",
+              border: `1px solid ${theme.border}`,
+              borderRadius: 8,
+              padding: "7px 10px",
+              background: "transparent",
+              color: theme.text,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              fontSize: 10,
+              letterSpacing: "0.1em",
+            }}
+          >
+            SIGN OUT
+          </button>
+        </div>
         <button
           onClick={onToggleTheme}
           style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "6px 10px", fontSize: 10, fontFamily: "inherit", letterSpacing: "0.1em", width: "100%" }}
