@@ -950,7 +950,19 @@ export default function LandingPage() {
           .landing .nav-links { display: none; }
           .landing .hero { grid-template-columns: 1fr; }
           .landing .hero-left { padding: 100px 24px 60px; }
-          .landing .hero-right { display: none; }
+          .landing .hero-right {
+            display: flex;
+            padding: 28px 24px 56px;
+            border-top: 1px solid var(--border);
+            background: #fafafa;
+          }
+          .landing .arm-label-top { margin-bottom: 14px; font-size: 8px; }
+          .landing .arm-device { padding: 18px 20px; }
+          .landing .arm-time-display { font-size: 34px; }
+          .landing .arm-earned-val { font-size: 15px; }
+          .landing .arm-rate-badge { font-size: 9px; padding: 2px 6px; }
+          .landing .arm-project { margin-top: 12px; font-size: 10px; }
+          .landing .arm-caption { margin-top: 16px; font-size: 10px; letter-spacing: 0.04em; }
           .landing .impact { grid-template-columns: 1fr; }
           .landing .impact-block { border-right: none; border-bottom: 1px solid var(--border); }
           .landing .preview-section,
