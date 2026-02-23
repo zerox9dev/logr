@@ -78,6 +78,19 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
   const totalSeconds = filteredDoneSessions.reduce((sum, session) => sum + getSessionDuration(session), 0);
   const totalMoney = sumMoney(filteredDoneSessions);
   const avgRate = filteredDoneSessions.length > 0 ? totalMoney / (totalSeconds / 3600 || 1) : 0;
+  const paidMoney = useMemo(
+    () => filteredDoneSessions
+      .filter((session) => (session.paymentStatus || "UNPAID") === "PAID")
+      .reduce((sum, session) => sum + getSessionMoney(session), 0),
+    [filteredDoneSessions]
+  );
+  const unpaidMoney = useMemo(
+    () => filteredDoneSessions
+      .filter((session) => (session.paymentStatus || "UNPAID") !== "PAID")
+      .reduce((sum, session) => sum + getSessionMoney(session), 0),
+    [filteredDoneSessions]
+  );
+  const collectionRate = paidMoney + unpaidMoney > 0 ? (paidMoney / (paidMoney + unpaidMoney)) * 100 : 0;
 
   const pendingSessions = useMemo(
     () => sessions.filter((session) => session.status === "PENDING" && isInRange(session.ts, range)),
@@ -197,6 +210,9 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
           { label: "MONEY", value: formatMoney(totalMoney), note: "selected period" },
           { label: "AVG RATE", value: `${formatMoney(avgRate)}/h`, note: "based on DONE sessions" },
           { label: "DONE", value: filteredDoneSessions.length, note: "completed sessions" },
+          { label: "UNPAID $", value: formatMoney(unpaidMoney), note: "done but unpaid" },
+          { label: "PAID $", value: formatMoney(paidMoney), note: "collected revenue" },
+          { label: "COLLECTION %", value: `${collectionRate.toFixed(1)}%`, note: "paid / done total" },
           { label: "PENDING", value: pendingSessions.length, note: "tasks in pipeline" },
           { label: "PENDING VALUE", value: formatMoney(pendingValue), note: "potential revenue" },
         ].map((card) => (

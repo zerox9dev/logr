@@ -1,4 +1,4 @@
-export default function StatsAndExports({ theme, doneSessions, totalHours, totalEarned, onExportCsv, onExportInvoicePdf }) {
+export default function StatsAndExports({ theme, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, onExportCsv, onExportInvoicePdf }) {
   if (doneSessions.length === 0) return null;
 
   return (
@@ -8,6 +8,9 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
           { label: "DONE", value: doneSessions.length },
           { label: "HRS", value: totalHours },
           { label: "EARNED $", value: totalEarned },
+          { label: "UNPAID $", value: unpaidTotal },
+          { label: "PAID $", value: paidTotal },
+          { label: "COLLECTION %", value: collectionRate },
         ].map((stat) => (
           <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px" }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 2 }}>{stat.label}</div>

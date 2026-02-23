@@ -13,6 +13,7 @@ export default function SessionsList({
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
+  onTogglePaymentStatus,
   onDeleteSession,
 }) {
   const inputStyle = {
@@ -108,6 +109,23 @@ export default function SessionsList({
 
                 <div className="session-meta" style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ fontSize: 9, color: statusColors[session.status], letterSpacing: "0.1em" }}>{session.status}</div>
+                  {session.status === "DONE" && (
+                    <button
+                      onClick={() => onTogglePaymentStatus(session.id)}
+                      style={{
+                        fontSize: 9,
+                        letterSpacing: "0.08em",
+                        background: "none",
+                        border: `1px solid ${(session.paymentStatus || "UNPAID") === "PAID" ? "#2d7a2d" : "#c47d00"}`,
+                        color: (session.paymentStatus || "UNPAID") === "PAID" ? "#2d7a2d" : "#c47d00",
+                        cursor: "pointer",
+                        padding: "2px 6px",
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      {(session.paymentStatus || "UNPAID") === "PAID" ? "PAID" : "UNPAID"}
+                    </button>
+                  )}
                   {session.status === "PENDING" && !running && (
                     <button onClick={() => onStartPending(session)} style={{ fontSize: 10, background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "2px 8px", fontFamily: "inherit" }}>
                       ▶

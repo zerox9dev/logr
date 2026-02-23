@@ -51,6 +51,7 @@ export default function LogrApp() {
   const intervalRef = useRef(null);
 
   const [taskName, setTaskName] = useState("");
+  const [taskRate, setTaskRate] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
   const [profileTargetHourlyRate, setProfileTargetHourlyRate] = useState("25");
   const [taskBillingType, setTaskBillingType] = useState("hourly");
@@ -73,6 +74,7 @@ export default function LogrApp() {
   const [newProjectBudget, setNewProjectBudget] = useState("");
 
   const [dateFilter, setDateFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
   const [customMonth, setCustomMonth] = useState(() => {
     const date = new Date();
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -115,6 +117,13 @@ export default function LogrApp() {
     const daysSeconds = (Number.isFinite(days) ? days : 0) * normalizedDayHours * 3600;
     return daysSeconds + durationFromHoursMinutes(taskHours, taskMinutes);
   }
+
+  const resolveTaskRate = useCallback(() => {
+    const explicitRate = parseFloat(taskRate || 0);
+    if (Number.isFinite(explicitRate) && explicitRate > 0) return explicitRate;
+    const profileRate = parseFloat(profileHourlyRate || 0);
+    return Number.isFinite(profileRate) ? profileRate : 0;
+  }, [taskRate, profileHourlyRate]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -286,6 +295,8 @@ export default function LogrApp() {
   const visibleSessions = sessions.filter((session) => {
     if (session.clientId !== resolvedActiveClientId) return false;
     if (activeProjectId !== "all" && session.projectId !== activeProjectId) return false;
+    if (paymentFilter === "paid" && (session.paymentStatus || "UNPAID") !== "PAID") return false;
+    if (paymentFilter === "unpaid" && (session.paymentStatus || "UNPAID") !== "UNPAID") return false;
 
     if (dateFilter === "week") {
       const weekAgo = Number(new Date()) - 7 * 24 * 60 * 60 * 1000;
@@ -319,6 +330,15 @@ export default function LogrApp() {
     }, 0).toFixed(2);
   })();
   const totalHours = (doneSessions.reduce((sum, session) => sum + session.duration, 0) / 3600).toFixed(1);
+  const paidTotal = doneSessions.reduce((sum, session) => {
+    if ((session.paymentStatus || "UNPAID") !== "PAID") return sum;
+    return sum + (session.billingType === "fixed_project" ? parseFloat(session.fixedAmount || 0) : parseFloat(session.earned || 0));
+  }, 0);
+  const unpaidTotal = doneSessions.reduce((sum, session) => {
+    if ((session.paymentStatus || "UNPAID") !== "UNPAID") return sum;
+    return sum + (session.billingType === "fixed_project" ? parseFloat(session.fixedAmount || 0) : parseFloat(session.earned || 0));
+  }, 0);
+  const collectionRate = paidTotal + unpaidTotal > 0 ? ((paidTotal / (paidTotal + unpaidTotal)) * 100).toFixed(1) : "0.0";
 
   async function signInWithGoogle() {
     if (!supabase) return;
@@ -394,7 +414,8 @@ export default function LogrApp() {
       showError("task", "Select a client first");
       return;
     }
-    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
+    const effectiveRate = resolveTaskRate();
+    if (taskBillingType === "hourly" && effectiveRate <= 0) {
       showError("rate", "Rate must be > 0");
       return;
     }
@@ -416,9 +437,10 @@ export default function LogrApp() {
         notes: taskNotes.trim(),
         duration: 0,
         earned: 0,
-        rate: parseFloat(profileHourlyRate || 0),
+        rate: effectiveRate,
         billingType: taskBillingType,
         fixedAmount,
+        paymentStatus: "UNPAID",
         ts: taskTimestamp,
         status: "ACTIVE",
       },
@@ -439,7 +461,8 @@ export default function LogrApp() {
       return;
     }
 
-    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
+    const effectiveRate = resolveTaskRate();
+    if (taskBillingType === "hourly" && effectiveRate <= 0) {
       showError("rate", "Rate must be > 0");
       return;
     }
@@ -463,7 +486,7 @@ export default function LogrApp() {
     const hours = parseFloat(taskHours || 0);
     const minutes = parseFloat(taskMinutes || 0);
     const workdayHours = parseFloat(profileWorkdayHours || 8);
-    const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
+    const hourlyRate = taskBillingType === "hourly" ? effectiveRate : 0;
     const earned = taskBillingType === "hourly" ? earnedFromDuration(duration, hourlyRate) : 0;
 
     setSessions((prev) => [
@@ -482,12 +505,14 @@ export default function LogrApp() {
         rate: hourlyRate,
         billingType: taskBillingType,
         fixedAmount,
+        paymentStatus: "UNPAID",
         ts: taskTimestamp,
         status: "PENDING",
       },
       ...prev,
     ]);
     setTaskName("");
+    setTaskRate("");
     setTaskNotes("");
     setTaskDays("");
     setTaskHours("");
@@ -505,7 +530,8 @@ export default function LogrApp() {
       showError("task", "Select a client first");
       return;
     }
-    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
+    const effectiveRate = resolveTaskRate();
+    if (taskBillingType === "hourly" && effectiveRate <= 0) {
       showError("rate", "Rate must be > 0");
       return;
     }
@@ -528,7 +554,7 @@ export default function LogrApp() {
     const hours = parseFloat(taskHours || 0);
     const minutes = parseFloat(taskMinutes || 0);
     const workdayHours = parseFloat(profileWorkdayHours || 8);
-    const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
+    const hourlyRate = taskBillingType === "hourly" ? effectiveRate : 0;
     const duration = taskDurationSeconds();
     if (duration === 0) {
       showError("duration", "Duration required for DONE");
@@ -552,12 +578,14 @@ export default function LogrApp() {
         rate: hourlyRate,
         billingType: taskBillingType,
         fixedAmount,
+        paymentStatus: "UNPAID",
         ts: taskTimestamp,
         status: "DONE",
       },
       ...prev,
     ]);
     setTaskName("");
+    setTaskRate("");
     setTaskNotes("");
     setTaskDays("");
     setTaskHours("");
@@ -593,6 +621,7 @@ export default function LogrApp() {
     setActiveSessionId(null);
     setElapsed(0);
     setTaskName("");
+    setTaskRate("");
     setTaskNotes("");
     setTaskDays("");
     setTaskHours("");
@@ -630,7 +659,8 @@ export default function LogrApp() {
 
       if (!taskName.trim() || !resolvedActiveClientId) return;
       if (taskBillingType !== "hourly") return;
-      if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) return;
+      const effectiveRate = resolveTaskRate();
+      if (taskBillingType === "hourly" && effectiveRate <= 0) return;
       if (taskBillingType === "fixed_project") return;
 
       const fixedAmount = 0;
@@ -646,9 +676,10 @@ export default function LogrApp() {
           notes: taskNotes.trim(),
           duration: 0,
           earned: 0,
-          rate: parseFloat(profileHourlyRate || 0),
+          rate: effectiveRate,
           billingType: taskBillingType,
           fixedAmount,
+          paymentStatus: "UNPAID",
           ts: taskTimestamp,
           status: "ACTIVE",
         },
@@ -661,7 +692,7 @@ export default function LogrApp() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [running, activeSessionId, elapsed, taskName, taskNotes, profileHourlyRate, taskBillingType, taskDateTime, resolvedActiveClientId, activeProjectId, calculateSessionEarned]);
+  }, [running, activeSessionId, elapsed, taskName, taskNotes, taskRate, profileHourlyRate, taskBillingType, taskDateTime, resolvedActiveClientId, activeProjectId, calculateSessionEarned, resolveTaskRate]);
 
   function startPendingSession(session) {
     if (running) return;
@@ -714,6 +745,14 @@ export default function LogrApp() {
     setEditId(null);
   }
 
+  function togglePaymentStatus(sessionId) {
+    setSessions((prev) => prev.map((item) => (
+      item.id === sessionId
+        ? { ...item, paymentStatus: (item.paymentStatus || "UNPAID") === "PAID" ? "UNPAID" : "PAID" }
+        : item
+    )));
+  }
+
   function exportCsv() {
     const countedProjects = new Set();
     const rows = doneSessions.map((session) => {
@@ -752,6 +791,9 @@ export default function LogrApp() {
 
   function exportInvoicePdf() {
     const projectName = activeProjectId !== "all" ? activeProjects.find((item) => item.id === activeProjectId)?.name : null;
+    const invoiceDate = new Date();
+    const invoiceDateLabel = invoiceDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+    const invoiceId = `INV-${invoiceDate.getTime().toString().slice(-6)}`;
 
     const countedProjects = new Set();
     const rows = doneSessions
@@ -778,7 +820,7 @@ export default function LogrApp() {
     <h1>INVOICE</h1><div class="sub">Logr</div>
     <div class="meta">
       <div><div class="lbl">Client</div><div style="font-size:16px;font-weight:bold">${activeClient?.name}</div>${projectName ? `<div class="lbl" style="margin-top:8px">Project</div><div>${projectName}</div>` : ""}</div>
-      <div style="text-align:right"><div class="lbl">Date</div><div>${new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}</div><div class="lbl" style="margin-top:8px">Invoice #</div><div>INV-${Date.now().toString().slice(-6)}</div></div>
+      <div style="text-align:right"><div class="lbl">Date</div><div>${invoiceDateLabel}</div><div class="lbl" style="margin-top:8px">Invoice #</div><div>${invoiceId}</div></div>
     </div>
     <table><thead><tr><th>Date</th><th>Task</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="total"><div class="lbl">Total Due</div>$${totalEarned}</div>
@@ -937,12 +979,34 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 customMonth={customMonth}
                 setCustomMonth={setCustomMonth}
               />
+              <div style={{ display: "flex", gap: 4, marginTop: -10, marginBottom: 16, flexWrap: "wrap" }}>
+                {[["all", "PAYMENT: ALL"], ["unpaid", "UNPAID"], ["paid", "PAID"]].map(([value, label]) => (
+                  <button
+                    key={value}
+                    onClick={() => setPaymentFilter(value)}
+                    style={{
+                      padding: "5px 10px",
+                      background: paymentFilter === value ? theme.tabActiveBg : "transparent",
+                      border: `1px solid ${theme.border}`,
+                      color: paymentFilter === value ? theme.tabActive : theme.tabInactive,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: 10,
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
 
               <TaskComposer
                 theme={theme}
                 running={running}
                 taskName={taskName}
                 setTaskName={setTaskName}
+                taskRate={taskRate}
+                setTaskRate={setTaskRate}
                 profileHourlyRate={profileHourlyRate}
                 profileWorkdayHours={profileWorkdayHours}
                 taskBillingType={taskBillingType}
@@ -971,6 +1035,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 doneSessions={doneSessions}
                 totalHours={totalHours}
                 totalEarned={totalEarned}
+                paidTotal={paidTotal.toFixed(2)}
+                unpaidTotal={unpaidTotal.toFixed(2)}
+                collectionRate={collectionRate}
                 onExportCsv={exportCsv}
                 onExportInvoicePdf={exportInvoicePdf}
               />
@@ -988,6 +1055,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 onStartEdit={startEditSession}
                 onCancelEdit={() => setEditId(null)}
                 onSaveEdit={saveEditSession}
+                onTogglePaymentStatus={togglePaymentStatus}
                 onDeleteSession={(sessionId) => setSessions((prev) => prev.filter((item) => item.id !== sessionId))}
               />
             </>

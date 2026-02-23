@@ -3,6 +3,8 @@ export default function TaskComposer({
   running,
   taskName,
   setTaskName,
+  taskRate,
+  setTaskRate,
   profileHourlyRate,
   profileWorkdayHours,
   taskBillingType,
@@ -80,7 +82,7 @@ export default function TaskComposer({
               {taskBillingType === "hourly" ? (
                 <>
                   <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>$/HR</div>
-                  <div style={{ ...inputStyle, width: "100%", fontSize: 14 }}>{profileHourlyRate || "0"}</div>
+                  <input type="number" min="0" step="0.01" value={taskRate} onChange={(event) => setTaskRate(event.target.value)} placeholder={profileHourlyRate || "0"} style={{ ...inputStyle, width: "100%", fontSize: 14 }} />
                 </>
               ) : (
                 <>
