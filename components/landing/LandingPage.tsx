@@ -328,20 +328,20 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 1, background: "var(--border)", marginTop: 16 }}>
-                <div style={{ flex: 1, background: "#fafafa", padding: "10px 14px" }}>
+              <div className="mock-stats-row">
+                <div className="mock-stat-card">
                   <div style={{ fontSize: 9, color: "#bbb", letterSpacing: "0.15em", marginBottom: 2 }}>DONE</div>
                   <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 18 }}>12</div>
                 </div>
-                <div style={{ flex: 1, background: "#fafafa", padding: "10px 14px" }}>
+                <div className="mock-stat-card">
                   <div style={{ fontSize: 9, color: "#bbb", letterSpacing: "0.15em", marginBottom: 2 }}>TOTAL HRS</div>
                   <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 18 }}>42.6</div>
                 </div>
-                <div style={{ flex: 1, background: "#fafafa", padding: "10px 14px" }}>
+                <div className="mock-stat-card">
                   <div style={{ fontSize: 9, color: "#bbb", letterSpacing: "0.15em", marginBottom: 2 }}>UNPAID $</div>
                   <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 18, color: "#c47d00" }}>$1,128.00</div>
                 </div>
-                <div style={{ flex: 1, background: "#fafafa", padding: "10px 14px" }}>
+                <div className="mock-stat-card">
                   <div style={{ fontSize: 9, color: "#bbb", letterSpacing: "0.15em", marginBottom: 2 }}>PAID $</div>
                   <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 18, color: "#2d7a2d" }}>$2,418.00</div>
                 </div>
@@ -826,6 +826,17 @@ export default function LandingPage() {
           text-align: right;
           font-family: 'DM Mono', monospace;
         }
+        .landing .mock-stats-row {
+          display: flex;
+          gap: 1px;
+          background: var(--border);
+          margin-top: 16px;
+        }
+        .landing .mock-stat-card {
+          flex: 1;
+          background: #fafafa;
+          padding: 10px 14px;
+        }
 
         .landing .features-section { padding: 100px 60px; border-bottom: 1px solid var(--border); }
         .landing .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); margin-top: 64px; }
@@ -949,8 +960,24 @@ export default function LandingPage() {
           .landing .preview-subtitle { text-align: left; }
           .landing .mock-inner { grid-template-columns: 1fr; }
           .landing .mock-sidebar { display: none; }
+          .landing .mock-main { padding: 20px 16px; }
+          .landing .mock-topbar { padding: 12px 14px; }
+          .landing .mock-url { font-size: 10px; }
+          .landing .mock-timer { font-size: 30px; }
+          .landing .mock-tabs { flex-wrap: wrap; }
+          .landing .mock-filters { flex-wrap: wrap; }
+          .landing .mock-input-row { flex-wrap: wrap; }
           .landing .mock-action-row { grid-template-columns: 1fr; }
-          .landing .mock-input-row.top { flex-wrap: wrap; }
+          .landing .mock-input.small { flex: 1 1 120px; }
+          .landing .mock-row { flex-wrap: wrap; gap: 6px; }
+          .landing .mock-date { min-width: 40px; }
+          .landing .mock-task { min-width: calc(100% - 54px); }
+          .landing .mock-status { min-width: 58px; }
+          .landing .mock-pay { margin-right: auto; }
+          .landing .mock-dur,
+          .landing .mock-earn { min-width: auto; text-align: left; }
+          .landing .mock-stats-row { flex-wrap: wrap; }
+          .landing .mock-stat-card { min-width: calc(50% - 1px); }
           .landing .features-grid,
           .landing .pricing-cards { grid-template-columns: 1fr; }
           .landing .cta { padding: 100px 24px; }
