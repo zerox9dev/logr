@@ -1,4 +1,17 @@
-export default function ProfileSettings({ theme, user, syncError, onSignOut, hourlyRate, setHourlyRate, workdayHours, setWorkdayHours }) {
+export default function ProfileSettings({
+  theme,
+  user,
+  syncError,
+  onSignOut,
+  hourlyRate,
+  setHourlyRate,
+  targetHourlyRate,
+  setTargetHourlyRate,
+  workdayHours,
+  setWorkdayHours,
+  requireProjectForFixed,
+  setRequireProjectForFixed,
+}) {
   const inputStyle = {
     background: "transparent",
     border: "none",
@@ -29,7 +42,7 @@ export default function ProfileSettings({ theme, user, syncError, onSignOut, hou
               {user?.email || "No user"}
             </div>
             <div style={{ fontSize: 10, color: syncError ? "#cc2222" : theme.muted, marginTop: 2 }}>
-              {syncError ? syncError : "Synced with storage"}
+              {syncError ? syncError : "Synced with Supabase"}
             </div>
           </div>
           <button
@@ -44,9 +57,24 @@ export default function ProfileSettings({ theme, user, syncError, onSignOut, hou
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>DEFAULT HOURLY RATE ($/HR)</div>
         <input type="number" min="0" step="0.01" value={hourlyRate} onChange={(event) => setHourlyRate(event.target.value)} style={inputStyle} />
       </div>
+      <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>TARGET HOURLY RATE ($/HR)</div>
+        <input type="number" min="0" step="0.01" value={targetHourlyRate} onChange={(event) => setTargetHourlyRate(event.target.value)} style={inputStyle} />
+      </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>WORKDAY HOURS (1 DAY = ? HOURS)</div>
         <input type="number" min="1" step="0.5" value={workdayHours} onChange={(event) => setWorkdayHours(event.target.value)} style={inputStyle} />
+      </div>
+      <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginTop: 10 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: theme.sessionText, cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={requireProjectForFixed}
+            onChange={(event) => setRequireProjectForFixed(event.target.checked)}
+            style={{ accentColor: theme.tabActive }}
+          />
+          Require project for fixed tasks
+        </label>
       </div>
       <div style={{ marginTop: 10, fontSize: 10, color: theme.muted }}>These values are used in tracker calculations automatically.</div>
     </div>

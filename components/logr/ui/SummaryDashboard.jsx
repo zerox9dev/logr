@@ -66,7 +66,7 @@ function sumMoney(sessionsList) {
   return sessionsList.reduce((sum, session) => sum + getSessionMoney(session), 0);
 }
 
-export default function SummaryDashboard({ theme, clients, sessions }) {
+export default function SummaryDashboard({ theme, clients, sessions, targetHourlyRate = 25 }) {
   const [range, setRange] = useState("all");
 
   const doneSessions = useMemo(() => sessions.filter((session) => session.status === "DONE"), [sessions]);
@@ -88,15 +88,13 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
     [pendingSessions]
   );
 
-  const pricingAlerts = useMemo(() => {
-    const MIN_ALERT_HOURS = 12;
-    const MIN_TARGET_RATE = 25;
+  const underEarnedIndicator = useMemo(() => {
     const byProject = new Map();
 
     filteredDoneSessions.forEach((session) => {
-      if (!session.projectId) return;
-      const projectKey = `${session.clientId || "no-client"}:${session.projectId}`;
-      const current = byProject.get(projectKey) || { earned: 0, duration: 0, clientId: session.clientId, projectId: session.projectId };
+      if ((session.billingType || "hourly") !== "fixed_project") return;
+      const projectKey = `${session.clientId || "no-client"}:${session.projectId || "no-project"}`;
+      const current = byProject.get(projectKey) || { earned: 0, duration: 0, clientId: session.clientId, projectId: session.projectId || null };
       byProject.set(projectKey, {
         ...current,
         earned: current.earned + getSessionMoney(session),
@@ -104,12 +102,13 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
       });
     });
 
-    return [...byProject.values()]
+    const items = [...byProject.values()]
       .map((item) => {
         const client = clients.find((entry) => entry.id === item.clientId);
         const project = (client?.projects || []).find((entry) => entry.id === item.projectId);
         const hours = item.duration / 3600;
-        const effectiveRate = item.duration > 0 ? item.earned / hours : 0;
+        const effectiveRate = hours > 0 ? item.earned / hours : 0;
+        const missing = Math.max(0, (targetHourlyRate - effectiveRate) * hours);
         return {
           key: `${item.clientId}:${item.projectId}`,
           clientName: client?.name || "Unknown client",
@@ -117,13 +116,16 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
           hours,
           earned: item.earned,
           effectiveRate,
-          isAlert: hours > MIN_ALERT_HOURS && effectiveRate < MIN_TARGET_RATE,
+          missing,
+          atRisk: hours > 0 && effectiveRate < targetHourlyRate,
         };
-      })
-      .filter((item) => item.isAlert)
-      .sort((a, b) => a.effectiveRate - b.effectiveRate)
-      .slice(0, 6);
-  }, [filteredDoneSessions, clients]);
+      });
+
+    const atRiskProjects = items.filter((item) => item.atRisk);
+    const missingTotal = atRiskProjects.reduce((sum, item) => sum + item.missing, 0);
+    const severity = missingTotal === 0 ? "healthy" : missingTotal <= targetHourlyRate * 4 ? "watch" : "risk";
+    return { atRiskCount: atRiskProjects.length, missingTotal, severity };
+  }, [filteredDoneSessions, clients, targetHourlyRate]);
 
   const revenueBreakdown = useMemo(() => {
     const hourly = filteredDoneSessions
@@ -239,23 +241,23 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
         </div>
 
         <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
-          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>OVERRUN / UNDERPRICING ALERTS</div>
-          <div style={{ fontSize: 10, color: theme.muted, marginBottom: 10 }}>hours &gt; 12 and effective rate &lt; $25/h</div>
-          {pricingAlerts.length === 0 ? (
-            <div style={{ fontSize: 12, color: theme.muted }}>No alerts in the selected period.</div>
-          ) : (
-            <div style={{ display: "grid", gap: 8 }}>
-              {pricingAlerts.map((alert) => (
-                <div key={alert.key} style={{ borderBottom: `1px solid ${theme.rowBorder}`, paddingBottom: 8 }}>
-                  <div style={{ fontSize: 12, color: theme.sessionText, marginBottom: 2 }}>{alert.projectName}</div>
-                  <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>{alert.clientName}</div>
-                  <div style={{ fontSize: 10, color: "#cc2222" }}>
-                    {alert.hours.toFixed(1)}h · {formatMoney(alert.earned)} · {formatMoney(alert.effectiveRate)}/h
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>PRICING HEALTH</div>
+          <div
+            style={{
+              fontSize: 30,
+              fontFamily: "'Bebas Neue',sans-serif",
+              lineHeight: 1,
+              marginBottom: 8,
+              color: underEarnedIndicator.severity === "healthy" ? "#2d7a2d" : underEarnedIndicator.severity === "watch" ? "#c47d00" : "#cc2222",
+            }}
+          >
+            {formatMoney(underEarnedIndicator.missingTotal)}
+          </div>
+          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED $ (vs target {formatMoney(targetHourlyRate)}/h)</div>
+          <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>At-risk projects: {underEarnedIndicator.atRiskCount}</div>
+          <div style={{ fontSize: 10, color: theme.muted }}>
+            Status: {underEarnedIndicator.severity === "healthy" ? "HEALTHY" : underEarnedIndicator.severity === "watch" ? "WATCH" : "RISK"}
+          </div>
         </div>
       </div>
 

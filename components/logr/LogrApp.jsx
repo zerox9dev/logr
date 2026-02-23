@@ -52,10 +52,12 @@ export default function LogrApp() {
 
   const [taskName, setTaskName] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
+  const [profileTargetHourlyRate, setProfileTargetHourlyRate] = useState("25");
   const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskStatus, setTaskStatus] = useState("ACTIVE");
   const [profileWorkdayHours, setProfileWorkdayHours] = useState("8");
+  const [profileRequireProjectForFixed, setProfileRequireProjectForFixed] = useState(false);
   const [taskDays, setTaskDays] = useState("");
   const [taskHours, setTaskHours] = useState("");
   const [taskMinutes, setTaskMinutes] = useState("");
@@ -128,7 +130,9 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
+        setProfileTargetHourlyRate("25");
         setProfileWorkdayHours("8");
+        setProfileRequireProjectForFixed(false);
         setRunning(false);
         setElapsed(0);
         setActiveSessionId(null);
@@ -146,7 +150,9 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
+        setProfileTargetHourlyRate("25");
         setProfileWorkdayHours("8");
+        setProfileRequireProjectForFixed(false);
         setRunning(false);
         setElapsed(0);
         setActiveSessionId(null);
@@ -182,7 +188,9 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
+        setProfileTargetHourlyRate("25");
         setProfileWorkdayHours("8");
+        setProfileRequireProjectForFixed(false);
         setSyncReady(true);
         return;
       }
@@ -192,19 +200,23 @@ export default function LogrApp() {
         setSessions(Array.isArray(data.sessions) ? data.sessions : []);
         const settings = data.settings || {};
         setProfileHourlyRate(settings.hourlyRate || "50");
+        setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
         setProfileWorkdayHours(settings.workdayHours || "8");
+        setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
       } else {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
+        setProfileTargetHourlyRate("25");
         setProfileWorkdayHours("8");
+        setProfileRequireProjectForFixed(false);
 
         const { error: upsertError } = await supabase.from("user_app_state").upsert(
           {
             user_id: user.id,
             clients: [],
             sessions: [],
-            settings: { hourlyRate: "50", workdayHours: "8" },
+            settings: { hourlyRate: "50", targetHourlyRate: "25", workdayHours: "8", requireProjectForFixed: false },
           },
           { onConflict: "user_id" }
         );
@@ -233,7 +245,12 @@ export default function LogrApp() {
           user_id: user.id,
           clients,
           sessions,
-          settings: { hourlyRate: profileHourlyRate, workdayHours: profileWorkdayHours },
+          settings: {
+            hourlyRate: profileHourlyRate,
+            targetHourlyRate: profileTargetHourlyRate,
+            workdayHours: profileWorkdayHours,
+            requireProjectForFixed: profileRequireProjectForFixed,
+          },
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -248,7 +265,7 @@ export default function LogrApp() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileWorkdayHours]);
+  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (running) {
@@ -293,12 +310,9 @@ export default function LogrApp() {
 
   const doneSessions = visibleSessions.filter((session) => session.status === "DONE");
   const totalEarned = (() => {
-    const countedProjects = new Set();
     return doneSessions.reduce((sum, session) => {
       const billingType = session.billingType || "hourly";
       if (billingType === "fixed_project") {
-        if (!session.projectId || countedProjects.has(session.projectId)) return sum;
-        countedProjects.add(session.projectId);
         return sum + parseFloat(session.fixedAmount || 0);
       }
       return sum + parseFloat(session.earned || 0);
@@ -430,7 +444,7 @@ export default function LogrApp() {
       return;
     }
     if (taskBillingType === "fixed_project") {
-      if (activeProjectId === "all") {
+      if (profileRequireProjectForFixed && activeProjectId === "all") {
         showError("rate", "Select a project for fixed task");
         return;
       }
@@ -496,7 +510,7 @@ export default function LogrApp() {
       return;
     }
     if (taskBillingType === "fixed_project") {
-      if (activeProjectId === "all") {
+      if (profileRequireProjectForFixed && activeProjectId === "all") {
         showError("rate", "Select a project for fixed task");
         return;
       }
@@ -880,7 +894,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
-            <SummaryDashboard theme={theme} clients={clients} sessions={sessions} />
+            <SummaryDashboard theme={theme} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileTargetHourlyRate || 25)} />
           ) : screen === "profile" ? (
             <ProfileSettings
               theme={theme}
@@ -889,8 +903,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               onSignOut={signOut}
               hourlyRate={profileHourlyRate}
               setHourlyRate={setProfileHourlyRate}
+              targetHourlyRate={profileTargetHourlyRate}
+              setTargetHourlyRate={setProfileTargetHourlyRate}
               workdayHours={profileWorkdayHours}
               setWorkdayHours={setProfileWorkdayHours}
+              requireProjectForFixed={profileRequireProjectForFixed}
+              setRequireProjectForFixed={setProfileRequireProjectForFixed}
             />
           ) : !activeClient ? (
             <WelcomeState theme={theme} />
