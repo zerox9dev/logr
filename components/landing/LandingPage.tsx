@@ -235,28 +235,9 @@ export default function LandingPage() {
         </h2>
         <div className="pricing-grid">
           <div className="pricing-card reveal">
-            <div className="pricing-plan">Free Forever</div>
+            <div className="pricing-plan">Full Free Access</div>
             <div className="pricing-price">$0</div>
-            <div className="pricing-period">No credit card required</div>
-            <ul className="pricing-features">
-              <li>Unlimited time tracking</li>
-              <li>Up to 3 clients</li>
-              <li>CSV export</li>
-              <li>Invoice PDF</li>
-              <li className="inactive">Cloud sync</li>
-              <li className="inactive">Multi-device</li>
-              <li className="inactive">Priority support</li>
-            </ul>
-            <Link href="/tracker" className="btn-plan btn-plan-outline">
-              Start Free
-            </Link>
-          </div>
-          <div className="pricing-card featured reveal">
-            <div className="pricing-plan">Pro</div>
-            <div className="pricing-price">
-              $9<sub>/mo</sub>
-            </div>
-            <div className="pricing-period">Billed monthly, cancel anytime</div>
+            <div className="pricing-period">All features included for now</div>
             <ul className="pricing-features">
               <li>Unlimited time tracking</li>
               <li>Unlimited clients</li>
@@ -266,9 +247,26 @@ export default function LandingPage() {
               <li>Multi-device</li>
               <li>Priority support</li>
             </ul>
-            <Link href="/tracker" className="btn-plan btn-plan-solid">
-              Get Pro
+            <Link href="/tracker" className="btn-plan btn-plan-outline">
+              Start Free
             </Link>
+          </div>
+          <div className="pricing-card featured reveal">
+            <div className="pricing-plan">Pro</div>
+            <div className="pricing-price">
+              <span style={{ fontSize: 32 }}>Unavailable</span>
+            </div>
+            <div className="pricing-period">Temporarily not available</div>
+            <ul className="pricing-features">
+              <li>Unlimited time tracking</li>
+              <li>Unlimited clients</li>
+              <li>CSV export</li>
+              <li>Invoice PDF</li>
+              <li>Cloud sync</li>
+              <li>Multi-device</li>
+              <li>Priority support</li>
+            </ul>
+            <span className="btn-plan btn-plan-disabled">Temporarily Unavailable</span>
           </div>
         </div>
       </section>
@@ -371,6 +369,7 @@ export default function LandingPage() {
         .landing .btn-plan { display: block; text-align: center; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.1em; text-decoration: none; }
         .landing .btn-plan-outline { border: 1px solid var(--border); color: var(--muted); }
         .landing .btn-plan-solid { background: var(--text); color: var(--bg); }
+        .landing .btn-plan-disabled { border: 1px dashed var(--border); color: var(--muted); opacity: 0.6; cursor: not-allowed; pointer-events: none; }
         .landing .cta-section { text-align: center; padding: 160px 60px; position: relative; overflow: hidden; }
         .landing .cta-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 18vw, 280px); color: transparent; -webkit-text-stroke: 1px #ddd8d0; white-space: nowrap; pointer-events: none; }
         .landing footer { border-top: 1px solid var(--border); padding: 40px 60px; display: flex; justify-content: space-between; align-items: center; }

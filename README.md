@@ -1,16 +1,36 @@
 # Logr
 
-Freelance time tracker for client/project work with CSV and invoice export.
+Freelance time tracker with Google sign-in, cloud sync in Supabase, and CSV/invoice exports.
 
-## Tech Stack
+## What it does
+
+- Landing page at `/`
+- Tracker app at `/tracker`
+- Clients -> Projects -> Sessions workflow
+- Session types: `hourly` and `fixed_project`
+- Session statuses: `PENDING`, `ACTIVE`, `DONE`
+- Payment status tracking: `UNPAID` / `PAID`
+- Dashboard metrics (money, hours, avg rate, collection %, pricing health, trends)
+- Profile settings for default rate, target rate, workday hours, and fixed-task rules
+- CSV export and printable invoice export (via browser print dialog)
+- Light/dark theme and mobile-friendly layout
+
+## Tech stack
 
 - Next.js 16 (App Router)
 - React 19
 - Supabase Auth (Google OAuth)
-- Supabase Postgres (`user_app_state` table, RLS)
-- localStorage fallback cache (`logr_clients`, `logr_sessions`)
+- Supabase Postgres (`public.user_app_state` + RLS policies)
+- Vercel Analytics + Speed Insights
 
-## Quick Start
+## Requirements
+
+- Node.js 20+
+- npm
+- Supabase project
+- Google OAuth credentials (for auth provider)
+
+## Quick start
 
 ```bash
 npm install
@@ -18,29 +38,67 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open: `http://localhost:3000`
+Open [http://localhost:3000](http://localhost:3000).
 
-## Routes
+## Environment variables
 
-- `/` — marketing landing page (`logr-landing.html` integrated into Next.js)
-- `/tracker` — application (time tracker)
+Create `.env.local`:
 
-## Supabase Setup
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+Reference template: `/Users/zerox9dev/logr/.env.example`
+
+## Supabase setup
 
 1. Create a Supabase project.
-2. In Supabase SQL Editor run `/Users/zerox9dev/logr/supabase/schema.sql`.
-3. In Supabase Dashboard copy:
+2. Run SQL from `/Users/zerox9dev/logr/supabase/schema.sql` in Supabase SQL Editor.
+3. In Supabase Auth -> Providers, enable Google and add OAuth client ID/secret.
+4. In Supabase Auth URL settings, add redirect URLs:
+   - `http://localhost:3000`
+   - your production URL
+5. Copy project values to `.env.local`:
    - Project URL -> `NEXT_PUBLIC_SUPABASE_URL`
    - Project API anon key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Put values in `.env.local` (see `.env.example`).
-5. In Supabase Auth -> Providers -> Google:
-   - Enable Google provider
-   - Add Google Client ID / Secret
-6. Add redirect URLs:
-   - `http://localhost:3000`
-   - your production URL (for deploy)
 
-After this, app will show Google sign-in and sync clients/sessions to Supabase per user.
+## Database shape
+
+`public.user_app_state`:
+
+```sql
+user_id uuid primary key references auth.users(id) on delete cascade
+clients jsonb not null default '[]'
+sessions jsonb not null default '[]'
+settings jsonb not null
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+Default `settings` payload:
+
+```json
+{
+  "hourlyRate": "50",
+  "targetHourlyRate": "25",
+  "workdayHours": "8",
+  "requireProjectForFixed": false
+}
+```
+
+RLS policies restrict read/write to `auth.uid() = user_id`.
+
+## Migrations
+
+SQL migrations are in `/Users/zerox9dev/logr/supabase/migrations` and include:
+
+- adding `settings` support
+- backfilling `requireProjectForFixed`
+- backfilling `targetHourlyRate`
+- backfilling missing session `paymentStatus` with `UNPAID`
+
+For a fresh project, applying `schema.sql` is enough. For existing environments, run migrations as needed.
 
 ## Scripts
 
@@ -51,47 +109,18 @@ npm run build
 npm run start
 ```
 
-## Features
+## Keyboard shortcut
 
-- Google sign-in via Supabase Auth
-- Personal cloud workspace (RLS by `auth.uid()`)
-- Clients -> Projects -> Tasks hierarchy
-- Start/stop timer with `Space`
-- Task statuses: `PENDING`, `ACTIVE`, `DONE`
-- Manual session entry (date/hours/minutes/rate/status)
-- Date filters: all, 7 days, current month, custom month
-- Inline edit for completed sessions
-- CSV export
-- Printable invoice (PDF via browser print dialog)
-- Light/Dark theme toggle
-- Mobile-friendly sidebar behavior
+- `Space`: start/stop active hourly timer (outside input fields)
 
-## Keyboard Shortcuts
+## Notes
 
-| Key | Action |
-| --- | --- |
-| `Space` | Start / Stop timer (outside inputs) |
-| `Enter` | Confirm add client/project in inline input |
-| `Escape` | Close add client/project inline input |
-
-## Database Shape
-
-```sql
-user_app_state (
-  user_id uuid primary key,
-  clients jsonb,
-  sessions jsonb,
-  created_at timestamptz,
-  updated_at timestamptz
-)
-```
+- If Supabase env vars are missing, tracker shows a setup screen instead of the app.
+- Cloud state is synced to Supabase and additionally cached in `sessionStorage` (`logr-cloud-cache-v1`) for faster reloads.
 
 ## License
 
-This project is licensed under the Apache License 2.0.
+Apache License 2.0.
 
 - License text: `/Users/zerox9dev/logr/LICENSE`
 - Attribution notices: `/Users/zerox9dev/logr/NOTICE`
-
-If you copy, fork, or redistribute this project (including modified versions),
-you must keep copyright and attribution notices.
