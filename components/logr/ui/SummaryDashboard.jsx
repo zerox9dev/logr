@@ -63,7 +63,7 @@ function sumMoney(sessionsList) {
   return sessionsList.reduce((sum, session) => sum + getSessionMoney(session), 0);
 }
 
-export default function SummaryDashboard({ theme, currency, clients, sessions, targetHourlyRate = 25 }) {
+export default function SummaryDashboard({ theme, currency, clients, sessions, targetHourlyRate = 50 }) {
   const [range, setRange] = useState("all");
 
   const doneSessions = useMemo(() => sessions.filter((session) => session.status === "DONE"), [sessions]);
@@ -270,7 +270,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           >
             {formatCurrency(underEarnedIndicator.missingTotal, currency)}
           </div>
-          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED {currency} (vs target {formatCurrency(targetHourlyRate, currency)}/h)</div>
+          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED {currency} (vs default {formatCurrency(targetHourlyRate, currency)}/h)</div>
           <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>At-risk projects: {underEarnedIndicator.atRiskCount}</div>
           <div style={{ fontSize: 10, color: theme.muted }}>
             Status: {underEarnedIndicator.severity === "healthy" ? "HEALTHY" : underEarnedIndicator.severity === "watch" ? "WATCH" : "RISK"}

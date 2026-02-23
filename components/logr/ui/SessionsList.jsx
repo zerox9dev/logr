@@ -71,7 +71,14 @@ export default function SessionsList({
                     </>
                   ) : (
                     <>
-                      <span style={{ color: theme.sessionText, fontSize: 11 }}>{formatMoney(parseFloat(editValues.fixedAmount || 0), currency)}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={editValues.fixedAmount}
+                        onChange={(event) => setEditValues((prev) => ({ ...prev, fixedAmount: event.target.value }))}
+                        style={{ ...inputStyle, width: 84, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }}
+                      />
                       <span style={{ color: theme.muted, fontSize: 10 }}>fixed</span>
                     </>
                   )}

@@ -8,8 +8,6 @@ export default function ProfileSettings({
   isCurrencyConverting,
   hourlyRate,
   setHourlyRate,
-  targetHourlyRate,
-  setTargetHourlyRate,
   workdayHours,
   setWorkdayHours,
   requireProjectForFixed,
@@ -60,10 +58,6 @@ export default function ProfileSettings({
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>DEFAULT HOURLY RATE ({currency}/HR)</div>
         <input type="number" min="0" step="0.01" value={hourlyRate} onChange={(event) => setHourlyRate(event.target.value)} style={inputStyle} />
-      </div>
-      <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>TARGET HOURLY RATE ({currency}/HR)</div>
-        <input type="number" min="0" step="0.01" value={targetHourlyRate} onChange={(event) => setTargetHourlyRate(event.target.value)} style={inputStyle} />
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>CURRENCY</div>

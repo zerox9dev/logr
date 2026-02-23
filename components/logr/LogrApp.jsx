@@ -102,7 +102,6 @@ export default function LogrApp() {
   const [taskName, setTaskName] = useState("");
   const [taskRate, setTaskRate] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
-  const [profileTargetHourlyRate, setProfileTargetHourlyRate] = useState("25");
   const [profileCurrency, setProfileCurrency] = useState("USD");
   const [isCurrencyConverting, setIsCurrencyConverting] = useState(false);
   const [taskBillingType, setTaskBillingType] = useState("hourly");
@@ -198,7 +197,6 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
-        setProfileTargetHourlyRate("25");
         setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
@@ -220,7 +218,6 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
-        setProfileTargetHourlyRate("25");
         setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
@@ -254,7 +251,6 @@ export default function LogrApp() {
             setClients(Array.isArray(cached.clients) ? cached.clients : []);
             setSessions(Array.isArray(cached.sessions) ? cached.sessions : []);
             setProfileHourlyRate(settings.hourlyRate || "50");
-            setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
             setProfileCurrency(normalizeCurrency(settings.currency));
             setProfileWorkdayHours(settings.workdayHours || "8");
             setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
@@ -282,7 +278,6 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
-        setProfileTargetHourlyRate("25");
         setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
@@ -295,7 +290,6 @@ export default function LogrApp() {
         setSessions(Array.isArray(data.sessions) ? data.sessions : []);
         const settings = data.settings || {};
         setProfileHourlyRate(settings.hourlyRate || "50");
-        setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
         setProfileCurrency(normalizeCurrency(settings.currency));
         setProfileWorkdayHours(settings.workdayHours || "8");
         setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
@@ -303,7 +297,6 @@ export default function LogrApp() {
         setClients([]);
         setSessions([]);
         setProfileHourlyRate("50");
-        setProfileTargetHourlyRate("25");
         setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
@@ -313,7 +306,7 @@ export default function LogrApp() {
             user_id: user.id,
             clients: [],
             sessions: [],
-            settings: { hourlyRate: "50", targetHourlyRate: "25", currency: "USD", workdayHours: "8", requireProjectForFixed: false },
+            settings: { hourlyRate: "50", currency: "USD", workdayHours: "8", requireProjectForFixed: false },
           },
           { onConflict: "user_id" }
         );
@@ -345,7 +338,6 @@ export default function LogrApp() {
           sessions,
           settings: {
             hourlyRate: profileHourlyRate,
-            targetHourlyRate: profileTargetHourlyRate,
             currency: profileCurrency,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
@@ -354,7 +346,7 @@ export default function LogrApp() {
         }),
       );
     } catch {}
-  }, [user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (!supabase || !user || !syncReady) return;
@@ -367,7 +359,6 @@ export default function LogrApp() {
           sessions,
           settings: {
             hourlyRate: profileHourlyRate,
-            targetHourlyRate: profileTargetHourlyRate,
             currency: profileCurrency,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
@@ -386,7 +377,7 @@ export default function LogrApp() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (running && !paused) {
@@ -781,7 +772,6 @@ export default function LogrApp() {
       const conversionRate = Number(rate);
 
       setProfileHourlyRate((prev) => convertNumeric(prev, conversionRate));
-      setProfileTargetHourlyRate((prev) => convertNumeric(prev, conversionRate));
       setTaskRate((prev) => convertNumeric(prev, conversionRate));
       setTaskFixedAmount((prev) => convertNumeric(prev, conversionRate));
       setNewProjectRate((prev) => convertNumeric(prev, conversionRate));
@@ -1202,7 +1192,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
-            <SummaryDashboard theme={theme} currency={profileCurrency} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileTargetHourlyRate || 25)} />
+            <SummaryDashboard theme={theme} currency={profileCurrency} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileHourlyRate || 50)} />
           ) : screen === "profile" ? (
             <ProfileSettings
               theme={theme}
@@ -1214,8 +1204,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               isCurrencyConverting={isCurrencyConverting}
               hourlyRate={profileHourlyRate}
               setHourlyRate={setProfileHourlyRate}
-              targetHourlyRate={profileTargetHourlyRate}
-              setTargetHourlyRate={setProfileTargetHourlyRate}
               workdayHours={profileWorkdayHours}
               setWorkdayHours={setProfileWorkdayHours}
               requireProjectForFixed={profileRequireProjectForFixed}
