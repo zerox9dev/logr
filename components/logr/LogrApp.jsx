@@ -362,6 +362,7 @@ export default function LogrApp() {
   });
 
   const doneSessions = visibleSessions.filter((session) => session.status === "DONE");
+  const unpaidDoneSessions = doneSessions.filter((session) => (session.paymentStatus || "UNPAID") === "UNPAID");
   const totalEarned = (() => {
     return doneSessions.reduce((sum, session) => {
       const billingType = session.billingType || "hourly";
@@ -837,13 +838,15 @@ export default function LogrApp() {
   }
 
   function exportInvoicePdf() {
+    if (unpaidDoneSessions.length === 0) return;
+
     const projectName = activeProjectId !== "all" ? activeProjects.find((item) => item.id === activeProjectId)?.name : null;
     const invoiceDate = new Date();
     const invoiceDateLabel = invoiceDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
     const invoiceId = `INV-${invoiceDate.getTime().toString().slice(-6)}`;
 
     const countedProjects = new Set();
-    const rows = doneSessions
+    const rows = unpaidDoneSessions
       .map((session) => {
         const project = activeProjects.find((item) => item.id === session.projectId);
         const billingType = session.billingType || "hourly";
@@ -870,7 +873,7 @@ export default function LogrApp() {
       <div style="text-align:right"><div class="lbl">Date</div><div>${invoiceDateLabel}</div><div class="lbl" style="margin-top:8px">Invoice #</div><div>${invoiceId}</div></div>
     </div>
     <table><thead><tr><th>Date</th><th>Task</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="total"><div class="lbl">Total Due</div>$${totalEarned}</div>
+    <div class="total"><div class="lbl">Total Due</div>$${unpaidTotal.toFixed(2)}</div>
     <script>window.onload=()=>window.print();</script></body></html>`;
 
     const popup = window.open("", "_blank");
@@ -1065,6 +1068,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 paidTotal={paidTotal.toFixed(2)}
                 unpaidTotal={unpaidTotal.toFixed(2)}
                 collectionRate={collectionRate}
+                hasUnpaidSessions={unpaidDoneSessions.length > 0}
                 onExportCsv={exportCsv}
                 onExportInvoicePdf={exportInvoicePdf}
               />

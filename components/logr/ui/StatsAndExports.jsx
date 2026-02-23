@@ -1,4 +1,4 @@
-export default function StatsAndExports({ theme, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, onExportCsv, onExportInvoicePdf }) {
+export default function StatsAndExports({ theme, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, hasUnpaidSessions, onExportCsv, onExportInvoicePdf }) {
   if (doneSessions.length === 0) return null;
 
   return (
@@ -23,7 +23,22 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
         <button onClick={onExportCsv} style={{ flex: 1, padding: "9px", background: "transparent", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.15em" }}>
           ↓ CSV
         </button>
-        <button onClick={onExportInvoicePdf} style={{ flex: 1, padding: "9px", background: "transparent", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.15em" }}>
+        <button
+          onClick={onExportInvoicePdf}
+          disabled={!hasUnpaidSessions}
+          style={{
+            flex: 1,
+            padding: "9px",
+            background: "transparent",
+            border: `1px solid ${theme.border}`,
+            color: theme.muted,
+            cursor: hasUnpaidSessions ? "pointer" : "not-allowed",
+            opacity: hasUnpaidSessions ? 1 : 0.5,
+            fontFamily: "inherit",
+            fontSize: 11,
+            letterSpacing: "0.15em",
+          }}
+        >
           ↓ INVOICE PDF
         </button>
       </div>
