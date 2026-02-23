@@ -53,7 +53,7 @@ const TOUR_STEPS = [
   {
     selector: '[data-tour="invoice-btn"]',
     title: "6) Export invoice",
-    description: "The PDF button appears after DONE tasks exist. The invoice includes only UNPAID items.",
+    description: "The PDF button appears after DONE tasks exist. You can create your first DONE task from this step.",
   },
 ];
 
@@ -939,6 +939,54 @@ export default function LogrApp() {
     setShowTour(true);
   }
 
+  function createFirstTaskFromTour() {
+    const hasDoneSessions = sessions.some((session) => session.status === "DONE");
+    if (!hasDoneSessions) {
+      let nextClientId = resolvedActiveClientId;
+
+      if (!nextClientId) {
+        const firstClient = { id: uid(), name: "First Client", projects: [] };
+        nextClientId = firstClient.id;
+        setClients((prev) => [...prev, firstClient]);
+        setActiveClientId(firstClient.id);
+        setActiveProjectId("all");
+      }
+
+      const profileRate = parseFloat(profileHourlyRate || 0);
+      const rate = Number.isFinite(profileRate) && profileRate > 0 ? parseFloat(profileRate.toFixed(2)) : 50;
+      const duration = 3600;
+      const workdayHours = parseFloat(profileWorkdayHours || 8);
+      const normalizedWorkdayHours = Number.isFinite(workdayHours) && workdayHours > 0 ? workdayHours : 8;
+
+      setSessions((prev) => [
+        {
+          id: uid(),
+          clientId: nextClientId,
+          projectId: null,
+          name: "Kickoff task",
+          notes: "Created during onboarding",
+          duration,
+          days: 0,
+          hours: 1,
+          minutes: 0,
+          workdayHours: normalizedWorkdayHours,
+          earned: earnedFromDuration(duration, rate),
+          rate,
+          billingType: "hourly",
+          fixedAmount: 0,
+          paymentStatus: "UNPAID",
+          ts: Date.now(),
+          status: "DONE",
+        },
+        ...prev,
+      ]);
+    }
+
+    closeTour(true);
+    setScreen("dashboard");
+    setMobileView("main");
+  }
+
   if (!isSupabaseConfigured()) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif" }}>
@@ -1157,6 +1205,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           theme={theme}
           steps={TOUR_STEPS}
           stepIndex={tourStep}
+          canCreateFirstTask={doneSessions.length === 0}
+          onCreateFirstTask={createFirstTaskFromTour}
           onBack={() => setTourStep((prev) => Math.max(prev - 1, 0))}
           onNext={() => setTourStep((prev) => Math.min(prev + 1, TOUR_STEPS.length - 1))}
           onClose={() => closeTour(true)}

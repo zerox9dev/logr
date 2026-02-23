@@ -4,7 +4,7 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-export default function GuidedTour({ theme, steps, stepIndex, onBack, onNext, onClose, onFinish }) {
+export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask, onCreateFirstTask, onBack, onNext, onClose, onFinish }) {
   const step = steps[stepIndex];
   const lastStep = stepIndex === steps.length - 1;
   const [targetRect, setTargetRect] = useState(null);
@@ -169,7 +169,7 @@ export default function GuidedTour({ theme, steps, stepIndex, onBack, onNext, on
             </button>
           ) : (
             <button
-              onClick={onFinish}
+              onClick={canCreateFirstTask ? onCreateFirstTask : onFinish}
               style={{
                 flex: 1,
                 border: `1px solid ${theme.border}`,
@@ -181,7 +181,7 @@ export default function GuidedTour({ theme, steps, stepIndex, onBack, onNext, on
                 fontSize: 10,
               }}
             >
-              FINISH
+              {canCreateFirstTask ? "CREATE FIRST TASK" : "FINISH"}
             </button>
           )}
         </div>
