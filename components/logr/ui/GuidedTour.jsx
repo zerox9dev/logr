@@ -123,7 +123,7 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
           </button>
         </div>
 
-        <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.02em", color: theme.timerColor, marginBottom: 10 }}>
+        <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.02em", color: theme.timerColor, marginBottom: 10 }}>
           {step.title}
         </div>
         <div style={{ fontSize: 12, color: theme.muted, lineHeight: 1.6, marginBottom: 12 }}>{step.description}</div>

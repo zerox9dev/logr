@@ -218,7 +218,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
             <div
               style={{
                 fontSize: 24,
-                fontFamily: "'Instrument Serif',serif",
+                fontFamily: "'Inter Tight',sans-serif",
                 fontWeight: 400,
                 letterSpacing: "-0.02em",
                 color: card.label === "MONEY" ? "#2d7a2d" : card.label.includes("PENDING") ? "#c47d00" : theme.timerColor,
@@ -260,7 +260,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           <div
             style={{
               fontSize: 30,
-              fontFamily: "'Instrument Serif',serif",
+              fontFamily: "'Inter Tight',sans-serif",
               fontWeight: 400,
               letterSpacing: "-0.02em",
               lineHeight: 1,

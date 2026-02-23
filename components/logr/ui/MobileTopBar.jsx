@@ -15,7 +15,7 @@ export default function MobileTopBar({ theme, activeClient, mobileView, screen, 
         justifyContent: "space-between",
       }}
     >
-      <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 28, color: theme.timerColor, letterSpacing: "-0.01em" }}>
+      <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 28, color: theme.timerColor, letterSpacing: "-0.01em" }}>
         LOGR
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

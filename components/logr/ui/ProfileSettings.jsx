@@ -4,7 +4,8 @@ export default function ProfileSettings({
   syncError,
   onSignOut,
   currency,
-  setCurrency,
+  onChangeCurrency,
+  isCurrencyConverting,
   hourlyRate,
   setHourlyRate,
   targetHourlyRate,
@@ -29,7 +30,7 @@ export default function ProfileSettings({
   return (
     <div style={{ maxWidth: 520 }}>
       <div style={{ fontSize: 11, color: theme.muted, letterSpacing: "0.16em", marginBottom: 12 }}>PROFILE SETTINGS</div>
-      <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 36, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 16 }}>Account</div>
+      <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 36, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 16 }}>Account</div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {avatarUrl ? (
@@ -66,13 +67,21 @@ export default function ProfileSettings({
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>CURRENCY</div>
-        <select value={currency} onChange={(event) => setCurrency(event.target.value)} style={{ ...inputStyle, fontSize: 12, colorScheme: theme.colorScheme }}>
+        <select
+          value={currency}
+          onChange={(event) => onChangeCurrency(event.target.value)}
+          disabled={isCurrencyConverting}
+          style={{ ...inputStyle, fontSize: 12, colorScheme: theme.colorScheme, opacity: isCurrencyConverting ? 0.6 : 1, cursor: isCurrencyConverting ? "not-allowed" : "pointer" }}
+        >
           {["UAH", "USD", "PLN", "EUR"].map((item) => (
             <option key={item} value={item}>
               {item}
             </option>
           ))}
         </select>
+        {isCurrencyConverting ? (
+          <div style={{ fontSize: 10, color: theme.muted, marginTop: 6 }}>Converting amounts by latest exchange rate...</div>
+        ) : null}
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>WORKDAY HOURS (1 DAY = ? HOURS)</div>

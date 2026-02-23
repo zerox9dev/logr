@@ -1,7 +1,7 @@
 export const DARK_THEME = {
   bg: "#111111",
   text: "#f3f3f3",
-  muted: "#a0a0a0",
+  muted: "#c2c2c2",
   faint: "#232323",
   border: "#2d2d2d",
   rowBorder: "#262626",
@@ -12,17 +12,17 @@ export const DARK_THEME = {
   btnColor: "#111111",
   sessionText: "#e5e5e5",
   sessionTime: "#b0b0b0",
-  sessionDate: "#8d8d8d",
+  sessionDate: "#b3b3b3",
   tabActive: "#ffffff",
   tabActiveBg: "#202020",
-  tabInactive: "#949494",
+  tabInactive: "#b8b8b8",
   colorScheme: "dark",
 };
 
 export const LIGHT_THEME = {
   bg: "#fafafa",
   text: "#111111",
-  muted: "#8f8f8f",
+  muted: "#5f5f5f",
   faint: "#f2f2f2",
   border: "#e8e8e8",
   rowBorder: "#ececec",
@@ -32,11 +32,11 @@ export const LIGHT_THEME = {
   btnBg: "#111111",
   btnColor: "#fafafa",
   sessionText: "#1b1b1b",
-  sessionTime: "#777777",
-  sessionDate: "#9a9a9a",
+  sessionTime: "#575757",
+  sessionDate: "#666666",
   tabActive: "#111111",
   tabActiveBg: "#f1f1f1",
-  tabInactive: "#9a9a9a",
+  tabInactive: "#686868",
   colorScheme: "light",
 };
 

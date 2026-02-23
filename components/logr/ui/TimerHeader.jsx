@@ -7,7 +7,7 @@ export default function TimerHeader({ theme, activeClient, activeTimedSession, e
         {activeClient.name}
         {activeTimedSession ? ` / ${activeTimedSession.name}` : ""}
       </div>
-      <div className="timer-value" style={{ fontFamily: "'Instrument Serif',serif", fontSize: 56, letterSpacing: "-0.02em", lineHeight: 1, color: theme.timerColor }}>
+      <div className="timer-value" style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 56, letterSpacing: "-0.02em", lineHeight: 1, color: theme.timerColor }}>
         {formatTime(elapsed)}
         {running && !paused && (
           <span className="blink" style={{ color: "#d35b5b", marginLeft: 12, fontSize: 14 }}>

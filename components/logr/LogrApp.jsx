@@ -63,6 +63,18 @@ function getNowDateTimeLocal() {
   return new Date(now.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
+function convertNumeric(value, rate) {
+  const parsed = parseFloat(value || 0);
+  if (!Number.isFinite(parsed)) return value;
+  return (parsed * rate).toFixed(2);
+}
+
+function convertMoneyNumber(value, rate) {
+  const parsed = parseFloat(value || 0);
+  if (!Number.isFinite(parsed)) return value;
+  return parseFloat((parsed * rate).toFixed(2));
+}
+
 export default function LogrApp() {
   const supabase = getSupabaseClient();
 
@@ -92,6 +104,7 @@ export default function LogrApp() {
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
   const [profileTargetHourlyRate, setProfileTargetHourlyRate] = useState("25");
   const [profileCurrency, setProfileCurrency] = useState("USD");
+  const [isCurrencyConverting, setIsCurrencyConverting] = useState(false);
   const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskStatus, setTaskStatus] = useState("ACTIVE");
@@ -752,6 +765,59 @@ export default function LogrApp() {
     setPaused(false);
   }
 
+  async function changeCurrency(nextCurrency) {
+    const normalizedNextCurrency = normalizeCurrency(nextCurrency);
+    if (normalizedNextCurrency === profileCurrency || isCurrencyConverting) return;
+
+    setIsCurrencyConverting(true);
+
+    try {
+      const response = await fetch(`/api/exchange-rates?base=${profileCurrency}&symbols=${normalizedNextCurrency}`);
+      if (!response.ok) throw new Error("Could not get exchange rate");
+      const payload = await response.json();
+      const rate = payload?.rates?.[normalizedNextCurrency];
+      if (!Number.isFinite(rate) || rate <= 0) throw new Error("Invalid exchange rate");
+
+      const conversionRate = Number(rate);
+
+      setProfileHourlyRate((prev) => convertNumeric(prev, conversionRate));
+      setProfileTargetHourlyRate((prev) => convertNumeric(prev, conversionRate));
+      setTaskRate((prev) => convertNumeric(prev, conversionRate));
+      setTaskFixedAmount((prev) => convertNumeric(prev, conversionRate));
+      setNewProjectRate((prev) => convertNumeric(prev, conversionRate));
+      setNewProjectBudget((prev) => convertNumeric(prev, conversionRate));
+      setEditValues((prev) => ({
+        ...prev,
+        rate: prev.rate !== undefined ? convertNumeric(prev.rate, conversionRate) : prev.rate,
+        fixedAmount: prev.fixedAmount !== undefined ? convertNumeric(prev.fixedAmount, conversionRate) : prev.fixedAmount,
+      }));
+
+      setClients((prev) => prev.map((client) => ({
+        ...client,
+        projects: (client.projects || []).map((project) => ({
+          ...project,
+          hourlyRate: project.hourlyRate == null ? null : convertMoneyNumber(project.hourlyRate, conversionRate),
+          fixedBudget: project.fixedBudget == null ? null : convertMoneyNumber(project.fixedBudget, conversionRate),
+        })),
+      })));
+
+      setSessions((prev) => prev.map((session) => ({
+        ...session,
+        rate: convertMoneyNumber(session.rate, conversionRate),
+        earned: convertMoneyNumber(session.earned, conversionRate),
+        fixedAmount: convertMoneyNumber(session.fixedAmount, conversionRate),
+      })));
+
+      setProfileCurrency(normalizedNextCurrency);
+      setSyncError("");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown currency conversion error";
+      setSyncError(`Currency conversion failed: ${message}`);
+    } finally {
+      setIsCurrencyConverting(false);
+    }
+  }
+
   useEffect(() => {
     function onKeyDown(event) {
       if (event.code !== "Space") return;
@@ -951,7 +1017,7 @@ export default function LogrApp() {
       .join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice — ${activeClient?.name}</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Instrument Sans',Arial,sans-serif;padding:60px;color:#111}h1{font-family:'Instrument Serif',serif;font-size:48px;letter-spacing:-.02em;margin-bottom:4px;font-weight:400}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #111}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px;font-family:'Instrument Serif',serif}.total .lbl{margin-bottom:4px}</style>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter Tight',Arial,sans-serif;padding:60px;color:#111}h1{font-family:'Inter Tight',sans-serif;font-size:48px;letter-spacing:-.02em;margin-bottom:4px;font-weight:400}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #111}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px;font-family:'Inter Tight',sans-serif}.total .lbl{margin-bottom:4px}</style>
     </head><body>
     <h1>INVOICE</h1><div class="sub">Logr</div>
     <div class="meta">
@@ -1032,7 +1098,7 @@ export default function LogrApp() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Inter Tight',sans-serif" }}>
         <div style={{ width: "100%", maxWidth: 620, border: "1px solid #ddd", padding: 24, borderRadius: 12 }}>
           <h1 style={{ fontSize: 20, marginBottom: 12 }}>Supabase is not configured</h1>
           <p style={{ opacity: 0.8, marginBottom: 8 }}>Add these environment variables and restart dev server:</p>
@@ -1047,7 +1113,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (authLoading) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Instrument Sans',sans-serif" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Inter Tight',sans-serif" }}>
         <div>Checking session...</div>
       </div>
     );
@@ -1055,9 +1121,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (!user) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif", background: theme.bg, color: theme.text }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Inter Tight',sans-serif", background: theme.bg, color: theme.text }}>
         <div style={{ width: "100%", maxWidth: 520, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 24, background: theme.statBg }}>
-          <h1 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 32, fontWeight: 400, marginBottom: 8 }}>Logr</h1>
+          <h1 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 32, fontWeight: 400, marginBottom: 8 }}>Logr</h1>
           <p style={{ marginBottom: 20, color: theme.muted }}>Sign in with Google to sync your time tracking data to Supabase.</p>
           <button
             onClick={signInWithGoogle}
@@ -1082,14 +1148,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (!syncReady) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Instrument Sans',sans-serif" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Inter Tight',sans-serif" }}>
         <div>Loading cloud workspace...</div>
       </div>
     );
   }
 
   return (
-    <div className="logr-app" style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'Instrument Sans',sans-serif", transition: "background 0.2s" }}>
+    <div className="logr-app" style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'Inter Tight',sans-serif", transition: "background 0.2s" }}>
       <GlobalStyles />
 
       <div style={{ display: "flex", minHeight: "100vh" }}>
@@ -1144,7 +1210,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               syncError={syncError}
               onSignOut={signOut}
               currency={profileCurrency}
-              setCurrency={setProfileCurrency}
+              onChangeCurrency={changeCurrency}
+              isCurrencyConverting={isCurrencyConverting}
               hourlyRate={profileHourlyRate}
               setHourlyRate={setProfileHourlyRate}
               targetHourlyRate={profileTargetHourlyRate}
