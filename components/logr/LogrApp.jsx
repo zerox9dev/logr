@@ -932,7 +932,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onToggleTheme={() => setDark((value) => !value)}
         />
 
-        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 760 }}>
+        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 1024 }}>
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
