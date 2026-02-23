@@ -1,4 +1,4 @@
-export default function MobileTopBar({ theme, activeClient, mobileView, onToggle }) {
+export default function MobileTopBar({ theme, activeClient, mobileView, screen, onToggle }) {
   return (
     <div
       className="mobile-bar"
@@ -19,22 +19,24 @@ export default function MobileTopBar({ theme, activeClient, mobileView, onToggle
         LOGR
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        {activeClient && <div style={{ fontSize: 11, color: theme.muted }}>{activeClient.name}</div>}
-        <button
-          onClick={onToggle}
-          style={{
-            background: "none",
-            border: `1px solid ${theme.border}`,
-            color: theme.muted,
-            cursor: "pointer",
-            padding: "5px 10px",
-            fontFamily: "inherit",
-            fontSize: 10,
-            letterSpacing: "0.1em",
-          }}
-        >
-          {mobileView === "clients" ? "✕" : "☰ CLIENTS"}
-        </button>
+        {screen === "tracker" && activeClient ? <div style={{ fontSize: 11, color: theme.muted }}>{activeClient.name}</div> : null}
+        {screen === "tracker" ? (
+          <button
+            onClick={onToggle}
+            style={{
+              background: "none",
+              border: `1px solid ${theme.border}`,
+              color: theme.muted,
+              cursor: "pointer",
+              padding: "5px 10px",
+              fontFamily: "inherit",
+              fontSize: 10,
+              letterSpacing: "0.1em",
+            }}
+          >
+            {mobileView === "clients" ? "✕" : "☰ CLIENTS"}
+          </button>
+        ) : null}
       </div>
     </div>
   );

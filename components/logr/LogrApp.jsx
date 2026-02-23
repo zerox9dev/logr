@@ -21,6 +21,7 @@ import TaskComposer from "./ui/TaskComposer";
 import ManualEntry from "./ui/ManualEntry";
 import StatsAndExports from "./ui/StatsAndExports";
 import SessionsList from "./ui/SessionsList";
+import SummaryDashboard from "./ui/SummaryDashboard";
 
 function loadJson(key, fallback) {
   if (typeof window === "undefined") return fallback;
@@ -75,6 +76,7 @@ export default function LogrApp() {
 
   const [errors, setErrors] = useState({});
   const [mobileView, setMobileView] = useState("main");
+  const [screen, setScreen] = useState("dashboard");
 
   const [editId, setEditId] = useState(null);
   const [editValues, setEditValues] = useState({});
@@ -657,6 +659,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           theme={theme}
           activeClient={activeClient}
           mobileView={mobileView}
+          screen={screen}
           onToggle={() => setMobileView((view) => (view === "clients" ? "main" : "clients"))}
         />
 
@@ -665,6 +668,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
         <Sidebar
           theme={theme}
           dark={dark}
+          screen={screen}
           clients={clients}
           activeClientId={resolvedActiveClientId}
           mobileView={mobileView}
@@ -680,6 +684,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           }}
           onRemoveClient={removeClient}
           onRenameClient={renameClient}
+          onSelectScreen={(nextScreen) => {
+            setScreen(nextScreen);
+            if (nextScreen === "dashboard") {
+              setMobileView("main");
+            }
+          }}
           onToggleTheme={() => setDark((value) => !value)}
         />
 
@@ -699,7 +709,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
             </button>
           </div>
 
-          {!activeClient ? (
+          {screen === "dashboard" ? (
+            <SummaryDashboard theme={theme} clients={clients} sessions={sessions} />
+          ) : !activeClient ? (
             <WelcomeState theme={theme} />
           ) : (
             <>
