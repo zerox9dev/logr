@@ -82,6 +82,7 @@ export default function LogrApp() {
   const [activeProjectId, setActiveProjectId] = useState("all");
 
   const [running, setRunning] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const intervalRef = useRef(null);
@@ -187,6 +188,7 @@ export default function LogrApp() {
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
+        setPaused(false);
         setElapsed(0);
         setActiveSessionId(null);
       }
@@ -207,6 +209,7 @@ export default function LogrApp() {
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
+        setPaused(false);
         setElapsed(0);
         setActiveSessionId(null);
       }
@@ -364,7 +367,7 @@ export default function LogrApp() {
   }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
-    if (running) {
+    if (running && !paused) {
       intervalRef.current = window.setInterval(() => setElapsed((value) => value + 1), 1000);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -377,7 +380,7 @@ export default function LogrApp() {
         intervalRef.current = null;
       }
     };
-  }, [running]);
+  }, [running, paused]);
 
   const visibleSessions = sessions.filter((session) => {
     if (session.clientId !== resolvedActiveClientId) return false;
@@ -539,6 +542,7 @@ export default function LogrApp() {
     ]);
     setActiveSessionId(id);
     setElapsed(0);
+    setPaused(false);
     setRunning(true);
   }
 
@@ -699,6 +703,7 @@ export default function LogrApp() {
 
   function stopTimer() {
     setRunning(false);
+    setPaused(false);
     setSessions((prev) => prev.map((session) => (
       session.id === activeSessionId
         ? {
@@ -721,6 +726,25 @@ export default function LogrApp() {
     setTaskDateTime(getNowDateTimeLocal());
   }
 
+  function pauseTimer() {
+    if (!running || paused) return;
+    setPaused(true);
+    setSessions((prev) => prev.map((session) => (
+      session.id === activeSessionId
+        ? {
+            ...session,
+            duration: elapsed,
+            earned: calculateSessionEarned(elapsed, session),
+          }
+        : session
+    )));
+  }
+
+  function resumeTimer() {
+    if (!running || !paused) return;
+    setPaused(false);
+  }
+
   useEffect(() => {
     function onKeyDown(event) {
       if (event.code !== "Space") return;
@@ -730,7 +754,12 @@ export default function LogrApp() {
       event.preventDefault();
 
       if (running) {
+        if (paused) {
+          setPaused(false);
+          return;
+        }
         setRunning(false);
+        setPaused(false);
         setSessions((prev) => prev.map((session) => (
           session.id === activeSessionId
             ? {
@@ -778,12 +807,13 @@ export default function LogrApp() {
       ]);
       setActiveSessionId(id);
       setElapsed(0);
+      setPaused(false);
       setRunning(true);
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [running, activeSessionId, elapsed, taskName, taskNotes, taskRate, profileHourlyRate, taskBillingType, taskDateTime, resolvedActiveClientId, activeProjectId, calculateSessionEarned, resolveTaskRate]);
+  }, [running, paused, activeSessionId, elapsed, taskName, taskNotes, taskRate, profileHourlyRate, taskBillingType, taskDateTime, resolvedActiveClientId, activeProjectId, calculateSessionEarned, resolveTaskRate]);
 
   function startPendingSession(session) {
     if (running) return;
@@ -795,6 +825,7 @@ export default function LogrApp() {
 
     setActiveSessionId(session.id);
     setElapsed(session.duration);
+    setPaused(false);
     setRunning(true);
     setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "ACTIVE" } : item)));
   }
@@ -1113,7 +1144,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
             <WelcomeState theme={theme} />
           ) : (
             <>
-              <TimerHeader theme={theme} activeClient={activeClient} activeTimedSession={activeTimedSession} elapsed={elapsed} running={running} />
+              <TimerHeader theme={theme} activeClient={activeClient} activeTimedSession={activeTimedSession} elapsed={elapsed} running={running} paused={paused} />
 
               <ProjectAndDateFilters
                 theme={theme}
@@ -1163,6 +1194,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 taskNotes={taskNotes}
                 setTaskNotes={setTaskNotes}
                 onSubmit={submitTaskByStatus}
+                paused={paused}
+                onPause={pauseTimer}
+                onResume={resumeTimer}
                 onStop={stopTimer}
                 errors={errors}
               />

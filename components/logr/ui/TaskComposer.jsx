@@ -1,6 +1,7 @@
 export default function TaskComposer({
   theme,
   running,
+  paused,
   taskName,
   setTaskName,
   taskRate,
@@ -24,6 +25,8 @@ export default function TaskComposer({
   taskNotes,
   setTaskNotes,
   onSubmit,
+  onPause,
+  onResume,
   onStop,
   errors,
 }) {
@@ -144,9 +147,22 @@ export default function TaskComposer({
         </div>
       )}
       {running && (
-        <button onClick={onStop} style={{ width: "100%", padding: "14px", background: "#c45757", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>
-          ■ STOP
-        </button>
+        <>
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <button
+              onClick={paused ? onResume : onPause}
+              style={{ flex: 1, padding: "14px", background: theme.btnBg, color: theme.btnColor, border: `1px solid ${theme.border}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" }}
+            >
+              {paused ? "▶ RESUME" : "❚❚ PAUSE"}
+            </button>
+            <button onClick={onStop} style={{ flex: 1, padding: "14px", background: "#c45757", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              ■ STOP
+            </button>
+          </div>
+          <div style={{ fontSize: 9, color: theme.faint, marginTop: 2, marginBottom: 16, letterSpacing: "0.12em" }}>
+            SPACE = {paused ? "RESUME" : "STOP"}
+          </div>
+        </>
       )}
     </>
   );
