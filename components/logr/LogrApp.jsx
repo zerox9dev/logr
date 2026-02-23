@@ -32,7 +32,7 @@ function loadJson(key, fallback) {
 }
 
 export default function LogrApp() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
   const theme = dark ? DARK_THEME : LIGHT_THEME;
   const statusColors = dark ? STATUS_COLORS_DARK : STATUS_COLORS_LIGHT;
 
