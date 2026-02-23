@@ -56,40 +56,46 @@ export default function SessionsList({
                 </button>
               </div>
             ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: statusColors[session.status], flexShrink: 0 }} />
-                <div style={{ fontSize: 10, color: theme.sessionDate, minWidth: 48 }}>{formatDate(session.ts)}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, color: theme.sessionText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{session.name}</div>
-                  {(project || session.notes) && (
-                    <div
-                      style={{
-                        fontSize: 10,
-                        color: theme.muted,
-                        marginTop: 2,
-                        overflowWrap: "anywhere",
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {project ? `[${project.name}] ` : ""}
-                      {session.notes || ""}
-                    </div>
-                  )}
+              <div className="session-row" style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
+                <div className="session-main" style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: statusColors[session.status], flexShrink: 0 }} />
+                  <div style={{ fontSize: 10, color: theme.sessionDate, minWidth: 48 }}>{formatDate(session.ts)}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, color: theme.sessionText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{session.name}</div>
+                    {(project || session.notes) && (
+                      <div
+                        className="session-notes"
+                        style={{
+                          fontSize: 10,
+                          color: theme.muted,
+                          marginTop: 2,
+                          overflowWrap: "break-word",
+                          wordBreak: "normal",
+                        }}
+                      >
+                        {project ? `[${project.name}] ` : ""}
+                        {session.notes || ""}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: 9, color: statusColors[session.status], letterSpacing: "0.1em", minWidth: 52 }}>{session.status}</div>
-                {session.status === "PENDING" && !running && (
-                  <button onClick={() => onStartPending(session)} style={{ fontSize: 10, background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "2px 8px", fontFamily: "inherit" }}>
-                    ▶
+
+                <div className="session-meta" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ fontSize: 9, color: statusColors[session.status], letterSpacing: "0.1em" }}>{session.status}</div>
+                  {session.status === "PENDING" && !running && (
+                    <button onClick={() => onStartPending(session)} style={{ fontSize: 10, background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "2px 8px", fontFamily: "inherit" }}>
+                      ▶
+                    </button>
+                  )}
+                  {session.duration > 0 && <div style={{ fontSize: 12, color: theme.sessionTime }}>{formatTime(session.duration)}</div>}
+                  {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE }}>${session.earned}</div>}
+                  <button className="del" onClick={() => onStartEdit(session)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 13, padding: "0 3px", transition: "opacity 0.15s" }}>
+                    ✎
                   </button>
-                )}
-                {session.duration > 0 && <div style={{ fontSize: 12, color: theme.sessionTime, minWidth: 58, textAlign: "right" }}>{formatTime(session.duration)}</div>}
-                {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE, minWidth: 58, textAlign: "right" }}>${session.earned}</div>}
-                <button className="del" onClick={() => onStartEdit(session)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 13, padding: "0 3px", transition: "opacity 0.15s" }}>
-                  ✎
-                </button>
-                <button className="del" onClick={() => onDeleteSession(session.id)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 16, padding: "0 4px", transition: "opacity 0.15s" }}>
-                  ×
-                </button>
+                  <button className="del" onClick={() => onDeleteSession(session.id)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 16, padding: "0 4px", transition: "opacity 0.15s" }}>
+                    ×
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -13,8 +13,23 @@ export default function GlobalStyles() {
       @media (max-width: 600px) {
         .sidebar { display: none !important; }
         .sidebar.mobile-open { display: flex !important; position: fixed; top: 0; left: 0; width: 80vw; height: 100vh; z-index: 100; }
-        .main-area { padding: 20px 16px !important; }
+        .main-area { padding: 20px 16px !important; width: 100% !important; max-width: 100% !important; }
         .mobile-bar { display: flex !important; }
+        .timer-value { font-size: 44px !important; }
+        .task-top-row { flex-wrap: wrap; }
+        .task-rate-box { width: 100% !important; }
+        .task-action-row { flex-direction: column; }
+        .manual-top-row { flex-wrap: wrap; }
+        .manual-date-box { width: 100% !important; }
+        .manual-metrics-row { flex-wrap: wrap; }
+        .manual-metrics-row > div { min-width: calc(50% - 4px); }
+        .session-row { flex-direction: column !important; align-items: stretch !important; gap: 6px !important; }
+        .session-main { width: 100% !important; align-items: flex-start !important; }
+        .session-meta { width: 100% !important; flex-wrap: wrap; gap: 8px !important; padding-left: 64px; }
+        .session-notes { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+        .stats-row { flex-wrap: wrap; gap: 8px !important; }
+        .stats-row > div { min-width: calc(50% - 4px); }
+        .export-row { flex-direction: column; }
       }
       @media (min-width: 601px) {
         .mobile-bar { display: none !important; }

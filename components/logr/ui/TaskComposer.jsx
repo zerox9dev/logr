@@ -11,12 +11,12 @@ export default function TaskComposer({ theme, running, taskName, setTaskName, ta
     <>
       {!running && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <div className="task-top-row" style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <div style={{ flex: 1, border: `1px solid ${theme.border}`, padding: "10px 14px" }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>TASK</div>
               <input value={taskName} onChange={(event) => setTaskName(event.target.value)} placeholder="what are you working on?" style={{ ...inputStyle, width: "100%", fontSize: 14 }} onKeyDown={(event) => event.key === "Enter" && onStart()} />
             </div>
-            <div style={{ width: 90, border: `1px solid ${theme.border}`, padding: "10px 14px" }}>
+            <div className="task-rate-box" style={{ width: 90, border: `1px solid ${theme.border}`, padding: "10px 14px" }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>$/HR</div>
               <input type="number" value={taskRate} onChange={(event) => setTaskRate(event.target.value)} style={{ ...inputStyle, width: "100%", fontSize: 14 }} />
             </div>
@@ -27,7 +27,7 @@ export default function TaskComposer({ theme, running, taskName, setTaskName, ta
             </div>
             <input value={taskNotes} onChange={(event) => setTaskNotes(event.target.value)} placeholder="what exactly did you do?" style={{ ...inputStyle, width: "100%", fontSize: 13 }} />
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="task-action-row" style={{ display: "flex", gap: 8 }}>
             <button onClick={onStart} disabled={!taskName.trim()} style={{ flex: 1, padding: "12px", background: theme.btnBg, color: theme.btnColor, border: "none", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: "0.1em", opacity: !taskName.trim() ? 0.3 : 1 }}>
               ▶ START
             </button>

@@ -237,6 +237,33 @@ export default function Sidebar({
         >
           {dark ? "☀ LIGHT" : "☾ DARK"}
         </button>
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 10,
+            color: theme.muted,
+            letterSpacing: "0.08em",
+            textAlign: "center",
+          }}
+        >
+          Made by{" "}
+          <a href="https://zerox9dev.com" target="_blank" rel="noreferrer" style={{ color: theme.muted, textDecoration: "underline" }}>
+            zerox9dev
+          </a>
+        </div>
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 10,
+            color: theme.muted,
+            letterSpacing: "0.08em",
+            textAlign: "center",
+          }}
+        >
+          <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noreferrer" style={{ color: theme.muted, textDecoration: "underline" }}>
+            GitHub Repo
+          </a>
+        </div>
       </div>
     </div>
   );

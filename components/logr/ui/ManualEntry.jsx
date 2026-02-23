@@ -18,12 +18,12 @@ export default function ManualEntry({ theme, showManual, setShowManual, manual, 
 
       {showManual && (
         <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <div className="manual-top-row" style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <div style={{ flex: 1, borderBottom: `1px solid ${theme.border}`, paddingBottom: 6 }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>TASK</div>
               <input value={manual.name} onChange={(event) => setManual((prev) => ({ ...prev, name: event.target.value }))} placeholder="task name" style={{ ...inputStyle, width: "100%", fontSize: 13 }} />
             </div>
-            <div style={{ width: 140, borderBottom: `1px solid ${theme.border}`, paddingBottom: 6 }}>
+            <div className="manual-date-box" style={{ width: 140, borderBottom: `1px solid ${theme.border}`, paddingBottom: 6 }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>DATE</div>
               <input type="date" value={manual.date} onChange={(event) => setManual((prev) => ({ ...prev, date: event.target.value }))} style={{ ...inputStyle, width: "100%", fontSize: 13, colorScheme: theme.colorScheme }} />
             </div>
@@ -34,7 +34,7 @@ export default function ManualEntry({ theme, showManual, setShowManual, manual, 
             </div>
             <input value={manual.notes} onChange={(event) => setManual((prev) => ({ ...prev, notes: event.target.value }))} placeholder="details for the invoice" style={{ ...inputStyle, width: "100%", fontSize: 13 }} />
           </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <div className="manual-metrics-row" style={{ display: "flex", gap: 8, marginBottom: 12 }}>
             {[["HRS", "hours"], ["MIN", "minutes"], ["$/HR", "rate"]].map(([label, key]) => (
               <div key={key} style={{ flex: 1, borderBottom: `1px solid ${theme.border}`, paddingBottom: 6 }}>
                 <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>{label}</div>

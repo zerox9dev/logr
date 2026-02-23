@@ -3,7 +3,7 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
 
   return (
     <>
-      <div style={{ display: "flex", gap: 1, marginBottom: 20 }}>
+      <div className="stats-row" style={{ display: "flex", gap: 1, marginBottom: 20 }}>
         {[
           { label: "DONE", value: doneSessions.length },
           { label: "HRS", value: totalHours },
@@ -16,7 +16,7 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+      <div className="export-row" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         <button onClick={onExportCsv} style={{ flex: 1, padding: "9px", background: "transparent", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.15em" }}>
           ↓ CSV
         </button>
