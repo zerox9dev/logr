@@ -431,7 +431,7 @@ export default function LogrApp() {
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/tracker` },
     });
 
     if (error) {
