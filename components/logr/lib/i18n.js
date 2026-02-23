@@ -1,6 +1,15 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+function detectInitialLanguage() {
+  if (typeof window === "undefined") return "en";
+  const raw = window.navigator.language || window.navigator.languages?.[0] || "en";
+  const normalized = String(raw).toLowerCase();
+  if (normalized.startsWith("ru")) return "ru";
+  if (normalized.startsWith("uk")) return "uk";
+  return "en";
+}
+
 const resources = {
   en: {
     translation: {
@@ -601,7 +610,7 @@ const resources = {
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
     resources,
-    lng: "en",
+    lng: detectInitialLanguage(),
     fallbackLng: "en",
     interpolation: {
       escapeValue: false,

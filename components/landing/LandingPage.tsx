@@ -6,6 +6,307 @@ import { useEffect, useMemo, useState } from "react";
 const ARM_RATE = 75;
 const BASE_SECONDS = 3600 + 23 * 60 + 47;
 const LOST_TARGET = 6500;
+type SiteLang = "en" | "ru" | "uk";
+
+function detectSiteLanguage(): SiteLang {
+  if (typeof window === "undefined") return "en";
+  const raw = window.navigator.language || window.navigator.languages?.[0] || "en";
+  const normalized = String(raw).toLowerCase();
+  if (normalized.startsWith("ru")) return "ru";
+  if (normalized.startsWith("uk")) return "uk";
+  return "en";
+}
+
+const LANDING_COPY = {
+  en: {
+    nav: { preview: "Preview", features: "Features", pricing: "Pricing", tryFree: "Try free" },
+    hero: {
+      eyebrow: "Freelance time tracker",
+      line1: "Your time",
+      line2: "is your",
+      line3: "currency.",
+      sub: "Every unbilled minute is money left on the table. Logr makes every second visible - so you always get paid what you're worth.",
+      start: "Start tracking free",
+      see: "See it in action",
+      now: "YOUR TIME, RIGHT NOW",
+      workingOn: "Working on",
+      project: "Homepage redesign",
+      caption1: "In the film, you could see your time running out.",
+      caption2: "With Logr, you can see it adding up.",
+    },
+    ticker: [
+      "TIME IS MONEY",
+      "EVERY MINUTE COUNTS",
+      "LOG IT - BILL IT - KEEP IT",
+      "DON'T WASTE A SECOND",
+      "YOUR TIME - YOUR RULES",
+      "FREELANCE SMARTER",
+    ],
+    impact: [
+      {
+        big: "2.5h",
+        suffix: "/wk",
+        desc: "Average time freelancers lose on admin - manually writing invoices, filling in spreadsheets, ",
+        strong: "chasing hours they forgot to log.",
+      },
+      {
+        desc: "Lost per year at $50/hr from those 2.5 hours. That's ",
+        strong: "real money you worked for",
+        tail: " - and never got paid.",
+      },
+      {
+        big: "1",
+        suffix: "app",
+        desc: "Is all it takes to fix it. Track time, manage clients, log tasks, generate invoices. ",
+        strong: "Everything in one place.",
+      },
+    ],
+    preview: {
+      title1: "The app.",
+      title2: "Clean by design.",
+      sub: "No onboarding, no tutorials. Add a client, type a task, press Space. That's it.",
+    },
+    features: {
+      label: "Features",
+      title1: "Built for how freelancers",
+      title2: "actually work.",
+      c1t1: "Space to",
+      c1t2: "start",
+      c1d: "Hit Space to start tracking. Hit Space to stop. The fastest time tracker is one that gets out of your way.",
+      c2t1: "Clients",
+      c2t2: "& projects",
+      c2d: "Organize work by client, drill down into projects. See exactly how much each relationship earns you.",
+      c3t1: "Session",
+      c3t2: "notes",
+      c3d: "Add a line describing what you did. It shows on your invoice - so clients pay without questions.",
+      c4t1: "Invoice",
+      c4t2: "in one click",
+      c4d: "Filter by client and month, click PDF. A professional invoice ready to send in under 60 seconds.",
+    },
+    pricing: {
+      label: "Pricing",
+      title1: "Simple.",
+      title2: "No surprises.",
+      freeForever: "Free forever",
+      noCard: "No credit card",
+      getStarted: "Get started",
+      comingSoon: "COMING SOON",
+      perMonth: "per month",
+      notAvailable: "Not available yet",
+      unlimitedTracking: "Unlimited tracking",
+      upToClients: "Up to 3 clients",
+      unlimitedClients: "Unlimited clients",
+      invoicePdf: "Invoice PDF",
+      csvExport: "CSV export",
+      cloudSync: "Cloud sync",
+      multiDevice: "Multi-device",
+    },
+    cta: {
+      title1: "Stop losing time.",
+      title2: "Start earning more.",
+      tryFree: "Try Logr for free",
+      seeApp: "See the app",
+    },
+    footer: {
+      copy: "© 2026 Logr. Built for freelancers.",
+      app: "App",
+      pricing: "Pricing",
+      privacy: "Privacy",
+    },
+  },
+  ru: {
+    nav: { preview: "Обзор", features: "Возможности", pricing: "Цены", tryFree: "Попробовать" },
+    hero: {
+      eyebrow: "Трекер времени для фрилансеров",
+      line1: "Твое время",
+      line2: "это твоя",
+      line3: "валюта.",
+      sub: "Каждая неучтенная минута это деньги, которые остаются на столе. Logr делает видимой каждую секунду, чтобы ты всегда получал оплату за свою работу.",
+      start: "Начать бесплатно",
+      see: "Посмотреть в деле",
+      now: "ТВОЕ ВРЕМЯ ПРЯМО СЕЙЧАС",
+      workingOn: "Сейчас в работе",
+      project: "Редизайн главной",
+      caption1: "В фильме можно было видеть, как время заканчивается.",
+      caption2: "С Logr ты видишь, как оно превращается в деньги.",
+    },
+    ticker: [
+      "ВРЕМЯ ЭТО ДЕНЬГИ",
+      "КАЖДАЯ МИНУТА ВАЖНА",
+      "УЧИТЫВАЙ - ВЫСТАВЛЯЙ - ЗАБИРАЙ",
+      "НЕ ТЕРЯЙ НИ СЕКУНДЫ",
+      "ТВОЕ ВРЕМЯ - ТВОИ ПРАВИЛА",
+      "ФРИЛАНС УМНЕЕ",
+    ],
+    impact: [
+      {
+        big: "2.5ч",
+        suffix: "/нед",
+        desc: "В среднем фрилансеры теряют на рутине - вручную делают инвойсы, ведут таблицы, ",
+        strong: "и упускают часы, которые забыли залогировать.",
+      },
+      {
+        desc: "Потери в год при ставке $50/ч из-за этих 2.5 часов. Это ",
+        strong: "реальные деньги, которые ты заработал",
+        tail: " - и не получил.",
+      },
+      {
+        big: "1",
+        suffix: "приложение",
+        desc: "Достаточно, чтобы это исправить. Учет времени, клиенты, задачи, инвойсы. ",
+        strong: "Все в одном месте.",
+      },
+    ],
+    preview: {
+      title1: "Приложение.",
+      title2: "Чистый интерфейс.",
+      sub: "Без онбординга и туториалов. Добавь клиента, введи задачу, нажми Space. И готово.",
+    },
+    features: {
+      label: "Возможности",
+      title1: "Сделано под то, как фрилансеры",
+      title2: "работают в реальности.",
+      c1t1: "Пробел для",
+      c1t2: "старта",
+      c1d: "Нажми Space чтобы начать трекинг. Нажми Space чтобы остановить. Самый быстрый трекер тот, который не мешает.",
+      c2t1: "Клиенты",
+      c2t2: "и проекты",
+      c2d: "Организуй работу по клиентам и проектам. Сразу видно, сколько приносит каждое сотрудничество.",
+      c3t1: "Заметки",
+      c3t2: "к сессиям",
+      c3d: "Добавь строку о проделанной работе. Она попадает в инвойс, и клиент платит без лишних вопросов.",
+      c4t1: "Инвойс",
+      c4t2: "в один клик",
+      c4d: "Фильтруй по клиенту и месяцу, жми PDF. Готовый инвойс меньше чем за минуту.",
+    },
+    pricing: {
+      label: "Цены",
+      title1: "Просто.",
+      title2: "Без сюрпризов.",
+      freeForever: "Бесплатно навсегда",
+      noCard: "Без карты",
+      getStarted: "Начать",
+      comingSoon: "СКОРО",
+      perMonth: "в месяц",
+      notAvailable: "Пока недоступно",
+      unlimitedTracking: "Неограниченный трекинг",
+      upToClients: "До 3 клиентов",
+      unlimitedClients: "Неограниченно клиентов",
+      invoicePdf: "PDF инвойсы",
+      csvExport: "Экспорт CSV",
+      cloudSync: "Облачная синхронизация",
+      multiDevice: "Несколько устройств",
+    },
+    cta: {
+      title1: "Хватит терять время.",
+      title2: "Начни зарабатывать больше.",
+      tryFree: "Попробовать Logr бесплатно",
+      seeApp: "Посмотреть приложение",
+    },
+    footer: {
+      copy: "© 2026 Logr. Сделано для фрилансеров.",
+      app: "Приложение",
+      pricing: "Цены",
+      privacy: "Конфиденциальность",
+    },
+  },
+  uk: {
+    nav: { preview: "Огляд", features: "Можливості", pricing: "Ціни", tryFree: "Спробувати" },
+    hero: {
+      eyebrow: "Трекер часу для фрилансерів",
+      line1: "Твій час",
+      line2: "це твоя",
+      line3: "валюта.",
+      sub: "Кожна незалогована хвилина це гроші, які ти втрачаєш. Logr робить видимою кожну секунду, щоб ти завжди отримував оплату за роботу.",
+      start: "Почати безкоштовно",
+      see: "Подивитись у дії",
+      now: "ТВІЙ ЧАС ПРЯМО ЗАРАЗ",
+      workingOn: "Зараз у роботі",
+      project: "Редизайн головної",
+      caption1: "У фільмі було видно, як час закінчується.",
+      caption2: "З Logr ти бачиш, як він перетворюється на дохід.",
+    },
+    ticker: [
+      "ЧАС ЦЕ ГРОШІ",
+      "КОЖНА ХВИЛИНА ВАЖЛИВА",
+      "ЗАЛОГУЙ - ВИСТАВЛЯЙ - ОТРИМУЙ",
+      "НЕ ВТРАЧАЙ ЖОДНОЇ СЕКУНДИ",
+      "ТВІЙ ЧАС - ТВОЇ ПРАВИЛА",
+      "ФРИЛАНС РОЗУМНІШЕ",
+    ],
+    impact: [
+      {
+        big: "2.5г",
+        suffix: "/тиж",
+        desc: "У середньому фрилансери втрачають на адмінці - вручну пишуть інвойси, ведуть таблиці, ",
+        strong: "і гублять години, які забули залогувати.",
+      },
+      {
+        desc: "Втрати за рік при ставці $50/год через ці 2.5 години. Це ",
+        strong: "реальні гроші, які ти заробив",
+        tail: " - але не отримав.",
+      },
+      {
+        big: "1",
+        suffix: "додаток",
+        desc: "І цього достатньо, щоб усе виправити. Трек часу, клієнти, задачі, інвойси. ",
+        strong: "Все в одному місці.",
+      },
+    ],
+    preview: {
+      title1: "Додаток.",
+      title2: "Чистий дизайн.",
+      sub: "Без онбордингу та туторіалів. Додай клієнта, введи задачу, натисни Space. І все.",
+    },
+    features: {
+      label: "Можливості",
+      title1: "Створено під те, як фрилансери",
+      title2: "працюють насправді.",
+      c1t1: "Пробіл для",
+      c1t2: "старту",
+      c1d: "Натисни Space щоб почати трекінг. Натисни Space щоб зупинити. Найшвидший трекер той, який не заважає.",
+      c2t1: "Клієнти",
+      c2t2: "і проєкти",
+      c2d: "Організовуй роботу за клієнтами та проєктами. Одразу видно, скільки приносить кожна співпраця.",
+      c3t1: "Нотатки",
+      c3t2: "до сесій",
+      c3d: "Додай рядок про виконану роботу. Він потрапляє в інвойс, і клієнт платить без зайвих питань.",
+      c4t1: "Інвойс",
+      c4t2: "в один клік",
+      c4d: "Фільтруй за клієнтом і місяцем, натискай PDF. Готовий інвойс менш ніж за хвилину.",
+    },
+    pricing: {
+      label: "Ціни",
+      title1: "Просто.",
+      title2: "Без сюрпризів.",
+      freeForever: "Безкоштовно назавжди",
+      noCard: "Без картки",
+      getStarted: "Почати",
+      comingSoon: "СКОРО",
+      perMonth: "на місяць",
+      notAvailable: "Ще недоступно",
+      unlimitedTracking: "Необмежений трекінг",
+      upToClients: "До 3 клієнтів",
+      unlimitedClients: "Необмежено клієнтів",
+      invoicePdf: "PDF інвойси",
+      csvExport: "Експорт CSV",
+      cloudSync: "Хмарна синхронізація",
+      multiDevice: "Кілька пристроїв",
+    },
+    cta: {
+      title1: "Досить втрачати час.",
+      title2: "Почни заробляти більше.",
+      tryFree: "Спробувати Logr безкоштовно",
+      seeApp: "Подивитись застосунок",
+    },
+    footer: {
+      copy: "© 2026 Logr. Створено для фрилансерів.",
+      app: "Застосунок",
+      pricing: "Ціни",
+      privacy: "Приватність",
+    },
+  },
+};
 
 function formatClock(seconds: number) {
   const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
@@ -15,9 +316,11 @@ function formatClock(seconds: number) {
 }
 
 export default function LandingPage() {
+  const [lang] = useState<SiteLang>(() => detectSiteLanguage());
   const [scrolled, setScrolled] = useState(false);
   const [seconds, setSeconds] = useState(BASE_SECONDS);
   const [lostCounter, setLostCounter] = useState(0);
+  const c = LANDING_COPY[lang];
 
   const earned = useMemo(() => `$${((seconds / 3600) * ARM_RATE).toFixed(2)}`, [seconds]);
   const time = useMemo(() => formatClock(seconds), [seconds]);
@@ -81,38 +384,38 @@ export default function LandingPage() {
           Logr
         </a>
         <div className="nav-links">
-          <a href="#preview">Preview</a>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
+          <a href="#preview">{c.nav.preview}</a>
+          <a href="#features">{c.nav.features}</a>
+          <a href="#pricing">{c.nav.pricing}</a>
           <Link href="/tracker" className="nav-cta">
-            Try free
+            {c.nav.tryFree}
           </Link>
         </div>
       </nav>
 
       <section className="hero">
         <div className="hero-left">
-          <div className="hero-eyebrow">Freelance time tracker</div>
+          <div className="hero-eyebrow">{c.hero.eyebrow}</div>
           <h1 className="hero-title">
-            Your time
+            {c.hero.line1}
             <br />
-            is your
+            {c.hero.line2}
             <br />
-            <em>currency.</em>
+            <em>{c.hero.line3}</em>
           </h1>
-          <p className="hero-sub">Every unbilled minute is money left on the table. Logr makes every second visible - so you always get paid what you&apos;re worth.</p>
+          <p className="hero-sub">{c.hero.sub}</p>
           <div className="hero-btns">
             <Link href="/tracker" className="btn-solid">
-              Start tracking free
+              {c.hero.start}
             </Link>
             <a href="#preview" className="btn-ghost">
-              See it in action
+              {c.hero.see}
             </a>
           </div>
         </div>
 
         <div className="hero-right">
-          <div className="arm-label-top">YOUR TIME, RIGHT NOW</div>
+          <div className="arm-label-top">{c.hero.now}</div>
           <div className="arm-device">
             <div className="arm-time-display">
               {time.slice(0, 2)}
@@ -128,12 +431,12 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="arm-project">
-            Working on - <span>Homepage redesign</span>
+            {c.hero.workingOn} - <span>{c.hero.project}</span>
           </div>
           <p className="arm-caption">
-            In the film, you could see your time running out.
+            {c.hero.caption1}
             <br />
-            With Logr, you can see it adding up.
+            {c.hero.caption2}
           </p>
         </div>
       </section>
@@ -141,18 +444,8 @@ export default function LandingPage() {
       <div className="ticker">
         <div className="ticker-track">
           {[
-            "TIME IS MONEY",
-            "EVERY MINUTE COUNTS",
-            "LOG IT - BILL IT - KEEP IT",
-            "DON'T WASTE A SECOND",
-            "YOUR TIME - YOUR RULES",
-            "FREELANCE SMARTER",
-            "TIME IS MONEY",
-            "EVERY MINUTE COUNTS",
-            "LOG IT - BILL IT - KEEP IT",
-            "DON'T WASTE A SECOND",
-            "YOUR TIME - YOUR RULES",
-            "FREELANCE SMARTER",
+            ...c.ticker,
+            ...c.ticker,
           ].map((item, index) => (
             <span key={`${item}-${index}`} className={`ticker-item ${index % 2 === 0 ? "hi" : ""}`}>
               {item}
@@ -164,26 +457,31 @@ export default function LandingPage() {
       <div className="impact">
         <div className="impact-block reveal">
           <div className="impact-big">
-            2.5h<em>/wk</em>
+            {c.impact[0].big}
+            <em>{c.impact[0].suffix}</em>
           </div>
           <p className="impact-desc">
-            Average time freelancers lose on admin - manually writing invoices, filling in spreadsheets, <strong>chasing hours they forgot to log.</strong>
+            {c.impact[0].desc}
+            <strong>{c.impact[0].strong}</strong>
           </p>
         </div>
 
         <div className="impact-block reveal">
           <div className="impact-big">${lostCounter.toLocaleString()}</div>
           <p className="impact-desc">
-            Lost per year at $50/hr from those 2.5 hours. That&apos;s <strong>real money you worked for</strong> - and never got paid.
+            {c.impact[1].desc}
+            <strong>{c.impact[1].strong}</strong>
+            {c.impact[1].tail}
           </p>
         </div>
 
         <div className="impact-block reveal">
           <div className="impact-big">
-            <em>1</em> app
+            <em>{c.impact[2].big}</em> {c.impact[2].suffix}
           </div>
           <p className="impact-desc">
-            Is all it takes to fix it. Track time, manage clients, log tasks, generate invoices. <strong>Everything in one place.</strong>
+            {c.impact[2].desc}
+            <strong>{c.impact[2].strong}</strong>
           </p>
         </div>
       </div>
@@ -191,11 +489,11 @@ export default function LandingPage() {
       <section className="preview-section" id="preview">
         <div className="preview-header reveal">
           <h2 className="preview-title">
-            The app.
+            {c.preview.title1}
             <br />
-            <em>Clean by design.</em>
+            <em>{c.preview.title2}</em>
           </h2>
-          <p className="preview-subtitle">No onboarding, no tutorials. Add a client, type a task, press Space. That&apos;s it.</p>
+          <p className="preview-subtitle">{c.preview.sub}</p>
         </div>
 
         <div className="app-mock reveal">
@@ -353,11 +651,11 @@ export default function LandingPage() {
 
       <section className="features-section" id="features">
         <div className="reveal">
-          <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>Features</div>
+          <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>{c.features.label}</div>
           <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: "clamp(36px,4.5vw,60px)", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-            Built for how freelancers
+            {c.features.title1}
             <br />
-            <em>actually work.</em>
+            <em>{c.features.title2}</em>
           </h2>
         </div>
 
@@ -365,104 +663,104 @@ export default function LandingPage() {
           <div className="feat-card reveal">
             <div className="feat-num">01</div>
             <div className="feat-title">
-              Space to <em>start</em>
+              {c.features.c1t1} <em>{c.features.c1t2}</em>
             </div>
-            <p className="feat-desc">Hit Space to start tracking. Hit Space to stop. The fastest time tracker is one that gets out of your way.</p>
+            <p className="feat-desc">{c.features.c1d}</p>
           </div>
           <div className="feat-card reveal">
             <div className="feat-num">02</div>
             <div className="feat-title">
-              Clients <em>&amp;</em> projects
+              {c.features.c2t1} <em>{c.features.c2t2}</em>
             </div>
-            <p className="feat-desc">Organize work by client, drill down into projects. See exactly how much each relationship earns you.</p>
+            <p className="feat-desc">{c.features.c2d}</p>
           </div>
           <div className="feat-card reveal">
             <div className="feat-num">03</div>
             <div className="feat-title">
-              Session <em>notes</em>
+              {c.features.c3t1} <em>{c.features.c3t2}</em>
             </div>
-            <p className="feat-desc">Add a line describing what you did. It shows on your invoice - so clients pay without questions.</p>
+            <p className="feat-desc">{c.features.c3d}</p>
           </div>
           <div className="feat-card reveal">
             <div className="feat-num">04</div>
             <div className="feat-title">
-              Invoice <em>in one click</em>
+              {c.features.c4t1} <em>{c.features.c4t2}</em>
             </div>
-            <p className="feat-desc">Filter by client and month, click PDF. A professional invoice ready to send in under 60 seconds.</p>
+            <p className="feat-desc">{c.features.c4d}</p>
           </div>
         </div>
       </section>
 
       <section className="pricing-section" id="pricing">
         <div className="reveal">
-          <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>Pricing</div>
+          <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>{c.pricing.label}</div>
           <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: "clamp(36px,4.5vw,60px)", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-            Simple.
+            {c.pricing.title1}
             <br />
-            <em>No surprises.</em>
+            <em>{c.pricing.title2}</em>
           </h2>
         </div>
 
         <div className="pricing-cards">
           <div className="pricing-card reveal">
-            <div className="p-plan">Free forever</div>
+            <div className="p-plan">{c.pricing.freeForever}</div>
             <div className="p-price">$0</div>
-            <div className="p-period">No credit card</div>
+            <div className="p-period">{c.pricing.noCard}</div>
             <div className="p-feats">
-              <div className="p-feat yes">Unlimited tracking</div>
-              <div className="p-feat yes">Up to 3 clients</div>
-              <div className="p-feat yes">Invoice PDF</div>
-              <div className="p-feat yes">CSV export</div>
-              <div className="p-feat">Cloud sync</div>
-              <div className="p-feat">Multi-device</div>
+              <div className="p-feat yes">{c.pricing.unlimitedTracking}</div>
+              <div className="p-feat yes">{c.pricing.upToClients}</div>
+              <div className="p-feat yes">{c.pricing.invoicePdf}</div>
+              <div className="p-feat yes">{c.pricing.csvExport}</div>
+              <div className="p-feat">{c.pricing.cloudSync}</div>
+              <div className="p-feat">{c.pricing.multiDevice}</div>
             </div>
             <Link href="/tracker" className="p-btn p-btn-outline">
-              Get started
+              {c.pricing.getStarted}
             </Link>
           </div>
 
           <div className="pricing-card dark reveal">
             <div className="p-plan">
-              Pro <span style={{ fontSize: 9, border: "1px solid #333", padding: "2px 7px", letterSpacing: "0.1em", verticalAlign: "middle" }}>COMING SOON</span>
+              Pro <span style={{ fontSize: 9, border: "1px solid #333", padding: "2px 7px", letterSpacing: "0.1em", verticalAlign: "middle" }}>{c.pricing.comingSoon}</span>
             </div>
             <div className="p-price">$9</div>
-            <div className="p-period">per month</div>
+            <div className="p-period">{c.pricing.perMonth}</div>
             <div className="p-feats">
-              <div className="p-feat yes">Unlimited tracking</div>
-              <div className="p-feat yes">Unlimited clients</div>
-              <div className="p-feat yes">Invoice PDF</div>
-              <div className="p-feat yes">CSV export</div>
-              <div className="p-feat yes">Cloud sync</div>
-              <div className="p-feat yes">Multi-device</div>
+              <div className="p-feat yes">{c.pricing.unlimitedTracking}</div>
+              <div className="p-feat yes">{c.pricing.unlimitedClients}</div>
+              <div className="p-feat yes">{c.pricing.invoicePdf}</div>
+              <div className="p-feat yes">{c.pricing.csvExport}</div>
+              <div className="p-feat yes">{c.pricing.cloudSync}</div>
+              <div className="p-feat yes">{c.pricing.multiDevice}</div>
             </div>
-            <div className="p-soon">Not available yet</div>
+            <div className="p-soon">{c.pricing.notAvailable}</div>
           </div>
         </div>
       </section>
 
       <section className="cta">
         <h2 className="cta-title reveal">
-          Stop losing time.
+          {c.cta.title1}
           <br />
-          <em>Start earning more.</em>
+          <em>{c.cta.title2}</em>
         </h2>
         <div className="reveal" style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center" }}>
           <Link href="/tracker" className="btn-solid">
-            Try Logr for free
+            {c.cta.tryFree}
           </Link>
           <a href="#preview" className="btn-ghost">
-            See the app
+            {c.cta.seeApp}
           </a>
         </div>
       </section>
 
       <footer>
         <div className="f-logo">Logr</div>
-        <div className="f-copy">© 2026 Logr. Built for freelancers.</div>
+        <div className="f-copy">{c.footer.copy}</div>
         <div className="f-links">
-          <Link href="/tracker">App</Link>
-          <a href="#pricing">Pricing</a>
-          <a href="#">Privacy</a>
+          <Link href="/tracker">{c.footer.app}</Link>
+          <a href="#pricing">{c.footer.pricing}</a>
+          <a href="#">{c.footer.privacy}</a>
         </div>
       </footer>
 

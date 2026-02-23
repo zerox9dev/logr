@@ -52,6 +52,7 @@ function normalizeLanguage(value) {
 export default function LogrApp() {
   const { t, i18n } = useTranslation();
   const supabase = getSupabaseClient();
+  const defaultLanguage = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
 
   const [dark, setDark] = useState(false);
   const theme = dark ? DARK_THEME : LIGHT_THEME;
@@ -78,7 +79,7 @@ export default function LogrApp() {
   const [taskRate, setTaskRate] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
   const [profileCurrency, setProfileCurrency] = useState("USD");
-  const [profileLanguage, setProfileLanguage] = useState("en");
+  const [profileLanguage, setProfileLanguage] = useState(defaultLanguage);
   const [isCurrencyConverting, setIsCurrencyConverting] = useState(false);
   const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
@@ -182,7 +183,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
-        setProfileLanguage("en");
+        setProfileLanguage(defaultLanguage);
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -204,7 +205,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
-        setProfileLanguage("en");
+        setProfileLanguage(defaultLanguage);
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -219,7 +220,7 @@ export default function LogrApp() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, defaultLanguage]);
 
   useEffect(() => {
     if (!supabase || !user) return;
@@ -266,7 +267,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
-        setProfileLanguage("en");
+        setProfileLanguage(defaultLanguage);
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setSyncReady(true);
@@ -287,7 +288,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
-        setProfileLanguage("en");
+        setProfileLanguage(defaultLanguage);
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
 
@@ -296,7 +297,7 @@ export default function LogrApp() {
             user_id: user.id,
             clients: [],
             sessions: [],
-            settings: { hourlyRate: "50", currency: "USD", language: "en", workdayHours: "8", requireProjectForFixed: false },
+            settings: { hourlyRate: "50", currency: "USD", language: defaultLanguage, workdayHours: "8", requireProjectForFixed: false },
           },
           { onConflict: "user_id" }
         );
@@ -314,7 +315,7 @@ export default function LogrApp() {
     return () => {
       ignore = true;
     };
-  }, [supabase, user]);
+  }, [supabase, user, defaultLanguage]);
 
   useEffect(() => {
     if (!user || !syncReady) return;
