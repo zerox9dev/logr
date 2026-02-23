@@ -66,7 +66,14 @@ export default function ProjectAndDateFilters({
                 {[["hourly", "HOURLY"], ["fixed_project", "FIXED"]].map(([value, label]) => (
                   <button
                     key={value}
-                    onClick={() => setNewProjectBillingType(value)}
+                    onClick={() => {
+                      setNewProjectBillingType(value);
+                      if (value === "hourly") {
+                        setNewProjectBudget("");
+                      } else {
+                        setNewProjectRate("");
+                      }
+                    }}
                     style={{
                       padding: "4px 8px",
                       background: newProjectBillingType === value ? theme.tabActiveBg : "transparent",
@@ -82,36 +89,25 @@ export default function ProjectAndDateFilters({
                   </button>
                 ))}
               </div>
-              {newProjectBillingType === "hourly" && (
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={newProjectRate}
-                  onChange={(event) => setNewProjectRate(event.target.value)}
-                  placeholder="hourly $"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") onAddProject();
-                    if (event.key === "Escape") setShowAddProject(false);
-                  }}
-                  style={{ ...inputStyle, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, width: 86 }}
-                />
-              )}
-              {newProjectBillingType === "fixed_project" && (
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={newProjectBudget}
-                  onChange={(event) => setNewProjectBudget(event.target.value)}
-                  placeholder="fixed $"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") onAddProject();
-                    if (event.key === "Escape") setShowAddProject(false);
-                  }}
-                  style={{ ...inputStyle, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, width: 90 }}
-                />
-              )}
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={newProjectBillingType === "hourly" ? newProjectRate : newProjectBudget}
+                onChange={(event) => {
+                  if (newProjectBillingType === "hourly") {
+                    setNewProjectRate(event.target.value);
+                  } else {
+                    setNewProjectBudget(event.target.value);
+                  }
+                }}
+                placeholder={newProjectBillingType === "hourly" ? "hourly $" : "fixed $"}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") onAddProject();
+                  if (event.key === "Escape") setShowAddProject(false);
+                }}
+                style={{ ...inputStyle, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, width: 90 }}
+              />
             </div>
           ) : (
             <button
