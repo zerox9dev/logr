@@ -4,9 +4,13 @@ create table if not exists public.user_app_state (
   user_id uuid primary key references auth.users (id) on delete cascade,
   clients jsonb not null default '[]'::jsonb,
   sessions jsonb not null default '[]'::jsonb,
+  settings jsonb not null default '{"hourlyRate":"50","workdayHours":"8"}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.user_app_state
+add column if not exists settings jsonb not null default '{"hourlyRate":"50","workdayHours":"8"}'::jsonb;
 
 create or replace function public.set_updated_at()
 returns trigger

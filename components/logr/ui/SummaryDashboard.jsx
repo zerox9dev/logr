@@ -39,6 +39,22 @@ function getLastDays(days) {
   return list;
 }
 
+function getSessionMoney(session, countedProjectKeys) {
+  const billingType = session.billingType || "hourly";
+  if (billingType === "fixed_project") {
+    const projectKey = `${session.clientId || "no-client"}:${session.projectId || "no-project"}`;
+    if (!session.projectId || countedProjectKeys.has(projectKey)) return 0;
+    countedProjectKeys.add(projectKey);
+    return parseFloat(session.fixedAmount || 0);
+  }
+  return parseFloat(session.earned || 0);
+}
+
+function sumMoney(sessionsList) {
+  const countedProjectKeys = new Set();
+  return sessionsList.reduce((sum, session) => sum + getSessionMoney(session, countedProjectKeys), 0);
+}
+
 export default function SummaryDashboard({ theme, clients, sessions }) {
   const [range, setRange] = useState("week");
 
@@ -49,7 +65,7 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
   );
 
   const totalSeconds = filteredDoneSessions.reduce((sum, session) => sum + session.duration, 0);
-  const totalMoney = filteredDoneSessions.reduce((sum, session) => sum + session.earned, 0);
+  const totalMoney = sumMoney(filteredDoneSessions);
   const avgRate = filteredDoneSessions.length > 0 ? totalMoney / (totalSeconds / 3600 || 1) : 0;
 
   const sessionsToday = doneSessions.filter((session) => isInRange(session.ts, "today"));
@@ -57,11 +73,13 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
 
   const topClients = useMemo(() => {
     const totalsByClient = new Map();
+    const countedProjectKeys = new Set();
 
     filteredDoneSessions.forEach((session) => {
+      const money = getSessionMoney(session, countedProjectKeys);
       const current = totalsByClient.get(session.clientId) || { earned: 0, duration: 0, count: 0 };
       totalsByClient.set(session.clientId, {
-        earned: current.earned + session.earned,
+        earned: current.earned + money,
         duration: current.duration + session.duration,
         count: current.count + 1,
       });
@@ -86,8 +104,10 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
     filteredDoneSessions.forEach((session) => {
       if (!session.projectId) return;
       const current = byProject.get(session.projectId) || { earned: 0, duration: 0 };
+      const billingType = session.billingType || "hourly";
+      const money = billingType === "fixed_project" ? parseFloat(session.fixedAmount || 0) : parseFloat(session.earned || 0);
       byProject.set(session.projectId, {
-        earned: current.earned + session.earned,
+        earned: billingType === "fixed_project" ? Math.max(current.earned, money) : current.earned + money,
         duration: current.duration + session.duration,
       });
     });
@@ -108,11 +128,12 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
 
   const dailyTrend = useMemo(() => {
     const days = getLastDays(7);
+    const countedProjectKeys = new Set();
     return days.map((day) => {
       const key = day.toDateString();
       const daySessions = filteredDoneSessions.filter((session) => new Date(session.ts).toDateString() === key);
       const duration = daySessions.reduce((sum, session) => sum + session.duration, 0);
-      const earned = daySessions.reduce((sum, session) => sum + session.earned, 0);
+      const earned = daySessions.reduce((sum, session) => sum + getSessionMoney(session, countedProjectKeys), 0);
       return {
         label: day.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }),
         duration,
@@ -163,12 +184,12 @@ export default function SummaryDashboard({ theme, clients, sessions }) {
           {
             label: "TODAY",
             value: `${formatHours(sessionsToday.reduce((sum, s) => sum + s.duration, 0))} h`,
-            note: formatMoney(sessionsToday.reduce((sum, s) => sum + s.earned, 0)),
+            note: formatMoney(sumMoney(sessionsToday)),
           },
           {
             label: "THIS MONTH",
             value: `${formatHours(sessionsMonth.reduce((sum, s) => sum + s.duration, 0))} h`,
-            note: formatMoney(sessionsMonth.reduce((sum, s) => sum + s.earned, 0)),
+            note: formatMoney(sumMoney(sessionsMonth)),
           },
         ].map((card) => (
           <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px" }}>

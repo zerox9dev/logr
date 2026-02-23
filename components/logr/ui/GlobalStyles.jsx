@@ -17,6 +17,7 @@ export default function GlobalStyles() {
         .mobile-bar { display: flex !important; }
         .timer-value { font-size: 44px !important; }
         .task-top-row { flex-wrap: wrap; }
+        .task-date-box { width: 100% !important; }
         .task-rate-box { width: 100% !important; }
         .task-action-row { flex-direction: column; }
         .manual-top-row { flex-wrap: wrap; }

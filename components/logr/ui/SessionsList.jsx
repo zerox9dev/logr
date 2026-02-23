@@ -32,6 +32,10 @@ export default function SessionsList({
       {visibleSessions.map((session) => {
         const project = activeProjects.find((item) => item.id === session.projectId);
         const isEditing = editId === session.id;
+        const billingType = session.billingType || "hourly";
+        const doneAmount = billingType === "fixed_project"
+          ? parseFloat(session.fixedAmount || 0)
+          : parseFloat(session.earned || 0);
 
         return (
           <div key={session.id} className="row" style={{ borderBottom: `1px solid ${theme.rowBorder}`, padding: "11px 0" }}>
@@ -39,14 +43,36 @@ export default function SessionsList({
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                 <input value={editValues.name} onChange={(event) => setEditValues((prev) => ({ ...prev, name: event.target.value }))} style={{ ...inputStyle, flex: 1, fontSize: 13, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 120 }} />
                 <input value={editValues.notes || ""} onChange={(event) => setEditValues((prev) => ({ ...prev, notes: event.target.value }))} placeholder="notes..." style={{ ...inputStyle, flex: 1, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 100, color: theme.muted }} />
+                <select
+                  value={editValues.billingType || "hourly"}
+                  onChange={(event) => setEditValues((prev) => ({ ...prev, billingType: event.target.value }))}
+                  style={{ ...inputStyle, fontSize: 10, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 110, colorScheme: theme.colorScheme }}
+                >
+                  <option value="hourly">HOURLY</option>
+                  <option value="fixed_project">FIXED</option>
+                </select>
                 <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                   <input type="number" value={editValues.hours} onChange={(event) => setEditValues((prev) => ({ ...prev, hours: event.target.value }))} style={{ ...inputStyle, width: 40, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
                   <span style={{ color: theme.muted, fontSize: 10 }}>h</span>
                   <input type="number" value={editValues.minutes} onChange={(event) => setEditValues((prev) => ({ ...prev, minutes: event.target.value }))} style={{ ...inputStyle, width: 40, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
                   <span style={{ color: theme.muted, fontSize: 10 }}>m</span>
                   <span style={{ color: theme.muted, fontSize: 10, marginLeft: 4 }}>$</span>
-                  <input type="number" value={editValues.rate} onChange={(event) => setEditValues((prev) => ({ ...prev, rate: event.target.value }))} style={{ ...inputStyle, width: 44, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
-                  <span style={{ color: theme.muted, fontSize: 10 }}>/hr</span>
+                  {editValues.billingType === "hourly" ? (
+                    <>
+                      <input
+                        type="number"
+                        value={editValues.rate}
+                        onChange={(event) => setEditValues((prev) => ({ ...prev, rate: event.target.value }))}
+                        style={{ ...inputStyle, width: 56, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }}
+                      />
+                      <span style={{ color: theme.muted, fontSize: 10 }}>/hr</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ color: theme.sessionText, fontSize: 11 }}>{parseFloat(editValues.fixedAmount || 0).toFixed(2)}</span>
+                      <span style={{ color: theme.muted, fontSize: 10 }}>fixed</span>
+                    </>
+                  )}
                 </div>
                 <button onClick={() => onSaveEdit(session)} style={{ background: theme.btnBg, color: theme.btnColor, border: "none", cursor: "pointer", padding: "4px 12px", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.1em" }}>
                   SAVE
@@ -88,7 +114,7 @@ export default function SessionsList({
                     </button>
                   )}
                   {session.duration > 0 && <div style={{ fontSize: 12, color: theme.sessionTime }}>{formatTime(session.duration)}</div>}
-                  {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE }}>${session.earned}</div>}
+                  {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE }}>${doneAmount.toFixed(2)}</div>}
                   <button className="del" onClick={() => onStartEdit(session)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 13, padding: "0 3px", transition: "opacity 0.15s" }}>
                     ✎
                   </button>

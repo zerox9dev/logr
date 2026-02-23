@@ -1,5 +1,3 @@
-export const STORAGE_KEYS = { clients: "logr_clients", sessions: "logr_sessions" };
-
 export const DARK_THEME = {
   bg: "#0f0f0f",
   text: "#e8e8e8",
@@ -44,13 +42,3 @@ export const LIGHT_THEME = {
 
 export const STATUS_COLORS_DARK = { PENDING: "#f5a623", ACTIVE: "#ff4444", DONE: "#a8e6a8" };
 export const STATUS_COLORS_LIGHT = { PENDING: "#c47d00", ACTIVE: "#cc2222", DONE: "#2d7a2d" };
-
-export const DEFAULT_MANUAL = {
-  name: "",
-  date: "",
-  hours: "",
-  minutes: "",
-  rate: "50",
-  status: "DONE",
-  notes: "",
-};

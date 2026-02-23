@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DARK_THEME,
-  DEFAULT_MANUAL,
   LIGHT_THEME,
   STATUS_COLORS_DARK,
   STATUS_COLORS_LIGHT,
-  STORAGE_KEYS,
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
@@ -18,19 +16,15 @@ import WelcomeState from "./ui/WelcomeState";
 import TimerHeader from "./ui/TimerHeader";
 import ProjectAndDateFilters from "./ui/ProjectAndDateFilters";
 import TaskComposer from "./ui/TaskComposer";
-import ManualEntry from "./ui/ManualEntry";
 import StatsAndExports from "./ui/StatsAndExports";
 import SessionsList from "./ui/SessionsList";
 import SummaryDashboard from "./ui/SummaryDashboard";
+import ProfileSettings from "./ui/ProfileSettings";
 
-function loadJson(key, fallback) {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const value = window.localStorage.getItem(key);
-    return value ? JSON.parse(value) : fallback;
-  } catch {
-    return fallback;
-  }
+function getNowDateTimeLocal() {
+  const now = new Date();
+  const offsetMs = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
 export default function LogrApp() {
@@ -57,16 +51,24 @@ export default function LogrApp() {
   const intervalRef = useRef(null);
 
   const [taskName, setTaskName] = useState("");
-  const [taskRate, setTaskRate] = useState("50");
+  const [profileHourlyRate, setProfileHourlyRate] = useState("50");
+  const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
+  const [taskStatus, setTaskStatus] = useState("ACTIVE");
+  const [profileWorkdayHours, setProfileWorkdayHours] = useState("8");
+  const [taskDays, setTaskDays] = useState("");
+  const [taskHours, setTaskHours] = useState("");
+  const [taskMinutes, setTaskMinutes] = useState("");
+  const [taskFixedAmount, setTaskFixedAmount] = useState("");
+  const [taskDateTime, setTaskDateTime] = useState(() => getNowDateTimeLocal());
 
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddProject, setShowAddProject] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [newProjectName, setNewProjectName] = useState("");
-
-  const [showManual, setShowManual] = useState(false);
-  const [manual, setManual] = useState(DEFAULT_MANUAL);
+  const [newProjectBillingType, setNewProjectBillingType] = useState("hourly");
+  const [newProjectRate, setNewProjectRate] = useState("");
+  const [newProjectBudget, setNewProjectBudget] = useState("");
 
   const [dateFilter, setDateFilter] = useState("all");
   const [customMonth, setCustomMonth] = useState(() => {
@@ -97,6 +99,21 @@ export default function LogrApp() {
     }, 3000);
   }
 
+  const calculateSessionEarned = useCallback((duration, session) => {
+    if (session.billingType === "fixed_project") {
+      return 0;
+    }
+    return parseFloat(((duration / 3600) * parseFloat(session.rate || 0)).toFixed(2));
+  }, []);
+
+  function taskDurationSeconds() {
+    const days = parseInt(taskDays || 0, 10);
+    const dayHours = parseFloat(profileWorkdayHours || 8);
+    const normalizedDayHours = Number.isFinite(dayHours) && dayHours > 0 ? dayHours : 8;
+    const daysSeconds = (Number.isFinite(days) ? days : 0) * normalizedDayHours * 3600;
+    return daysSeconds + durationFromHoursMinutes(taskHours, taskMinutes);
+  }
+
   useEffect(() => {
     if (!supabase) return;
 
@@ -110,6 +127,8 @@ export default function LogrApp() {
         setSyncReady(false);
         setClients([]);
         setSessions([]);
+        setProfileHourlyRate("50");
+        setProfileWorkdayHours("8");
         setRunning(false);
         setElapsed(0);
         setActiveSessionId(null);
@@ -126,6 +145,8 @@ export default function LogrApp() {
         setSyncReady(false);
         setClients([]);
         setSessions([]);
+        setProfileHourlyRate("50");
+        setProfileWorkdayHours("8");
         setRunning(false);
         setElapsed(0);
         setActiveSessionId(null);
@@ -145,15 +166,12 @@ export default function LogrApp() {
     let ignore = false;
 
     async function loadUserState() {
-      const localClients = loadJson(STORAGE_KEYS.clients, []);
-      const localSessions = loadJson(STORAGE_KEYS.sessions, []);
-
       setSyncReady(false);
       setSyncError("");
 
       const { data, error, status } = await supabase
         .from("user_app_state")
-        .select("clients,sessions")
+        .select("clients,sessions,settings")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -161,8 +179,10 @@ export default function LogrApp() {
 
       if (error && status !== 406) {
         setSyncError(`Failed to load cloud data: ${error.message}`);
-        setClients(localClients);
-        setSessions(localSessions);
+        setClients([]);
+        setSessions([]);
+        setProfileHourlyRate("50");
+        setProfileWorkdayHours("8");
         setSyncReady(true);
         return;
       }
@@ -170,15 +190,21 @@ export default function LogrApp() {
       if (data) {
         setClients(Array.isArray(data.clients) ? data.clients : []);
         setSessions(Array.isArray(data.sessions) ? data.sessions : []);
+        const settings = data.settings || {};
+        setProfileHourlyRate(settings.hourlyRate || "50");
+        setProfileWorkdayHours(settings.workdayHours || "8");
       } else {
-        setClients(localClients);
-        setSessions(localSessions);
+        setClients([]);
+        setSessions([]);
+        setProfileHourlyRate("50");
+        setProfileWorkdayHours("8");
 
         const { error: upsertError } = await supabase.from("user_app_state").upsert(
           {
             user_id: user.id,
-            clients: localClients,
-            sessions: localSessions,
+            clients: [],
+            sessions: [],
+            settings: { hourlyRate: "50", workdayHours: "8" },
           },
           { onConflict: "user_id" }
         );
@@ -207,6 +233,7 @@ export default function LogrApp() {
           user_id: user.id,
           clients,
           sessions,
+          settings: { hourlyRate: profileHourlyRate, workdayHours: profileWorkdayHours },
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -221,17 +248,7 @@ export default function LogrApp() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [supabase, user, syncReady, clients, sessions]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEYS.clients, JSON.stringify(clients));
-  }, [clients]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEYS.sessions, JSON.stringify(sessions));
-  }, [sessions]);
+  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileWorkdayHours]);
 
   useEffect(() => {
     if (running) {
@@ -275,7 +292,18 @@ export default function LogrApp() {
   });
 
   const doneSessions = visibleSessions.filter((session) => session.status === "DONE");
-  const totalEarned = doneSessions.reduce((sum, session) => sum + session.earned, 0).toFixed(2);
+  const totalEarned = (() => {
+    const countedProjects = new Set();
+    return doneSessions.reduce((sum, session) => {
+      const billingType = session.billingType || "hourly";
+      if (billingType === "fixed_project") {
+        if (!session.projectId || countedProjects.has(session.projectId)) return sum;
+        countedProjects.add(session.projectId);
+        return sum + parseFloat(session.fixedAmount || 0);
+      }
+      return sum + parseFloat(session.earned || 0);
+    }, 0).toFixed(2);
+  })();
   const totalHours = (doneSessions.reduce((sum, session) => sum + session.duration, 0) / 3600).toFixed(1);
 
   async function signInWithGoogle() {
@@ -314,9 +342,20 @@ export default function LogrApp() {
   function addProject() {
     if (!newProjectName.trim() || !resolvedActiveClientId) return;
 
-    const project = { id: uid(), name: newProjectName.trim() };
+    const parsedRate = parseFloat(newProjectRate);
+    const parsedBudget = parseFloat(newProjectBudget);
+    const project = {
+      id: uid(),
+      name: newProjectName.trim(),
+      billingType: newProjectBillingType,
+      hourlyRate: newProjectBillingType === "hourly" && Number.isFinite(parsedRate) && parsedRate > 0 ? parseFloat(parsedRate.toFixed(2)) : null,
+      fixedBudget: newProjectBillingType === "fixed_project" && Number.isFinite(parsedBudget) && parsedBudget > 0 ? parseFloat(parsedBudget.toFixed(2)) : null,
+    };
     setClients((prev) => prev.map((client) => (client.id === resolvedActiveClientId ? { ...client, projects: [...client.projects, project] } : client)));
     setNewProjectName("");
+    setNewProjectBillingType("hourly");
+    setNewProjectRate("");
+    setNewProjectBudget("");
     setShowAddProject(false);
   }
 
@@ -341,10 +380,17 @@ export default function LogrApp() {
       showError("task", "Select a client first");
       return;
     }
-    if (!taskRate || parseFloat(taskRate) <= 0) {
+    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
       showError("rate", "Rate must be > 0");
       return;
     }
+    if (taskBillingType !== "hourly") {
+      showError("status", "ACTIVE status is available only for HOURLY");
+      return;
+    }
+
+    const taskTimestamp = Number.isFinite(Date.parse(taskDateTime)) ? Date.parse(taskDateTime) : Date.now();
+    const fixedAmount = 0;
 
     const id = uid();
     setSessions((prev) => [
@@ -356,8 +402,10 @@ export default function LogrApp() {
         notes: taskNotes.trim(),
         duration: 0,
         earned: 0,
-        rate: parseFloat(taskRate),
-        ts: Date.now(),
+        rate: parseFloat(profileHourlyRate || 0),
+        billingType: taskBillingType,
+        fixedAmount,
+        ts: taskTimestamp,
         status: "ACTIVE",
       },
       ...prev,
@@ -377,6 +425,29 @@ export default function LogrApp() {
       return;
     }
 
+    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
+      showError("rate", "Rate must be > 0");
+      return;
+    }
+    if (taskBillingType === "fixed_project") {
+      if (activeProjectId === "all") {
+        showError("rate", "Select a project for fixed task");
+        return;
+      }
+      const inputAmount = parseFloat(taskFixedAmount || 0);
+      if (inputAmount <= 0) {
+        showError("rate", "Set fixed amount");
+        return;
+      }
+    }
+
+    const taskTimestamp = Number.isFinite(Date.parse(taskDateTime)) ? Date.parse(taskDateTime) : Date.now();
+    const inputAmount = parseFloat(taskFixedAmount || 0);
+    const fixedAmount = taskBillingType === "fixed_project" ? inputAmount : 0;
+    const duration = taskDurationSeconds();
+    const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
+    const earned = taskBillingType === "hourly" ? earnedFromDuration(duration, hourlyRate) : 0;
+
     setSessions((prev) => [
       {
         id: uid(),
@@ -384,16 +455,97 @@ export default function LogrApp() {
         projectId: activeProjectId === "all" ? null : activeProjectId,
         name: taskName.trim(),
         notes: taskNotes.trim(),
-        duration: 0,
-        earned: 0,
-        rate: parseFloat(taskRate),
-        ts: Date.now(),
+        duration,
+        earned,
+        rate: hourlyRate,
+        billingType: taskBillingType,
+        fixedAmount,
+        ts: taskTimestamp,
         status: "PENDING",
       },
       ...prev,
     ]);
     setTaskName("");
     setTaskNotes("");
+    setTaskDays("");
+    setTaskHours("");
+    setTaskMinutes("");
+    setTaskFixedAmount("");
+    setTaskDateTime(getNowDateTimeLocal());
+  }
+
+  function addDoneSession() {
+    if (!taskName.trim()) {
+      showError("task", "Task name required");
+      return;
+    }
+    if (!resolvedActiveClientId) {
+      showError("task", "Select a client first");
+      return;
+    }
+    if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) {
+      showError("rate", "Rate must be > 0");
+      return;
+    }
+    if (taskBillingType === "fixed_project") {
+      if (activeProjectId === "all") {
+        showError("rate", "Select a project for fixed task");
+        return;
+      }
+      const inputAmount = parseFloat(taskFixedAmount || 0);
+      if (inputAmount <= 0) {
+        showError("rate", "Set fixed amount");
+        return;
+      }
+    }
+
+    const taskTimestamp = Number.isFinite(Date.parse(taskDateTime)) ? Date.parse(taskDateTime) : Date.now();
+    const inputAmount = parseFloat(taskFixedAmount || 0);
+    const fixedAmount = taskBillingType === "fixed_project" ? inputAmount : 0;
+    const hourlyRate = taskBillingType === "hourly" ? parseFloat(profileHourlyRate || 0) : 0;
+    const duration = taskDurationSeconds();
+    if (duration === 0) {
+      showError("duration", "Duration required for DONE");
+      return;
+    }
+    const earned = taskBillingType === "hourly" ? earnedFromDuration(duration, hourlyRate) : 0;
+
+    setSessions((prev) => [
+      {
+        id: uid(),
+        clientId: resolvedActiveClientId,
+        projectId: activeProjectId === "all" ? null : activeProjectId,
+        name: taskName.trim(),
+        notes: taskNotes.trim(),
+        duration,
+        earned,
+        rate: hourlyRate,
+        billingType: taskBillingType,
+        fixedAmount,
+        ts: taskTimestamp,
+        status: "DONE",
+      },
+      ...prev,
+    ]);
+    setTaskName("");
+    setTaskNotes("");
+    setTaskDays("");
+    setTaskHours("");
+    setTaskMinutes("");
+    setTaskFixedAmount("");
+    setTaskDateTime(getNowDateTimeLocal());
+  }
+
+  function submitTaskByStatus() {
+    if (taskStatus === "PENDING") {
+      addPendingSession();
+      return;
+    }
+    if (taskStatus === "DONE") {
+      addDoneSession();
+      return;
+    }
+    startNewSession();
   }
 
   function stopTimer() {
@@ -403,7 +555,7 @@ export default function LogrApp() {
         ? {
             ...session,
             duration: elapsed,
-            earned: parseFloat(((elapsed / 3600) * session.rate).toFixed(2)),
+            earned: calculateSessionEarned(elapsed, session),
             status: "DONE",
           }
         : session
@@ -412,6 +564,11 @@ export default function LogrApp() {
     setElapsed(0);
     setTaskName("");
     setTaskNotes("");
+    setTaskDays("");
+    setTaskHours("");
+    setTaskMinutes("");
+    setTaskFixedAmount("");
+    setTaskDateTime(getNowDateTimeLocal());
   }
 
   useEffect(() => {
@@ -429,7 +586,7 @@ export default function LogrApp() {
             ? {
                 ...session,
                 duration: elapsed,
-                earned: parseFloat(((elapsed / 3600) * session.rate).toFixed(2)),
+                earned: calculateSessionEarned(elapsed, session),
                 status: "DONE",
               }
             : session
@@ -442,6 +599,12 @@ export default function LogrApp() {
       }
 
       if (!taskName.trim() || !resolvedActiveClientId) return;
+      if (taskBillingType !== "hourly") return;
+      if (taskBillingType === "hourly" && (!profileHourlyRate || parseFloat(profileHourlyRate) <= 0)) return;
+      if (taskBillingType === "fixed_project") return;
+
+      const fixedAmount = 0;
+      const taskTimestamp = Number.isFinite(Date.parse(taskDateTime)) ? Date.parse(taskDateTime) : Date.now();
 
       const id = uid();
       setSessions((prev) => [
@@ -453,8 +616,10 @@ export default function LogrApp() {
           notes: taskNotes.trim(),
           duration: 0,
           earned: 0,
-          rate: parseFloat(taskRate),
-          ts: Date.now(),
+          rate: parseFloat(profileHourlyRate || 0),
+          billingType: taskBillingType,
+          fixedAmount,
+          ts: taskTimestamp,
           status: "ACTIVE",
         },
         ...prev,
@@ -466,51 +631,20 @@ export default function LogrApp() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [running, activeSessionId, elapsed, taskName, taskNotes, taskRate, resolvedActiveClientId, activeProjectId]);
+  }, [running, activeSessionId, elapsed, taskName, taskNotes, profileHourlyRate, taskBillingType, taskDateTime, resolvedActiveClientId, activeProjectId, calculateSessionEarned]);
 
   function startPendingSession(session) {
     if (running) return;
+
+    if ((session.billingType || "hourly") !== "hourly") {
+      setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "DONE", duration: 0, earned: 0 } : item)));
+      return;
+    }
 
     setActiveSessionId(session.id);
     setElapsed(session.duration);
     setRunning(true);
     setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "ACTIVE" } : item)));
-  }
-
-  function addManualSession() {
-    const duration = durationFromHoursMinutes(manual.hours, manual.minutes);
-
-    if (!manual.name.trim()) {
-      showError("manual", "Task name required");
-      return;
-    }
-    if (!resolvedActiveClientId) {
-      showError("manual", "Select a client first");
-      return;
-    }
-    if (manual.status === "DONE" && duration === 0) {
-      showError("manual", "Duration required for DONE tasks");
-      return;
-    }
-
-    setSessions((prev) => [
-      {
-        id: uid(),
-        clientId: resolvedActiveClientId,
-        projectId: activeProjectId === "all" ? null : activeProjectId,
-        name: manual.name.trim(),
-        notes: manual.notes?.trim() || "",
-        duration,
-        earned: earnedFromDuration(duration, manual.rate),
-        rate: parseFloat(manual.rate),
-        ts: manual.date ? new Date(manual.date).getTime() : Date.now(),
-        status: manual.status,
-      },
-      ...prev,
-    ]);
-
-    setManual(DEFAULT_MANUAL);
-    setShowManual(false);
   }
 
   function startEditSession(session) {
@@ -520,13 +654,18 @@ export default function LogrApp() {
       notes: session.notes || "",
       hours: Math.floor(session.duration / 3600),
       minutes: Math.floor((session.duration % 3600) / 60),
-      rate: session.rate,
+      billingType: session.billingType || "hourly",
+      rate: session.rate || 0,
+      fixedAmount: session.fixedAmount || 0,
     });
   }
 
   function saveEditSession(session) {
     const duration = durationFromHoursMinutes(editValues.hours, editValues.minutes);
-    const earned = earnedFromDuration(duration, editValues.rate);
+    const billingType = editValues.billingType || "hourly";
+    const rate = parseFloat(editValues.rate || session.rate || 0);
+    const fixedAmount = parseFloat(editValues.fixedAmount || session.fixedAmount || 0);
+    const earned = billingType === "hourly" ? earnedFromDuration(duration, rate) : 0;
 
     setSessions((prev) => prev.map((item) => (
       item.id === session.id
@@ -536,7 +675,9 @@ export default function LogrApp() {
             notes: editValues.notes ?? item.notes,
             duration,
             earned,
-            rate: parseFloat(editValues.rate || item.rate),
+            billingType,
+            rate,
+            fixedAmount,
           }
         : item
     )));
@@ -544,8 +685,21 @@ export default function LogrApp() {
   }
 
   function exportCsv() {
+    const countedProjects = new Set();
     const rows = doneSessions.map((session) => {
       const project = (clients.find((client) => client.id === session.clientId)?.projects || []).find((item) => item.id === session.projectId);
+      const billingType = session.billingType || "hourly";
+      const billingTypeLabel = billingType === "hourly" ? "hourly" : "fixed";
+      let billedAmount = parseFloat(session.earned || 0);
+      if (billingType === "fixed_project") {
+        if (session.projectId && !countedProjects.has(session.projectId)) {
+          billedAmount = parseFloat(session.fixedAmount || 0);
+          countedProjects.add(session.projectId);
+        } else {
+          billedAmount = 0;
+        }
+      }
+      const billingValue = billingType === "hourly" ? `${session.rate}/hr` : `$${parseFloat(session.fixedAmount || 0).toFixed(2)} fixed`;
       return [
         formatDate(session.ts),
         activeClient?.name || "",
@@ -553,12 +707,13 @@ export default function LogrApp() {
         `"${session.name}"`,
         `"${session.notes || ""}"`,
         (session.duration / 3600).toFixed(2),
-        session.rate,
-        session.earned,
+        billingTypeLabel,
+        billingValue,
+        billedAmount.toFixed(2),
       ].join(",");
     });
 
-    const csv = ["Date,Client,Project,Task,Notes,Hours,Rate,Earned", ...rows].join("\n");
+    const csv = ["Date,Client,Project,Task,Notes,Hours,Billing Type,Billing Value,Earned", ...rows].join("\n");
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     link.download = `logr-${activeClient?.name || "export"}-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -568,10 +723,22 @@ export default function LogrApp() {
   function exportInvoicePdf() {
     const projectName = activeProjectId !== "all" ? activeProjects.find((item) => item.id === activeProjectId)?.name : null;
 
+    const countedProjects = new Set();
     const rows = doneSessions
       .map((session) => {
         const project = activeProjects.find((item) => item.id === session.projectId);
-        return `<tr><td>${formatDate(session.ts)}</td><td>${session.name}${project ? ` <span style="color:#999;font-size:11px">[${project.name}]</span>` : ""}${session.notes ? `<br><span style="color:#999;font-size:11px">${session.notes}</span>` : ""}</td><td>${(session.duration / 3600).toFixed(2)}h</td><td>$${session.rate}/hr</td><td><strong>$${session.earned}</strong></td></tr>`;
+        const billingType = session.billingType || "hourly";
+        const billingLabel = billingType === "hourly" ? `$${session.rate}/hr` : `$${parseFloat(session.fixedAmount || session.earned || 0).toFixed(2)} fixed`;
+        let billedAmount = parseFloat(session.earned || 0);
+        if (billingType === "fixed_project") {
+          if (session.projectId && !countedProjects.has(session.projectId)) {
+            billedAmount = parseFloat(session.fixedAmount || 0);
+            countedProjects.add(session.projectId);
+          } else {
+            billedAmount = 0;
+          }
+        }
+        return `<tr><td>${formatDate(session.ts)}</td><td>${session.name}${project ? ` <span style="color:#999;font-size:11px">[${project.name}]</span>` : ""}${session.notes ? `<br><span style="color:#999;font-size:11px">${session.notes}</span>` : ""}</td><td>${(session.duration / 3600).toFixed(2)}h</td><td>${billingLabel}</td><td><strong>$${billedAmount.toFixed(2)}</strong></td></tr>`;
       })
       .join("");
 
@@ -669,8 +836,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           theme={theme}
           dark={dark}
           screen={screen}
-          user={user}
-          syncError={syncError}
           clients={clients}
           activeClientId={resolvedActiveClientId}
           mobileView={mobileView}
@@ -688,11 +853,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onRenameClient={renameClient}
           onSelectScreen={(nextScreen) => {
             setScreen(nextScreen);
-            if (nextScreen === "dashboard") {
+            if (nextScreen === "dashboard" || nextScreen === "profile") {
               setMobileView("main");
             }
           }}
-          onSignOut={signOut}
           onToggleTheme={() => setDark((value) => !value)}
         />
 
@@ -701,6 +865,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
           {screen === "dashboard" ? (
             <SummaryDashboard theme={theme} clients={clients} sessions={sessions} />
+          ) : screen === "profile" ? (
+            <ProfileSettings
+              theme={theme}
+              user={user}
+              syncError={syncError}
+              onSignOut={signOut}
+              hourlyRate={profileHourlyRate}
+              setHourlyRate={setProfileHourlyRate}
+              workdayHours={profileWorkdayHours}
+              setWorkdayHours={setProfileWorkdayHours}
+            />
           ) : !activeClient ? (
             <WelcomeState theme={theme} />
           ) : (
@@ -716,6 +891,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 setShowAddProject={setShowAddProject}
                 newProjectName={newProjectName}
                 setNewProjectName={setNewProjectName}
+                newProjectBillingType={newProjectBillingType}
+                setNewProjectBillingType={setNewProjectBillingType}
+                newProjectRate={newProjectRate}
+                setNewProjectRate={setNewProjectRate}
+                newProjectBudget={newProjectBudget}
+                setNewProjectBudget={setNewProjectBudget}
                 onAddProject={addProject}
                 dateFilter={dateFilter}
                 setDateFilter={setDateFilter}
@@ -728,23 +909,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 running={running}
                 taskName={taskName}
                 setTaskName={setTaskName}
-                taskRate={taskRate}
-                setTaskRate={setTaskRate}
+                profileHourlyRate={profileHourlyRate}
+                profileWorkdayHours={profileWorkdayHours}
+                taskBillingType={taskBillingType}
+                setTaskBillingType={setTaskBillingType}
+                taskStatus={taskStatus}
+                setTaskStatus={setTaskStatus}
+                taskDays={taskDays}
+                setTaskDays={setTaskDays}
+                taskHours={taskHours}
+                setTaskHours={setTaskHours}
+                taskMinutes={taskMinutes}
+                setTaskMinutes={setTaskMinutes}
+                taskFixedAmount={taskFixedAmount}
+                setTaskFixedAmount={setTaskFixedAmount}
+                taskDateTime={taskDateTime}
+                setTaskDateTime={setTaskDateTime}
                 taskNotes={taskNotes}
                 setTaskNotes={setTaskNotes}
-                onStart={startNewSession}
-                onAddPending={addPendingSession}
+                onSubmit={submitTaskByStatus}
                 onStop={stopTimer}
-                errors={errors}
-              />
-
-              <ManualEntry
-                theme={theme}
-                showManual={showManual}
-                setShowManual={setShowManual}
-                manual={manual}
-                setManual={setManual}
-                onAddManual={addManualSession}
                 errors={errors}
               />
 
