@@ -6,16 +6,36 @@ Freelance time tracker for client/project work with CSV and invoice export.
 
 - Next.js 16 (App Router)
 - React 19
-- localStorage persistence (`logr_clients`, `logr_sessions`)
+- Supabase Auth (Google OAuth)
+- Supabase Postgres (`user_app_state` table, RLS)
+- localStorage fallback cache (`logr_clients`, `logr_sessions`)
 
 ## Quick Start
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
 Open: `http://localhost:3000`
+
+## Supabase Setup
+
+1. Create a Supabase project.
+2. In Supabase SQL Editor run `/Users/zerox9dev/logr/supabase/schema.sql`.
+3. In Supabase Dashboard copy:
+   - Project URL -> `NEXT_PUBLIC_SUPABASE_URL`
+   - Project API anon key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Put values in `.env.local` (see `.env.example`).
+5. In Supabase Auth -> Providers -> Google:
+   - Enable Google provider
+   - Add Google Client ID / Secret
+6. Add redirect URLs:
+   - `http://localhost:3000`
+   - your production URL (for deploy)
+
+After this, app will show Google sign-in and sync clients/sessions to Supabase per user.
 
 ## Scripts
 
@@ -28,6 +48,8 @@ npm run start
 
 ## Features
 
+- Google sign-in via Supabase Auth
+- Personal cloud workspace (RLS by `auth.uid()`)
 - Clients -> Projects -> Tasks hierarchy
 - Start/stop timer with `Space`
 - Task statuses: `PENDING`, `ACTIVE`, `DONE`
@@ -47,47 +69,17 @@ npm run start
 | `Enter` | Confirm add client/project in inline input |
 | `Escape` | Close add client/project inline input |
 
-## Project Structure
+## Database Shape
 
-```txt
-app/
-  layout.tsx
-  page.tsx
-  globals.css
-
-components/
-  logr/
-    LogrApp.jsx
-    lib/
-      constants.js
-      utils.js
-    ui/
-      GlobalStyles.jsx
-      ManualEntry.jsx
-      MobileTopBar.jsx
-      ProjectAndDateFilters.jsx
-      SessionsList.jsx
-      Sidebar.jsx
-      StatsAndExports.jsx
-      TaskComposer.jsx
-      TimerHeader.jsx
-      WelcomeState.jsx
+```sql
+user_app_state (
+  user_id uuid primary key,
+  clients jsonb,
+  sessions jsonb,
+  created_at timestamptz,
+  updated_at timestamptz
+)
 ```
-
-## Data Shape
-
-```js
-// localStorage key: logr_clients
-[{ id, name, projects: [{ id, name }] }]
-
-// localStorage key: logr_sessions
-[{ id, clientId, projectId, name, notes, duration, earned, rate, ts, status }]
-```
-
-## Notes
-
-- Data is stored locally in the browser.
-- For production, replace localStorage with a backend (e.g. Supabase/Postgres + auth).
 
 ## License
 

@@ -10,6 +10,7 @@ import {
   STORAGE_KEYS,
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, uid } from "./lib/utils";
+import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
@@ -32,12 +33,19 @@ function loadJson(key, fallback) {
 }
 
 export default function LogrApp() {
+  const supabase = getSupabaseClient();
+
   const [dark, setDark] = useState(false);
   const theme = dark ? DARK_THEME : LIGHT_THEME;
   const statusColors = dark ? STATUS_COLORS_DARK : STATUS_COLORS_LIGHT;
 
-  const [clients, setClients] = useState(() => loadJson(STORAGE_KEYS.clients, []));
-  const [sessions, setSessions] = useState(() => loadJson(STORAGE_KEYS.sessions, []));
+  const [clients, setClients] = useState([]);
+  const [sessions, setSessions] = useState([]);
+
+  const [authLoading, setAuthLoading] = useState(() => isSupabaseConfigured());
+  const [syncReady, setSyncReady] = useState(false);
+  const [syncError, setSyncError] = useState("");
+  const [user, setUser] = useState(null);
 
   const [activeClientId, setActiveClientId] = useState(null);
   const [activeProjectId, setActiveProjectId] = useState("all");
@@ -86,6 +94,132 @@ export default function LogrApp() {
       });
     }, 3000);
   }
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!isMounted) return;
+      const nextUser = data.session?.user ?? null;
+      setUser(nextUser);
+      if (!nextUser) {
+        setSyncReady(false);
+        setClients([]);
+        setSessions([]);
+        setRunning(false);
+        setElapsed(0);
+        setActiveSessionId(null);
+      }
+      setAuthLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      const nextUser = nextSession?.user ?? null;
+      setUser(nextUser);
+      if (!nextUser) {
+        setSyncReady(false);
+        setClients([]);
+        setSessions([]);
+        setRunning(false);
+        setElapsed(0);
+        setActiveSessionId(null);
+      }
+      setAuthLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!supabase || !user) return;
+
+    let ignore = false;
+
+    async function loadUserState() {
+      const localClients = loadJson(STORAGE_KEYS.clients, []);
+      const localSessions = loadJson(STORAGE_KEYS.sessions, []);
+
+      setSyncReady(false);
+      setSyncError("");
+
+      const { data, error, status } = await supabase
+        .from("user_app_state")
+        .select("clients,sessions")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (ignore) return;
+
+      if (error && status !== 406) {
+        setSyncError(`Failed to load cloud data: ${error.message}`);
+        setClients(localClients);
+        setSessions(localSessions);
+        setSyncReady(true);
+        return;
+      }
+
+      if (data) {
+        setClients(Array.isArray(data.clients) ? data.clients : []);
+        setSessions(Array.isArray(data.sessions) ? data.sessions : []);
+      } else {
+        setClients(localClients);
+        setSessions(localSessions);
+
+        const { error: upsertError } = await supabase.from("user_app_state").upsert(
+          {
+            user_id: user.id,
+            clients: localClients,
+            sessions: localSessions,
+          },
+          { onConflict: "user_id" }
+        );
+
+        if (!ignore && upsertError) {
+          setSyncError(`Failed to initialize cloud data: ${upsertError.message}`);
+        }
+      }
+
+      setSyncReady(true);
+    }
+
+    loadUserState();
+
+    return () => {
+      ignore = true;
+    };
+  }, [supabase, user]);
+
+  useEffect(() => {
+    if (!supabase || !user || !syncReady) return;
+
+    const timer = window.setTimeout(async () => {
+      const { error } = await supabase.from("user_app_state").upsert(
+        {
+          user_id: user.id,
+          clients,
+          sessions,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+
+      if (error) {
+        setSyncError(`Failed to sync cloud data: ${error.message}`);
+        return;
+      }
+
+      setSyncError("");
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [supabase, user, syncReady, clients, sessions]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -141,6 +275,28 @@ export default function LogrApp() {
   const doneSessions = visibleSessions.filter((session) => session.status === "DONE");
   const totalEarned = doneSessions.reduce((sum, session) => sum + session.earned, 0).toFixed(2);
   const totalHours = (doneSessions.reduce((sum, session) => sum + session.duration, 0) / 3600).toFixed(1);
+
+  async function signInWithGoogle() {
+    if (!supabase) return;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+
+    if (error) {
+      showError("auth", `Google sign-in failed: ${error.message}`);
+    }
+  }
+
+  async function signOut() {
+    if (!supabase) return;
+
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError("auth", `Sign out failed: ${error.message}`);
+    }
+  }
 
   function addClient() {
     if (!newClientName.trim()) return;
@@ -428,6 +584,64 @@ export default function LogrApp() {
     popup.document.close();
   }
 
+  if (!isSupabaseConfigured()) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'DM Mono','Courier New',monospace" }}>
+        <div style={{ width: "100%", maxWidth: 620, border: "1px solid #ddd", padding: 24, borderRadius: 12 }}>
+          <h1 style={{ fontSize: 20, marginBottom: 12 }}>Supabase is not configured</h1>
+          <p style={{ opacity: 0.8, marginBottom: 8 }}>Add these environment variables and restart dev server:</p>
+          <pre style={{ whiteSpace: "pre-wrap", background: "#f7f7f7", padding: 12, borderRadius: 8 }}>
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+          </pre>
+        </div>
+      </div>
+    );
+  }
+
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'DM Mono','Courier New',monospace" }}>
+        <div>Checking session...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'DM Mono','Courier New',monospace", background: theme.bg, color: theme.text }}>
+        <div style={{ width: "100%", maxWidth: 520, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 24, background: theme.statBg }}>
+          <h1 style={{ fontSize: 26, marginBottom: 8 }}>Logr</h1>
+          <p style={{ marginBottom: 20, color: theme.muted }}>Sign in with Google to sync your time tracking data to Supabase.</p>
+          <button
+            onClick={signInWithGoogle}
+            style={{
+              width: "100%",
+              border: `1px solid ${theme.border}`,
+              padding: "12px 14px",
+              borderRadius: 10,
+              fontWeight: 700,
+              background: theme.btnBg,
+              color: theme.btnColor,
+              cursor: "pointer",
+            }}
+          >
+            Continue with Google
+          </button>
+          {errors.auth ? <p style={{ marginTop: 10, color: "#cc2222" }}>{errors.auth}</p> : null}
+        </div>
+      </div>
+    );
+  }
+
+  if (!syncReady) {
+    return (
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'DM Mono','Courier New',monospace" }}>
+        <div>Loading cloud workspace...</div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'DM Mono','Courier New',monospace", transition: "background 0.2s" }}>
       <GlobalStyles />
@@ -462,8 +676,21 @@ export default function LogrApp() {
           onToggleTheme={() => setDark((value) => !value)}
         />
 
-        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 640 }}>
+        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 760 }}>
           <div className="mobile-bar" style={{ height: 52 }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: theme.muted }}>
+              Signed in as {user.email}
+              {syncError ? <span style={{ color: "#cc2222", marginLeft: 10 }}>{syncError}</span> : <span style={{ marginLeft: 10 }}>Synced with Supabase</span>}
+            </div>
+            <button
+              onClick={signOut}
+              style={{ border: `1px solid ${theme.border}`, borderRadius: 8, padding: "8px 12px", background: "transparent", color: theme.text, cursor: "pointer" }}
+            >
+              Sign out
+            </button>
+          </div>
 
           {!activeClient ? (
             <WelcomeState theme={theme} />
