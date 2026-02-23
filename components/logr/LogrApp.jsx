@@ -74,7 +74,6 @@ export default function LogrApp() {
   const [newProjectBudget, setNewProjectBudget] = useState("");
 
   const [dateFilter, setDateFilter] = useState("all");
-  const [paymentFilter, setPaymentFilter] = useState("all");
   const [customMonth, setCustomMonth] = useState(() => {
     const date = new Date();
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -295,8 +294,6 @@ export default function LogrApp() {
   const visibleSessions = sessions.filter((session) => {
     if (session.clientId !== resolvedActiveClientId) return false;
     if (activeProjectId !== "all" && session.projectId !== activeProjectId) return false;
-    if (paymentFilter === "paid" && (session.paymentStatus || "UNPAID") !== "PAID") return false;
-    if (paymentFilter === "unpaid" && (session.paymentStatus || "UNPAID") !== "UNPAID") return false;
 
     if (dateFilter === "week") {
       const weekAgo = Number(new Date()) - 7 * 24 * 60 * 60 * 1000;
@@ -979,26 +976,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 customMonth={customMonth}
                 setCustomMonth={setCustomMonth}
               />
-              <div style={{ display: "flex", gap: 4, marginTop: -10, marginBottom: 16, flexWrap: "wrap" }}>
-                {[["all", "PAYMENT: ALL"], ["unpaid", "UNPAID"], ["paid", "PAID"]].map(([value, label]) => (
-                  <button
-                    key={value}
-                    onClick={() => setPaymentFilter(value)}
-                    style={{
-                      padding: "5px 10px",
-                      background: paymentFilter === value ? theme.tabActiveBg : "transparent",
-                      border: `1px solid ${theme.border}`,
-                      color: paymentFilter === value ? theme.tabActive : theme.tabInactive,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
 
               <TaskComposer
                 theme={theme}
