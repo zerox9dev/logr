@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Logr
 
-## Getting Started
+Freelance time tracker for client/project work with CSV and invoice export.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- localStorage persistence (`logr_clients`, `logr_sessions`)
+
+## Quick Start
+
+```bash
+npm install
+npm run dev
+```
+
+Open: `http://localhost:3000`
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Clients -> Projects -> Tasks hierarchy
+- Start/stop timer with `Space`
+- Task statuses: `PENDING`, `ACTIVE`, `DONE`
+- Manual session entry (date/hours/minutes/rate/status)
+- Date filters: all, 7 days, current month, custom month
+- Inline edit for completed sessions
+- CSV export
+- Printable invoice (PDF via browser print dialog)
+- Light/Dark theme toggle
+- Mobile-friendly sidebar behavior
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Keyboard Shortcuts
 
-## Learn More
+| Key | Action |
+| --- | --- |
+| `Space` | Start / Stop timer (outside inputs) |
+| `Enter` | Confirm add client/project in inline input |
+| `Escape` | Close add client/project inline input |
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```txt
+app/
+  layout.tsx
+  page.tsx
+  globals.css
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+components/
+  logr/
+    LogrApp.jsx
+    lib/
+      constants.js
+      utils.js
+    ui/
+      GlobalStyles.jsx
+      ManualEntry.jsx
+      MobileTopBar.jsx
+      ProjectAndDateFilters.jsx
+      SessionsList.jsx
+      Sidebar.jsx
+      StatsAndExports.jsx
+      TaskComposer.jsx
+      TimerHeader.jsx
+      WelcomeState.jsx
+```
 
-## Deploy on Vercel
+## Data Shape
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```js
+// localStorage key: logr_clients
+[{ id, name, projects: [{ id, name }] }]
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+// localStorage key: logr_sessions
+[{ id, clientId, projectId, name, notes, duration, earned, rate, ts, status }]
+```
+
+## Notes
+
+- Data is stored locally in the browser.
+- For production, replace localStorage with a backend (e.g. Supabase/Postgres + auth).
+
+## License
+
+This project is licensed under the Apache License 2.0.
+
+- License text: `/Users/zerox9dev/logr/LICENSE`
+- Attribution notices: `/Users/zerox9dev/logr/NOTICE`
+
+If you copy, fork, or redistribute this project (including modified versions),
+you must keep copyright and attribution notices.
