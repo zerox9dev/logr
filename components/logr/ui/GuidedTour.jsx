@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
 export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask, onCreateFirstTask, onBack, onNext, onClose, onFinish }) {
+  const { t } = useTranslation();
   const step = steps[stepIndex];
   const lastStep = stepIndex === steps.length - 1;
   const [targetRect, setTargetRect] = useState(null);
@@ -113,13 +115,13 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.16em" }}>
-            TOUR {stepIndex + 1}/{steps.length}
+            {t("tour.label", { step: stepIndex + 1, total: steps.length })}
           </div>
           <button
             onClick={onClose}
             style={{ border: `1px solid ${theme.border}`, background: "transparent", color: theme.muted, cursor: "pointer", padding: "4px 8px", fontSize: 10, letterSpacing: "0.1em" }}
           >
-            CLOSE
+            {t("tour.close")}
           </button>
         </div>
 
@@ -129,7 +131,7 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
         <div style={{ fontSize: 12, color: theme.muted, lineHeight: 1.6, marginBottom: 12 }}>{step.description}</div>
         {!targetRect ? (
           <div style={{ fontSize: 11, color: theme.faint, marginBottom: 12 }}>
-            This element is not visible right now. Complete the previous step or switch to Tracker.
+            {t("tour.hiddenElement")}
           </div>
         ) : null}
 
@@ -149,7 +151,7 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
               fontSize: 10,
             }}
           >
-            BACK
+            {t("tour.back")}
           </button>
           {!lastStep ? (
             <button
@@ -165,7 +167,7 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
                 fontSize: 10,
               }}
             >
-              NEXT
+              {t("tour.next")}
             </button>
           ) : (
             <button
@@ -181,7 +183,7 @@ export default function GuidedTour({ theme, steps, stepIndex, canCreateFirstTask
                 fontSize: 10,
               }}
             >
-              {canCreateFirstTask ? "CREATE FIRST TASK" : "FINISH"}
+              {canCreateFirstTask ? t("tour.createFirstTask") : t("tour.finish")}
             </button>
           )}
         </div>

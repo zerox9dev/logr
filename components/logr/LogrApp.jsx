@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "./lib/i18n";
 import {
   DARK_THEME,
   LIGHT_THEME,
@@ -24,38 +26,6 @@ import GuidedTour from "./ui/GuidedTour";
 
 const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
 const ONBOARDING_CACHE_KEY = "logr-onboarding-completed-v1";
-const TOUR_STEPS = [
-  {
-    selector: '[data-tour="add-client-btn"]',
-    title: "1) Add a client",
-    description: "Click + CLIENT in the left sidebar. Tracking cannot start without a client.",
-  },
-  {
-    selector: '[data-tour="add-project-btn"]',
-    title: "2) Add a project",
-    description: "This is optional, but useful for grouping tasks and invoices by project.",
-  },
-  {
-    selector: '[data-tour="task-name-input"]',
-    title: "3) Enter task details",
-    description: "Describe what you are working on. HOURLY can run a timer; DONE/PENDING saves immediately.",
-  },
-  {
-    selector: '[data-tour="status-select"]',
-    title: "4) Choose status",
-    description: "ACTIVE starts the timer, PENDING keeps it for later, DONE goes to stats and exports right away.",
-  },
-  {
-    selector: '[data-tour="submit-task-btn"]',
-    title: "5) Save the entry",
-    description: "Use this button to add the task or start the timer.",
-  },
-  {
-    selector: '[data-tour="invoice-btn"]',
-    title: "6) Export invoice",
-    description: "The PDF button appears after DONE tasks exist. You can create your first DONE task from this step.",
-  },
-];
 
 function getNowDateTimeLocal() {
   const now = new Date();
@@ -75,7 +45,12 @@ function convertMoneyNumber(value, rate) {
   return parseFloat((parsed * rate).toFixed(2));
 }
 
+function normalizeLanguage(value) {
+  return ["en", "ru", "uk"].includes(value) ? value : "en";
+}
+
 export default function LogrApp() {
+  const { t, i18n } = useTranslation();
   const supabase = getSupabaseClient();
 
   const [dark, setDark] = useState(false);
@@ -103,6 +78,7 @@ export default function LogrApp() {
   const [taskRate, setTaskRate] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
   const [profileCurrency, setProfileCurrency] = useState("USD");
+  const [profileLanguage, setProfileLanguage] = useState("en");
   const [isCurrencyConverting, setIsCurrencyConverting] = useState(false);
   const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
@@ -149,6 +125,14 @@ export default function LogrApp() {
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);
   const activeProjects = activeClient?.projects || [];
   const activeTimedSession = sessions.find((session) => session.id === activeSessionId);
+  const tourSteps = useMemo(() => ([
+    { selector: '[data-tour="add-client-btn"]', title: t("tour.s1t"), description: t("tour.s1d") },
+    { selector: '[data-tour="add-project-btn"]', title: t("tour.s2t"), description: t("tour.s2d") },
+    { selector: '[data-tour="task-name-input"]', title: t("tour.s3t"), description: t("tour.s3d") },
+    { selector: '[data-tour="status-select"]', title: t("tour.s4t"), description: t("tour.s4d") },
+    { selector: '[data-tour="submit-task-btn"]', title: t("tour.s5t"), description: t("tour.s5d") },
+    { selector: '[data-tour="invoice-btn"]', title: t("tour.s6t"), description: t("tour.s6d") },
+  ]), [t]);
 
   function showError(key, message) {
     setErrors((prev) => ({ ...prev, [key]: message }));
@@ -198,6 +182,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
+        setProfileLanguage("en");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -219,6 +204,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
+        setProfileLanguage("en");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -252,6 +238,7 @@ export default function LogrApp() {
             setSessions(Array.isArray(cached.sessions) ? cached.sessions : []);
             setProfileHourlyRate(settings.hourlyRate || "50");
             setProfileCurrency(normalizeCurrency(settings.currency));
+            setProfileLanguage(normalizeLanguage(settings.language));
             setProfileWorkdayHours(settings.workdayHours || "8");
             setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
             setSyncReady(true);
@@ -279,6 +266,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
+        setProfileLanguage("en");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setSyncReady(true);
@@ -291,6 +279,7 @@ export default function LogrApp() {
         const settings = data.settings || {};
         setProfileHourlyRate(settings.hourlyRate || "50");
         setProfileCurrency(normalizeCurrency(settings.currency));
+        setProfileLanguage(normalizeLanguage(settings.language));
         setProfileWorkdayHours(settings.workdayHours || "8");
         setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
       } else {
@@ -298,6 +287,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
+        setProfileLanguage("en");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
 
@@ -306,7 +296,7 @@ export default function LogrApp() {
             user_id: user.id,
             clients: [],
             sessions: [],
-            settings: { hourlyRate: "50", currency: "USD", workdayHours: "8", requireProjectForFixed: false },
+            settings: { hourlyRate: "50", currency: "USD", language: "en", workdayHours: "8", requireProjectForFixed: false },
           },
           { onConflict: "user_id" }
         );
@@ -339,6 +329,7 @@ export default function LogrApp() {
           settings: {
             hourlyRate: profileHourlyRate,
             currency: profileCurrency,
+            language: profileLanguage,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
           },
@@ -346,7 +337,7 @@ export default function LogrApp() {
         }),
       );
     } catch {}
-  }, [user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileLanguage, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (!supabase || !user || !syncReady) return;
@@ -360,6 +351,7 @@ export default function LogrApp() {
           settings: {
             hourlyRate: profileHourlyRate,
             currency: profileCurrency,
+            language: profileLanguage,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
           },
@@ -377,7 +369,11 @@ export default function LogrApp() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileCurrency, profileLanguage, profileWorkdayHours, profileRequireProjectForFixed]);
+
+  useEffect(() => {
+    i18n.changeLanguage(profileLanguage);
+  }, [i18n, profileLanguage]);
 
   useEffect(() => {
     if (running && !paused) {
@@ -449,7 +445,7 @@ export default function LogrApp() {
     });
 
     if (error) {
-      showError("auth", `Google sign-in failed: ${error.message}`);
+      showError("auth", t("app.errors.googleSignIn", { message: error.message }));
     }
   }
 
@@ -458,7 +454,7 @@ export default function LogrApp() {
 
     const { error } = await supabase.auth.signOut();
     if (error) {
-      showError("auth", `Sign out failed: ${error.message}`);
+      showError("auth", t("app.errors.signOut", { message: error.message }));
       return;
     }
 
@@ -512,20 +508,20 @@ export default function LogrApp() {
 
   function startNewSession() {
     if (!taskName.trim()) {
-      showError("task", "Task name required");
+      showError("task", t("app.errors.taskNameRequired"));
       return;
     }
     if (!resolvedActiveClientId) {
-      showError("task", "Select a client first");
+      showError("task", t("app.errors.selectClientFirst"));
       return;
     }
     const effectiveRate = resolveTaskRate();
     if (taskBillingType === "hourly" && effectiveRate <= 0) {
-      showError("rate", "Rate must be > 0");
+      showError("rate", t("app.errors.ratePositive"));
       return;
     }
     if (taskBillingType !== "hourly") {
-      showError("status", "ACTIVE status is available only for HOURLY");
+      showError("status", t("app.errors.activeOnlyHourly"));
       return;
     }
 
@@ -559,27 +555,27 @@ export default function LogrApp() {
 
   function addPendingSession() {
     if (!taskName.trim()) {
-      showError("task", "Task name required");
+      showError("task", t("app.errors.taskNameRequired"));
       return;
     }
     if (!resolvedActiveClientId) {
-      showError("task", "Select a client first");
+      showError("task", t("app.errors.selectClientFirst"));
       return;
     }
 
     const effectiveRate = resolveTaskRate();
     if (taskBillingType === "hourly" && effectiveRate <= 0) {
-      showError("rate", "Rate must be > 0");
+      showError("rate", t("app.errors.ratePositive"));
       return;
     }
     if (taskBillingType === "fixed_project") {
       if (profileRequireProjectForFixed && activeProjectId === "all") {
-        showError("rate", "Select a project for fixed task");
+        showError("rate", t("app.errors.selectProjectForFixed"));
         return;
       }
       const inputAmount = parseFloat(taskFixedAmount || 0);
       if (inputAmount <= 0) {
-        showError("rate", "Set fixed amount");
+        showError("rate", t("app.errors.setFixedAmount"));
         return;
       }
     }
@@ -629,26 +625,26 @@ export default function LogrApp() {
 
   function addDoneSession() {
     if (!taskName.trim()) {
-      showError("task", "Task name required");
+      showError("task", t("app.errors.taskNameRequired"));
       return;
     }
     if (!resolvedActiveClientId) {
-      showError("task", "Select a client first");
+      showError("task", t("app.errors.selectClientFirst"));
       return;
     }
     const effectiveRate = resolveTaskRate();
     if (taskBillingType === "hourly" && effectiveRate <= 0) {
-      showError("rate", "Rate must be > 0");
+      showError("rate", t("app.errors.ratePositive"));
       return;
     }
     if (taskBillingType === "fixed_project") {
       if (profileRequireProjectForFixed && activeProjectId === "all") {
-        showError("rate", "Select a project for fixed task");
+        showError("rate", t("app.errors.selectProjectForFixed"));
         return;
       }
       const inputAmount = parseFloat(taskFixedAmount || 0);
       if (inputAmount <= 0) {
-        showError("rate", "Set fixed amount");
+        showError("rate", t("app.errors.setFixedAmount"));
         return;
       }
     }
@@ -663,7 +659,7 @@ export default function LogrApp() {
     const hourlyRate = taskBillingType === "hourly" ? effectiveRate : 0;
     const duration = taskDurationSeconds();
     if (duration === 0) {
-      showError("duration", "Duration required for DONE");
+      showError("duration", t("app.errors.durationRequiredDone"));
       return;
     }
     const earned = taskBillingType === "hourly" ? earnedFromDuration(duration, hourlyRate) : 0;
@@ -764,10 +760,10 @@ export default function LogrApp() {
 
     try {
       const response = await fetch(`/api/exchange-rates?base=${profileCurrency}&symbols=${normalizedNextCurrency}`);
-      if (!response.ok) throw new Error("Could not get exchange rate");
+      if (!response.ok) throw new Error(t("app.errors.currencyRateFailed"));
       const payload = await response.json();
       const rate = payload?.rates?.[normalizedNextCurrency];
-      if (!Number.isFinite(rate) || rate <= 0) throw new Error("Invalid exchange rate");
+      if (!Number.isFinite(rate) || rate <= 0) throw new Error(t("app.errors.currencyInvalidRate"));
 
       const conversionRate = Number(rate);
 
@@ -801,8 +797,8 @@ export default function LogrApp() {
       setProfileCurrency(normalizedNextCurrency);
       setSyncError("");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown currency conversion error";
-      setSyncError(`Currency conversion failed: ${message}`);
+      const message = error instanceof Error ? error.message : t("app.errors.currencyUnknown");
+      setSyncError(t("app.errors.currencyFailed", { message }));
     } finally {
       setIsCurrencyConverting(false);
     }
@@ -1044,7 +1040,7 @@ export default function LogrApp() {
       let nextClientId = resolvedActiveClientId;
 
       if (!nextClientId) {
-        const firstClient = { id: uid(), name: "First Client", projects: [] };
+        const firstClient = { id: uid(), name: t("app.firstClientName"), projects: [] };
         nextClientId = firstClient.id;
         setClients((prev) => [...prev, firstClient]);
         setActiveClientId(firstClient.id);
@@ -1062,8 +1058,8 @@ export default function LogrApp() {
           id: uid(),
           clientId: nextClientId,
           projectId: null,
-          name: "Kickoff task",
-          notes: "Created during onboarding",
+          name: t("app.kickoffTaskName"),
+          notes: t("app.kickoffTaskNotes"),
           duration,
           days: 0,
           hours: 1,
@@ -1090,8 +1086,8 @@ export default function LogrApp() {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Inter Tight',sans-serif" }}>
         <div style={{ width: "100%", maxWidth: 620, border: "1px solid #ddd", padding: 24, borderRadius: 12 }}>
-          <h1 style={{ fontSize: 20, marginBottom: 12 }}>Supabase is not configured</h1>
-          <p style={{ opacity: 0.8, marginBottom: 8 }}>Add these environment variables and restart dev server:</p>
+          <h1 style={{ fontSize: 20, marginBottom: 12 }}>{t("app.noSupabase")}</h1>
+          <p style={{ opacity: 0.8, marginBottom: 8 }}>{t("app.addEnv")}</p>
           <pre style={{ whiteSpace: "pre-wrap", background: "#f7f7f7", padding: 12, borderRadius: 8 }}>
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
@@ -1104,7 +1100,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
   if (authLoading) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Inter Tight',sans-serif" }}>
-        <div>Checking session...</div>
+        <div>{t("app.checkingSession")}</div>
       </div>
     );
   }
@@ -1114,7 +1110,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Inter Tight',sans-serif", background: theme.bg, color: theme.text }}>
         <div style={{ width: "100%", maxWidth: 520, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 24, background: theme.statBg }}>
           <h1 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 32, fontWeight: 400, marginBottom: 8 }}>Logr</h1>
-          <p style={{ marginBottom: 20, color: theme.muted }}>Sign in with Google to sync your time tracking data to Supabase.</p>
+          <p style={{ marginBottom: 20, color: theme.muted }}>{t("app.signInToSync")}</p>
           <button
             onClick={signInWithGoogle}
             style={{
@@ -1128,7 +1124,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               cursor: "pointer",
             }}
           >
-            Continue with Google
+            {t("app.continueWithGoogle")}
           </button>
           {errors.auth ? <p style={{ marginTop: 10, color: "#cc2222" }}>{errors.auth}</p> : null}
         </div>
@@ -1139,7 +1135,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
   if (!syncReady) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Inter Tight',sans-serif" }}>
-        <div>Loading cloud workspace...</div>
+        <div>{t("app.loadingWorkspace")}</div>
       </div>
     );
   }
@@ -1208,6 +1204,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               setWorkdayHours={setProfileWorkdayHours}
               requireProjectForFixed={profileRequireProjectForFixed}
               setRequireProjectForFixed={setProfileRequireProjectForFixed}
+              language={profileLanguage}
+              setLanguage={setProfileLanguage}
             />
           ) : !activeClient ? (
             <WelcomeState theme={theme} />
@@ -1310,12 +1308,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
       {showTour ? (
         <GuidedTour
           theme={theme}
-          steps={TOUR_STEPS}
+          steps={tourSteps}
           stepIndex={tourStep}
           canCreateFirstTask={doneSessions.length === 0}
           onCreateFirstTask={createFirstTaskFromTour}
           onBack={() => setTourStep((prev) => Math.max(prev - 1, 0))}
-          onNext={() => setTourStep((prev) => Math.min(prev + 1, TOUR_STEPS.length - 1))}
+          onNext={() => setTourStep((prev) => Math.min(prev + 1, tourSteps.length - 1))}
           onClose={() => closeTour(true)}
           onFinish={() => closeTour(true)}
         />

@@ -1,4 +1,5 @@
 import { formatDate, formatMoney, formatTime } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function SessionsList({
   theme,
@@ -17,6 +18,7 @@ export default function SessionsList({
   onTogglePaymentStatus,
   onDeleteSession,
 }) {
+  const { t } = useTranslation();
   const inputStyle = {
     background: "transparent",
     border: "none",
@@ -26,7 +28,7 @@ export default function SessionsList({
   };
 
   if (visibleSessions.length === 0) {
-    return <div style={{ color: theme.muted, fontSize: 11, letterSpacing: "0.1em", padding: "20px 0" }}>NO SESSIONS YET</div>;
+    return <div style={{ color: theme.muted, fontSize: 11, letterSpacing: "0.1em", padding: "20px 0" }}>{t("common.noSessions")}</div>;
   }
 
   return (
@@ -44,20 +46,20 @@ export default function SessionsList({
             {isEditing ? (
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                 <input value={editValues.name} onChange={(event) => setEditValues((prev) => ({ ...prev, name: event.target.value }))} style={{ ...inputStyle, flex: 1, fontSize: 13, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 120 }} />
-                <input value={editValues.notes || ""} onChange={(event) => setEditValues((prev) => ({ ...prev, notes: event.target.value }))} placeholder="notes..." style={{ ...inputStyle, flex: 1, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 100, color: theme.muted }} />
+                <input value={editValues.notes || ""} onChange={(event) => setEditValues((prev) => ({ ...prev, notes: event.target.value }))} placeholder={t("task.notesPlaceholder")} style={{ ...inputStyle, flex: 1, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 100, color: theme.muted }} />
                 <select
                   value={editValues.billingType || "hourly"}
                   onChange={(event) => setEditValues((prev) => ({ ...prev, billingType: event.target.value }))}
                   style={{ ...inputStyle, fontSize: 10, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, minWidth: 110, colorScheme: theme.colorScheme }}
                 >
-                  <option value="hourly">HOURLY</option>
-                  <option value="fixed_project">FIXED</option>
+                  <option value="hourly">{t("common.hourly")}</option>
+                  <option value="fixed_project">{t("common.fixedUpper")}</option>
                 </select>
                 <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                   <input type="number" value={editValues.hours} onChange={(event) => setEditValues((prev) => ({ ...prev, hours: event.target.value }))} style={{ ...inputStyle, width: 40, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
-                  <span style={{ color: theme.muted, fontSize: 10 }}>h</span>
+                  <span style={{ color: theme.muted, fontSize: 10 }}>{t("sessions.h")}</span>
                   <input type="number" value={editValues.minutes} onChange={(event) => setEditValues((prev) => ({ ...prev, minutes: event.target.value }))} style={{ ...inputStyle, width: 40, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
-                  <span style={{ color: theme.muted, fontSize: 10 }}>m</span>
+                  <span style={{ color: theme.muted, fontSize: 10 }}>{t("sessions.m")}</span>
                   <span style={{ color: theme.muted, fontSize: 10, marginLeft: 4 }}>{currency}</span>
                   {editValues.billingType === "hourly" ? (
                     <>
@@ -67,7 +69,7 @@ export default function SessionsList({
                         onChange={(event) => setEditValues((prev) => ({ ...prev, rate: event.target.value }))}
                         style={{ ...inputStyle, width: 56, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }}
                       />
-                      <span style={{ color: theme.muted, fontSize: 10 }}>/hr</span>
+                      <span style={{ color: theme.muted, fontSize: 10 }}>{t("sessions.perHour")}</span>
                     </>
                   ) : (
                     <>
@@ -79,12 +81,12 @@ export default function SessionsList({
                         onChange={(event) => setEditValues((prev) => ({ ...prev, fixedAmount: event.target.value }))}
                         style={{ ...inputStyle, width: 84, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }}
                       />
-                      <span style={{ color: theme.muted, fontSize: 10 }}>fixed</span>
+                      <span style={{ color: theme.muted, fontSize: 10 }}>{t("common.fixed")}</span>
                     </>
                   )}
                 </div>
                 <button onClick={() => onSaveEdit(session)} style={{ background: theme.btnBg, color: theme.btnColor, border: "none", cursor: "pointer", padding: "4px 12px", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.1em" }}>
-                  SAVE
+                  {t("common.save")}
                 </button>
                 <button onClick={onCancelEdit} style={{ background: "none", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", padding: "4px 10px", fontFamily: "inherit", fontSize: 11 }}>
                   ✕
@@ -116,7 +118,7 @@ export default function SessionsList({
                 </div>
 
                 <div className="session-meta" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ fontSize: 9, color: statusColors[session.status], letterSpacing: "0.1em" }}>{session.status}</div>
+                  <div style={{ fontSize: 9, color: statusColors[session.status], letterSpacing: "0.1em" }}>{t(`common.${session.status.toLowerCase()}`)}</div>
                   {session.status === "DONE" && (
                     <button
                       onClick={() => onTogglePaymentStatus(session.id)}
@@ -131,7 +133,7 @@ export default function SessionsList({
                         fontFamily: "inherit",
                       }}
                     >
-                      {(session.paymentStatus || "UNPAID") === "PAID" ? "PAID" : "UNPAID"}
+                      {(session.paymentStatus || "UNPAID") === "PAID" ? t("common.paid") : t("common.unpaid")}
                     </button>
                   )}
                   {session.status === "PENDING" && !running && (

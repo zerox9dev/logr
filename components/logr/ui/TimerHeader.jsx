@@ -1,6 +1,8 @@
 import { formatTime } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function TimerHeader({ theme, activeClient, activeTimedSession, elapsed, running, paused }) {
+  const { t } = useTranslation();
   return (
     <div style={{ marginBottom: 32, borderBottom: `1px solid ${theme.border}`, paddingBottom: 20 }}>
       <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 4 }}>
@@ -16,7 +18,7 @@ export default function TimerHeader({ theme, activeClient, activeTimedSession, e
         )}
         {running && paused && (
           <span style={{ color: theme.muted, marginLeft: 10, fontSize: 11, letterSpacing: "0.12em" }}>
-            PAUSED
+            {t("task.paused")}
           </span>
         )}
       </div>

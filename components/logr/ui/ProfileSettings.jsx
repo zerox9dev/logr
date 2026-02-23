@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export default function ProfileSettings({
   theme,
   user,
@@ -12,7 +14,10 @@ export default function ProfileSettings({
   setWorkdayHours,
   requireProjectForFixed,
   setRequireProjectForFixed,
+  language,
+  setLanguage,
 }) {
+  const { t } = useTranslation();
   const inputStyle = {
     background: "transparent",
     border: "none",
@@ -27,8 +32,8 @@ export default function ProfileSettings({
 
   return (
     <div style={{ maxWidth: 520 }}>
-      <div style={{ fontSize: 11, color: theme.muted, letterSpacing: "0.16em", marginBottom: 12 }}>PROFILE SETTINGS</div>
-      <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 36, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 16 }}>Account</div>
+      <div style={{ fontSize: 11, color: theme.muted, letterSpacing: "0.16em", marginBottom: 12 }}>{t("profile.settings")}</div>
+      <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 36, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 16 }}>{t("profile.account")}</div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {avatarUrl ? (
@@ -44,23 +49,23 @@ export default function ProfileSettings({
               {user?.email || "No user"}
             </div>
             <div style={{ fontSize: 10, color: syncError ? "#cc2222" : theme.muted, marginTop: 2 }}>
-              {syncError ? syncError : "Synced with Supabase"}
+              {syncError ? syncError : t("profile.synced")}
             </div>
           </div>
           <button
             onClick={onSignOut}
             style={{ border: `1px solid ${theme.border}`, borderRadius: 8, padding: "7px 10px", background: "transparent", color: theme.text, cursor: "pointer", fontFamily: "inherit", fontSize: 10, letterSpacing: "0.1em" }}
           >
-            SIGN OUT
+            {t("profile.signOut")}
           </button>
         </div>
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>DEFAULT HOURLY RATE ({currency}/HR)</div>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>{t("profile.defaultRate", { currency })}</div>
         <input type="number" min="0" step="0.01" value={hourlyRate} onChange={(event) => setHourlyRate(event.target.value)} style={inputStyle} />
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>CURRENCY</div>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>{t("profile.currency")}</div>
         <select
           value={currency}
           onChange={(event) => onChangeCurrency(event.target.value)}
@@ -74,12 +79,24 @@ export default function ProfileSettings({
           ))}
         </select>
         {isCurrencyConverting ? (
-          <div style={{ fontSize: 10, color: theme.muted, marginTop: 6 }}>Converting amounts by latest exchange rate...</div>
+          <div style={{ fontSize: 10, color: theme.muted, marginTop: 6 }}>{t("profile.converting")}</div>
         ) : null}
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>WORKDAY HOURS (1 DAY = ? HOURS)</div>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>{t("profile.workdayHours")}</div>
         <input type="number" min="1" step="0.5" value={workdayHours} onChange={(event) => setWorkdayHours(event.target.value)} style={inputStyle} />
+      </div>
+      <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginTop: 10 }}>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>{t("profile.language")}</div>
+        <select
+          value={language}
+          onChange={(event) => setLanguage(event.target.value)}
+          style={{ ...inputStyle, fontSize: 12, colorScheme: theme.colorScheme, cursor: "pointer" }}
+        >
+          <option value="en">English</option>
+          <option value="uk">Українська</option>
+          <option value="ru">Русский</option>
+        </select>
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginTop: 10 }}>
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: theme.sessionText, cursor: "pointer" }}>
@@ -89,10 +106,10 @@ export default function ProfileSettings({
             onChange={(event) => setRequireProjectForFixed(event.target.checked)}
             style={{ accentColor: theme.tabActive }}
           />
-          Require project for fixed tasks
+          {t("profile.requireProject")}
         </label>
       </div>
-      <div style={{ marginTop: 10, fontSize: 10, color: theme.muted }}>These values are used in tracker calculations automatically.</div>
+      <div style={{ marginTop: 10, fontSize: 10, color: theme.muted }}>{t("profile.note")}</div>
     </div>
   );
 }

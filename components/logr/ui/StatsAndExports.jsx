@@ -1,18 +1,20 @@
 import { formatMoney } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function StatsAndExports({ theme, currency, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, hasUnpaidSessions, onExportCsv, onExportInvoicePdf }) {
+  const { t } = useTranslation();
   if (doneSessions.length === 0) return null;
 
   return (
     <>
       <div className="stats-row" style={{ display: "flex", gap: 1, marginBottom: 20 }}>
         {[
-          { label: "DONE", value: doneSessions.length },
-          { label: "HRS", value: totalHours },
-          { label: `${currency} EARNED`, value: formatMoney(totalEarned, currency) },
-          { label: `${currency} UNPAID`, value: formatMoney(unpaidTotal, currency) },
-          { label: `${currency} PAID`, value: formatMoney(paidTotal, currency) },
-          { label: "COLLECTION %", value: collectionRate },
+          { label: t("stats.done"), value: doneSessions.length },
+          { label: t("stats.hours"), value: totalHours },
+          { label: t("stats.earned", { currency }), value: formatMoney(totalEarned, currency) },
+          { label: t("stats.unpaid", { currency }), value: formatMoney(unpaidTotal, currency) },
+          { label: t("stats.paid", { currency }), value: formatMoney(paidTotal, currency) },
+          { label: t("stats.collection"), value: collectionRate },
         ].map((stat) => (
           <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px", border: `1px solid ${theme.border}` }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 2 }}>{stat.label}</div>
@@ -23,7 +25,7 @@ export default function StatsAndExports({ theme, currency, doneSessions, totalHo
 
       <div className="export-row" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         <button onClick={onExportCsv} style={{ flex: 1, padding: "9px", background: "transparent", border: `1px solid ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.15em" }}>
-          ↓ CSV
+          {t("stats.csv")}
         </button>
         <button
           data-tour="invoice-btn"
@@ -42,7 +44,7 @@ export default function StatsAndExports({ theme, currency, doneSessions, totalHo
             letterSpacing: "0.15em",
           }}
         >
-          ↓ INVOICE PDF
+          {t("stats.invoice")}
         </button>
       </div>
     </>

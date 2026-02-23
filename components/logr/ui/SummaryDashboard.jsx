@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { formatMoney as formatCurrency } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 function formatHours(seconds) {
   return (seconds / 3600).toFixed(1);
@@ -64,6 +65,7 @@ function sumMoney(sessionsList) {
 }
 
 export default function SummaryDashboard({ theme, currency, clients, sessions, targetHourlyRate = 50 }) {
+  const { t, i18n } = useTranslation();
   const [range, setRange] = useState("all");
 
   const doneSessions = useMemo(() => sessions.filter((session) => session.status === "DONE"), [sessions]);
@@ -121,8 +123,8 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
         const missing = Math.max(0, (targetHourlyRate - effectiveRate) * hours);
         return {
           key: `${item.clientId}:${item.projectId}`,
-          clientName: client?.name || "Unknown client",
-          projectName: project?.name || "Unknown project",
+          clientName: client?.name || t("dashboard.unknownClient"),
+          projectName: project?.name || t("dashboard.unknownProject"),
           hours,
           earned: item.earned,
           effectiveRate,
@@ -135,7 +137,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
     const missingTotal = atRiskProjects.reduce((sum, item) => sum + item.missing, 0);
     const severity = missingTotal === 0 ? "healthy" : missingTotal <= targetHourlyRate * 4 ? "watch" : "risk";
     return { atRiskCount: atRiskProjects.length, missingTotal, severity };
-  }, [filteredDoneSessions, clients, targetHourlyRate]);
+  }, [filteredDoneSessions, clients, targetHourlyRate, t]);
 
   const revenueBreakdown = useMemo(() => {
     const hourly = filteredDoneSessions
@@ -161,19 +163,19 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
       const duration = daySessions.reduce((sum, session) => sum + getSessionDuration(session), 0);
       const earned = daySessions.reduce((sum, session) => sum + getSessionMoney(session), 0);
       return {
-        label: day.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }),
+        label: day.toLocaleDateString(i18n.language === "uk" ? "uk-UA" : i18n.language === "ru" ? "ru-RU" : "en-GB", { day: "2-digit", month: "short" }),
         duration,
         earned,
       };
     });
-  }, [filteredDoneSessions]);
+  }, [filteredDoneSessions, i18n.language]);
 
   const maxDaySeconds = dailyTrend.reduce((max, day) => Math.max(max, day.duration), 0) || 1;
 
   if (doneSessions.length === 0) {
     return (
       <div style={{ border: `1px solid ${theme.border}`, padding: 18, color: theme.muted }}>
-        No completed (`DONE`) sessions yet. Add and finish a few sessions in the tracker to see summary data.
+        {t("dashboard.noDone")}
       </div>
     );
   }
@@ -181,7 +183,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
   return (
     <div>
       <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
-        {[["today", "TODAY"], ["week", "7D"], ["month", "MONTH"], ["all", "ALL"]].map(([value, label]) => (
+        {[["today", t("dashboard.today")], ["week", t("dashboard.week")], ["month", t("dashboard.month")], ["all", t("dashboard.all")]].map(([value, label]) => (
           <button
             key={value}
             onClick={() => setRange(value)}
@@ -203,15 +205,15 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 1, marginBottom: 20 }}>
         {[
-          { label: "TIME", value: `${formatHours(totalSeconds)} h`, note: "selected period" },
-          { label: "MONEY", value: formatCurrency(totalMoney, currency), note: "selected period" },
-          { label: "AVG RATE", value: `${formatCurrency(avgRate, currency)}/h`, note: "based on DONE sessions" },
-          { label: "DONE", value: filteredDoneSessions.length, note: "completed sessions" },
-          { label: `${currency} UNPAID`, value: formatCurrency(unpaidMoney, currency), note: "done but unpaid" },
-          { label: `${currency} PAID`, value: formatCurrency(paidMoney, currency), note: "collected revenue" },
-          { label: "COLLECTION %", value: `${collectionRate.toFixed(1)}%`, note: "paid / done total" },
-          { label: "PENDING", value: pendingSessions.length, note: "tasks in pipeline" },
-          { label: "PENDING VALUE", value: formatCurrency(pendingValue, currency), note: "potential revenue" },
+          { label: t("dashboard.time"), value: `${formatHours(totalSeconds)} h`, note: t("dashboard.selectedPeriod") },
+          { label: t("dashboard.money"), value: formatCurrency(totalMoney, currency), note: t("dashboard.selectedPeriod") },
+          { label: t("dashboard.avgRate"), value: `${formatCurrency(avgRate, currency)}/h`, note: t("dashboard.basedOnDone") },
+          { label: t("dashboard.done"), value: filteredDoneSessions.length, note: t("dashboard.completedSessions") },
+          { label: t("dashboard.unpaid", { currency }), value: formatCurrency(unpaidMoney, currency), note: t("dashboard.doneButUnpaid") },
+          { label: t("dashboard.paid", { currency }), value: formatCurrency(paidMoney, currency), note: t("dashboard.collectedRevenue") },
+          { label: t("dashboard.collection"), value: `${collectionRate.toFixed(1)}%`, note: t("dashboard.paidDoneTotal") },
+          { label: t("dashboard.pending"), value: pendingSessions.length, note: t("dashboard.tasksPipeline") },
+          { label: t("dashboard.pendingValue"), value: formatCurrency(pendingValue, currency), note: t("dashboard.potentialRevenue") },
         ].map((card) => (
           <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px", border: `1px solid ${theme.border}` }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.16em", marginBottom: 4 }}>{card.label}</div>
@@ -221,7 +223,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
                 fontFamily: "'Inter Tight',sans-serif",
                 fontWeight: 400,
                 letterSpacing: "-0.02em",
-                color: card.label === "MONEY" ? "#2d7a2d" : card.label.includes("PENDING") ? "#c47d00" : theme.timerColor,
+                color: card.label === t("dashboard.money") ? "#2d7a2d" : card.label.includes(t("dashboard.pending")) ? "#c47d00" : theme.timerColor,
                 lineHeight: 1.1,
               }}
             >
@@ -234,7 +236,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
 
       <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
-          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>DAILY TREND (LAST 7 DAYS)</div>
+          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>{t("dashboard.dailyTrend")}</div>
           <div style={{ display: "grid", gap: 8 }}>
             {dailyTrend.map((day) => (
               <div key={day.label} style={{ display: "grid", gridTemplateColumns: "70px 1fr auto", gap: 8, alignItems: "center" }}>
@@ -256,7 +258,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
         </div>
 
         <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
-          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>PRICING HEALTH</div>
+          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>{t("dashboard.pricingHealth")}</div>
           <div
             style={{
               fontSize: 30,
@@ -270,20 +272,20 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           >
             {formatCurrency(underEarnedIndicator.missingTotal, currency)}
           </div>
-          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED {currency} (vs default {formatCurrency(targetHourlyRate, currency)}/h)</div>
-          <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>At-risk projects: {underEarnedIndicator.atRiskCount}</div>
+          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>{t("dashboard.underEarned", { currency, rate: formatCurrency(targetHourlyRate, currency) })}</div>
+          <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>{t("dashboard.atRiskProjects", { count: underEarnedIndicator.atRiskCount })}</div>
           <div style={{ fontSize: 10, color: theme.muted }}>
-            Status: {underEarnedIndicator.severity === "healthy" ? "HEALTHY" : underEarnedIndicator.severity === "watch" ? "WATCH" : "RISK"}
+            {t("dashboard.status", { status: underEarnedIndicator.severity === "healthy" ? t("dashboard.healthy") : underEarnedIndicator.severity === "watch" ? t("dashboard.watch") : t("dashboard.risk") })}
           </div>
         </div>
       </div>
 
       <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
-        <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>REVENUE BREAKDOWN</div>
+        <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>{t("dashboard.revenueBreakdown")}</div>
         <div style={{ display: "grid", gap: 10 }}>
           <div style={{ borderBottom: `1px solid ${theme.rowBorder}`, paddingBottom: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <div style={{ fontSize: 12, color: theme.sessionText }}>HOURLY</div>
+              <div style={{ fontSize: 12, color: theme.sessionText }}>{t("dashboard.hourly")}</div>
               <div style={{ fontSize: 12, color: theme.sessionText }}>{formatCurrency(revenueBreakdown.hourly, currency)} · {revenueBreakdown.hourlyPct.toFixed(1)}%</div>
             </div>
             <div style={{ height: 8, background: theme.faint }}>
@@ -292,7 +294,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           </div>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <div style={{ fontSize: 12, color: theme.sessionText }}>FIXED</div>
+              <div style={{ fontSize: 12, color: theme.sessionText }}>{t("dashboard.fixed")}</div>
               <div style={{ fontSize: 12, color: theme.sessionText }}>{formatCurrency(revenueBreakdown.fixed, currency)} · {revenueBreakdown.fixedPct.toFixed(1)}%</div>
             </div>
             <div style={{ height: 8, background: theme.faint }}>

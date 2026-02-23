@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export default function MobileTopBar({ theme, activeClient, mobileView, screen, onToggle }) {
+  const { t } = useTranslation();
   return (
     <div
       className="mobile-bar"
@@ -33,7 +36,7 @@ export default function MobileTopBar({ theme, activeClient, mobileView, screen, 
             letterSpacing: "0.1em",
           }}
         >
-          {mobileView === "clients" ? "✕ CLOSE" : "☰ MENU"}
+          {mobileView === "clients" ? t("mobile.close") : t("mobile.menu")}
         </button>
       </div>
     </div>

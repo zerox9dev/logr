@@ -1,17 +1,20 @@
+import { useTranslation } from "react-i18next";
+
 export default function WelcomeState({ theme }) {
+  const { t } = useTranslation();
   return (
     <div style={{ marginTop: 60, maxWidth: 360 }}>
       <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 44, fontWeight: 400, color: theme.timerColor, letterSpacing: "-0.02em", marginBottom: 12, lineHeight: 1.05 }}>
-        WELCOME TO LOGR
+        {t("welcome.title")}
       </div>
       <div style={{ fontSize: 12, color: theme.muted, lineHeight: 1.8, marginBottom: 32 }}>
-        Track time, log tasks, generate invoices.
+        {t("welcome.subtitle")}
       </div>
       {[
-        ["1", "Add a client", "Click + CLIENT in the sidebar"],
-        ["2", "Add a project", "Optional — group tasks by project"],
-        ["3", "Start tracking", "Type a task → press SPACE or ▶ START"],
-        ["4", "Export", "CSV or PDF invoice when done"],
+        ["1", t("welcome.step1t"), t("welcome.step1d")],
+        ["2", t("welcome.step2t"), t("welcome.step2d")],
+        ["3", t("welcome.step3t"), t("welcome.step3d")],
+        ["4", t("welcome.step4t"), t("welcome.step4d")],
       ].map(([n, title, desc]) => (
         <div key={n} style={{ display: "flex", gap: 16, marginBottom: 20, alignItems: "flex-start" }}>
           <div style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 26, color: theme.muted, minWidth: 20 }}>{n}</div>
@@ -21,7 +24,7 @@ export default function WelcomeState({ theme }) {
           </div>
         </div>
       ))}
-      <div style={{ fontSize: 10, color: theme.faint, letterSpacing: "0.15em", marginTop: 8 }}>SHORTCUT: SPACE = START / STOP</div>
+      <div style={{ fontSize: 10, color: theme.faint, letterSpacing: "0.15em", marginTop: 8 }}>{t("welcome.shortcut")}</div>
     </div>
   );
 }

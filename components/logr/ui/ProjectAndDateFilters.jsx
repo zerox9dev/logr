@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export default function ProjectAndDateFilters({
   theme,
   currency,
@@ -20,6 +22,7 @@ export default function ProjectAndDateFilters({
   customMonth,
   setCustomMonth,
 }) {
+  const { t } = useTranslation();
   const inputStyle = {
     background: "transparent",
     border: "none",
@@ -32,7 +35,7 @@ export default function ProjectAndDateFilters({
     <>
       <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
         <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap", flex: 1, minWidth: 260 }}>
-          {[{ id: "all", name: "ALL" }, ...activeProjects].map((project) => (
+          {[{ id: "all", name: t("filters.all") }, ...activeProjects].map((project) => (
             <button
               key={project.id}
               onClick={() => setActiveProjectId(project.id)}
@@ -56,7 +59,7 @@ export default function ProjectAndDateFilters({
                 autoFocus
                 value={newProjectName}
                 onChange={(event) => setNewProjectName(event.target.value)}
-                placeholder="project name"
+                placeholder={t("filters.projectPlaceholder")}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") onAddProject();
                   if (event.key === "Escape") setShowAddProject(false);
@@ -64,7 +67,7 @@ export default function ProjectAndDateFilters({
                 style={{ ...inputStyle, fontSize: 11, borderBottom: `1px solid ${theme.border}`, paddingBottom: 2, width: 120 }}
               />
               <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                {[["hourly", "HOURLY"], ["fixed_project", "FIXED"]].map(([value, label]) => (
+                {[["hourly", t("common.hourly")], ["fixed_project", t("common.fixedUpper")]].map(([value, label]) => (
                   <button
                     key={value}
                     onClick={() => {
@@ -102,7 +105,7 @@ export default function ProjectAndDateFilters({
                     setNewProjectBudget(event.target.value);
                   }
                 }}
-                placeholder={newProjectBillingType === "hourly" ? `hourly ${currency}` : `fixed ${currency}`}
+                placeholder={newProjectBillingType === "hourly" ? t("filters.hourlyPlaceholder", { currency }) : t("filters.fixedPlaceholder", { currency })}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") onAddProject();
                   if (event.key === "Escape") setShowAddProject(false);
@@ -116,13 +119,13 @@ export default function ProjectAndDateFilters({
               onClick={() => setShowAddProject(true)}
               style={{ padding: "5px 10px", background: "none", border: `1px dashed ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 10, letterSpacing: "0.1em" }}
             >
-              + PROJECT
+              {t("filters.addProject")}
             </button>
           )}
         </div>
 
         <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap", marginLeft: "auto", justifyContent: "flex-end" }}>
-          {[["all", "ALL"], ["week", "7D"], ["month", "THIS MONTH"], ["custom", "MONTH ▾"]].map(([value, label]) => (
+          {[["all", t("filters.all")], ["week", t("filters.week7")], ["month", t("filters.month")], ["custom", t("filters.monthCustom")]].map(([value, label]) => (
             <button
               key={value}
               onClick={() => setDateFilter(value)}
