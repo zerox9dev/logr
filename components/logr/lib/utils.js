@@ -5,8 +5,19 @@ export function formatTime(seconds) {
   return `${h}:${m}:${s}`;
 }
 
+export const SUPPORTED_CURRENCIES = ["UAH", "USD", "PLN", "EUR"];
+
 export function formatDate(ts) {
   return new Date(ts).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" });
+}
+
+export function normalizeCurrency(currency) {
+  return SUPPORTED_CURRENCIES.includes(currency) ? currency : "USD";
+}
+
+export function formatMoney(amount, currency = "USD") {
+  const value = Number.isFinite(amount) ? amount : parseFloat(amount || 0);
+  return `${normalizeCurrency(currency)} ${value.toFixed(2)}`;
 }
 
 export function uid() {

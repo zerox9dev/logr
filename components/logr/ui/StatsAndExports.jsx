@@ -1,4 +1,6 @@
-export default function StatsAndExports({ theme, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, hasUnpaidSessions, onExportCsv, onExportInvoicePdf }) {
+import { formatMoney } from "../lib/utils";
+
+export default function StatsAndExports({ theme, currency, doneSessions, totalHours, totalEarned, paidTotal, unpaidTotal, collectionRate, hasUnpaidSessions, onExportCsv, onExportInvoicePdf }) {
   if (doneSessions.length === 0) return null;
 
   return (
@@ -7,9 +9,9 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
         {[
           { label: "DONE", value: doneSessions.length },
           { label: "HRS", value: totalHours },
-          { label: "EARNED $", value: totalEarned },
-          { label: "UNPAID $", value: unpaidTotal },
-          { label: "PAID $", value: paidTotal },
+          { label: `${currency} EARNED`, value: formatMoney(totalEarned, currency) },
+          { label: `${currency} UNPAID`, value: formatMoney(unpaidTotal, currency) },
+          { label: `${currency} PAID`, value: formatMoney(paidTotal, currency) },
           { label: "COLLECTION %", value: collectionRate },
         ].map((stat) => (
           <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px", border: `1px solid ${theme.border}` }}>

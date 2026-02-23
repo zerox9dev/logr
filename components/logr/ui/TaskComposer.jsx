@@ -1,5 +1,6 @@
 export default function TaskComposer({
   theme,
+  currency,
   running,
   paused,
   taskName,
@@ -84,12 +85,12 @@ export default function TaskComposer({
               </div>
               {taskBillingType === "hourly" ? (
                 <>
-                  <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>$/HR</div>
+                  <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>{currency}/HR</div>
                   <input type="number" min="0" step="0.01" value={taskRate} onChange={(event) => setTaskRate(event.target.value)} placeholder={profileHourlyRate || "0"} style={{ ...inputStyle, width: "100%", fontSize: 14 }} />
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>FIXED $</div>
+                  <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 4 }}>FIXED {currency}</div>
                   <input type="number" min="0" step="0.01" value={taskFixedAmount} onChange={(event) => setTaskFixedAmount(event.target.value)} placeholder="amount" style={{ ...inputStyle, width: "100%", fontSize: 14 }} />
                 </>
               )}

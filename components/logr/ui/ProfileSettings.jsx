@@ -3,6 +3,8 @@ export default function ProfileSettings({
   user,
   syncError,
   onSignOut,
+  currency,
+  setCurrency,
   hourlyRate,
   setHourlyRate,
   targetHourlyRate,
@@ -55,12 +57,22 @@ export default function ProfileSettings({
         </div>
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>DEFAULT HOURLY RATE ($/HR)</div>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>DEFAULT HOURLY RATE ({currency}/HR)</div>
         <input type="number" min="0" step="0.01" value={hourlyRate} onChange={(event) => setHourlyRate(event.target.value)} style={inputStyle} />
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>TARGET HOURLY RATE ($/HR)</div>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>TARGET HOURLY RATE ({currency}/HR)</div>
         <input type="number" min="0" step="0.01" value={targetHourlyRate} onChange={(event) => setTargetHourlyRate(event.target.value)} style={inputStyle} />
+      </div>
+      <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>CURRENCY</div>
+        <select value={currency} onChange={(event) => setCurrency(event.target.value)} style={{ ...inputStyle, fontSize: 12, colorScheme: theme.colorScheme }}>
+          {["UAH", "USD", "PLN", "EUR"].map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
       </div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16 }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 6 }}>WORKDAY HOURS (1 DAY = ? HOURS)</div>

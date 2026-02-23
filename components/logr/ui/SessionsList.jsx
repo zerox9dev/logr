@@ -1,7 +1,8 @@
-import { formatDate, formatTime } from "../lib/utils";
+import { formatDate, formatMoney, formatTime } from "../lib/utils";
 
 export default function SessionsList({
   theme,
+  currency,
   statusColors,
   running,
   visibleSessions,
@@ -57,7 +58,7 @@ export default function SessionsList({
                   <span style={{ color: theme.muted, fontSize: 10 }}>h</span>
                   <input type="number" value={editValues.minutes} onChange={(event) => setEditValues((prev) => ({ ...prev, minutes: event.target.value }))} style={{ ...inputStyle, width: 40, fontSize: 12, borderBottom: `1px solid ${theme.border}`, textAlign: "center" }} />
                   <span style={{ color: theme.muted, fontSize: 10 }}>m</span>
-                  <span style={{ color: theme.muted, fontSize: 10, marginLeft: 4 }}>$</span>
+                  <span style={{ color: theme.muted, fontSize: 10, marginLeft: 4 }}>{currency}</span>
                   {editValues.billingType === "hourly" ? (
                     <>
                       <input
@@ -70,7 +71,7 @@ export default function SessionsList({
                     </>
                   ) : (
                     <>
-                      <span style={{ color: theme.sessionText, fontSize: 11 }}>{parseFloat(editValues.fixedAmount || 0).toFixed(2)}</span>
+                      <span style={{ color: theme.sessionText, fontSize: 11 }}>{formatMoney(parseFloat(editValues.fixedAmount || 0), currency)}</span>
                       <span style={{ color: theme.muted, fontSize: 10 }}>fixed</span>
                     </>
                   )}
@@ -132,7 +133,7 @@ export default function SessionsList({
                     </button>
                   )}
                   {session.duration > 0 && <div style={{ fontSize: 12, color: theme.sessionTime }}>{formatTime(session.duration)}</div>}
-                  {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE }}>${doneAmount.toFixed(2)}</div>}
+                  {session.status === "DONE" && <div style={{ fontSize: 13, color: statusColors.DONE }}>{formatMoney(doneAmount, currency)}</div>}
                   <button className="del" onClick={() => onStartEdit(session)} style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 13, padding: "0 3px", transition: "opacity 0.15s" }}>
                     ✎
                   </button>

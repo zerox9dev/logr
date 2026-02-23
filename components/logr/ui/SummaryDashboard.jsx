@@ -1,11 +1,8 @@
 import { useMemo, useState } from "react";
+import { formatMoney as formatCurrency } from "../lib/utils";
 
 function formatHours(seconds) {
   return (seconds / 3600).toFixed(1);
-}
-
-function formatMoney(amount) {
-  return `$${amount.toFixed(2)}`;
 }
 
 function isInRange(timestamp, range) {
@@ -66,7 +63,7 @@ function sumMoney(sessionsList) {
   return sessionsList.reduce((sum, session) => sum + getSessionMoney(session), 0);
 }
 
-export default function SummaryDashboard({ theme, clients, sessions, targetHourlyRate = 25 }) {
+export default function SummaryDashboard({ theme, currency, clients, sessions, targetHourlyRate = 25 }) {
   const [range, setRange] = useState("all");
 
   const doneSessions = useMemo(() => sessions.filter((session) => session.status === "DONE"), [sessions]);
@@ -207,14 +204,14 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 1, marginBottom: 20 }}>
         {[
           { label: "TIME", value: `${formatHours(totalSeconds)} h`, note: "selected period" },
-          { label: "MONEY", value: formatMoney(totalMoney), note: "selected period" },
-          { label: "AVG RATE", value: `${formatMoney(avgRate)}/h`, note: "based on DONE sessions" },
+          { label: "MONEY", value: formatCurrency(totalMoney, currency), note: "selected period" },
+          { label: "AVG RATE", value: `${formatCurrency(avgRate, currency)}/h`, note: "based on DONE sessions" },
           { label: "DONE", value: filteredDoneSessions.length, note: "completed sessions" },
-          { label: "UNPAID $", value: formatMoney(unpaidMoney), note: "done but unpaid" },
-          { label: "PAID $", value: formatMoney(paidMoney), note: "collected revenue" },
+          { label: `${currency} UNPAID`, value: formatCurrency(unpaidMoney, currency), note: "done but unpaid" },
+          { label: `${currency} PAID`, value: formatCurrency(paidMoney, currency), note: "collected revenue" },
           { label: "COLLECTION %", value: `${collectionRate.toFixed(1)}%`, note: "paid / done total" },
           { label: "PENDING", value: pendingSessions.length, note: "tasks in pipeline" },
-          { label: "PENDING VALUE", value: formatMoney(pendingValue), note: "potential revenue" },
+          { label: "PENDING VALUE", value: formatCurrency(pendingValue, currency), note: "potential revenue" },
         ].map((card) => (
           <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px", border: `1px solid ${theme.border}` }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.16em", marginBottom: 4 }}>{card.label}</div>
@@ -252,7 +249,7 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
                     }}
                   />
                 </div>
-                <div style={{ fontSize: 10, color: theme.sessionText }}>{formatHours(day.duration)}h · {formatMoney(day.earned)}</div>
+                <div style={{ fontSize: 10, color: theme.sessionText }}>{formatHours(day.duration)}h · {formatCurrency(day.earned, currency)}</div>
               </div>
             ))}
           </div>
@@ -271,9 +268,9 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
               color: underEarnedIndicator.severity === "healthy" ? "#2d7a2d" : underEarnedIndicator.severity === "watch" ? "#c47d00" : "#cc2222",
             }}
           >
-            {formatMoney(underEarnedIndicator.missingTotal)}
+            {formatCurrency(underEarnedIndicator.missingTotal, currency)}
           </div>
-          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED $ (vs target {formatMoney(targetHourlyRate)}/h)</div>
+          <div style={{ fontSize: 11, color: theme.sessionText, marginBottom: 4 }}>UNDER-EARNED {currency} (vs target {formatCurrency(targetHourlyRate, currency)}/h)</div>
           <div style={{ fontSize: 10, color: theme.muted, marginBottom: 2 }}>At-risk projects: {underEarnedIndicator.atRiskCount}</div>
           <div style={{ fontSize: 10, color: theme.muted }}>
             Status: {underEarnedIndicator.severity === "healthy" ? "HEALTHY" : underEarnedIndicator.severity === "watch" ? "WATCH" : "RISK"}
@@ -287,7 +284,7 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
           <div style={{ borderBottom: `1px solid ${theme.rowBorder}`, paddingBottom: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div style={{ fontSize: 12, color: theme.sessionText }}>HOURLY</div>
-              <div style={{ fontSize: 12, color: theme.sessionText }}>{formatMoney(revenueBreakdown.hourly)} · {revenueBreakdown.hourlyPct.toFixed(1)}%</div>
+              <div style={{ fontSize: 12, color: theme.sessionText }}>{formatCurrency(revenueBreakdown.hourly, currency)} · {revenueBreakdown.hourlyPct.toFixed(1)}%</div>
             </div>
             <div style={{ height: 8, background: theme.faint }}>
               <div style={{ width: `${Math.max(2, revenueBreakdown.hourlyPct)}%`, height: "100%", background: theme.tabActive }} />
@@ -296,7 +293,7 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <div style={{ fontSize: 12, color: theme.sessionText }}>FIXED</div>
-              <div style={{ fontSize: 12, color: theme.sessionText }}>{formatMoney(revenueBreakdown.fixed)} · {revenueBreakdown.fixedPct.toFixed(1)}%</div>
+              <div style={{ fontSize: 12, color: theme.sessionText }}>{formatCurrency(revenueBreakdown.fixed, currency)} · {revenueBreakdown.fixedPct.toFixed(1)}%</div>
             </div>
             <div style={{ height: 8, background: theme.faint }}>
               <div style={{ width: `${Math.max(2, revenueBreakdown.fixedPct)}%`, height: "100%", background: theme.tabActive }} />

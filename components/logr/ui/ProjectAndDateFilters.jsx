@@ -1,5 +1,6 @@
 export default function ProjectAndDateFilters({
   theme,
+  currency,
   activeProjects,
   activeProjectId,
   setActiveProjectId,
@@ -101,7 +102,7 @@ export default function ProjectAndDateFilters({
                     setNewProjectBudget(event.target.value);
                   }
                 }}
-                placeholder={newProjectBillingType === "hourly" ? "hourly $" : "fixed $"}
+                placeholder={newProjectBillingType === "hourly" ? `hourly ${currency}` : `fixed ${currency}`}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") onAddProject();
                   if (event.key === "Escape") setShowAddProject(false);

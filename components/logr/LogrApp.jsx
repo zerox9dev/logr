@@ -7,7 +7,7 @@ import {
   STATUS_COLORS_DARK,
   STATUS_COLORS_LIGHT,
 } from "./lib/constants";
-import { durationFromHoursMinutes, earnedFromDuration, formatDate, uid } from "./lib/utils";
+import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
@@ -91,6 +91,7 @@ export default function LogrApp() {
   const [taskRate, setTaskRate] = useState("");
   const [profileHourlyRate, setProfileHourlyRate] = useState("50");
   const [profileTargetHourlyRate, setProfileTargetHourlyRate] = useState("25");
+  const [profileCurrency, setProfileCurrency] = useState("USD");
   const [taskBillingType, setTaskBillingType] = useState("hourly");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskStatus, setTaskStatus] = useState("ACTIVE");
@@ -185,6 +186,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileTargetHourlyRate("25");
+        setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -206,6 +208,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileTargetHourlyRate("25");
+        setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setRunning(false);
@@ -239,6 +242,7 @@ export default function LogrApp() {
             setSessions(Array.isArray(cached.sessions) ? cached.sessions : []);
             setProfileHourlyRate(settings.hourlyRate || "50");
             setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
+            setProfileCurrency(normalizeCurrency(settings.currency));
             setProfileWorkdayHours(settings.workdayHours || "8");
             setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
             setSyncReady(true);
@@ -266,6 +270,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileTargetHourlyRate("25");
+        setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
         setSyncReady(true);
@@ -278,6 +283,7 @@ export default function LogrApp() {
         const settings = data.settings || {};
         setProfileHourlyRate(settings.hourlyRate || "50");
         setProfileTargetHourlyRate(settings.targetHourlyRate || "25");
+        setProfileCurrency(normalizeCurrency(settings.currency));
         setProfileWorkdayHours(settings.workdayHours || "8");
         setProfileRequireProjectForFixed(Boolean(settings.requireProjectForFixed));
       } else {
@@ -285,6 +291,7 @@ export default function LogrApp() {
         setSessions([]);
         setProfileHourlyRate("50");
         setProfileTargetHourlyRate("25");
+        setProfileCurrency("USD");
         setProfileWorkdayHours("8");
         setProfileRequireProjectForFixed(false);
 
@@ -293,7 +300,7 @@ export default function LogrApp() {
             user_id: user.id,
             clients: [],
             sessions: [],
-            settings: { hourlyRate: "50", targetHourlyRate: "25", workdayHours: "8", requireProjectForFixed: false },
+            settings: { hourlyRate: "50", targetHourlyRate: "25", currency: "USD", workdayHours: "8", requireProjectForFixed: false },
           },
           { onConflict: "user_id" }
         );
@@ -326,6 +333,7 @@ export default function LogrApp() {
           settings: {
             hourlyRate: profileHourlyRate,
             targetHourlyRate: profileTargetHourlyRate,
+            currency: profileCurrency,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
           },
@@ -333,7 +341,7 @@ export default function LogrApp() {
         }),
       );
     } catch {}
-  }, [user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (!supabase || !user || !syncReady) return;
@@ -347,6 +355,7 @@ export default function LogrApp() {
           settings: {
             hourlyRate: profileHourlyRate,
             targetHourlyRate: profileTargetHourlyRate,
+            currency: profileCurrency,
             workdayHours: profileWorkdayHours,
             requireProjectForFixed: profileRequireProjectForFixed,
           },
@@ -364,7 +373,7 @@ export default function LogrApp() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileWorkdayHours, profileRequireProjectForFixed]);
+  }, [supabase, user, syncReady, clients, sessions, profileHourlyRate, profileTargetHourlyRate, profileCurrency, profileWorkdayHours, profileRequireProjectForFixed]);
 
   useEffect(() => {
     if (running && !paused) {
@@ -409,15 +418,13 @@ export default function LogrApp() {
 
   const doneSessions = visibleSessions.filter((session) => session.status === "DONE");
   const unpaidDoneSessions = doneSessions.filter((session) => (session.paymentStatus || "UNPAID") === "UNPAID");
-  const totalEarned = (() => {
-    return doneSessions.reduce((sum, session) => {
-      const billingType = session.billingType || "hourly";
-      if (billingType === "fixed_project") {
-        return sum + parseFloat(session.fixedAmount || 0);
-      }
-      return sum + parseFloat(session.earned || 0);
-    }, 0).toFixed(2);
-  })();
+  const totalEarned = doneSessions.reduce((sum, session) => {
+    const billingType = session.billingType || "hourly";
+    if (billingType === "fixed_project") {
+      return sum + parseFloat(session.fixedAmount || 0);
+    }
+    return sum + parseFloat(session.earned || 0);
+  }, 0);
   const totalHours = (doneSessions.reduce((sum, session) => sum + session.duration, 0) / 3600).toFixed(1);
   const paidTotal = doneSessions.reduce((sum, session) => {
     if ((session.paymentStatus || "UNPAID") !== "PAID") return sum;
@@ -890,7 +897,9 @@ export default function LogrApp() {
           billedAmount = 0;
         }
       }
-      const billingValue = billingType === "hourly" ? `${session.rate}/hr` : `$${parseFloat(session.fixedAmount || 0).toFixed(2)} fixed`;
+      const formattedBillingValue = billingType === "hourly"
+        ? `${profileCurrency} ${session.rate}/hr`
+        : `${profileCurrency} ${parseFloat(session.fixedAmount || 0).toFixed(2)} fixed`;
       return [
         formatDate(session.ts),
         activeClient?.name || "",
@@ -899,7 +908,7 @@ export default function LogrApp() {
         `"${session.notes || ""}"`,
         (session.duration / 3600).toFixed(2),
         billingTypeLabel,
-        billingValue,
+        formattedBillingValue,
         billedAmount.toFixed(2),
       ].join(",");
     });
@@ -915,6 +924,7 @@ export default function LogrApp() {
     if (unpaidDoneSessions.length === 0) return;
 
     const projectName = activeProjectId !== "all" ? activeProjects.find((item) => item.id === activeProjectId)?.name : null;
+    const currency = profileCurrency;
     const invoiceDate = new Date();
     const invoiceDateLabel = invoiceDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
     const invoiceId = `INV-${invoiceDate.getTime().toString().slice(-6)}`;
@@ -924,7 +934,9 @@ export default function LogrApp() {
       .map((session) => {
         const project = activeProjects.find((item) => item.id === session.projectId);
         const billingType = session.billingType || "hourly";
-        const billingLabel = billingType === "hourly" ? `$${session.rate}/hr` : `$${parseFloat(session.fixedAmount || session.earned || 0).toFixed(2)} fixed`;
+        const billingLabel = billingType === "hourly"
+          ? `${currency} ${session.rate}/hr`
+          : `${currency} ${parseFloat(session.fixedAmount || session.earned || 0).toFixed(2)} fixed`;
         let billedAmount = parseFloat(session.earned || 0);
         if (billingType === "fixed_project") {
           if (session.projectId && !countedProjects.has(session.projectId)) {
@@ -934,7 +946,7 @@ export default function LogrApp() {
             billedAmount = 0;
           }
         }
-        return `<tr><td>${formatDate(session.ts)}</td><td>${session.name}${project ? ` <span style="color:#999;font-size:11px">[${project.name}]</span>` : ""}${session.notes ? `<br><span style="color:#999;font-size:11px">${session.notes}</span>` : ""}</td><td>${(session.duration / 3600).toFixed(2)}h</td><td>${billingLabel}</td><td><strong>$${billedAmount.toFixed(2)}</strong></td></tr>`;
+        return `<tr><td>${formatDate(session.ts)}</td><td>${session.name}${project ? ` <span style="color:#999;font-size:11px">[${project.name}]</span>` : ""}${session.notes ? `<br><span style="color:#999;font-size:11px">${session.notes}</span>` : ""}</td><td>${(session.duration / 3600).toFixed(2)}h</td><td>${billingLabel}</td><td><strong>${formatMoney(billedAmount, currency)}</strong></td></tr>`;
       })
       .join("");
 
@@ -947,7 +959,7 @@ export default function LogrApp() {
       <div style="text-align:right"><div class="lbl">Date</div><div>${invoiceDateLabel}</div><div class="lbl" style="margin-top:8px">Invoice #</div><div>${invoiceId}</div></div>
     </div>
     <table><thead><tr><th>Date</th><th>Task</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="total"><div class="lbl">Total Due</div>$${unpaidTotal.toFixed(2)}</div>
+    <div class="total"><div class="lbl">Total Due</div>${formatMoney(unpaidTotal, currency)}</div>
     <script>window.onload=()=>window.print();</script></body></html>`;
 
     const popup = window.open("", "_blank");
@@ -1124,13 +1136,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
-            <SummaryDashboard theme={theme} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileTargetHourlyRate || 25)} />
+            <SummaryDashboard theme={theme} currency={profileCurrency} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileTargetHourlyRate || 25)} />
           ) : screen === "profile" ? (
             <ProfileSettings
               theme={theme}
               user={user}
               syncError={syncError}
               onSignOut={signOut}
+              currency={profileCurrency}
+              setCurrency={setProfileCurrency}
               hourlyRate={profileHourlyRate}
               setHourlyRate={setProfileHourlyRate}
               targetHourlyRate={profileTargetHourlyRate}
@@ -1148,6 +1162,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
               <ProjectAndDateFilters
                 theme={theme}
+                currency={profileCurrency}
                 activeProjects={activeProjects}
                 activeProjectId={activeProjectId}
                 setActiveProjectId={setActiveProjectId}
@@ -1170,6 +1185,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
               <TaskComposer
                 theme={theme}
+                currency={profileCurrency}
                 running={running}
                 taskName={taskName}
                 setTaskName={setTaskName}
@@ -1203,11 +1219,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
               <StatsAndExports
                 theme={theme}
+                currency={profileCurrency}
                 doneSessions={doneSessions}
                 totalHours={totalHours}
                 totalEarned={totalEarned}
-                paidTotal={paidTotal.toFixed(2)}
-                unpaidTotal={unpaidTotal.toFixed(2)}
+                paidTotal={paidTotal}
+                unpaidTotal={unpaidTotal}
                 collectionRate={collectionRate}
                 hasUnpaidSessions={unpaidDoneSessions.length > 0}
                 onExportCsv={exportCsv}
@@ -1216,6 +1233,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
               <SessionsList
                 theme={theme}
+                currency={profileCurrency}
                 statusColors={statusColors}
                 running={running}
                 visibleSessions={visibleSessions}
