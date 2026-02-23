@@ -123,7 +123,11 @@ export default function TaskComposer({
                 <option value="DONE">DONE</option>
               </select>
             </div>
-            <button onClick={onSubmit} disabled={!taskName.trim()} style={{ flex: 1, padding: "12px", background: theme.btnBg, color: theme.btnColor, border: "none", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: "0.1em", opacity: !taskName.trim() ? 0.3 : 1 }}>
+            <button
+              onClick={onSubmit}
+              disabled={!taskName.trim()}
+              style={{ flex: 1, padding: "12px", background: theme.btnBg, color: theme.btnColor, border: `1px solid ${theme.border}`, cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", opacity: !taskName.trim() ? 0.3 : 1 }}
+            >
               {taskStatus === "ACTIVE" ? "▶ START" : taskStatus === "PENDING" ? "+ ADD PENDING" : "✓ ADD DONE"}
             </button>
           </div>
@@ -138,7 +142,7 @@ export default function TaskComposer({
         </div>
       )}
       {running && (
-        <button onClick={onStop} style={{ width: "100%", padding: "14px", background: "#ff4444", color: "#fff", border: "none", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: "0.1em", marginBottom: 16 }}>
+        <button onClick={onStop} style={{ width: "100%", padding: "14px", background: "#c45757", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>
           ■ STOP
         </button>
       )}

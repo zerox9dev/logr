@@ -216,12 +216,14 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
           { label: "PENDING", value: pendingSessions.length, note: "tasks in pipeline" },
           { label: "PENDING VALUE", value: formatMoney(pendingValue), note: "potential revenue" },
         ].map((card) => (
-          <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px" }}>
+          <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px", border: `1px solid ${theme.border}` }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.16em", marginBottom: 4 }}>{card.label}</div>
             <div
               style={{
                 fontSize: 24,
-                fontFamily: "'Bebas Neue',sans-serif",
+                fontFamily: "'Instrument Serif',serif",
+                fontWeight: 400,
+                letterSpacing: "-0.02em",
                 color: card.label === "MONEY" ? "#2d7a2d" : card.label.includes("PENDING") ? "#c47d00" : theme.timerColor,
                 lineHeight: 1.1,
               }}
@@ -261,7 +263,9 @@ export default function SummaryDashboard({ theme, clients, sessions, targetHourl
           <div
             style={{
               fontSize: 30,
-              fontFamily: "'Bebas Neue',sans-serif",
+              fontFamily: "'Instrument Serif',serif",
+              fontWeight: 400,
+              letterSpacing: "-0.02em",
               lineHeight: 1,
               marginBottom: 8,
               color: underEarnedIndicator.severity === "healthy" ? "#2d7a2d" : underEarnedIndicator.severity === "watch" ? "#c47d00" : "#cc2222",

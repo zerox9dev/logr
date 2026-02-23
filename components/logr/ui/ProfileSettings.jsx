@@ -27,6 +27,7 @@ export default function ProfileSettings({
   return (
     <div style={{ maxWidth: 520 }}>
       <div style={{ fontSize: 11, color: theme.muted, letterSpacing: "0.16em", marginBottom: 12 }}>PROFILE SETTINGS</div>
+      <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 36, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 16 }}>Account</div>
       <div style={{ border: `1px solid ${theme.border}`, padding: 16, marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {avatarUrl ? (

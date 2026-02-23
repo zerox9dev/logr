@@ -862,7 +862,7 @@ export default function LogrApp() {
       .join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice — ${activeClient?.name}</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Courier New',monospace;padding:60px;color:#1a1a1a}h1{font-size:48px;letter-spacing:.05em;margin-bottom:4px}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #1a1a1a}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px}.total .lbl{margin-bottom:4px}</style>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Instrument Sans',Arial,sans-serif;padding:60px;color:#111}h1{font-family:'Instrument Serif',serif;font-size:48px;letter-spacing:-.02em;margin-bottom:4px;font-weight:400}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #111}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px;font-family:'Instrument Serif',serif}.total .lbl{margin-bottom:4px}</style>
     </head><body>
     <h1>INVOICE</h1><div class="sub">Logr</div>
     <div class="meta">
@@ -880,7 +880,7 @@ export default function LogrApp() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'DM Mono','Courier New',monospace" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif" }}>
         <div style={{ width: "100%", maxWidth: 620, border: "1px solid #ddd", padding: 24, borderRadius: 12 }}>
           <h1 style={{ fontSize: 20, marginBottom: 12 }}>Supabase is not configured</h1>
           <p style={{ opacity: 0.8, marginBottom: 8 }}>Add these environment variables and restart dev server:</p>
@@ -895,7 +895,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (authLoading) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'DM Mono','Courier New',monospace" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Instrument Sans',sans-serif" }}>
         <div>Checking session...</div>
       </div>
     );
@@ -903,9 +903,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (!user) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'DM Mono','Courier New',monospace", background: theme.bg, color: theme.text }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Instrument Sans',sans-serif", background: theme.bg, color: theme.text }}>
         <div style={{ width: "100%", maxWidth: 520, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 24, background: theme.statBg }}>
-          <h1 style={{ fontSize: 26, marginBottom: 8 }}>Logr</h1>
+          <h1 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 32, fontWeight: 400, marginBottom: 8 }}>Logr</h1>
           <p style={{ marginBottom: 20, color: theme.muted }}>Sign in with Google to sync your time tracking data to Supabase.</p>
           <button
             onClick={signInWithGoogle}
@@ -913,8 +913,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               width: "100%",
               border: `1px solid ${theme.border}`,
               padding: "12px 14px",
-              borderRadius: 10,
-              fontWeight: 700,
+              borderRadius: 0,
+              fontWeight: 400,
               background: theme.btnBg,
               color: theme.btnColor,
               cursor: "pointer",
@@ -930,14 +930,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
   if (!syncReady) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'DM Mono','Courier New',monospace" }}>
+      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", fontFamily: "'Instrument Sans',sans-serif" }}>
         <div>Loading cloud workspace...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'DM Mono','Courier New',monospace", transition: "background 0.2s" }}>
+    <div className="logr-app" style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'Instrument Sans',sans-serif", transition: "background 0.2s" }}>
       <GlobalStyles />
 
       <div style={{ display: "flex", minHeight: "100vh" }}>
@@ -979,7 +979,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onToggleTheme={() => setDark((value) => !value)}
         />
 
-        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 1024 }}>
+        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 1160 }}>
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (

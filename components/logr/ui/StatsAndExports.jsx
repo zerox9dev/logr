@@ -12,9 +12,9 @@ export default function StatsAndExports({ theme, doneSessions, totalHours, total
           { label: "PAID $", value: paidTotal },
           { label: "COLLECTION %", value: collectionRate },
         ].map((stat) => (
-          <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px" }}>
+          <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px", border: `1px solid ${theme.border}` }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 2 }}>{stat.label}</div>
-            <div style={{ fontSize: 18, fontFamily: "'Bebas Neue',sans-serif", color: theme.timerColor }}>{stat.value}</div>
+            <div style={{ fontSize: 26, fontFamily: "'Instrument Serif',serif", fontWeight: 400, letterSpacing: "-0.02em", color: theme.timerColor }}>{stat.value}</div>
           </div>
         ))}
       </div>

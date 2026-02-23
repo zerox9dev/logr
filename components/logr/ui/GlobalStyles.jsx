@@ -1,15 +1,21 @@
 export default function GlobalStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@300;400;500&display=swap');
       * { box-sizing: border-box; margin: 0; padding: 0; }
+      .logr-app { font-family: 'Instrument Sans', sans-serif; }
+      .logr-app input,
+      .logr-app select,
+      .logr-app button,
+      .logr-app textarea { font-family: inherit; }
       input, select { background: transparent; border: none; outline: none; font-family: inherit; }
       .row:hover .del { opacity: 1 !important; }
       .client-tab:hover { opacity: 1 !important; }
       @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
       .blink { animation: pulse 1.2s ease-in-out infinite; }
-      ::-webkit-scrollbar { width: 3px; }
-      ::-webkit-scrollbar-thumb { background: #333; }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 999px; }
+      ::-webkit-scrollbar-track { background: transparent; }
       @media (max-width: 600px) {
         .sidebar { display: none !important; }
         .sidebar.mobile-open { display: flex !important; position: fixed; top: 0; left: 0; width: 80vw; height: 100vh; z-index: 100; }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 function formatClock(seconds: number) {
   const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
@@ -12,27 +12,23 @@ function formatClock(seconds: number) {
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [heroSeconds, setHeroSeconds] = useState(0);
-  const [termSeconds, setTermSeconds] = useState(3600 + 23 * 60 + 47);
-
-  const termEarned = useMemo(() => `$${((termSeconds / 3600) * 75).toFixed(2)}`, [termSeconds]);
+  const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
-  useEffect(() => {
-    const heroInterval = window.setInterval(() => setHeroSeconds((v) => v + 1), 1000);
-    const termInterval = window.setInterval(() => setTermSeconds((v) => v + 1), 1000);
+    const timer = window.setInterval(() => {
+      setSeconds((v) => v + 1);
+    }, 1000);
 
-    const reveals = document.querySelectorAll(".landing .reveal");
+    const els = document.querySelectorAll(".landing .reveal");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry, index) => {
           if (entry.isIntersecting) {
-            window.setTimeout(() => entry.target.classList.add("visible"), index * 80);
+            window.setTimeout(() => entry.target.classList.add("on"), index * 60);
             observer.unobserve(entry.target);
           }
         });
@@ -40,11 +36,11 @@ export default function LandingPage() {
       { threshold: 0.1 },
     );
 
-    reveals.forEach((el) => observer.observe(el));
+    els.forEach((el) => observer.observe(el));
 
     return () => {
-      window.clearInterval(heroInterval);
-      window.clearInterval(termInterval);
+      window.removeEventListener("scroll", onScroll);
+      window.clearInterval(timer);
       observer.disconnect();
     };
   }, []);
@@ -60,238 +56,188 @@ export default function LandingPage() {
           <a href="#how">How it works</a>
           <a href="#pricing">Pricing</a>
           <Link href="/tracker" className="nav-cta">
-            Try Free
+            Try free
           </Link>
         </div>
       </nav>
 
       <section className="hero">
-        <div className="hero-bg-timer">{formatClock(heroSeconds)}</div>
-        <div className="hero-label">Freelance Time Tracker</div>
-        <h1 className="hero-headline">
-          Stop Losing
+        <div className="hero-eyebrow">Time tracking for freelancers</div>
+        <h1 className="hero-title">
+          Track your hours.
           <br />
-          Money to <em>Lost Hours</em>
+          Invoice your clients.
+          <br />
+          <em>Get paid.</em>
         </h1>
-        <p className="hero-sub">
-          Logr tracks your time, organizes clients and projects, and generates invoices so you get paid for every minute you work.
-        </p>
-        <div className="hero-actions">
-          <Link href="/tracker" className="btn-primary">
-            Start Tracking Free
-          </Link>
-          <a href="#how" className="btn-ghost">
-            See how it works
-          </a>
+        <div className="hero-bottom">
+          <p className="hero-sub">
+            Logr is a minimal time tracker built around how freelancers actually work - fast to start, easy to invoice, no bloat.
+          </p>
+          <div>
+            <div className="hero-actions">
+              <Link href="/tracker" className="btn-dark">
+                Start for free
+              </Link>
+              <a href="#how" className="btn-link">
+                See how it works
+              </a>
+            </div>
+            <div className="hero-timer">{formatClock(seconds)}</div>
+          </div>
         </div>
-        <div className="hero-scroll">Scroll ↓</div>
       </section>
 
-      <div className="marquee-wrap">
-        <div className="marquee-track">
-          {[
-            "Track Time",
-            "Log Clients",
-            "Add Projects",
-            "Export Invoice",
-            "Get Paid",
-            "Track Time",
-            "Log Clients",
-            "Add Projects",
-            "Export Invoice",
-            "Get Paid",
-          ].map((item, i) => (
-            <div className="marquee-item" key={`${item}-${i}`}>
-              <span>{String((i % 10) + 1).padStart(2, "0")}</span>
-              {item}
-            </div>
-          ))}
+      <div className="statbar">
+        <div className="stat reveal">
+          <div className="stat-num">$0</div>
+          <div className="stat-label">to start - free forever</div>
+        </div>
+        <div className="stat reveal">
+          <div className="stat-num">2s</div>
+          <div className="stat-label">to log a new task</div>
+        </div>
+        <div className="stat reveal">
+          <div className="stat-num">1x</div>
+          <div className="stat-label">click to generate invoice</div>
         </div>
       </div>
 
-      <section className="problem">
-        <div className="section-label reveal">The Problem</div>
-        <h2 className="section-title reveal">
-          Freelancers Leave <em>Thousands</em>
-          <br />
-          on the Table Every Year
-        </h2>
-        <div className="problem-grid">
-          <div className="problem-card reveal">
-            <div className="problem-num">73%</div>
-            <p className="problem-text">
-              of freelancers admit to <strong>undercharging clients</strong> because they cannot prove exactly how much time a project took.
-            </p>
-          </div>
-          <div className="problem-card reveal">
-            <div className="problem-num">2.5h</div>
-            <p className="problem-text">
-              average time lost per week on <strong>admin work</strong> like invoices, spreadsheets, and follow-ups.
-            </p>
-          </div>
-          <div className="problem-card reveal">
-            <div className="problem-num">$0</div>
-            <p className="problem-text">
-              earned for <strong>unbilled work</strong> done quickly, short calls and fixes that still consume real time.
-            </p>
-          </div>
-          <div className="problem-card reveal">
-            <div className="problem-num">1 app</div>
-            <p className="problem-text">
-              Logr replaces spreadsheets, sticky notes, and guessed hours with <strong>one clean workflow</strong>.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="features" id="features">
-        <div className="section-label reveal">Features</div>
-        <h2 className="section-title reveal">
-          Everything a Freelancer
-          <br />
-          Actually <em>Needs</em>
-        </h2>
-        <div className="features-grid">
-          {[
-            ["⏱", "One-Click Timer", "Hit Space to start and stop. Name task, set rate, track instantly."],
-            ["🗂", "Clients & Projects", "Organize work by client and project with clear breakdowns."],
-            ["📋", "Task Statuses", "PENDING to ACTIVE to DONE without losing task context."],
-            ["📅", "Manual Entry", "Add past sessions by date when you forgot to start timer."],
-            ["📄", "Invoice Export", "Generate clean printable invoice PDF in one click."],
-            ["📊", "CSV Export", "Export sessions for accounting, taxes, or analysis."],
-          ].map(([icon, name, desc]) => (
-            <div className="feature-card reveal" key={name}>
-              <div className="feature-icon">{icon}</div>
-              <div className="feature-name">{name}</div>
-              <p className="feature-desc">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="how" id="how">
-        <div className="section-label reveal">How It Works</div>
-        <h2 className="section-title reveal">
-          Three Steps to
-          <br />
-          <em>Getting Paid</em>
-        </h2>
-        <div className="how-steps">
-          {["Add Your Client", "Track Your Work", "Send the Invoice"].map((title, idx) => (
-            <div className="reveal" key={title}>
-              <div className="step-num">{String(idx + 1).padStart(2, "0")}</div>
-              <div className="step-name">{title}</div>
-              <p className="step-desc">
-                {idx === 0 && "Create client/project structure and set your rate."}
-                {idx === 1 && "Start timer in seconds and keep notes for billing clarity."}
-                {idx === 2 && "Filter sessions and export a professional invoice instantly."}
-              </p>
-              <span className="step-tag">{idx === 0 ? "30 seconds" : idx === 1 ? "2 keystrokes" : "1 click"}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="terminal-section">
-        <div className="reveal">
-          <div className="section-label">Built for Speed</div>
-          <h2 className="section-title">
-            Keyboard-First.
+      <section className="section" id="features">
+        <div className="section-header">
+          <span className="section-num reveal">01</span>
+          <h2 className="section-title reveal">
+            Everything you need.
             <br />
-            <em>No Friction.</em>
+            <em>Nothing you don&apos;t.</em>
           </h2>
-          <p className="terminal-copy">Logr is made for focused work. Time tracking should be instant, not another admin burden.</p>
         </div>
-        <div className="terminal reveal">
-          <div className="terminal-bar">
-            <div className="t-dot red" />
-            <div className="t-dot yellow" />
-            <div className="t-dot green" />
-            <span className="terminal-title">LOGR — ACME Corp / Redesign</span>
+        <div className="features-list">
+          <div className="feature-row reveal">
+            <div className="feature-index">01</div>
+            <div className="feature-name">One-click timer</div>
+            <div className="feature-desc">Press Space to start tracking. Press Space again to stop. Your hours are logged instantly - no forms, no friction.</div>
           </div>
-          <div className="terminal-body">
-            <div className="t-muted">{"// Mon 23 Feb — 09:14"}</div>
-            <div className="t-white">
-              ▶ <span className="t-yellow">Homepage redesign</span>
-            </div>
-            <div className="t-muted">rate: $75/hr · status: ACTIVE</div>
-            <div className="t-muted">──────────────────────────────</div>
-            <div className="t-white">
-              elapsed: <span className="t-green">{formatClock(termSeconds)}</span>
-            </div>
-            <div className="t-white">
-              earned: <span className="t-green">{termEarned}</span>
-            </div>
+          <div className="feature-row reveal">
+            <div className="feature-index">02</div>
+            <div className="feature-name">Clients &amp; Projects</div>
+            <div className="feature-desc">Organize everything under clients, then break them down into projects. See earnings per client at a glance.</div>
+          </div>
+          <div className="feature-row reveal">
+            <div className="feature-index">03</div>
+            <div className="feature-name">Task statuses</div>
+            <div className="feature-desc">Mark tasks as Pending before you start. Move to Active. Finish as Done. Nothing falls through the cracks.</div>
+          </div>
+          <div className="feature-row reveal">
+            <div className="feature-index">04</div>
+            <div className="feature-name">Session notes</div>
+            <div className="feature-desc">Add a one-line note to each session. It appears on your invoice so clients know exactly what they&apos;re paying for.</div>
+          </div>
+          <div className="feature-row reveal">
+            <div className="feature-index">05</div>
+            <div className="feature-name">Invoice PDF</div>
+            <div className="feature-desc">Filter sessions by client and month, then generate a clean invoice PDF in one click. Ready to send.</div>
+          </div>
+          <div className="feature-row reveal">
+            <div className="feature-index">06</div>
+            <div className="feature-name">Date filters</div>
+            <div className="feature-desc">View this week, this month, or any specific month. Perfect for invoicing by billing cycle.</div>
           </div>
         </div>
       </section>
 
-      <section className="pricing" id="pricing">
-        <div className="section-label reveal">Pricing</div>
-        <h2 className="section-title reveal">
-          Simple.
-          <br />
-          <em>No Surprises.</em>
-        </h2>
-        <div className="pricing-grid">
+      <section className="section" id="how" style={{ paddingBottom: 0 }}>
+        <div className="section-header">
+          <span className="section-num reveal">02</span>
+          <h2 className="section-title reveal">
+            Three steps.
+            <br />
+            <em>That&apos;s it.</em>
+          </h2>
+        </div>
+        <div className="how-steps">
+          <div className="how-step reveal">
+            <div className="how-step-num">STEP 01</div>
+            <div className="how-step-title">Add a client</div>
+            <p className="how-step-desc">Create a client in the sidebar. Optionally add projects. Set your hourly rate once - Logr remembers it for every session.</p>
+          </div>
+          <div className="how-step reveal">
+            <div className="how-step-num">STEP 02</div>
+            <div className="how-step-title">Track your work</div>
+            <p className="how-step-desc">Type what you&apos;re working on. Press Space or Enter to start the timer. Add a note for the invoice. Stop when you&apos;re done.</p>
+          </div>
+          <div className="how-step reveal">
+            <div className="how-step-num">STEP 03</div>
+            <div className="how-step-title">Send the invoice</div>
+            <p className="how-step-desc">Pick a client, filter by month, click Invoice PDF. A clean professional invoice is ready in under a minute.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="pricing">
+        <div className="section-header">
+          <span className="section-num reveal">03</span>
+          <h2 className="section-title reveal">
+            Simple pricing.
+            <br />
+            <em>No surprises.</em>
+          </h2>
+        </div>
+        <div className="pricing-wrap">
           <div className="pricing-card reveal">
-            <div className="pricing-plan">Full Free Access</div>
+            <div className="pricing-plan">Free</div>
             <div className="pricing-price">$0</div>
-            <div className="pricing-period">All features included for now</div>
-            <ul className="pricing-features">
-              <li>Unlimited time tracking</li>
-              <li>Unlimited clients</li>
-              <li>CSV export</li>
-              <li>Invoice PDF</li>
-              <li>Cloud sync</li>
-              <li>Multi-device</li>
-              <li>Priority support</li>
-            </ul>
-            <Link href="/tracker" className="btn-plan btn-plan-outline">
-              Start Free
+            <div className="pricing-period">No credit card</div>
+            <div className="pricing-feats">
+              <div className="pricing-feat">Unlimited time tracking</div>
+              <div className="pricing-feat">Up to 3 clients</div>
+              <div className="pricing-feat">Invoice PDF</div>
+              <div className="pricing-feat">CSV export</div>
+              <div className="pricing-feat off">Cloud sync</div>
+              <div className="pricing-feat off">Multi-device</div>
+            </div>
+            <Link href="/tracker" className="btn-dark-outline">
+              Get started
             </Link>
           </div>
-          <div className="pricing-card featured reveal">
-            <div className="pricing-plan">Pro</div>
-            <div className="pricing-price">
-              <span style={{ fontSize: 32 }}>Unavailable</span>
+          <div className="pricing-card hi reveal">
+            <div className="pricing-plan">
+              Pro <span className="coming-soon">COMING SOON</span>
             </div>
-            <div className="pricing-period">Temporarily not available</div>
-            <ul className="pricing-features">
-              <li>Unlimited time tracking</li>
-              <li>Unlimited clients</li>
-              <li>CSV export</li>
-              <li>Invoice PDF</li>
-              <li>Cloud sync</li>
-              <li>Multi-device</li>
-              <li>Priority support</li>
-            </ul>
-            <span className="btn-plan btn-plan-disabled">Temporarily Unavailable</span>
+            <div className="pricing-price">$9</div>
+            <div className="pricing-period">per month</div>
+            <div className="pricing-feats">
+              <div className="pricing-feat">Unlimited time tracking</div>
+              <div className="pricing-feat">Unlimited clients</div>
+              <div className="pricing-feat">Invoice PDF</div>
+              <div className="pricing-feat">CSV export</div>
+              <div className="pricing-feat">Cloud sync</div>
+              <div className="pricing-feat">Multi-device</div>
+            </div>
+            <span className="btn-disabled">Not available yet</span>
           </div>
         </div>
       </section>
 
-      <section className="cta-section">
-        <div className="cta-bg">LOGR</div>
-        <div className="section-label reveal">Get Started</div>
-        <h2 className="section-title reveal">
-          Start Tracking.
+      <section className="cta">
+        <h2 className="cta-title reveal">
+          Stop guessing.
           <br />
-          <em>Start Earning More.</em>
+          Start <em>tracking.</em>
         </h2>
-        <div className="hero-actions reveal">
-          <Link href="/tracker" className="btn-primary">
-            Try Logr Free
+        <div className="cta-actions reveal">
+          <Link href="/tracker" className="btn-dark">
+            Try Logr for free
           </Link>
-          <a href="#features" className="btn-ghost">
-            See all features
+          <a href="#features" className="btn-link">
+            Learn more
           </a>
         </div>
       </section>
 
       <footer>
         <div className="footer-logo">Logr</div>
-        <div className="footer-copy">© 2026 Logr. Built for freelancers.</div>
+        <div className="footer-copy">© 2026 Logr</div>
         <div className="footer-links">
           <Link href="/tracker">App</Link>
           <a href="#pricing">Pricing</a>
@@ -301,92 +247,341 @@ export default function LandingPage() {
       </footer>
 
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&display=swap');
-        .landing { --bg: #f7f4ef; --text: #1a1a1a; --muted: #888; --border: #ddd8d0; --accent: #b8860b; --accent2: #2d7a2d; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@300;400&display=swap');
         .landing * { box-sizing: border-box; margin: 0; padding: 0; }
-        .landing nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 20px 60px; border-bottom: 1px solid transparent; transition: border-color 0.3s, background 0.3s; }
-        .landing nav.scrolled { border-color: var(--border); background: rgba(247,244,239,0.95); backdrop-filter: blur(10px); }
-        .landing .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; color: var(--text); text-decoration: none; }
-        .landing .nav-links { display: flex; gap: 32px; align-items: center; }
-        .landing .nav-links a { font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.15em; text-transform: uppercase; }
-        .landing .nav-cta { font-size: 11px; color: var(--bg) !important; background: var(--text); padding: 8px 20px; letter-spacing: 0.15em; text-transform: uppercase; }
-        .landing section { padding: 120px 60px; }
-        .landing .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 60px 80px; position: relative; overflow: hidden; }
-        .landing .hero-bg-timer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Bebas Neue', sans-serif; font-size: clamp(120px, 22vw, 340px); color: transparent; -webkit-text-stroke: 1px #ddd8d0; letter-spacing: 0.02em; white-space: nowrap; pointer-events: none; }
-        .landing .hero-label { font-size: 10px; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 24px; }
-        .landing .hero-headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 9vw, 130px); line-height: 0.92; letter-spacing: 0.02em; max-width: 900px; }
-        .landing em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent); }
-        .landing .hero-sub { margin-top: 32px; font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 440px; }
-        .landing .hero-actions { display: flex; gap: 16px; align-items: center; margin-top: 48px; }
-        .landing .btn-primary { background: var(--text); color: var(--bg); padding: 16px 40px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.1em; text-decoration: none; }
-        .landing .btn-ghost { color: var(--muted); font-size: 11px; letter-spacing: 0.15em; text-decoration: none; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
-        .landing .hero-scroll { position: absolute; bottom: 40px; right: 60px; font-size: 10px; color: var(--muted); letter-spacing: 0.2em; writing-mode: vertical-rl; text-transform: uppercase; }
-        .landing .marquee-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; overflow: hidden; background: #0f0f0f; }
-        .landing .marquee-track { display: flex; width: max-content; animation: marquee 30s linear infinite; }
-        .landing .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.2em; color: #555; padding: 0 40px; white-space: nowrap; }
-        .landing .marquee-item span { color: var(--accent); margin-right: 40px; }
-        .landing .section-label { font-size: 10px; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 20px; }
-        .landing .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 6vw, 80px); line-height: 0.95; letter-spacing: 0.02em; }
-        .landing .problem, .landing .features, .landing .pricing, .landing .cta-section { border-top: 1px solid var(--border); }
-        .landing .problem-grid, .landing .features-grid, .landing .pricing-grid { display: grid; gap: 1px; margin-top: 80px; background: var(--border); }
-        .landing .problem-grid { grid-template-columns: 1fr 1fr; }
-        .landing .features-grid { grid-template-columns: repeat(3, 1fr); }
-        .landing .pricing-grid { grid-template-columns: 1fr 1fr; max-width: 800px; }
-        .landing .problem-card, .landing .feature-card, .landing .pricing-card { background: var(--bg); padding: 40px; }
-        .landing .problem-num { font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: #e8e3dc; line-height: 1; margin-bottom: 16px; }
-        .landing .problem-text, .landing .feature-desc, .landing .step-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
-        .landing .feature-name, .landing .step-name { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
-        .landing .feature-name { font-size: 22px; margin-bottom: 12px; }
-        .landing .how { border-top: 1px solid var(--border); background: #f0ece5; }
-        .landing .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 80px; margin-top: 80px; }
-        .landing .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 96px; color: #e8e3dc; line-height: 1; margin-bottom: -16px; }
-        .landing .step-name { font-size: 28px; margin-bottom: 12px; }
-        .landing .step-tag { display: inline-block; margin-top: 16px; font-size: 10px; color: var(--accent2); letter-spacing: 0.15em; border: 1px solid var(--accent2); padding: 3px 10px; text-transform: uppercase; }
-        .landing .terminal-section { border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-        .landing .terminal-copy { color: var(--muted); font-size: 13px; line-height: 1.8; margin-top: 24px; max-width: 380px; }
-        .landing .terminal { background: #1a1a1a; border: 1px solid #333; font-size: 13px; overflow: hidden; }
-        .landing .terminal-bar { background: #111; padding: 10px 16px; border-bottom: 1px solid #333; display: flex; gap: 8px; align-items: center; }
-        .landing .terminal-title { font-size: 10px; color: #666; margin-left: 8px; letter-spacing: 0.1em; }
-        .landing .t-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .landing .t-dot.red { background: #ff5f57; }
-        .landing .t-dot.yellow { background: #febc2e; }
-        .landing .t-dot.green { background: #28c840; }
-        .landing .terminal-body { padding: 24px 20px; line-height: 1.9; }
-        .landing .t-muted { color: #666; }
-        .landing .t-green { color: var(--accent2); }
-        .landing .t-yellow { color: var(--accent); }
-        .landing .t-white { color: #e8e8e8; }
-        .landing .pricing-plan { font-size: 10px; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 16px; }
-        .landing .pricing-price { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; margin-bottom: 8px; }
-        .landing .pricing-price sub { font-size: 20px; vertical-align: bottom; color: var(--muted); }
-        .landing .pricing-period { font-size: 11px; color: var(--muted); margin-bottom: 32px; }
-        .landing .pricing-features { list-style: none; margin-bottom: 40px; }
-        .landing .pricing-features li { font-size: 13px; color: var(--muted); padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
-        .landing .pricing-features li::before { content: "—"; color: var(--accent2); }
-        .landing .pricing-features li.inactive { opacity: 0.3; }
-        .landing .pricing-features li.inactive::before { color: var(--muted); }
-        .landing .pricing-card.featured { background: #ede9e2; }
-        .landing .btn-plan { display: block; text-align: center; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.1em; text-decoration: none; }
-        .landing .btn-plan-outline { border: 1px solid var(--border); color: var(--muted); }
-        .landing .btn-plan-solid { background: var(--text); color: var(--bg); }
-        .landing .btn-plan-disabled { border: 1px dashed var(--border); color: var(--muted); opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-        .landing .cta-section { text-align: center; padding: 160px 60px; position: relative; overflow: hidden; }
-        .landing .cta-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 18vw, 280px); color: transparent; -webkit-text-stroke: 1px #ddd8d0; white-space: nowrap; pointer-events: none; }
-        .landing footer { border-top: 1px solid var(--border); padding: 40px 60px; display: flex; justify-content: space-between; align-items: center; }
-        .landing .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--muted); letter-spacing: 0.05em; }
-        .landing .footer-copy, .landing .footer-links a { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-decoration: none; }
-        .landing .footer-links { display: flex; gap: 24px; }
-        .landing .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        .landing .reveal.visible { opacity: 1; transform: none; }
-        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .landing {
+          --bg: #fafafa;
+          --text: #111;
+          --muted: #999;
+          --border: #e8e8e8;
+          --accent: #111;
+          background: var(--bg);
+          color: var(--text);
+          font-family: 'Instrument Sans', sans-serif;
+          font-weight: 300;
+          -webkit-font-smoothing: antialiased;
+        }
+        .landing a { color: inherit; text-decoration: none; }
+        .landing nav {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 28px 64px;
+          background: rgba(250, 250, 250, 0.92);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid transparent;
+          transition: border-color 0.4s;
+        }
+        .landing nav.scrolled { border-color: var(--border); }
+        .landing .nav-logo {
+          font-family: 'Instrument Serif', serif;
+          font-size: 22px;
+          letter-spacing: -0.01em;
+        }
+        .landing .nav-links { display: flex; gap: 40px; align-items: center; }
+        .landing .nav-links a {
+          font-size: 13px;
+          color: var(--muted);
+          letter-spacing: 0.02em;
+          transition: color 0.2s;
+        }
+        .landing .nav-links a:hover { color: var(--text); }
+        .landing .nav-cta {
+          font-size: 13px;
+          color: var(--bg) !important;
+          background: var(--text);
+          padding: 9px 22px;
+          transition: opacity 0.2s !important;
+        }
+        .landing .nav-cta:hover { opacity: 0.7 !important; }
+        .landing .hero {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 120px 64px 80px;
+          border-bottom: 1px solid var(--border);
+        }
+        .landing .hero-eyebrow {
+          font-size: 12px;
+          color: var(--muted);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          margin-bottom: 40px;
+          opacity: 0;
+          animation: up 0.8s ease 0.2s forwards;
+        }
+        .landing .hero-title {
+          font-family: 'Instrument Serif', serif;
+          font-size: clamp(52px, 7.5vw, 112px);
+          line-height: 1.02;
+          letter-spacing: -0.02em;
+          font-weight: 400;
+          max-width: 860px;
+          opacity: 0;
+          animation: up 0.8s ease 0.4s forwards;
+        }
+        .landing .hero-title em { font-style: italic; color: var(--muted); }
+        .landing .hero-bottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-top: 80px;
+          opacity: 0;
+          animation: up 0.8s ease 0.6s forwards;
+        }
+        .landing .hero-sub {
+          font-size: 16px;
+          color: var(--muted);
+          line-height: 1.7;
+          max-width: 380px;
+        }
+        .landing .hero-actions { display: flex; gap: 20px; align-items: center; }
+        .landing .btn-dark {
+          background: var(--text);
+          color: var(--bg);
+          padding: 14px 32px;
+          font-size: 14px;
+          font-family: inherit;
+          font-weight: 300;
+          letter-spacing: 0.04em;
+          cursor: pointer;
+          border: none;
+          transition: opacity 0.2s;
+          display: inline-block;
+        }
+        .landing .btn-dark:hover { opacity: 0.7; }
+        .landing .btn-link {
+          font-size: 13px;
+          color: var(--muted);
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 1px;
+          transition: color 0.2s, border-color 0.2s;
+        }
+        .landing .btn-link:hover { color: var(--text); border-color: var(--text); }
+        .landing .hero-timer {
+          margin-top: 20px;
+          text-align: right;
+          font-family: 'Instrument Serif', serif;
+          font-size: 13px;
+          color: var(--muted);
+          font-style: italic;
+        }
+        .landing .statbar {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          border-bottom: 1px solid var(--border);
+        }
+        .landing .stat {
+          padding: 48px 64px;
+          border-right: 1px solid var(--border);
+        }
+        .landing .stat:last-child { border-right: none; }
+        .landing .stat-num {
+          font-family: 'Instrument Serif', serif;
+          font-size: 56px;
+          line-height: 1;
+          letter-spacing: -0.02em;
+        }
+        .landing .stat-label { font-size: 13px; color: var(--muted); margin-top: 8px; }
+        .landing .section { padding: 120px 64px; border-bottom: 1px solid var(--border); }
+        .landing .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 80px;
+        }
+        .landing .section-num { font-size: 12px; color: var(--muted); padding-top: 6px; }
+        .landing .section-title {
+          font-family: 'Instrument Serif', serif;
+          font-size: clamp(36px, 5vw, 64px);
+          font-weight: 400;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
+        }
+        .landing .section-title em { font-style: italic; color: var(--muted); }
+        .landing .features-list { display: flex; flex-direction: column; }
+        .landing .feature-row {
+          display: grid;
+          grid-template-columns: 48px 1fr 1fr;
+          gap: 40px;
+          align-items: start;
+          padding: 40px 0;
+          border-top: 1px solid var(--border);
+          transition: background 0.2s;
+        }
+        .landing .feature-row:hover {
+          background: #f5f5f5;
+          margin: 0 -64px;
+          padding: 40px 64px;
+        }
+        .landing .feature-index { font-size: 12px; color: var(--muted); padding-top: 3px; }
+        .landing .feature-name {
+          font-family: 'Instrument Serif', serif;
+          font-size: 24px;
+          font-weight: 400;
+          letter-spacing: -0.01em;
+        }
+        .landing .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+        .landing .how-steps {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1px;
+          background: var(--border);
+        }
+        .landing .how-step { background: var(--bg); padding: 56px 48px; }
+        .landing .how-step-num {
+          font-size: 12px;
+          color: var(--muted);
+          margin-bottom: 40px;
+          letter-spacing: 0.1em;
+        }
+        .landing .how-step-title {
+          font-family: 'Instrument Serif', serif;
+          font-size: 26px;
+          font-weight: 400;
+          letter-spacing: -0.01em;
+          margin-bottom: 16px;
+        }
+        .landing .how-step-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+        .landing .pricing-wrap {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1px;
+          background: var(--border);
+          max-width: 780px;
+        }
+        .landing .pricing-card { background: var(--bg); padding: 56px 48px; }
+        .landing .pricing-card.hi { background: var(--text); color: var(--bg); }
+        .landing .pricing-card.hi .pricing-price { color: var(--bg); }
+        .landing .pricing-card.hi .pricing-period,
+        .landing .pricing-card.hi .pricing-feat,
+        .landing .pricing-card.hi .pricing-plan { color: rgba(250, 250, 250, 0.5); }
+        .landing .pricing-card.hi .pricing-feat { border-color: rgba(255, 255, 255, 0.1); }
+        .landing .pricing-plan {
+          font-size: 11px;
+          color: var(--muted);
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          margin-bottom: 32px;
+        }
+        .landing .coming-soon {
+          font-size: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 2px 7px;
+          letter-spacing: 0.1em;
+          vertical-align: middle;
+        }
+        .landing .pricing-price {
+          font-family: 'Instrument Serif', serif;
+          font-size: 72px;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin-bottom: 4px;
+        }
+        .landing .pricing-period { font-size: 13px; color: var(--muted); margin-bottom: 40px; }
+        .landing .pricing-feats { margin-bottom: 48px; }
+        .landing .pricing-feat {
+          font-size: 14px;
+          color: var(--muted);
+          padding: 12px 0;
+          border-bottom: 1px solid var(--border);
+        }
+        .landing .pricing-feat.off { opacity: 0.3; text-decoration: line-through; }
+        .landing .btn-dark-outline {
+          display: block;
+          text-align: center;
+          padding: 14px;
+          font-size: 13px;
+          letter-spacing: 0.06em;
+          border: 1px solid var(--border);
+          color: var(--muted);
+          transition: all 0.2s;
+          font-family: inherit;
+          cursor: pointer;
+        }
+        .landing .btn-dark-outline:hover { border-color: var(--text); color: var(--text); }
+        .landing .btn-disabled {
+          display: block;
+          text-align: center;
+          padding: 14px;
+          font-size: 13px;
+          letter-spacing: 0.06em;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: rgba(250, 250, 250, 0.3);
+          cursor: default;
+        }
+        .landing .cta {
+          padding: 160px 64px;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .landing .cta-title {
+          font-family: 'Instrument Serif', serif;
+          font-size: clamp(44px, 6.5vw, 96px);
+          font-weight: 400;
+          letter-spacing: -0.02em;
+          line-height: 1.05;
+          max-width: 700px;
+          margin-bottom: 48px;
+        }
+        .landing .cta-title em { font-style: italic; color: var(--muted); }
+        .landing .cta-actions { display: flex; gap: 20px; align-items: center; }
+        .landing footer {
+          padding: 36px 64px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .landing .footer-logo { font-family: 'Instrument Serif', serif; font-size: 18px; }
+        .landing .footer-copy { font-size: 12px; color: var(--muted); }
+        .landing .footer-links { display: flex; gap: 28px; }
+        .landing .footer-links a { font-size: 12px; color: var(--muted); transition: color 0.2s; }
+        .landing .footer-links a:hover { color: var(--text); }
+        .landing .reveal {
+          opacity: 0;
+          transform: translateY(16px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .landing .reveal.on { opacity: 1; transform: none; }
+        @keyframes up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: none; }
+        }
         @media (max-width: 768px) {
-          .landing nav { padding: 16px 20px; }
+          .landing nav { padding: 20px 24px; }
           .landing .nav-links { display: none; }
-          .landing section { padding: 80px 20px; }
-          .landing .hero { padding: 0 20px 60px; }
-          .landing .problem-grid, .landing .features-grid, .landing .how-steps, .landing .terminal-section, .landing .pricing-grid { grid-template-columns: 1fr; }
-          .landing .cta-section { padding: 100px 20px; }
-          .landing footer { flex-direction: column; gap: 20px; text-align: center; }
+          .landing .hero { padding: 100px 24px 60px; }
+          .landing .hero-bottom { flex-direction: column; gap: 40px; align-items: flex-start; }
+          .landing .statbar,
+          .landing .how-steps,
+          .landing .pricing-wrap { grid-template-columns: 1fr; }
+          .landing .stat {
+            padding: 36px 24px;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+          }
+          .landing .section { padding: 80px 24px; }
+          .landing .section-header { flex-direction: column; gap: 16px; }
+          .landing .feature-row { grid-template-columns: 32px 1fr; }
+          .landing .feature-desc { display: none; }
+          .landing .how-step,
+          .landing .pricing-card { padding: 40px 24px; }
+          .landing .cta { padding: 100px 24px; }
+          .landing footer {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+            padding: 32px 24px;
+          }
           .landing .footer-links { flex-wrap: wrap; justify-content: center; }
         }
       `}</style>
