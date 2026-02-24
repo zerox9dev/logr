@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 const ARM_RATE = 75;
 const BASE_SECONDS = 3600 + 23 * 60 + 47;
@@ -15,6 +15,12 @@ function detectSiteLanguage(): SiteLang {
   if (normalized.startsWith("ru")) return "ru";
   if (normalized.startsWith("uk")) return "uk";
   return "en";
+}
+
+function subscribeLanguageChange(onChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("languagechange", onChange);
+  return () => window.removeEventListener("languagechange", onChange);
 }
 
 const LANDING_COPY = {
@@ -316,7 +322,7 @@ function formatClock(seconds: number) {
 }
 
 export default function LandingPage() {
-  const [lang] = useState<SiteLang>(() => detectSiteLanguage());
+  const lang = useSyncExternalStore(subscribeLanguageChange, detectSiteLanguage, () => "en");
   const [scrolled, setScrolled] = useState(false);
   const [seconds, setSeconds] = useState(BASE_SECONDS);
   const [lostCounter, setLostCounter] = useState(0);

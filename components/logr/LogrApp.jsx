@@ -9,7 +9,7 @@ import {
   STATUS_COLORS_DARK,
   STATUS_COLORS_LIGHT,
 } from "./lib/constants";
-import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, normalizeCurrency, uid } from "./lib/utils";
+import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, formatTime, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
@@ -74,6 +74,9 @@ export default function LogrApp() {
   const [elapsed, setElapsed] = useState(0);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const intervalRef = useRef(null);
+  const timerStartedAtRef = useRef(null);
+  const elapsedBeforeRunRef = useRef(0);
+  const defaultTitleRef = useRef("");
 
   const [taskName, setTaskName] = useState("");
   const [taskRate, setTaskRate] = useState("");
@@ -153,6 +156,12 @@ export default function LogrApp() {
     return parseFloat(((duration / 3600) * parseFloat(session.rate || 0)).toFixed(2));
   }, []);
 
+  function getElapsedNow() {
+    if (timerStartedAtRef.current == null) return elapsedBeforeRunRef.current;
+    const deltaSeconds = Math.floor((Date.now() - timerStartedAtRef.current) / 1000);
+    return elapsedBeforeRunRef.current + Math.max(0, deltaSeconds);
+  }
+
   function taskDurationSeconds() {
     const days = parseInt(taskDays || 0, 10);
     const dayHours = parseFloat(profileWorkdayHours || 8);
@@ -167,6 +176,13 @@ export default function LogrApp() {
     const profileRate = parseFloat(profileHourlyRate || 0);
     return Number.isFinite(profileRate) ? profileRate : 0;
   }, [taskRate, profileHourlyRate]);
+
+  useEffect(() => {
+    defaultTitleRef.current = document.title || "Logr";
+    return () => {
+      document.title = defaultTitleRef.current || "Logr";
+    };
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
@@ -190,6 +206,8 @@ export default function LogrApp() {
         setPaused(false);
         setElapsed(0);
         setActiveSessionId(null);
+        timerStartedAtRef.current = null;
+        elapsedBeforeRunRef.current = 0;
       }
       setAuthLoading(false);
     });
@@ -212,6 +230,8 @@ export default function LogrApp() {
         setPaused(false);
         setElapsed(0);
         setActiveSessionId(null);
+        timerStartedAtRef.current = null;
+        elapsedBeforeRunRef.current = 0;
       }
       setAuthLoading(false);
     });
@@ -378,7 +398,8 @@ export default function LogrApp() {
 
   useEffect(() => {
     if (running && !paused) {
-      intervalRef.current = window.setInterval(() => setElapsed((value) => value + 1), 1000);
+      setElapsed(getElapsedNow());
+      intervalRef.current = window.setInterval(() => setElapsed(getElapsedNow()), 1000);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -391,6 +412,28 @@ export default function LogrApp() {
       }
     };
   }, [running, paused]);
+
+  useEffect(() => {
+    if (!running || paused) return;
+    const syncElapsed = () => setElapsed(getElapsedNow());
+    document.addEventListener("visibilitychange", syncElapsed);
+    window.addEventListener("focus", syncElapsed);
+    return () => {
+      document.removeEventListener("visibilitychange", syncElapsed);
+      window.removeEventListener("focus", syncElapsed);
+    };
+  }, [running, paused]);
+
+  useEffect(() => {
+    const baseTitle = defaultTitleRef.current || "Logr";
+    if (!running) {
+      document.title = baseTitle;
+      return;
+    }
+    const statusTitle = paused ? `PAUSED ${formatTime(elapsed)}` : `${formatTime(elapsed)} RUNNING`;
+    const taskTitle = activeTimedSession?.name?.trim();
+    document.title = taskTitle ? `${statusTitle} · ${taskTitle}` : `${statusTitle} · Logr`;
+  }, [running, paused, elapsed, activeTimedSession]);
 
   const visibleSessions = sessions.filter((session) => {
     if (session.clientId !== resolvedActiveClientId) return false;
@@ -550,6 +593,8 @@ export default function LogrApp() {
     ]);
     setActiveSessionId(id);
     setElapsed(0);
+    elapsedBeforeRunRef.current = 0;
+    timerStartedAtRef.current = Date.now();
     setPaused(false);
     setRunning(true);
   }
@@ -710,19 +755,22 @@ export default function LogrApp() {
   }
 
   function stopTimer() {
+    const finalElapsed = getElapsedNow();
     setRunning(false);
     setPaused(false);
     setSessions((prev) => prev.map((session) => (
       session.id === activeSessionId
         ? {
             ...session,
-            duration: elapsed,
-            earned: calculateSessionEarned(elapsed, session),
+            duration: finalElapsed,
+            earned: calculateSessionEarned(finalElapsed, session),
             status: "DONE",
           }
         : session
     )));
     setActiveSessionId(null);
+    timerStartedAtRef.current = null;
+    elapsedBeforeRunRef.current = 0;
     setElapsed(0);
     setTaskName("");
     setTaskRate("");
@@ -736,13 +784,17 @@ export default function LogrApp() {
 
   function pauseTimer() {
     if (!running || paused) return;
+    const pausedElapsed = getElapsedNow();
+    timerStartedAtRef.current = null;
+    elapsedBeforeRunRef.current = pausedElapsed;
+    setElapsed(pausedElapsed);
     setPaused(true);
     setSessions((prev) => prev.map((session) => (
       session.id === activeSessionId
         ? {
             ...session,
-            duration: elapsed,
-            earned: calculateSessionEarned(elapsed, session),
+            duration: pausedElapsed,
+            earned: calculateSessionEarned(pausedElapsed, session),
           }
         : session
     )));
@@ -750,6 +802,7 @@ export default function LogrApp() {
 
   function resumeTimer() {
     if (!running || !paused) return;
+    timerStartedAtRef.current = Date.now();
     setPaused(false);
   }
 
@@ -815,22 +868,26 @@ export default function LogrApp() {
 
       if (running) {
         if (paused) {
+          timerStartedAtRef.current = Date.now();
           setPaused(false);
           return;
         }
+        const finalElapsed = getElapsedNow();
         setRunning(false);
         setPaused(false);
         setSessions((prev) => prev.map((session) => (
           session.id === activeSessionId
             ? {
                 ...session,
-                duration: elapsed,
-                earned: calculateSessionEarned(elapsed, session),
+                duration: finalElapsed,
+                earned: calculateSessionEarned(finalElapsed, session),
                 status: "DONE",
               }
             : session
         )));
         setActiveSessionId(null);
+        timerStartedAtRef.current = null;
+        elapsedBeforeRunRef.current = 0;
         setElapsed(0);
         setTaskName("");
         setTaskNotes("");
@@ -867,6 +924,8 @@ export default function LogrApp() {
       ]);
       setActiveSessionId(id);
       setElapsed(0);
+      elapsedBeforeRunRef.current = 0;
+      timerStartedAtRef.current = Date.now();
       setPaused(false);
       setRunning(true);
     }
@@ -885,6 +944,8 @@ export default function LogrApp() {
 
     setActiveSessionId(session.id);
     setElapsed(session.duration);
+    elapsedBeforeRunRef.current = session.duration;
+    timerStartedAtRef.current = Date.now();
     setPaused(false);
     setRunning(true);
     setSessions((prev) => prev.map((item) => (item.id === session.id ? { ...item, status: "ACTIVE" } : item)));
