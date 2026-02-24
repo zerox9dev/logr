@@ -322,7 +322,7 @@ function formatClock(seconds: number) {
 }
 
 export default function LandingPage() {
-  const lang = useSyncExternalStore(subscribeLanguageChange, detectSiteLanguage, () => "en");
+  const lang = useSyncExternalStore<SiteLang>(subscribeLanguageChange, detectSiteLanguage, () => "en");
   const [scrolled, setScrolled] = useState(false);
   const [seconds, setSeconds] = useState(BASE_SECONDS);
   const [lostCounter, setLostCounter] = useState(0);
