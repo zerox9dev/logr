@@ -80,6 +80,13 @@ export default function InvoicesList({
     letterSpacing: "0.12em",
   });
 
+  const emptyCardStyle = {
+    border: `1px solid ${theme.border}`,
+    background: theme.statBg,
+    padding: "36px 24px",
+    textAlign: "center",
+  };
+
   return (
     <div style={{ maxWidth: 720 }}>
       <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -115,8 +122,30 @@ export default function InvoicesList({
 
       {/* Invoice list */}
       {filteredInvoices.length === 0 ? (
-        <div style={{ fontSize: 13, color: theme.muted, padding: "24px 0" }}>
-          {invoices.length === 0 ? t("invoices.empty") : t("invoices.noneInFilter")}
+        <div style={emptyCardStyle}>
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              margin: "0 auto 14px",
+              borderRadius: 16,
+              border: `1px solid ${theme.border}`,
+              background: theme.bg,
+              display: "grid",
+              placeItems: "center",
+            }}
+          >
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8 3.75H13.5L17.75 8V19.25C17.75 19.6642 17.4142 20 17 20H8C7.58579 20 7.25 19.6642 7.25 19.25V4.5C7.25 4.08579 7.58579 3.75 8 3.75Z" stroke={theme.tabActive} strokeWidth="1.2" />
+              <path d="M13.25 3.75V8.25H17.75" stroke={theme.tabActive} strokeWidth="1.2" />
+              <path d="M9.75 11H15.25" stroke={theme.muted} strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M9.75 13.75H15.25" stroke={theme.muted} strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M9.75 16.5H13" stroke={theme.muted} strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div style={{ fontSize: 15, color: theme.text, marginBottom: 6 }}>
+            {invoices.length === 0 ? t("invoices.empty") : t("invoices.noneInFilter")}
+          </div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
