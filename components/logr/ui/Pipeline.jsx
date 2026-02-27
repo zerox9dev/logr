@@ -506,7 +506,15 @@ export default function Pipeline({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${stages.length}, minmax(0, 1fr))`,
+            gap: 16,
+            width: "100%",
+            paddingBottom: 8,
+          }}
+        >
           {stages.map((stage) => (
             <PipelineColumn
               key={stage.id}

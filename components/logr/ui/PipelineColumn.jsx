@@ -14,8 +14,8 @@ export default function PipelineColumn({ stage, stageLabel, leads, theme, onEdit
   return (
     <div
       style={{
-        width: 220,
-        flexShrink: 0,
+        width: "100%",
+        minWidth: 0,
         display: "flex",
         flexDirection: "column",
       }}

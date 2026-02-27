@@ -1478,7 +1478,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onOpenOnboarding={openTour}
         />
 
-        <div className="main-area" style={{ flex: 1, padding: "32px 40px", maxWidth: 1160 }}>
+        <div className="main-area" style={{ flex: 1, padding: "32px" }}>
           <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
