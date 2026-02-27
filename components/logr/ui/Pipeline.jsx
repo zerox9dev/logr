@@ -47,6 +47,7 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
   });
 
   const maxCount = stageData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
+  const totalItemsCount = leads.length;
   const firstStageCount = stageData[0]?.count || 0;
   const successCount = successStageId
     ? (stageData.find((item) => item.stage.id === successStageId)?.count || 0)
@@ -63,7 +64,7 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <div>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{totalLabel}</div>
-            <div style={{ fontSize: 16, color: theme.text }}>{firstStageCount}</div>
+            <div style={{ fontSize: 16, color: theme.text }}>{totalItemsCount}</div>
           </div>
           <div>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{finalLabel}</div>
@@ -157,6 +158,8 @@ export default function Pipeline({
   const finalLabel = activeFunnel
     ? t(`pipeline.finalConversionByType.${activeFunnel.type}`)
     : t("pipeline.finalConversion");
+  const showCardValue = true;
+  const showColumnValue = activeFunnel?.type !== "jobseeker";
   const successStageId = useMemo(() => {
     if (!activeFunnel || stages.length === 0) return null;
     if (activeFunnel.type === "jobseeker") {
@@ -471,6 +474,7 @@ export default function Pipeline({
             defaultStage={modal.defaultStage}
             stageOrder={stages.map((stage) => stage.id)}
             stageLabels={stageLabels}
+            allowEstimatedValue={showCardValue}
             onSave={handleSave}
             onClose={() => setModal(null)}
           />
@@ -526,6 +530,8 @@ export default function Pipeline({
               theme={theme}
               onEdit={(lead) => setModal({ lead })}
               onDelete={handleDelete}
+              showColumnValue={showColumnValue}
+              showCardValue={showCardValue}
             />
           ))}
         </div>
@@ -537,6 +543,7 @@ export default function Pipeline({
               theme={theme}
               onEdit={() => {}}
               onDelete={() => {}}
+              showEstimatedValue={showCardValue}
             />
           ) : null}
         </DragOverlay>
@@ -549,6 +556,7 @@ export default function Pipeline({
           defaultStage={modal.defaultStage}
           stageOrder={stages.map((stage) => stage.id)}
           stageLabels={stageLabels}
+          allowEstimatedValue={showCardValue}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

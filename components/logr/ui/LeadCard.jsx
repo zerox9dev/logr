@@ -11,7 +11,7 @@ const STAGE_COLORS = {
   rejected: "#dc2626",
 };
 
-export default function LeadCard({ lead, theme, onEdit, onDelete }) {
+export default function LeadCard({ lead, theme, onEdit, onDelete, showEstimatedValue = true }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: lead.id,
     data: { lead },
@@ -66,7 +66,7 @@ export default function LeadCard({ lead, theme, onEdit, onDelete }) {
         </div>
       </div>
 
-      {lead.estimated_value != null && (
+      {showEstimatedValue && lead.estimated_value != null && (
         <div style={{ marginTop: 8, fontSize: 12, color: STAGE_COLORS[lead.stage] || theme.muted }}>
           {formatMoney(lead.estimated_value, lead.currency || "USD")}
         </div>

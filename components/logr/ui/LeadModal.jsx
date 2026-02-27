@@ -9,6 +9,7 @@ export default function LeadModal({
   defaultStage,
   stageOrder = DEFAULT_STAGES,
   stageLabels,
+  allowEstimatedValue = true,
   onSave,
   onClose,
 }) {
@@ -51,7 +52,7 @@ export default function LeadModal({
       website: website.trim() || null,
       country: country.trim() || null,
       stage_id: stageId || stageOrder[0] || null,
-      estimated_value: Number.isFinite(parsed) && parsed > 0 ? parsed : null,
+      estimated_value: allowEstimatedValue && Number.isFinite(parsed) && parsed > 0 ? parsed : null,
       currency,
       source: source.trim() || null,
       tags,
@@ -148,29 +149,33 @@ export default function LeadModal({
               ))}
             </select>
           </div>
-          <div>
-            <label style={labelStyle}>{t("pipeline.estimatedValue")}</label>
-            <input
-              style={inputStyle}
-              type="number"
-              min="0"
-              step="0.01"
-              value={estimatedValue}
-              onChange={(e) => setEstimatedValue(e.target.value)}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>{t("pipeline.currency")}</label>
-            <select
-              style={{ ...inputStyle, cursor: "pointer" }}
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            >
-              {["USD", "EUR", "PLN", "UAH"].map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          {allowEstimatedValue ? (
+            <>
+              <div>
+                <label style={labelStyle}>{t("pipeline.estimatedValue")}</label>
+                <input
+                  style={inputStyle}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={estimatedValue}
+                  onChange={(e) => setEstimatedValue(e.target.value)}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>{t("pipeline.currency")}</label>
+                <select
+                  style={{ ...inputStyle, cursor: "pointer" }}
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  {["USD", "EUR", "PLN", "UAH"].map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : null}
           <div>
             <label style={labelStyle}>{t("crm.email")}</label>
             <input style={inputStyle} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />

@@ -3,7 +3,16 @@ import { useTranslation } from "react-i18next";
 import LeadCard from "./LeadCard";
 import { formatMoney } from "../lib/utils";
 
-export default function PipelineColumn({ stage, stageLabel, leads, theme, onEdit, onDelete }) {
+export default function PipelineColumn({
+  stage,
+  stageLabel,
+  leads,
+  theme,
+  onEdit,
+  onDelete,
+  showColumnValue = true,
+  showCardValue = true,
+}) {
   const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id: stage });
 
@@ -28,7 +37,7 @@ export default function PipelineColumn({ stage, stageLabel, leads, theme, onEdit
           <span style={{ fontSize: 11, color: theme.muted }}>
             {leads.length} {t("pipeline.cards")}
           </span>
-          {columnValue > 0 && (
+          {showColumnValue && columnValue > 0 && (
             <span style={{ fontSize: 11, color: theme.text }}>
               {formatMoney(columnValue, leads[0]?.currency || "USD")}
             </span>
@@ -51,7 +60,14 @@ export default function PipelineColumn({ stage, stageLabel, leads, theme, onEdit
         }}
       >
         {leads.map((lead) => (
-          <LeadCard key={lead.id} lead={lead} theme={theme} onEdit={onEdit} onDelete={onDelete} />
+          <LeadCard
+            key={lead.id}
+            lead={lead}
+            theme={theme}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            showEstimatedValue={showCardValue}
+          />
         ))}
         {leads.length === 0 && (
           <div style={{ fontSize: 10, color: theme.muted, textAlign: "center", padding: "20px 0" }}>

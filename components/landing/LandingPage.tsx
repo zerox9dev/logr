@@ -393,7 +393,7 @@ export default function LandingPage() {
           <a href="#preview">{c.nav.preview}</a>
           <a href="#features">{c.nav.features}</a>
           <a href="#pricing">{c.nav.pricing}</a>
-          <Link href="/tracker" className="nav-cta">
+          <Link href="/dashboard" className="nav-cta">
             {c.nav.tryFree}
           </Link>
         </div>
@@ -411,7 +411,7 @@ export default function LandingPage() {
           </h1>
           <p className="hero-sub">{c.hero.sub}</p>
           <div className="hero-btns">
-            <Link href="/tracker" className="btn-solid">
+            <Link href="/dashboard" className="btn-solid">
               {c.hero.start}
             </Link>
             <a href="#preview" className="btn-ghost">
@@ -507,15 +507,17 @@ export default function LandingPage() {
             <div className="mock-dot" style={{ background: "#ff5f57" }} />
             <div className="mock-dot" style={{ background: "#febc2e" }} />
             <div className="mock-dot" style={{ background: "#28c840" }} />
-            <div className="mock-url">logr.app/tracker</div>
+            <div className="mock-url">logr.app/dashboard</div>
           </div>
 
           <div className="mock-inner">
             <div className="mock-sidebar">
               <div className="mock-sidebar-label">APP</div>
               <div className="mock-app-nav">
-                <div className="mock-app-btn">DASHBOARD</div>
-                <div className="mock-app-btn active">TRACKER</div>
+                <div className="mock-app-btn active">DASHBOARD</div>
+                <div className="mock-app-btn">TRACKER</div>
+                <div className="mock-app-btn">FUNNELS</div>
+                <div className="mock-app-btn">INVOICES</div>
                 <div className="mock-app-btn">PROFILE</div>
               </div>
 
@@ -720,7 +722,7 @@ export default function LandingPage() {
               <div className="p-feat">{c.pricing.cloudSync}</div>
               <div className="p-feat">{c.pricing.multiDevice}</div>
             </div>
-            <Link href="/tracker" className="p-btn p-btn-outline">
+            <Link href="/dashboard" className="p-btn p-btn-outline">
               {c.pricing.getStarted}
             </Link>
           </div>
@@ -751,7 +753,7 @@ export default function LandingPage() {
           <em>{c.cta.title2}</em>
         </h2>
         <div className="reveal" style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center" }}>
-          <Link href="/tracker" className="btn-solid">
+          <Link href="/dashboard" className="btn-solid">
             {c.cta.tryFree}
           </Link>
           <a href="#preview" className="btn-ghost">
@@ -764,7 +766,7 @@ export default function LandingPage() {
         <div className="f-logo">Logr</div>
         <div className="f-copy">{c.footer.copy}</div>
         <div className="f-links">
-          <Link href="/tracker">{c.footer.app}</Link>
+          <Link href="/dashboard">{c.footer.app}</Link>
           <a href="#pricing">{c.footer.pricing}</a>
           <a href="#">{c.footer.privacy}</a>
         </div>
