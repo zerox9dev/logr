@@ -35,7 +35,18 @@ function leadInStage(lead, stage, activeFunnelId) {
   return lead.funnel_id === activeFunnelId && lead.stage_id === stage.id;
 }
 
-function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel, successStageId, t }) {
+function FunnelGraph({
+  theme,
+  leads,
+  stages,
+  stageLabels,
+  totalLabel,
+  finalLabel,
+  rejectionLabel,
+  successStageId,
+  rejectedStageId,
+  t,
+}) {
   const inStage = (lead, stage) => lead.stage_id === stage.id;
 
   const stageData = stages.map((stage, index) => {
@@ -49,10 +60,15 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
   const maxCount = stageData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
   const totalItemsCount = leads.length;
   const firstStageCount = stageData[0]?.count || 0;
+  const conversionBaseCount = rejectedStageId ? totalItemsCount : firstStageCount;
   const successCount = successStageId
     ? (stageData.find((item) => item.stage.id === successStageId)?.count || 0)
     : (stageData[stageData.length - 1]?.count || 0);
-  const finalConversion = firstStageCount > 0 ? (successCount / firstStageCount) * 100 : 0;
+  const rejectedCount = rejectedStageId
+    ? (stageData.find((item) => item.stage.id === rejectedStageId)?.count || 0)
+    : 0;
+  const finalConversion = conversionBaseCount > 0 ? (successCount / conversionBaseCount) * 100 : 0;
+  const rejectionConversion = conversionBaseCount > 0 ? (rejectedCount / conversionBaseCount) * 100 : 0;
 
   return (
     <div style={{ border: `1px solid ${theme.border}`, padding: 14, marginBottom: 18 }}>
@@ -70,6 +86,12 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{finalLabel}</div>
             <div style={{ fontSize: 16, color: theme.tabActive }}>{finalConversion.toFixed(1)}%</div>
           </div>
+          {rejectedStageId ? (
+            <div>
+              <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{rejectionLabel}</div>
+              <div style={{ fontSize: 16, color: "#dc2626" }}>{rejectionConversion.toFixed(1)}%</div>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -158,6 +180,9 @@ export default function Pipeline({
   const finalLabel = activeFunnel
     ? t(`pipeline.finalConversionByType.${activeFunnel.type}`)
     : t("pipeline.finalConversion");
+  const rejectionLabel = activeFunnel?.type === "jobseeker"
+    ? t("pipeline.rejectionConversionByType.jobseeker")
+    : "";
   const showCardValue = true;
   const showColumnValue = activeFunnel?.type !== "jobseeker";
   const successStageId = useMemo(() => {
@@ -171,6 +196,10 @@ export default function Pipeline({
       return stages.find((stage) => stage.key === "done")?.id || null;
     }
     return stages[stages.length - 1]?.id || null;
+  }, [activeFunnel, stages]);
+  const rejectedStageId = useMemo(() => {
+    if (!activeFunnel || activeFunnel.type !== "jobseeker") return null;
+    return stages.find((stage) => stage.key === "rejected")?.id || null;
   }, [activeFunnel, stages]);
 
   if (!activeFunnel) {
@@ -420,7 +449,18 @@ export default function Pipeline({
           </button>
         </div>
 
-        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} successStageId={successStageId} t={t} />
+        <FunnelGraph
+          theme={theme}
+          leads={scopedLeads}
+          stages={stages}
+          stageLabels={stageLabels}
+          totalLabel={totalLabel}
+          finalLabel={finalLabel}
+          rejectionLabel={rejectionLabel}
+          successStageId={successStageId}
+          rejectedStageId={rejectedStageId}
+          t={t}
+        />
 
         {stages.map((stage) => {
           const stageLeads = scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id));
@@ -505,7 +545,18 @@ export default function Pipeline({
         </button>
       </div>
 
-      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} successStageId={successStageId} t={t} />
+      <FunnelGraph
+        theme={theme}
+        leads={scopedLeads}
+        stages={stages}
+        stageLabels={stageLabels}
+        totalLabel={totalLabel}
+        finalLabel={finalLabel}
+        rejectionLabel={rejectionLabel}
+        successStageId={successStageId}
+        rejectedStageId={rejectedStageId}
+        t={t}
+      />
 
       <DndContext
         sensors={sensors}

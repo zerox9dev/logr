@@ -250,6 +250,9 @@ const resources = {
           jobseeker: "VACANCY → OFFER",
           custom: "FIRST → LAST STAGE",
         },
+        rejectionConversionByType: {
+          jobseeker: "VACANCY → REJECTED",
+        },
         fromPrevious: "from previous",
         newLead: "NEW LEAD",
         newItemByType: {
@@ -573,6 +576,9 @@ const resources = {
           jobseeker: "ВАКАНСИЯ → ОФФЕР",
           custom: "ПЕРВЫЙ → ПОСЛЕДНИЙ ЭТАП",
         },
+        rejectionConversionByType: {
+          jobseeker: "ВАКАНСИЯ → ОТКАЗ",
+        },
         fromPrevious: "от пред. этапа",
         newLead: "НОВЫЙ ЛИД",
         newItemByType: {
@@ -895,6 +901,9 @@ const resources = {
           freelancer: "ЛІД → ЗАВЕРШЕНО",
           jobseeker: "ВАКАНСІЯ → ОФЕР",
           custom: "ПЕРШИЙ → ОСТАННІЙ ЕТАП",
+        },
+        rejectionConversionByType: {
+          jobseeker: "ВАКАНСІЯ → ВІДМОВА",
         },
         fromPrevious: "від попер. етапу",
         newLead: "НОВИЙ ЛІД",
