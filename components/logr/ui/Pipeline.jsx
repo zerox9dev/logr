@@ -18,6 +18,7 @@ function getLocalizedStageLabel(stage, funnelType, t) {
     response: "response",
     interview: "interview",
     offer: "offer",
+    rejected: "rejected",
     lead: "saved",
     negotiation: "applied",
     contract: "response",
@@ -25,7 +26,7 @@ function getLocalizedStageLabel(stage, funnelType, t) {
     done: "offer",
   };
 
-  const fallbackByPosition = ["saved", "applied", "response", "interview", "offer"];
+  const fallbackByPosition = ["saved", "applied", "response", "interview", "offer", "rejected"];
   const jobStageKey = jobStageKeyMap[stage.key] || fallbackByPosition[stage.position] || "saved";
   return t(`pipeline.jobStages.${jobStageKey}`, { defaultValue: stage.title });
 }
@@ -34,7 +35,7 @@ function leadInStage(lead, stage, activeFunnelId) {
   return lead.funnel_id === activeFunnelId && lead.stage_id === stage.id;
 }
 
-function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel, t }) {
+function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel, successStageId, t }) {
   const inStage = (lead, stage) => lead.stage_id === stage.id;
 
   const stageData = stages.map((stage, index) => {
@@ -47,8 +48,10 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
 
   const maxCount = stageData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
   const firstStageCount = stageData[0]?.count || 0;
-  const doneCount = stageData[stageData.length - 1]?.count || 0;
-  const finalConversion = firstStageCount > 0 ? (doneCount / firstStageCount) * 100 : 0;
+  const successCount = successStageId
+    ? (stageData.find((item) => item.stage.id === successStageId)?.count || 0)
+    : (stageData[stageData.length - 1]?.count || 0);
+  const finalConversion = firstStageCount > 0 ? (successCount / firstStageCount) * 100 : 0;
 
   return (
     <div style={{ border: `1px solid ${theme.border}`, padding: 14, marginBottom: 18 }}>
@@ -152,6 +155,18 @@ export default function Pipeline({
   const finalLabel = activeFunnel
     ? t(`pipeline.finalConversionByType.${activeFunnel.type}`)
     : t("pipeline.finalConversion");
+  const successStageId = useMemo(() => {
+    if (!activeFunnel || stages.length === 0) return null;
+    if (activeFunnel.type === "jobseeker") {
+      return stages.find((stage) => stage.key === "offer")?.id
+        || stages.find((stage) => stage.key === "done")?.id
+        || null;
+    }
+    if (activeFunnel.type === "freelancer") {
+      return stages.find((stage) => stage.key === "done")?.id || null;
+    }
+    return stages[stages.length - 1]?.id || null;
+  }, [activeFunnel, stages]);
 
   if (!activeFunnel) {
     const templateCards = [
@@ -400,7 +415,7 @@ export default function Pipeline({
           </button>
         </div>
 
-        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} t={t} />
+        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} successStageId={successStageId} t={t} />
 
         {stages.map((stage) => {
           const stageLeads = scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id));
@@ -484,7 +499,7 @@ export default function Pipeline({
         </button>
       </div>
 
-      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} t={t} />
+      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} successStageId={successStageId} t={t} />
 
       <DndContext
         sensors={sensors}

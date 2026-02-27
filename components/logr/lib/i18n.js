@@ -282,6 +282,7 @@ const resources = {
           response: "RESPONSE",
           interview: "INTERVIEW",
           offer: "OFFER",
+          rejected: "REJECTED",
         },
       },
       invoices: {
@@ -604,6 +605,7 @@ const resources = {
           response: "ОТВЕТ",
           interview: "ИНТЕРВЬЮ",
           offer: "ОФФЕР",
+          rejected: "ОТКАЗ",
         },
       },
       invoices: {
@@ -926,6 +928,7 @@ const resources = {
           response: "ВІДПОВІДЬ",
           interview: "ІНТЕРВ'Ю",
           offer: "ОФЕР",
+          rejected: "ВІДМОВА",
         },
       },
       invoices: {

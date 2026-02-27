@@ -1,20 +1,43 @@
 import { getSupabaseClient } from "./supabase";
 
-const DEFAULT_STAGE_TITLES = {
-  freelancer: ["Lead", "Negotiation", "Contract", "Active", "Done"],
-  jobseeker: ["Saved", "Applied", "Response", "Interview", "Offer"],
-  custom: ["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5"],
+const STAGE_TEMPLATES = {
+  freelancer: [
+    { key: "lead", title: "Lead" },
+    { key: "negotiation", title: "Negotiation" },
+    { key: "contract", title: "Contract" },
+    { key: "active", title: "Active" },
+    { key: "done", title: "Done" },
+  ],
+  jobseeker: [
+    { key: "saved", title: "Saved" },
+    { key: "applied", title: "Applied" },
+    { key: "response", title: "Response" },
+    { key: "interview", title: "Interview" },
+    { key: "offer", title: "Offer" },
+    { key: "rejected", title: "Rejected" },
+  ],
+  custom: [
+    { key: "custom_1", title: "Stage 1" },
+    { key: "custom_2", title: "Stage 2" },
+    { key: "custom_3", title: "Stage 3" },
+    { key: "custom_4", title: "Stage 4" },
+    { key: "custom_5", title: "Stage 5" },
+  ],
 };
 
 function buildDefaultStages(type, customTitles = []) {
-  const titles = customTitles.length === 5
-    ? customTitles
-    : (DEFAULT_STAGE_TITLES[type] || DEFAULT_STAGE_TITLES.custom);
-  return titles.map((title, index) => ({
-    key: type === "custom"
-      ? `custom_${index + 1}`
-      : ["lead", "negotiation", "contract", "active", "done"][index],
-    title,
+  if (type === "custom" && customTitles.length > 0) {
+    return customTitles.map((title, index) => ({
+      key: `custom_${index + 1}`,
+      title,
+      position: index,
+    }));
+  }
+
+  const template = STAGE_TEMPLATES[type] || STAGE_TEMPLATES.custom;
+  return template.map((stage, index) => ({
+    key: stage.key,
+    title: stage.title,
     position: index,
   }));
 }
