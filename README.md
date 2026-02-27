@@ -2,6 +2,12 @@
 
 Freelance time tracker + CRM with Google sign-in, cloud sync in Supabase, and invoice exports.
 
+## Preview (Personal Cabinet)
+
+Preview of the tracker workspace at `/tracker`:
+
+![Logr tracker preview](./public/project-preview.png)
+
 ## What it does
 
 - Landing page at `/`

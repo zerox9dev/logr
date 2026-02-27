@@ -95,3 +95,9 @@ export async function updateInvoice(id, updates) {
     .single();
   return { data, error };
 }
+
+export async function deleteInvoice(id) {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("invoices").delete().eq("id", id);
+  return { error };
+}

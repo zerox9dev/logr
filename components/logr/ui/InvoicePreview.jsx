@@ -1,5 +1,8 @@
 import { formatMoney, formatDate } from "../lib/utils";
 
+const SERVICE_BRAND = "LOGR";
+const SERVICE_DOMAIN = "logr.app";
+
 export function openInvoicePrintWindow(invoice, profileName) {
   const currency = invoice.currency || "USD";
 
@@ -27,6 +30,10 @@ export function openInvoicePrintWindow(invoice, profileName) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter Tight', Arial, sans-serif; padding: 60px; color: #111; }
     h1 { font-size: 48px; letter-spacing: -.02em; margin-bottom: 4px; font-weight: 400; }
+    .brand-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+    .brand-mark { font-size: 12px; color: #999; letter-spacing: .22em; text-transform: uppercase; margin-bottom: 4px; }
+    .brand-name { font-size: 22px; letter-spacing: .04em; font-weight: 600; }
+    .brand-site { font-size: 11px; color: #999; }
     .sub { font-size: 11px; color: #999; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 40px; }
     .meta { display: flex; justify-content: space-between; margin-bottom: 40px; font-size: 13px; }
     .lbl { font-size: 9px; color: #999; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 4px; }
@@ -42,8 +49,16 @@ export function openInvoicePrintWindow(invoice, profileName) {
   </style>
 </head>
 <body>
+  <div class="brand-row">
+    <div>
+      <div class="brand-mark">Service</div>
+      <div class="brand-name">${SERVICE_BRAND}</div>
+      <div class="brand-site">${SERVICE_DOMAIN}</div>
+    </div>
+  </div>
+
   <h1>INVOICE</h1>
-  <div class="sub">Logr${profileName ? ` — ${profileName}` : ""}</div>
+  <div class="sub">${SERVICE_BRAND}${profileName ? ` — ${profileName}` : ""}</div>
 
   <div class="meta">
     <div>
@@ -123,6 +138,9 @@ export default function InvoicePreview({ invoice, theme }) {
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 4 }}>
+          {SERVICE_BRAND}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
           <span style={{ fontSize: 13, color: theme.text }}>{invoice.invoice_number}</span>
           <span

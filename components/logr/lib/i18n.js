@@ -1,15 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-function detectInitialLanguage() {
-  if (typeof window === "undefined") return "en";
-  const raw = window.navigator.language || window.navigator.languages?.[0] || "en";
-  const normalized = String(raw).toLowerCase();
-  if (normalized.startsWith("ru")) return "ru";
-  if (normalized.startsWith("uk")) return "uk";
-  return "en";
-}
-
 const resources = {
   en: {
     translation: {
@@ -259,6 +250,9 @@ const resources = {
       invoices: {
         title: "INVOICES",
         new: "NEW INVOICE",
+        edit: "EDIT DRAFT",
+        delete: "DELETE",
+        confirmDelete: "Delete this draft invoice?",
         empty: "No invoices yet. Create your first invoice from DONE sessions.",
         noneInFilter: "No invoices match the current filter.",
         selectClient: "SELECT CLIENT",
@@ -541,6 +535,9 @@ const resources = {
       invoices: {
         title: "ИНВОЙСЫ",
         new: "НОВЫЙ ИНВОЙС",
+        edit: "РЕДАКТИРОВАТЬ ЧЕРНОВИК",
+        delete: "УДАЛИТЬ",
+        confirmDelete: "Удалить этот черновик инвойса?",
         empty: "Инвойсов пока нет. Создайте первый из завершённых сессий.",
         noneInFilter: "Нет инвойсов по текущему фильтру.",
         selectClient: "ВЫБЕРИТЕ КЛИЕНТА",
@@ -823,6 +820,9 @@ const resources = {
       invoices: {
         title: "ІНВОЙСИ",
         new: "НОВИЙ ІНВОЙС",
+        edit: "РЕДАГУВАТИ ЧЕРНЕТКУ",
+        delete: "ВИДАЛИТИ",
+        confirmDelete: "Видалити цю чернетку інвойсу?",
         empty: "Інвойсів поки немає. Створіть перший із завершених сесій.",
         noneInFilter: "Немає інвойсів за поточним фільтром.",
         selectClient: "ОБЕРІТЬ КЛІЄНТА",
@@ -865,7 +865,8 @@ const resources = {
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
     resources,
-    lng: detectInitialLanguage(),
+    // Keep the first render deterministic across server and client.
+    lng: "en",
     fallbackLng: "en",
     interpolation: {
       escapeValue: false,

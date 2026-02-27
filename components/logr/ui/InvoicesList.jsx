@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import InvoicePreview, { openInvoicePrintWindow } from "./InvoicePreview";
+import { openInvoicePrintWindow } from "./InvoicePreview";
 import InvoiceBuilder from "./InvoiceBuilder";
 
 const ALL_STATUSES = ["all", "draft", "sent", "paid", "overdue", "cancelled"];
@@ -11,15 +11,16 @@ export default function InvoicesList({
   clients,
   sessions,
   currency,
-  user,
   onCreateInvoice,
   onUpdateInvoice,
+  onDeleteInvoice,
   onUpdateSessions,
 }) {
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState("all");
   const [showBuilder, setShowBuilder] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -54,6 +55,12 @@ export default function InvoicesList({
     }
   }
 
+  async function handleDeleteDraft(invoice) {
+    const confirmed = window.confirm(t("invoices.confirmDelete"));
+    if (!confirmed) return;
+    await onDeleteInvoice(invoice);
+  }
+
   const statusColors = {
     draft: theme.muted,
     sent: "#2563eb",
@@ -78,7 +85,10 @@ export default function InvoicesList({
       <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>{t("invoices.title")}</div>
         <button
-          onClick={() => setShowBuilder(true)}
+          onClick={() => {
+            setEditingInvoice(null);
+            setShowBuilder(true);
+          }}
           style={{
             padding: "6px 16px",
             background: "none",
@@ -194,6 +204,43 @@ export default function InvoicesList({
                     )}
 
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {inv.status === "draft" && (
+                        <button
+                          onClick={() => {
+                            setEditingInvoice(inv);
+                            setShowBuilder(true);
+                          }}
+                          style={{
+                            padding: "6px 14px",
+                            background: "none",
+                            border: `1px solid ${theme.border}`,
+                            color: theme.muted,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            fontSize: 10,
+                            letterSpacing: "0.12em",
+                          }}
+                        >
+                          {t("invoices.edit")}
+                        </button>
+                      )}
+                      {inv.status === "draft" && (
+                        <button
+                          onClick={() => handleDeleteDraft(inv)}
+                          style={{
+                            padding: "6px 14px",
+                            background: "none",
+                            border: "1px solid #dc2626",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            fontSize: 10,
+                            letterSpacing: "0.12em",
+                          }}
+                        >
+                          {t("invoices.delete")}
+                        </button>
+                      )}
                       <button
                         onClick={() => cycleStatus(inv)}
                         style={{
@@ -240,9 +287,15 @@ export default function InvoicesList({
           sessions={sessions}
           invoices={invoices}
           currency={currency}
-          user={user}
-          onSave={onCreateInvoice}
-          onClose={() => setShowBuilder(false)}
+          initialInvoice={editingInvoice}
+          onSave={(invoiceData) => {
+            if (editingInvoice) return onUpdateInvoice(editingInvoice.id, invoiceData);
+            return onCreateInvoice(invoiceData);
+          }}
+          onClose={() => {
+            setShowBuilder(false);
+            setEditingInvoice(null);
+          }}
         />
       )}
     </div>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { formatMoney, formatDate, formatInvoiceNumber } from "../lib/utils";
 
 const STEPS = ["client", "sessions", "details", "preview"];
+const SERVICE_BRAND = "LOGR";
 
 export default function InvoiceBuilder({
   theme,
@@ -10,21 +11,27 @@ export default function InvoiceBuilder({
   sessions,
   invoices,
   currency,
-  user,
   onSave,
   onClose,
+  initialInvoice = null,
 }) {
   const { t } = useTranslation();
-  const [step, setStep] = useState(0);
-  const [selectedClientId, setSelectedClientId] = useState("");
-  const [selectedSessionIds, setSelectedSessionIds] = useState(new Set());
-  const [invoiceNumber, setInvoiceNumber] = useState(
-    formatInvoiceNumber(new Date().getFullYear(), (invoices?.length || 0) + 1)
+  const isEditing = Boolean(initialInvoice);
+  const [step, setStep] = useState(isEditing ? 2 : 0);
+  const [selectedClientId, setSelectedClientId] = useState(initialInvoice?.client_id || "");
+  const [selectedSessionIds, setSelectedSessionIds] = useState(
+    new Set(initialInvoice?.session_ids || [])
   );
-  const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10));
-  const [dueDate, setDueDate] = useState("");
-  const [taxRate, setTaxRate] = useState("0");
-  const [invoiceNotes, setInvoiceNotes] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState(
+    initialInvoice?.invoice_number ||
+      formatInvoiceNumber(new Date().getFullYear(), (invoices?.length || 0) + 1)
+  );
+  const [issueDate, setIssueDate] = useState(
+    initialInvoice?.issue_date || new Date().toISOString().slice(0, 10)
+  );
+  const [dueDate, setDueDate] = useState(initialInvoice?.due_date || "");
+  const [taxRate, setTaxRate] = useState(String(initialInvoice?.tax_rate ?? "0"));
+  const [invoiceNotes, setInvoiceNotes] = useState(initialInvoice?.notes || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,7 +40,7 @@ export default function InvoiceBuilder({
     (s) =>
       s.clientId === selectedClientId &&
       s.status === "DONE" &&
-      (s.paymentStatus || "UNPAID") === "UNPAID"
+      ((s.paymentStatus || "UNPAID") === "UNPAID" || selectedSessionIds.has(s.id))
   );
 
   const selectedSessions = clientSessions.filter((s) => selectedSessionIds.has(s.id));
@@ -166,7 +173,7 @@ export default function InvoiceBuilder({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>
-              {t("invoices.new")} — {t(`invoices.step.${STEPS[step]}`)}
+              {isEditing ? t("invoices.edit") : t("invoices.new")} — {t(`invoices.step.${STEPS[step]}`)}
             </div>
             <div style={{ fontSize: 11, color: theme.muted, marginTop: 4 }}>
               {STEPS.map((s, i) => (
@@ -453,6 +460,7 @@ export default function InvoiceBuilder({
             <div style={{ background: theme.statBg, border: `1px solid ${theme.border}`, padding: 16, marginBottom: 20 }}>
               <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between" }}>
                 <div>
+                  <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 4 }}>{SERVICE_BRAND}</div>
                   <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>INVOICE</div>
                   <div style={{ fontSize: 20, color: theme.text }}>{invoiceNumber}</div>
                 </div>

@@ -11,7 +11,7 @@ import {
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, formatTime, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
-import { getClientProfiles, getLeads, getInvoices, createLead, updateLead, deleteLead, createInvoice, updateInvoice } from "./lib/crm";
+import { getClientProfiles, getLeads, getInvoices, createLead, updateLead, deleteLead, createInvoice, updateInvoice, deleteInvoice } from "./lib/crm";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
@@ -30,6 +30,7 @@ import InvoicesList from "./ui/InvoicesList";
 
 const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
 const ONBOARDING_CACHE_KEY = "logr-onboarding-completed-v1";
+const LANGUAGE_STORAGE_KEY = "logr-language-v1";
 
 function getNowDateTimeLocal() {
   const now = new Date();
@@ -56,7 +57,7 @@ function normalizeLanguage(value) {
 export default function LogrApp() {
   const { t, i18n } = useTranslation();
   const supabase = getSupabaseClient();
-  const defaultLanguage = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+  const defaultLanguage = "en";
 
   const [dark, setDark] = useState(false);
   const theme = dark ? DARK_THEME : LIGHT_THEME;
@@ -135,6 +136,10 @@ export default function LogrApp() {
   });
   const [tourStep, setTourStep] = useState(0);
 
+  const handleSetLanguage = useCallback((nextLanguage) => {
+    setProfileLanguage(normalizeLanguage(nextLanguage));
+  }, []);
+
   const resolvedActiveClientId = activeClientId ?? clients[0]?.id ?? null;
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);
   const activeProjects = activeClient?.projects || [];
@@ -192,6 +197,17 @@ export default function LogrApp() {
     return () => {
       document.title = defaultTitleRef.current || "Logr";
     };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const storedLanguage = normalizeLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
+      if (storedLanguage !== profileLanguage) {
+        setProfileLanguage(storedLanguage);
+      }
+    } catch {}
+    // Run only once on mount to avoid hydration mismatch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -404,6 +420,9 @@ export default function LogrApp() {
 
   useEffect(() => {
     i18n.changeLanguage(profileLanguage);
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, profileLanguage);
+    } catch {}
   }, [i18n, profileLanguage]);
 
   // Load CRM data after syncReady
@@ -1069,6 +1088,8 @@ export default function LogrApp() {
     const invoiceDate = new Date();
     const invoiceDateLabel = invoiceDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
     const invoiceId = `INV-${invoiceDate.getTime().toString().slice(-6)}`;
+    const serviceBrand = "LOGR";
+    const serviceDomain = "logr.app";
 
     const countedProjects = new Set();
     const rows = unpaidDoneSessions
@@ -1092,9 +1113,10 @@ export default function LogrApp() {
       .join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice — ${activeClient?.name}</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter Tight',Arial,sans-serif;padding:60px;color:#111}h1{font-family:'Inter Tight',sans-serif;font-size:48px;letter-spacing:-.02em;margin-bottom:4px;font-weight:400}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #111}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px;font-family:'Inter Tight',sans-serif}.total .lbl{margin-bottom:4px}</style>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter Tight',Arial,sans-serif;padding:60px;color:#111}.brand-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}.brand-mark{font-size:12px;color:#999;letter-spacing:.22em;text-transform:uppercase;margin-bottom:4px}.brand-name{font-size:22px;letter-spacing:.04em;font-weight:600}.brand-site{font-size:11px;color:#999}h1{font-family:'Inter Tight',sans-serif;font-size:48px;letter-spacing:-.02em;margin-bottom:4px;font-weight:400}.sub{font-size:11px;color:#999;letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px}.meta{display:flex;justify-content:space-between;margin-bottom:40px;font-size:13px}.lbl{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:32px}th{font-size:9px;color:#999;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:8px 0;border-bottom:2px solid #111}td{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.total{text-align:right;font-size:24px;font-family:'Inter Tight',sans-serif}.total .lbl{margin-bottom:4px}</style>
     </head><body>
-    <h1>INVOICE</h1><div class="sub">Logr</div>
+    <div class="brand-row"><div><div class="brand-mark">Service</div><div class="brand-name">${serviceBrand}</div><div class="brand-site">${serviceDomain}</div></div></div>
+    <h1>INVOICE</h1><div class="sub">${serviceBrand}</div>
     <div class="meta">
       <div><div class="lbl">Client</div><div style="font-size:16px;font-weight:bold">${activeClient?.name}</div>${projectName ? `<div class="lbl" style="margin-top:8px">Project</div><div>${projectName}</div>` : ""}</div>
       <div style="text-align:right"><div class="lbl">Date</div><div>${invoiceDateLabel}</div><div class="lbl" style="margin-top:8px">Invoice #</div><div>${invoiceId}</div></div>
@@ -1215,6 +1237,17 @@ export default function LogrApp() {
     const { data, error } = await updateInvoice(invoiceId, updates);
     if (!error && data) setInvoices((prev) => prev.map((inv) => (inv.id === invoiceId ? data : inv)));
     return { data, error };
+  }
+
+  async function handleDeleteInvoice(invoice) {
+    const { error } = await deleteInvoice(invoice.id);
+    if (!error) {
+      setInvoices((prev) => prev.filter((inv) => inv.id !== invoice.id));
+      if (invoice.session_ids?.length > 0) {
+        handleUpdateSessionsPayment(invoice.session_ids, "UNPAID");
+      }
+    }
+    return { error };
   }
 
   function handleUpdateSessionsPayment(sessionIds, paymentStatus) {
@@ -1347,7 +1380,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               requireProjectForFixed={profileRequireProjectForFixed}
               setRequireProjectForFixed={setProfileRequireProjectForFixed}
               language={profileLanguage}
-              setLanguage={setProfileLanguage}
+              setLanguage={handleSetLanguage}
             />
           ) : screen === "clients" ? (
             crmLoading ? (
@@ -1387,9 +1420,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
                 clients={clients}
                 sessions={sessions}
                 currency={profileCurrency}
-                user={user}
                 onCreateInvoice={handleCreateInvoice}
                 onUpdateInvoice={handleUpdateInvoice}
+                onDeleteInvoice={handleDeleteInvoice}
                 onUpdateSessions={handleUpdateSessionsPayment}
               />
             )
