@@ -48,7 +48,6 @@ const resources = {
         light: "☀ LIGHT",
         dark: "☾ DARK",
         madeBy: "Made by",
-        githubRepo: "GitHub Repo",
       },
       mobile: {
         close: "✕ CLOSE",
@@ -377,7 +376,6 @@ const resources = {
         light: "☀ СВЕТЛАЯ",
         dark: "☾ ТЕМНАЯ",
         madeBy: "Сделано",
-        githubRepo: "GitHub Репозиторий",
       },
       mobile: { close: "✕ ЗАКРЫТЬ", menu: "☰ МЕНЮ" },
       common: {
@@ -703,7 +701,6 @@ const resources = {
         light: "☀ СВІТЛА",
         dark: "☾ ТЕМНА",
         madeBy: "Зроблено",
-        githubRepo: "GitHub Репозиторій",
       },
       mobile: { close: "✕ ЗАКРИТИ", menu: "☰ МЕНЮ" },
       common: {

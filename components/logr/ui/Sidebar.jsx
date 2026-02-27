@@ -106,7 +106,7 @@ export default function Sidebar({
         padding: "32px 0",
         flexShrink: 0,
         flexDirection: "column",
-        background: theme.bg,
+        background: "#f6f7f9",
         height: "100vh",
         position: "sticky",
         top: 0,
@@ -303,9 +303,6 @@ export default function Sidebar({
             textAlign: "center",
           }}
         >
-          <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noreferrer" style={{ color: theme.muted, textDecoration: "underline" }}>
-            {t("sidebar.githubRepo")}
-          </a>
         </div>
       </div>
     </div>
