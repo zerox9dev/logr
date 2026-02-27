@@ -7,7 +7,7 @@ export default function StatsAndExports({ theme, currency, doneSessions, totalHo
 
   return (
     <>
-      <div className="stats-row" style={{ display: "flex", gap: 1, marginBottom: 20 }}>
+      <div className="stats-row" style={{ display: "flex", gap: 4, marginBottom: 20 }}>
         {[
           { label: t("stats.done"), value: doneSessions.length },
           { label: t("stats.hours"), value: totalHours },
@@ -16,7 +16,7 @@ export default function StatsAndExports({ theme, currency, doneSessions, totalHo
           { label: t("stats.paid", { currency }), value: formatMoney(paidTotal, currency) },
           { label: t("stats.collection"), value: collectionRate },
         ].map((stat) => (
-          <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px", border: `1px solid ${theme.border}` }}>
+          <div key={stat.label} style={{ flex: 1, background: theme.statBg, padding: "10px 14px", border: `1px solid ${theme.border}`, borderRadius: 4 }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.15em", marginBottom: 2 }}>{stat.label}</div>
             <div style={{ fontSize: 26, fontFamily: "'Inter Tight',sans-serif", fontWeight: 400, letterSpacing: "-0.02em", color: theme.timerColor }}>{stat.value}</div>
           </div>

@@ -174,7 +174,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
 
   if (doneSessions.length === 0) {
     return (
-      <div style={{ border: `1px solid ${theme.border}`, padding: 18, color: theme.muted }}>
+      <div style={{ border: `1px solid ${theme.border}`, padding: 18, color: theme.muted, borderRadius: 4 }}>
         {t("dashboard.noDone")}
       </div>
     );
@@ -203,7 +203,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 1, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 4, marginBottom: 20 }}>
         {[
           { label: t("dashboard.time"), value: `${formatHours(totalSeconds)} h`, note: t("dashboard.selectedPeriod") },
           { label: t("dashboard.money"), value: formatCurrency(totalMoney, currency), note: t("dashboard.selectedPeriod") },
@@ -215,7 +215,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           { label: t("dashboard.pending"), value: pendingSessions.length, note: t("dashboard.tasksPipeline") },
           { label: t("dashboard.pendingValue"), value: formatCurrency(pendingValue, currency), note: t("dashboard.potentialRevenue") },
         ].map((card) => (
-          <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px", border: `1px solid ${theme.border}` }}>
+          <div key={card.label} style={{ background: theme.statBg, padding: "12px 14px", border: `1px solid ${theme.border}`, borderRadius: 4 }}>
             <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.16em", marginBottom: 4 }}>{card.label}</div>
             <div
               style={{
@@ -235,7 +235,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 16, marginBottom: 16 }}>
-        <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
+        <div style={{ border: `1px solid ${theme.border}`, padding: 14, borderRadius: 4 }}>
           <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>{t("dashboard.dailyTrend")}</div>
           <div style={{ display: "grid", gap: 8 }}>
             {dailyTrend.map((day) => (
@@ -257,7 +257,7 @@ export default function SummaryDashboard({ theme, currency, clients, sessions, t
           </div>
         </div>
 
-        <div style={{ border: `1px solid ${theme.border}`, padding: 14 }}>
+        <div style={{ border: `1px solid ${theme.border}`, padding: 14, borderRadius: 4 }}>
           <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 10 }}>{t("dashboard.pricingHealth")}</div>
           <div
             style={{

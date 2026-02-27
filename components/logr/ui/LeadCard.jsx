@@ -22,6 +22,7 @@ export default function LeadCard({ lead, theme, onEdit, onDelete, showEstimatedV
     opacity: isDragging ? 0.4 : 1,
     background: theme.statBg,
     border: `1px solid ${theme.border}`,
+    borderRadius: 4,
     padding: "12px 14px",
     cursor: "grab",
     userSelect: "none",

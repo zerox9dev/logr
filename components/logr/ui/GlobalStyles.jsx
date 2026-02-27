@@ -8,6 +8,7 @@ export default function GlobalStyles() {
       .logr-app select,
       .logr-app button,
       .logr-app textarea { font-family: inherit; }
+      .logr-app button { border-radius: 4px; }
       input, select { background: transparent; border: none; outline: none; font-family: inherit; }
       .row:hover .del { opacity: 1 !important; }
       .client-tab:hover { opacity: 1 !important; }

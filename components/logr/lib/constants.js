@@ -26,7 +26,7 @@ export const LIGHT_THEME = {
   faint: "#f2f2f2",
   border: "#e8e8e8",
   rowBorder: "#ececec",
-  statBg: "#f5f5f5",
+  statBg: "#f6f7f9",
   timerColor: "#111111",
   inputColor: "#111111",
   btnBg: "#111111",

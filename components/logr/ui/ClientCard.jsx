@@ -93,6 +93,7 @@ export default function ClientCard({
   const statBoxStyle = {
     background: theme.statBg,
     border: `1px solid ${theme.border}`,
+    borderRadius: 4,
     padding: "12px 16px",
     flex: 1,
   };
