@@ -11,7 +11,7 @@ import {
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, formatTime, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
-import { getClientProfiles, getLeads, getInvoices, upsertClientProfile, createLead, updateLead, deleteLead, createInvoice, updateInvoice } from "./lib/crm";
+import { getClientProfiles, getLeads, getInvoices, createLead, updateLead, deleteLead, createInvoice, updateInvoice } from "./lib/crm";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
@@ -1350,7 +1350,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               setLanguage={setProfileLanguage}
             />
           ) : screen === "clients" ? (
-            activeClient ? (
+            crmLoading ? (
+              <div style={{ color: theme.muted, fontSize: 12, letterSpacing: "0.1em" }}>...</div>
+            ) : activeClient ? (
               <ClientCard
                 theme={theme}
                 client={activeClient}
@@ -1364,25 +1366,33 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               <WelcomeState theme={theme} />
             )
           ) : screen === "pipeline" ? (
-            <Pipeline
-              theme={theme}
-              leads={leads}
-              onCreateLead={handleCreateLead}
-              onUpdateLead={handleUpdateLead}
-              onDeleteLead={handleDeleteLead}
-            />
+            crmLoading ? (
+              <div style={{ color: theme.muted, fontSize: 12, letterSpacing: "0.1em" }}>...</div>
+            ) : (
+              <Pipeline
+                theme={theme}
+                leads={leads}
+                onCreateLead={handleCreateLead}
+                onUpdateLead={handleUpdateLead}
+                onDeleteLead={handleDeleteLead}
+              />
+            )
           ) : screen === "invoices" ? (
-            <InvoicesList
-              theme={theme}
-              invoices={invoices}
-              clients={clients}
-              sessions={sessions}
-              currency={profileCurrency}
-              user={user}
-              onCreateInvoice={handleCreateInvoice}
-              onUpdateInvoice={handleUpdateInvoice}
-              onUpdateSessions={handleUpdateSessionsPayment}
-            />
+            crmLoading ? (
+              <div style={{ color: theme.muted, fontSize: 12, letterSpacing: "0.1em" }}>...</div>
+            ) : (
+              <InvoicesList
+                theme={theme}
+                invoices={invoices}
+                clients={clients}
+                sessions={sessions}
+                currency={profileCurrency}
+                user={user}
+                onCreateInvoice={handleCreateInvoice}
+                onUpdateInvoice={handleUpdateInvoice}
+                onUpdateSessions={handleUpdateSessionsPayment}
+              />
+            )
           ) : !activeClient ? (
             <WelcomeState theme={theme} />
           ) : (
