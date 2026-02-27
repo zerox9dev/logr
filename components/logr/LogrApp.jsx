@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import "./lib/i18n";
 import {
   DARK_THEME,
@@ -69,8 +70,11 @@ function normalizeLanguage(value) {
   return ["en", "ru", "uk"].includes(value) ? value : "en";
 }
 
-export default function LogrApp() {
+const ALLOWED_SCREENS = ["dashboard", "tracker", "clients", "pipeline", "invoices", "profile"];
+
+export default function LogrApp({ initialScreen = "tracker" }) {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const supabase = getSupabaseClient();
   const defaultLanguage = "en";
 
@@ -139,7 +143,9 @@ export default function LogrApp() {
 
   const [errors, setErrors] = useState({});
   const [mobileView, setMobileView] = useState("main");
-  const [screen, setScreen] = useState("dashboard");
+  const [screen, setScreen] = useState(
+    ALLOWED_SCREENS.includes(initialScreen) ? initialScreen : "tracker"
+  );
 
   const [editId, setEditId] = useState(null);
   const [editValues, setEditValues] = useState({});
@@ -502,6 +508,13 @@ export default function LogrApp() {
     if (!activeFunnelId) return;
     window.localStorage.setItem(ACTIVE_FUNNEL_STORAGE_KEY, activeFunnelId);
   }, [activeFunnelId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const targetPath = screen === "dashboard" ? "/dashboard" : "/tracker";
+    if (window.location.pathname === targetPath) return;
+    router.push(targetPath);
+  }, [screen, router]);
 
   useEffect(() => {
     if (funnels.length === 0) return;

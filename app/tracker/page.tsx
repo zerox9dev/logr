@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TrackerPage() {
-  return <LogrApp />;
+  return <LogrApp initialScreen="tracker" />;
 }

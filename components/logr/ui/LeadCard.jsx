@@ -8,6 +8,7 @@ const STAGE_COLORS = {
   contract: "#2563eb",
   active: "#059669",
   done: "#7c3aed",
+  rejected: "#dc2626",
 };
 
 export default function LeadCard({ lead, theme, onEdit, onDelete }) {

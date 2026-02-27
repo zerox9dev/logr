@@ -82,7 +82,9 @@ function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel
                     style={{
                       width: "100%",
                       height: `${Math.max(8, (item.count / maxCount) * 100)}%`,
-                      background: "linear-gradient(180deg, rgba(78,174,108,0.75), rgba(36,123,70,0.92))",
+                      background: item.stage.key === "rejected"
+                        ? "linear-gradient(180deg, rgba(239,68,68,0.78), rgba(185,28,28,0.95))"
+                        : "linear-gradient(180deg, rgba(78,174,108,0.75), rgba(36,123,70,0.92))",
                     }}
                   />
                 </div>
