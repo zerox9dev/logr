@@ -31,6 +31,8 @@ export const metadata: Metadata = {
       en: "https://logr.work",
       ru: "https://logr.work/ru",
       uk: "https://logr.work/uk",
+      pl: "https://logr.work/pl",
+      de: "https://logr.work/de",
       "x-default": "https://logr.work",
     },
   },

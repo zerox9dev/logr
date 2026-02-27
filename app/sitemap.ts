@@ -13,20 +13,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
           en: "https://logr.work",
           ru: "https://logr.work/ru",
           uk: "https://logr.work/uk",
+          pl: "https://logr.work/pl",
+          de: "https://logr.work/de",
         },
       },
     },
-    {
-      url: "https://logr.work/ru",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: "https://logr.work/uk",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
+    { url: "https://logr.work/ru", lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: "https://logr.work/uk", lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: "https://logr.work/pl", lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: "https://logr.work/de", lastModified: now, changeFrequency: "monthly", priority: 0.9 },
   ];
 }

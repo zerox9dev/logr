@@ -3,7 +3,15 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const lang = pathname.startsWith("/ru") ? "ru" : pathname.startsWith("/uk") ? "uk" : "en";
+  const lang = pathname.startsWith("/ru")
+    ? "ru"
+    : pathname.startsWith("/uk")
+      ? "uk"
+      : pathname.startsWith("/pl")
+        ? "pl"
+        : pathname.startsWith("/de")
+          ? "de"
+          : "en";
   const response = NextResponse.next();
   response.headers.set("x-lang", lang);
   return response;
