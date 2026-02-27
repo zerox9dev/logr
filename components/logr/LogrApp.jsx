@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import "./lib/i18n";
 import {
   DARK_THEME,
@@ -71,10 +71,29 @@ function normalizeLanguage(value) {
 }
 
 const ALLOWED_SCREENS = ["dashboard", "tracker", "clients", "pipeline", "invoices", "profile"];
+const SCREEN_TO_ROUTE = {
+  dashboard: "/dashboard",
+  tracker: "/tracker",
+  clients: "/clients",
+  pipeline: "/funnels",
+  invoices: "/invoices",
+  profile: "/profile",
+};
+
+function getScreenFromPath(pathname) {
+  if (pathname === "/dashboard") return "dashboard";
+  if (pathname === "/clients") return "clients";
+  if (pathname === "/funnels") return "pipeline";
+  if (pathname === "/invoices") return "invoices";
+  if (pathname === "/profile") return "profile";
+  if (pathname === "/tracker") return "tracker";
+  return null;
+}
 
 export default function LogrApp({ initialScreen = "tracker" }) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = getSupabaseClient();
   const defaultLanguage = "en";
 
@@ -143,9 +162,11 @@ export default function LogrApp({ initialScreen = "tracker" }) {
 
   const [errors, setErrors] = useState({});
   const [mobileView, setMobileView] = useState("main");
-  const [screen, setScreen] = useState(
-    ALLOWED_SCREENS.includes(initialScreen) ? initialScreen : "tracker"
-  );
+  const [screen, setScreen] = useState(() => {
+    const fromPath = getScreenFromPath(pathname);
+    if (fromPath) return fromPath;
+    return ALLOWED_SCREENS.includes(initialScreen) ? initialScreen : "tracker";
+  });
 
   const [editId, setEditId] = useState(null);
   const [editValues, setEditValues] = useState({});
@@ -162,32 +183,23 @@ export default function LogrApp({ initialScreen = "tracker" }) {
   const handleSetLanguage = useCallback((nextLanguage) => {
     setProfileLanguage(normalizeLanguage(nextLanguage));
   }, []);
+
+  useEffect(() => {
+    const fromPath = getScreenFromPath(pathname);
+    if (!fromPath) return;
+    if (fromPath === screen) return;
+    setScreen(fromPath);
+  }, [pathname, screen]);
+
   const navigateToScreen = useCallback((nextScreen) => {
     if (!ALLOWED_SCREENS.includes(nextScreen)) return;
-
-    if (typeof window === "undefined") {
-      setScreen(nextScreen);
-      return;
-    }
-
-    const routeByScreen = {
-      dashboard: "/dashboard",
-      tracker: "/tracker",
-      clients: "/clients",
-      pipeline: "/funnels",
-      invoices: "/invoices",
-      profile: "/profile",
-    };
-    const targetUrl = routeByScreen[nextScreen] || "/tracker";
-    const currentUrl = `${window.location.pathname}${window.location.search}`;
-
-    if (currentUrl !== targetUrl) {
+    const targetUrl = SCREEN_TO_ROUTE[nextScreen] || "/tracker";
+    if (pathname !== targetUrl) {
       router.push(targetUrl, { scroll: false });
       return;
     }
-
     setScreen(nextScreen);
-  }, [router]);
+  }, [pathname, router]);
 
   const resolvedActiveClientId = activeClientId ?? clients[0]?.id ?? null;
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);

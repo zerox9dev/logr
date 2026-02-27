@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import LogrApp from "@/components/logr/LogrApp";
 
 export const metadata: Metadata = {
   title: "Clients",
@@ -7,5 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function ClientsPage() {
-  return <LogrApp initialScreen="clients" />;
+  return null;
 }
