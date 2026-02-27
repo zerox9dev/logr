@@ -7,6 +7,70 @@ import LeadModal from "./LeadModal";
 
 const STAGES = ["lead", "negotiation", "contract", "active", "done"];
 
+function FunnelGraph({ theme, leads, stageLabels, t }) {
+  const stageData = STAGES.map((stage, index) => {
+    const count = leads.filter((lead) => lead.stage === stage).length;
+    const prevCount = index > 0 ? leads.filter((lead) => lead.stage === STAGES[index - 1]).length : count;
+    const conversionFromPrev = index > 0 && prevCount > 0 ? (count / prevCount) * 100 : 100;
+    return { stage, count, conversionFromPrev };
+  });
+
+  const maxCount = stageData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
+  const firstStageCount = stageData[0]?.count || 0;
+  const doneCount = stageData.find((item) => item.stage === "done")?.count || 0;
+  const finalConversion = firstStageCount > 0 ? (doneCount / firstStageCount) * 100 : 0;
+
+  return (
+    <div style={{ border: `1px solid ${theme.border}`, padding: 14, marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.16em", marginBottom: 4 }}>{t("pipeline.funnelTitle")}</div>
+          <div style={{ fontSize: 12, color: theme.sessionText }}>{t("pipeline.funnelSubtitle")}</div>
+        </div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{t("pipeline.totalLeads")}</div>
+            <div style={{ fontSize: 16, color: theme.text }}>{firstStageCount}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{t("pipeline.finalConversion")}</div>
+            <div style={{ fontSize: 16, color: theme.tabActive }}>{finalConversion.toFixed(1)}%</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ width: "100%", paddingBottom: 2 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, width: "100%" }}>
+          {stageData.map((item, index) => (
+            <div key={item.stage} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ height: 136, border: `1px solid ${theme.border}`, background: theme.faint, display: "flex", alignItems: "flex-end", padding: "0 8px 8px" }}>
+                  <div
+                    style={{
+                      width: "100%",
+                      height: `${Math.max(8, (item.count / maxCount) * 100)}%`,
+                      background: "linear-gradient(180deg, rgba(78,174,108,0.75), rgba(36,123,70,0.92))",
+                    }}
+                  />
+                </div>
+                <div style={{ marginTop: 8, fontSize: 10, color: theme.muted, textAlign: "center" }}>{stageLabels[item.stage]}</div>
+                <div style={{ marginTop: 3, fontSize: 13, color: theme.text, textAlign: "center" }}>{item.count}</div>
+              </div>
+
+              {index < stageData.length - 1 && (
+                <div style={{ width: 40, flexShrink: 0, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: theme.muted, marginBottom: 4 }}>{stageData[index + 1].conversionFromPrev.toFixed(1)}%</div>
+                  <div style={{ fontSize: 14, color: theme.tabActive }}>→</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onDeleteLead }) {
   const { t } = useTranslation();
   const [activeDragLead, setActiveDragLead] = useState(null);
@@ -74,6 +138,9 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
             {t("pipeline.newLead")}
           </button>
         </div>
+
+        <FunnelGraph theme={theme} leads={leads} stageLabels={stageLabels} t={t} />
+
         {STAGES.map((stage) => {
           const stageLeads = leads.filter((l) => l.stage === stage);
           if (stageLeads.length === 0) return null;
@@ -153,6 +220,8 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
           + {t("pipeline.newLead")}
         </button>
       </div>
+
+      <FunnelGraph theme={theme} leads={leads} stageLabels={stageLabels} t={t} />
 
       <DndContext
         sensors={sensors}
