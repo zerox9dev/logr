@@ -11,7 +11,21 @@ import {
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, formatTime, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
-import { getClientProfiles, getLeads, getInvoices, createLead, updateLead, deleteLead, createInvoice, updateInvoice, deleteInvoice } from "./lib/crm";
+import {
+  getClientProfiles,
+  getLeads,
+  getInvoices,
+  getFunnelsWithStages,
+  createFunnelWithStages,
+  updateFunnelStage,
+  deleteFunnelWithLeads,
+  createLead,
+  updateLead,
+  deleteLead,
+  createInvoice,
+  updateInvoice,
+  deleteInvoice,
+} from "./lib/crm";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
@@ -31,6 +45,7 @@ import InvoicesList from "./ui/InvoicesList";
 const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
 const ONBOARDING_CACHE_KEY = "logr-onboarding-completed-v1";
 const LANGUAGE_STORAGE_KEY = "logr-language-v1";
+const ACTIVE_FUNNEL_STORAGE_KEY = "logr-active-funnel-v1";
 
 function getNowDateTimeLocal() {
   const now = new Date();
@@ -68,6 +83,8 @@ export default function LogrApp() {
 
   // CRM state
   const [clientProfiles, setClientProfiles] = useState([]);
+  const [funnels, setFunnels] = useState([]);
+  const [activeFunnelId, setActiveFunnelId] = useState(null);
   const [leads, setLeads] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [crmLoading, setCrmLoading] = useState(false);
@@ -142,6 +159,7 @@ export default function LogrApp() {
 
   const resolvedActiveClientId = activeClientId ?? clients[0]?.id ?? null;
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);
+  const activeFunnel = funnels.find((funnel) => funnel.id === activeFunnelId) || funnels[0] || null;
   const activeProjects = activeClient?.projects || [];
   const activeTimedSession = sessions.find((session) => session.id === activeSessionId);
   const tourSteps = useMemo(() => ([
@@ -223,6 +241,11 @@ export default function LogrApp() {
         setSyncReady(false);
         setClients([]);
         setSessions([]);
+        setClientProfiles([]);
+        setFunnels([]);
+        setActiveFunnelId(null);
+        setLeads([]);
+        setInvoices([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
         setProfileLanguage(defaultLanguage);
@@ -247,6 +270,11 @@ export default function LogrApp() {
         setSyncReady(false);
         setClients([]);
         setSessions([]);
+        setClientProfiles([]);
+        setFunnels([]);
+        setActiveFunnelId(null);
+        setLeads([]);
+        setInvoices([]);
         setProfileHourlyRate("50");
         setProfileCurrency("USD");
         setProfileLanguage(defaultLanguage);
@@ -430,17 +458,56 @@ export default function LogrApp() {
     if (!user || !syncReady) return;
     let ignore = false;
     setCrmLoading(true);
-    Promise.all([getClientProfiles(user.id), getLeads(user.id), getInvoices(user.id)]).then(
-      ([profilesRes, leadsRes, invoicesRes]) => {
-        if (ignore) return;
-        if (profilesRes.data) setClientProfiles(profilesRes.data);
-        if (leadsRes.data) setLeads(leadsRes.data);
-        if (invoicesRes.data) setInvoices(invoicesRes.data);
+
+    async function loadCrmData() {
+      const [profilesRes, leadsRes, invoicesRes, funnelsRes] = await Promise.all([
+        getClientProfiles(user.id),
+        getLeads(user.id),
+        getInvoices(user.id),
+        getFunnelsWithStages(user.id),
+      ]);
+
+      if (ignore) return;
+
+      if (profilesRes.data) setClientProfiles(profilesRes.data);
+      if (leadsRes.data) setLeads(leadsRes.data);
+      if (invoicesRes.data) setInvoices(invoicesRes.data);
+
+      let nextFunnels = funnelsRes.data || [];
+
+      if (nextFunnels.length === 0) {
+        const { data: defaultFunnel } = await createFunnelWithStages(user.id, { type: "freelancer" });
+        if (!ignore && defaultFunnel) {
+          nextFunnels = [defaultFunnel];
+        }
+      }
+
+      if (!ignore) {
+        setFunnels(nextFunnels);
+        const storedFunnelId = typeof window !== "undefined"
+          ? window.localStorage.getItem(ACTIVE_FUNNEL_STORAGE_KEY)
+          : null;
+        const hasStored = storedFunnelId && nextFunnels.some((funnel) => funnel.id === storedFunnelId);
+        setActiveFunnelId(hasStored ? storedFunnelId : (nextFunnels[0]?.id || null));
         setCrmLoading(false);
       }
-    );
+    }
+
+    loadCrmData();
     return () => { ignore = true; };
   }, [user, syncReady]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!activeFunnelId) return;
+    window.localStorage.setItem(ACTIVE_FUNNEL_STORAGE_KEY, activeFunnelId);
+  }, [activeFunnelId]);
+
+  useEffect(() => {
+    if (funnels.length === 0) return;
+    if (activeFunnelId && funnels.some((funnel) => funnel.id === activeFunnelId)) return;
+    setActiveFunnelId(funnels[0].id);
+  }, [funnels, activeFunnelId]);
 
   useEffect(() => {
     if (running && !paused) {
@@ -1207,15 +1274,67 @@ export default function LogrApp() {
     });
   }
 
+  async function handleCreateFunnel(type) {
+    if (!user) return { error: new Error("Not signed in") };
+    const { data, error } = await createFunnelWithStages(user.id, { type });
+    if (!error && data) {
+      setFunnels((prev) => [...prev, data]);
+      setActiveFunnelId(data.id);
+    }
+    return { data, error };
+  }
+
+  async function handleUpdateFunnelStages(funnelId, stages) {
+    const updates = stages.map((stage) =>
+      updateFunnelStage(stage.id, { title: stage.title, position: stage.position })
+    );
+    const results = await Promise.all(updates);
+    const firstError = results.find((result) => result.error)?.error || null;
+    if (firstError) return { error: firstError };
+
+    setFunnels((prev) => prev.map((funnel) => (
+      funnel.id === funnelId
+        ? { ...funnel, stages: stages.slice().sort((a, b) => a.position - b.position) }
+        : funnel
+    )));
+
+    return { error: null };
+  }
+
+  async function handleDeleteFunnel(funnelId) {
+    const { error } = await deleteFunnelWithLeads(funnelId);
+    if (error) return { error };
+
+    setLeads((prev) => prev.filter((lead) => lead.funnel_id !== funnelId));
+    setFunnels((prev) => prev.filter((funnel) => funnel.id !== funnelId));
+    return { error: null };
+  }
+
   async function handleCreateLead(leadData) {
-    if (!user) return;
-    const { data, error } = await createLead(user.id, leadData);
+    if (!user || !activeFunnel || !activeFunnel.stages?.length) return;
+    const stageMap = activeFunnel.stages.reduce((acc, stage) => ({ ...acc, [stage.id]: stage }), {});
+    const fallbackStage = activeFunnel.stages[0];
+    const stageId = leadData.stage_id || fallbackStage.id;
+    const stage = stageMap[stageId] || fallbackStage;
+    const { data, error } = await createLead(user.id, {
+      ...leadData,
+      funnel_id: activeFunnel.id,
+      stage_id: stage.id,
+      stage: stage.key,
+    });
     if (!error && data) setLeads((prev) => [...prev, data]);
     return { data, error };
   }
 
   async function handleUpdateLead(leadId, updates) {
-    const { data, error } = await updateLead(leadId, updates);
+    let normalizedUpdates = updates;
+    if (updates.stage_id && activeFunnel?.stages?.length) {
+      const matchedStage = activeFunnel.stages.find((stage) => stage.id === updates.stage_id);
+      if (matchedStage) {
+        normalizedUpdates = { ...updates, stage: matchedStage.key };
+      }
+    }
+    const { data, error } = await updateLead(leadId, normalizedUpdates);
     if (!error && data) setLeads((prev) => prev.map((l) => (l.id === leadId ? data : l)));
     return { data, error };
   }
@@ -1404,7 +1523,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
             ) : (
               <Pipeline
                 theme={theme}
+                funnels={funnels}
+                activeFunnelId={activeFunnel?.id || null}
                 leads={leads}
+                onSelectFunnel={setActiveFunnelId}
+                onCreateFunnel={handleCreateFunnel}
+                onDeleteFunnel={handleDeleteFunnel}
+                onUpdateFunnelStages={handleUpdateFunnelStages}
                 onCreateLead={handleCreateLead}
                 onUpdateLead={handleUpdateLead}
                 onDeleteLead={handleDeleteLead}

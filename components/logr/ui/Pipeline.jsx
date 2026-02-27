@@ -1,23 +1,28 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import PipelineColumn from "./PipelineColumn";
 import LeadCard from "./LeadCard";
 import LeadModal from "./LeadModal";
 
-const STAGES = ["lead", "negotiation", "contract", "active", "done"];
+function leadInStage(lead, stage, activeFunnelId) {
+  return lead.funnel_id === activeFunnelId && lead.stage_id === stage.id;
+}
 
-function FunnelGraph({ theme, leads, stageLabels, t }) {
-  const stageData = STAGES.map((stage, index) => {
-    const count = leads.filter((lead) => lead.stage === stage).length;
-    const prevCount = index > 0 ? leads.filter((lead) => lead.stage === STAGES[index - 1]).length : count;
+function FunnelGraph({ theme, leads, stages, t }) {
+  const inStage = (lead, stage) => lead.stage_id === stage.id;
+
+  const stageData = stages.map((stage, index) => {
+    const count = leads.filter((lead) => inStage(lead, stage)).length;
+    const prevStage = index > 0 ? stages[index - 1] : stage;
+    const prevCount = leads.filter((lead) => inStage(lead, prevStage)).length;
     const conversionFromPrev = index > 0 && prevCount > 0 ? (count / prevCount) * 100 : 100;
     return { stage, count, conversionFromPrev };
   });
 
   const maxCount = stageData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
   const firstStageCount = stageData[0]?.count || 0;
-  const doneCount = stageData.find((item) => item.stage === "done")?.count || 0;
+  const doneCount = stageData[stageData.length - 1]?.count || 0;
   const finalConversion = firstStageCount > 0 ? (doneCount / firstStageCount) * 100 : 0;
 
   return (
@@ -42,7 +47,7 @@ function FunnelGraph({ theme, leads, stageLabels, t }) {
       <div style={{ width: "100%", paddingBottom: 2 }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 10, width: "100%" }}>
           {stageData.map((item, index) => (
-            <div key={item.stage} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+            <div key={item.stage.id} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ height: 136, border: `1px solid ${theme.border}`, background: theme.faint, display: "flex", alignItems: "flex-end", padding: "0 8px 8px" }}>
                   <div
@@ -53,7 +58,7 @@ function FunnelGraph({ theme, leads, stageLabels, t }) {
                     }}
                   />
                 </div>
-                <div style={{ marginTop: 8, fontSize: 10, color: theme.muted, textAlign: "center" }}>{stageLabels[item.stage]}</div>
+                <div style={{ marginTop: 8, fontSize: 10, color: theme.muted, textAlign: "center" }}>{item.stage.title}</div>
                 <div style={{ marginTop: 3, fontSize: 13, color: theme.text, textAlign: "center" }}>{item.count}</div>
               </div>
 
@@ -71,27 +76,143 @@ function FunnelGraph({ theme, leads, stageLabels, t }) {
   );
 }
 
-export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onDeleteLead }) {
+export default function Pipeline({
+  theme,
+  funnels,
+  activeFunnelId,
+  leads,
+  onSelectFunnel,
+  onCreateFunnel,
+  onDeleteFunnel,
+  onUpdateFunnelStages,
+  onCreateLead,
+  onUpdateLead,
+  onDeleteLead,
+}) {
   const { t } = useTranslation();
   const [activeDragLead, setActiveDragLead] = useState(null);
-  const [modal, setModal] = useState(null); // null | { lead?: lead, defaultStage?: string }
+  const [modal, setModal] = useState(null);
   const [isMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 640);
+  const [customStageTitles, setCustomStageTitles] = useState({});
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  const activeFunnel = useMemo(
+    () => funnels.find((funnel) => funnel.id === activeFunnelId) || funnels[0] || null,
+    [funnels, activeFunnelId]
   );
 
+  const stages = useMemo(
+    () => (activeFunnel?.stages || []).slice().sort((a, b) => a.position - b.position),
+    [activeFunnel]
+  );
+
+  const stageLabels = useMemo(
+    () => Object.fromEntries(stages.map((stage) => [stage.id, stage.title])),
+    [stages]
+  );
+
+  const scopedLeads = useMemo(() => {
+    if (!activeFunnel) return [];
+    return leads.filter((lead) => lead.funnel_id === activeFunnel.id);
+  }, [activeFunnel, leads]);
+  const newItemLabel = activeFunnel
+    ? t(`pipeline.newItemByType.${activeFunnel.type}`)
+    : t("pipeline.newLead");
+
+  if (!activeFunnel) {
+    const templateCards = [
+      { type: "freelancer", icon: "◈" },
+      { type: "jobseeker", icon: "◎" },
+      { type: "custom", icon: "✦" },
+    ];
+
+    return (
+      <div>
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 10 }}>{t("pipeline.title")}</div>
+          <div style={{ fontSize: 13, color: theme.sessionText }}>{t("pipeline.chooseType")}</div>
+        </div>
+
+        <div style={{ minHeight: "52vh", display: "grid", placeItems: "center" }}>
+          <div style={{ width: "100%", maxWidth: 980 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))", gap: 12 }}>
+              {templateCards.map(({ type, icon }) => (
+                <button
+                  key={type}
+                  onClick={() => onCreateFunnel(type)}
+                  style={{
+                    border: `1px solid ${theme.border}`,
+                    background: "none",
+                    cursor: "pointer",
+                    color: theme.text,
+                    textAlign: "left",
+                    padding: 16,
+                    minHeight: 132,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                    <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.14em" }}>
+                      {t(`pipeline.templates.${type}`)}
+                    </div>
+                    <div
+                      aria-hidden
+                      style={{
+                        width: 24,
+                        height: 24,
+                        border: `1px solid ${theme.border}`,
+                        display: "grid",
+                        placeItems: "center",
+                        fontSize: 13,
+                        color: theme.tabActive,
+                      }}
+                    >
+                      {icon}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 13, color: theme.sessionText, lineHeight: 1.35 }}>
+                    {t(`pipeline.templateSubtitle.${type}`)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  async function handleSaveCustomStages() {
+    const nextStages = stages.map((stage, position) => ({
+      id: stage.id,
+      key: stage.key,
+      position,
+      title: (customStageTitles[stage.id] || "").trim() || stage.title,
+    }));
+    await onUpdateFunnelStages(activeFunnel.id, nextStages);
+  }
+
+  async function handleDeleteActiveFunnel() {
+    if (!activeFunnel) return;
+    if (!window.confirm(t("pipeline.confirmDeleteFunnel"))) return;
+    await onDeleteFunnel(activeFunnel.id);
+  }
+
   function handleDragStart({ active }) {
-    const lead = leads.find((l) => l.id === active.id);
+    const lead = scopedLeads.find((l) => l.id === active.id);
     if (lead) setActiveDragLead(lead);
   }
 
   function handleDragEnd({ active, over }) {
     setActiveDragLead(null);
     if (!over) return;
-    const lead = leads.find((l) => l.id === active.id);
-    if (!lead || lead.stage === over.id) return;
-    onUpdateLead(lead.id, { stage: over.id });
+    const lead = scopedLeads.find((l) => l.id === active.id);
+    if (!lead || lead.stage_id === over.id) return;
+    onUpdateLead(lead.id, { stage_id: over.id });
   }
 
   async function handleSave(data) {
@@ -108,22 +229,129 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
     await onDeleteLead(leadId);
   }
 
-  const stageLabels = {
-    lead: t("pipeline.stages.lead"),
-    negotiation: t("pipeline.stages.negotiation"),
-    contract: t("pipeline.stages.contract"),
-    active: t("pipeline.stages.active"),
-    done: t("pipeline.stages.done"),
-  };
+  function renderHeader() {
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+          <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>{t("pipeline.title")}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {funnels.map((funnel) => (
+              <div key={funnel.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => onSelectFunnel(funnel.id)}
+                  style={{
+                    padding: "6px 10px",
+                    background: activeFunnel.id === funnel.id ? theme.tabActiveBg : "transparent",
+                    border: `1px solid ${theme.border}`,
+                    color: activeFunnel.id === funnel.id ? theme.tabActive : theme.muted,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    fontSize: 10,
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  {funnel.name}
+                </button>
+                {activeFunnel.id === funnel.id ? (
+                  <button
+                    onClick={handleDeleteActiveFunnel}
+                    style={{
+                      padding: "6px 8px",
+                      background: "none",
+                      border: `1px solid ${theme.border}`,
+                      color: theme.muted,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: 10,
+                      letterSpacing: "0.08em",
+                    }}
+                    title={t("pipeline.deleteFunnel")}
+                    aria-label={t("pipeline.deleteFunnel")}
+                  >
+                    ×
+                  </button>
+                ) : null}
+              </div>
+            ))}
+            {["freelancer", "jobseeker", "custom"].map((type) => (
+              <button
+                key={type}
+                onClick={() => onCreateFunnel(type)}
+                style={{
+                  padding: "6px 10px",
+                  background: "none",
+                  border: `1px dashed ${theme.border}`,
+                  color: theme.muted,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  fontSize: 10,
+                  letterSpacing: "0.08em",
+                }}
+              >
+                + {t(`pipeline.templates.${type}`)}
+              </button>
+            ))}
+          </div>
+        </div>
 
-  // Mobile: stacked list by stage
+        <div style={{ fontSize: 12, color: theme.sessionText, marginBottom: activeFunnel.type === "custom" ? 10 : 0 }}>
+          {t(`pipeline.templateSubtitle.${activeFunnel.type || "custom"}`)}
+        </div>
+
+        {activeFunnel.type === "custom" ? (
+          <div style={{ border: `1px solid ${theme.border}`, padding: 12, display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 10, color: theme.muted, letterSpacing: "0.12em" }}>{t("pipeline.customizeStages")}</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(5, minmax(0, 1fr))", gap: 8 }}>
+              {stages.map((stage) => (
+                <input
+                  key={stage.id}
+                  value={customStageTitles[stage.id] ?? stage.title}
+                  onChange={(e) => setCustomStageTitles((prev) => ({ ...prev, [stage.id]: e.target.value }))}
+                  style={{
+                    width: "100%",
+                    background: "transparent",
+                    border: `1px solid ${theme.border}`,
+                    color: theme.text,
+                    fontFamily: "inherit",
+                    fontSize: 12,
+                    padding: "7px 8px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              ))}
+            </div>
+            <div>
+              <button
+                onClick={handleSaveCustomStages}
+                style={{
+                  padding: "6px 10px",
+                  background: theme.tabActiveBg,
+                  border: `1px solid ${theme.tabActive}`,
+                  color: theme.tabActive,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  fontSize: 10,
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {t("common.save")}
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   if (isMobile) {
     return (
       <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>{t("pipeline.title")}</div>
+        {renderHeader()}
+
+        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: 20 }}>
           <button
-            onClick={() => setModal({})}
+            onClick={() => setModal({ defaultStage: stages[0]?.id })}
             style={{
               padding: "6px 14px",
               background: "none",
@@ -135,19 +363,19 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
               letterSpacing: "0.1em",
             }}
           >
-            {t("pipeline.newLead")}
+            {newItemLabel}
           </button>
         </div>
 
-        <FunnelGraph theme={theme} leads={leads} stageLabels={stageLabels} t={t} />
+        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} t={t} />
 
-        {STAGES.map((stage) => {
-          const stageLeads = leads.filter((l) => l.stage === stage);
+        {stages.map((stage) => {
+          const stageLeads = scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id));
           if (stageLeads.length === 0) return null;
           return (
-            <div key={stage} style={{ marginBottom: 24 }}>
+            <div key={stage.id} style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 8 }}>
-                {stageLabels[stage]} · {stageLeads.length}
+                {stage.title} · {stageLeads.length}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {stageLeads.map((lead) => (
@@ -191,6 +419,8 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
             theme={theme}
             lead={modal.lead}
             defaultStage={modal.defaultStage}
+            stageOrder={stages.map((stage) => stage.id)}
+            stageLabels={stageLabels}
             onSave={handleSave}
             onClose={() => setModal(null)}
           />
@@ -199,13 +429,13 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
     );
   }
 
-  // Desktop: Kanban
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>{t("pipeline.title")}</div>
+      {renderHeader()}
+
+      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: 24 }}>
         <button
-          onClick={() => setModal({})}
+          onClick={() => setModal({ defaultStage: stages[0]?.id })}
           style={{
             padding: "6px 14px",
             background: "none",
@@ -217,11 +447,11 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
             letterSpacing: "0.1em",
           }}
         >
-          + {t("pipeline.newLead")}
+          + {newItemLabel}
         </button>
       </div>
 
-      <FunnelGraph theme={theme} leads={leads} stageLabels={stageLabels} t={t} />
+      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} t={t} />
 
       <DndContext
         sensors={sensors}
@@ -229,12 +459,12 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
         onDragEnd={handleDragEnd}
       >
         <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
-          {STAGES.map((stage) => (
+          {stages.map((stage) => (
             <PipelineColumn
-              key={stage}
-              stage={stage}
-              stageLabel={stageLabels[stage]}
-              leads={leads.filter((l) => l.stage === stage)}
+              key={stage.id}
+              stage={stage.id}
+              stageLabel={stage.title}
+              leads={scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id))}
               theme={theme}
               onEdit={(lead) => setModal({ lead })}
               onDelete={handleDelete}
@@ -259,6 +489,8 @@ export default function Pipeline({ theme, leads, onCreateLead, onUpdateLead, onD
           theme={theme}
           lead={modal.lead}
           defaultStage={modal.defaultStage}
+          stageOrder={stages.map((stage) => stage.id)}
+          stageLabels={stageLabels}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

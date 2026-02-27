@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-const STAGES = ["lead", "negotiation", "contract", "active", "done"];
+const DEFAULT_STAGES = ["lead", "negotiation", "contract", "active", "done"];
 
-export default function LeadModal({ theme, lead, defaultStage, onSave, onClose }) {
+export default function LeadModal({
+  theme,
+  lead,
+  defaultStage,
+  stageOrder = DEFAULT_STAGES,
+  stageLabels,
+  onSave,
+  onClose,
+}) {
   const { t } = useTranslation();
 
   const [name, setName] = useState(lead?.name || "");
@@ -12,7 +20,7 @@ export default function LeadModal({ theme, lead, defaultStage, onSave, onClose }
   const [phone, setPhone] = useState(lead?.phone || "");
   const [website, setWebsite] = useState(lead?.website || "");
   const [country, setCountry] = useState(lead?.country || "");
-  const [stage, setStage] = useState(lead?.stage || defaultStage || "lead");
+  const [stageId, setStageId] = useState(lead?.stage_id || defaultStage || stageOrder[0] || "");
   const [estimatedValue, setEstimatedValue] = useState(lead?.estimated_value != null ? String(lead.estimated_value) : "");
   const [currency, setCurrency] = useState(lead?.currency || "USD");
   const [source, setSource] = useState(lead?.source || "");
@@ -42,7 +50,7 @@ export default function LeadModal({ theme, lead, defaultStage, onSave, onClose }
       phone: phone.trim() || null,
       website: website.trim() || null,
       country: country.trim() || null,
-      stage,
+      stage_id: stageId || stageOrder[0] || null,
       estimated_value: Number.isFinite(parsed) && parsed > 0 ? parsed : null,
       currency,
       source: source.trim() || null,
@@ -130,11 +138,13 @@ export default function LeadModal({ theme, lead, defaultStage, onSave, onClose }
             <label style={labelStyle}>{t("pipeline.stage")}</label>
             <select
               style={{ ...inputStyle, cursor: "pointer" }}
-              value={stage}
-              onChange={(e) => setStage(e.target.value)}
+              value={stageId}
+              onChange={(e) => setStageId(e.target.value)}
             >
-              {STAGES.map((s) => (
-                <option key={s} value={s}>{t(`pipeline.stages.${s}`)}</option>
+              {stageOrder.map((s) => (
+                <option key={s} value={s}>
+                  {stageLabels?.[s] || t(`pipeline.stages.${s}`)}
+                </option>
               ))}
             </select>
           </div>
