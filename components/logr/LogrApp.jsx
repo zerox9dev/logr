@@ -11,6 +11,7 @@ import {
 } from "./lib/constants";
 import { durationFromHoursMinutes, earnedFromDuration, formatDate, formatMoney, formatTime, normalizeCurrency, uid } from "./lib/utils";
 import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
+import { getClientProfiles, getLeads, getInvoices, upsertClientProfile, createLead, updateLead, deleteLead, createInvoice, updateInvoice } from "./lib/crm";
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
@@ -23,6 +24,9 @@ import SessionsList from "./ui/SessionsList";
 import SummaryDashboard from "./ui/SummaryDashboard";
 import ProfileSettings from "./ui/ProfileSettings";
 import GuidedTour from "./ui/GuidedTour";
+import ClientCard from "./ui/ClientCard";
+import Pipeline from "./ui/Pipeline";
+import InvoicesList from "./ui/InvoicesList";
 
 const CLOUD_CACHE_KEY = "logr-cloud-cache-v1";
 const ONBOARDING_CACHE_KEY = "logr-onboarding-completed-v1";
@@ -60,6 +64,12 @@ export default function LogrApp() {
 
   const [clients, setClients] = useState([]);
   const [sessions, setSessions] = useState([]);
+
+  // CRM state
+  const [clientProfiles, setClientProfiles] = useState([]);
+  const [leads, setLeads] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [crmLoading, setCrmLoading] = useState(false);
 
   const [authLoading, setAuthLoading] = useState(() => isSupabaseConfigured());
   const [syncReady, setSyncReady] = useState(false);
@@ -395,6 +405,23 @@ export default function LogrApp() {
   useEffect(() => {
     i18n.changeLanguage(profileLanguage);
   }, [i18n, profileLanguage]);
+
+  // Load CRM data after syncReady
+  useEffect(() => {
+    if (!user || !syncReady) return;
+    let ignore = false;
+    setCrmLoading(true);
+    Promise.all([getClientProfiles(user.id), getLeads(user.id), getInvoices(user.id)]).then(
+      ([profilesRes, leadsRes, invoicesRes]) => {
+        if (ignore) return;
+        if (profilesRes.data) setClientProfiles(profilesRes.data);
+        if (leadsRes.data) setLeads(leadsRes.data);
+        if (invoicesRes.data) setInvoices(invoicesRes.data);
+        setCrmLoading(false);
+      }
+    );
+    return () => { ignore = true; };
+  }, [user, syncReady]);
 
   useEffect(() => {
     if (running && !paused) {
@@ -1144,6 +1171,58 @@ export default function LogrApp() {
     setMobileView("main");
   }
 
+  // ── CRM handlers ─────────────────────────────────────────────────────────
+
+  async function handleProfileSaved(data) {
+    setClientProfiles((prev) => {
+      const idx = prev.findIndex((p) => p.client_id === data.client_id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = data;
+        return next;
+      }
+      return [...prev, data];
+    });
+  }
+
+  async function handleCreateLead(leadData) {
+    if (!user) return;
+    const { data, error } = await createLead(user.id, leadData);
+    if (!error && data) setLeads((prev) => [...prev, data]);
+    return { data, error };
+  }
+
+  async function handleUpdateLead(leadId, updates) {
+    const { data, error } = await updateLead(leadId, updates);
+    if (!error && data) setLeads((prev) => prev.map((l) => (l.id === leadId ? data : l)));
+    return { data, error };
+  }
+
+  async function handleDeleteLead(leadId) {
+    const { error } = await deleteLead(leadId);
+    if (!error) setLeads((prev) => prev.filter((l) => l.id !== leadId));
+    return { error };
+  }
+
+  async function handleCreateInvoice(invoiceData) {
+    if (!user) return { error: new Error("Not signed in") };
+    const { data, error } = await createInvoice(user.id, invoiceData);
+    if (!error && data) setInvoices((prev) => [data, ...prev]);
+    return { data, error };
+  }
+
+  async function handleUpdateInvoice(invoiceId, updates) {
+    const { data, error } = await updateInvoice(invoiceId, updates);
+    if (!error && data) setInvoices((prev) => prev.map((inv) => (inv.id === invoiceId ? data : inv)));
+    return { data, error };
+  }
+
+  function handleUpdateSessionsPayment(sessionIds, paymentStatus) {
+    setSessions((prev) =>
+      prev.map((s) => (sessionIds.includes(s.id) ? { ...s, paymentStatus } : s))
+    );
+  }
+
   if (!isSupabaseConfigured()) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "'Inter Tight',sans-serif" }}>
@@ -1232,13 +1311,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onSelectClient={(clientId) => {
             setActiveClientId(clientId);
             setActiveProjectId("all");
+            setScreen("clients");
             setMobileView("main");
           }}
           onRemoveClient={removeClient}
           onRenameClient={renameClient}
           onSelectScreen={(nextScreen) => {
             setScreen(nextScreen);
-            if (nextScreen === "dashboard" || nextScreen === "profile") {
+            if (nextScreen !== "tracker" && nextScreen !== "clients") {
               setMobileView("main");
             }
           }}
@@ -1268,6 +1348,40 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               setRequireProjectForFixed={setProfileRequireProjectForFixed}
               language={profileLanguage}
               setLanguage={setProfileLanguage}
+            />
+          ) : screen === "clients" ? (
+            activeClient ? (
+              <ClientCard
+                theme={theme}
+                client={activeClient}
+                clientProfile={clientProfiles.find((p) => p.client_id === activeClient.id) || null}
+                sessions={sessions}
+                user={user}
+                currency={profileCurrency}
+                onProfileSaved={handleProfileSaved}
+              />
+            ) : (
+              <WelcomeState theme={theme} />
+            )
+          ) : screen === "pipeline" ? (
+            <Pipeline
+              theme={theme}
+              leads={leads}
+              onCreateLead={handleCreateLead}
+              onUpdateLead={handleUpdateLead}
+              onDeleteLead={handleDeleteLead}
+            />
+          ) : screen === "invoices" ? (
+            <InvoicesList
+              theme={theme}
+              invoices={invoices}
+              clients={clients}
+              sessions={sessions}
+              currency={profileCurrency}
+              user={user}
+              onCreateInvoice={handleCreateInvoice}
+              onUpdateInvoice={handleUpdateInvoice}
+              onUpdateSessions={handleUpdateSessionsPayment}
             />
           ) : !activeClient ? (
             <WelcomeState theme={theme} />

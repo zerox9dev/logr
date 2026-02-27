@@ -47,6 +47,8 @@ export default function Sidebar({
     cancelRename();
   }
 
+  const showClientList = screen === "tracker" || screen === "clients";
+
   return (
     <div
       className={`sidebar${mobileView === "clients" ? " mobile-open" : ""}`}
@@ -64,7 +66,12 @@ export default function Sidebar({
     >
       <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", padding: "0 20px", marginBottom: 8 }}>{t("sidebar.app")}</div>
       <div style={{ display: "grid", gap: 4, padding: "0 20px", marginBottom: 18 }}>
-        {[["dashboard", t("sidebar.dashboard")], ["tracker", t("sidebar.tracker")]].map(([value, label]) => (
+        {[
+          ["dashboard", t("sidebar.dashboard")],
+          ["tracker", t("sidebar.tracker")],
+          ["pipeline", t("sidebar.pipeline")],
+          ["invoices", t("sidebar.invoices")],
+        ].map(([value, label]) => (
           <button
             key={value}
             data-tour={value === "tracker" ? "tracker-tab" : undefined}
@@ -86,7 +93,7 @@ export default function Sidebar({
         ))}
       </div>
 
-      {screen === "tracker" ? (
+      {showClientList ? (
         <>
           <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", padding: "0 20px", marginBottom: 16 }}>{t("sidebar.clients")}</div>
 

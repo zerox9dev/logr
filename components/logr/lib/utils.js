@@ -31,3 +31,7 @@ export function durationFromHoursMinutes(hours, minutes) {
 export function earnedFromDuration(duration, rate) {
   return parseFloat(((duration / 3600) * parseFloat(rate || 0)).toFixed(2));
 }
+
+export function formatInvoiceNumber(year, count) {
+  return `INV-${year}-${String(count).padStart(3, "0")}`;
+}
