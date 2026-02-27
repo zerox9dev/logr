@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Profile",
-  description: "User profile and app settings.",
+  description: "Edit your profile, company details, and app preferences.",
+  robots: { index: false },
 };
 
 export default function ProfilePage() {

@@ -10,21 +10,50 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://logr.app"),
   title: {
-    default: "Logr",
+    default: "Logr — Freelancer CRM & Time Tracker",
     template: "%s | Logr",
   },
-  description: "Freelance time tracker for client/project work with CSV and invoice export.",
+  description:
+    "All-in-one CRM for freelancers: track time, manage clients, run sales funnels, and generate professional invoices.",
   applicationName: "Logr",
+  keywords: [
+    "freelancer CRM",
+    "time tracker",
+    "invoice generator",
+    "sales funnel",
+    "client management",
+    "freelance tool",
+  ],
+  authors: [{ name: "Logr" }],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   openGraph: {
-    title: "Logr",
-    description: "Freelance time tracker for client/project work with CSV and invoice export.",
+    siteName: "Logr",
+    title: "Logr — Freelancer CRM & Time Tracker",
+    description:
+      "All-in-one CRM for freelancers: track time, manage clients, run sales funnels, and generate professional invoices.",
     type: "website",
+    url: "https://logr.app",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Logr — Freelancer CRM & Time Tracker",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Logr",
-    description: "Freelance time tracker for client/project work with CSV and invoice export.",
+    title: "Logr — Freelancer CRM & Time Tracker",
+    description:
+      "All-in-one CRM for freelancers: track time, manage clients, run sales funnels, and generate professional invoices.",
+    images: ["/og-image.png"],
   },
 };
 

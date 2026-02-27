@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Tracker",
-  description: "Freelance time tracker for client/project work with CSV and invoice export.",
+  description: "Log billable hours by client and project, export sessions to CSV, and build invoices from tracked time.",
+  robots: { index: false },
 };
 
 export default function TrackerPage() {
