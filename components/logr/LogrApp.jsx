@@ -162,6 +162,32 @@ export default function LogrApp({ initialScreen = "tracker" }) {
   const handleSetLanguage = useCallback((nextLanguage) => {
     setProfileLanguage(normalizeLanguage(nextLanguage));
   }, []);
+  const navigateToScreen = useCallback((nextScreen) => {
+    if (!ALLOWED_SCREENS.includes(nextScreen)) return;
+
+    if (typeof window === "undefined") {
+      setScreen(nextScreen);
+      return;
+    }
+
+    const routeByScreen = {
+      dashboard: "/dashboard",
+      tracker: "/tracker",
+      clients: "/clients",
+      pipeline: "/funnels",
+      invoices: "/invoices",
+      profile: "/profile",
+    };
+    const targetUrl = routeByScreen[nextScreen] || "/tracker";
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+
+    if (currentUrl !== targetUrl) {
+      router.push(targetUrl, { scroll: false });
+      return;
+    }
+
+    setScreen(nextScreen);
+  }, [router]);
 
   const resolvedActiveClientId = activeClientId ?? clients[0]?.id ?? null;
   const activeClient = clients.find((client) => client.id === resolvedActiveClientId);
@@ -508,13 +534,6 @@ export default function LogrApp({ initialScreen = "tracker" }) {
     if (!activeFunnelId) return;
     window.localStorage.setItem(ACTIVE_FUNNEL_STORAGE_KEY, activeFunnelId);
   }, [activeFunnelId]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const targetPath = screen === "dashboard" ? "/dashboard" : "/tracker";
-    if (window.location.pathname === targetPath) return;
-    router.push(targetPath);
-  }, [screen, router]);
 
   useEffect(() => {
     if (funnels.length === 0) return;
@@ -1219,7 +1238,7 @@ export default function LogrApp({ initialScreen = "tracker" }) {
   }
 
   function openTour() {
-    setScreen("tracker");
+    navigateToScreen("tracker");
     setMobileView("main");
     setTourStep(0);
     setShowTour(true);
@@ -1269,7 +1288,7 @@ export default function LogrApp({ initialScreen = "tracker" }) {
     }
 
     closeTour(true);
-    setScreen("dashboard");
+    navigateToScreen("dashboard");
     setMobileView("main");
   }
 
@@ -1476,13 +1495,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           onSelectClient={(clientId) => {
             setActiveClientId(clientId);
             setActiveProjectId("all");
-            setScreen("clients");
+            navigateToScreen("clients");
             setMobileView("main");
           }}
           onRemoveClient={removeClient}
           onRenameClient={renameClient}
           onSelectScreen={(nextScreen) => {
-            setScreen(nextScreen);
+            navigateToScreen(nextScreen);
             if (nextScreen !== "tracker" && nextScreen !== "clients") {
               setMobileView("main");
             }
