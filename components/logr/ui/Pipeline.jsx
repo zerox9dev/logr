@@ -5,11 +5,36 @@ import PipelineColumn from "./PipelineColumn";
 import LeadCard from "./LeadCard";
 import LeadModal from "./LeadModal";
 
+function getLocalizedStageLabel(stage, funnelType, t) {
+  if (funnelType === "custom") return stage.title;
+
+  if (funnelType === "freelancer") {
+    return t(`pipeline.stages.${stage.key}`, { defaultValue: stage.title });
+  }
+
+  const jobStageKeyMap = {
+    saved: "saved",
+    applied: "applied",
+    response: "response",
+    interview: "interview",
+    offer: "offer",
+    lead: "saved",
+    negotiation: "applied",
+    contract: "response",
+    active: "interview",
+    done: "offer",
+  };
+
+  const fallbackByPosition = ["saved", "applied", "response", "interview", "offer"];
+  const jobStageKey = jobStageKeyMap[stage.key] || fallbackByPosition[stage.position] || "saved";
+  return t(`pipeline.jobStages.${jobStageKey}`, { defaultValue: stage.title });
+}
+
 function leadInStage(lead, stage, activeFunnelId) {
   return lead.funnel_id === activeFunnelId && lead.stage_id === stage.id;
 }
 
-function FunnelGraph({ theme, leads, stages, t }) {
+function FunnelGraph({ theme, leads, stages, stageLabels, totalLabel, finalLabel, t }) {
   const inStage = (lead, stage) => lead.stage_id === stage.id;
 
   const stageData = stages.map((stage, index) => {
@@ -34,11 +59,11 @@ function FunnelGraph({ theme, leads, stages, t }) {
         </div>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{t("pipeline.totalLeads")}</div>
+            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{totalLabel}</div>
             <div style={{ fontSize: 16, color: theme.text }}>{firstStageCount}</div>
           </div>
           <div>
-            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{t("pipeline.finalConversion")}</div>
+            <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.12em" }}>{finalLabel}</div>
             <div style={{ fontSize: 16, color: theme.tabActive }}>{finalConversion.toFixed(1)}%</div>
           </div>
         </div>
@@ -58,7 +83,9 @@ function FunnelGraph({ theme, leads, stages, t }) {
                     }}
                   />
                 </div>
-                <div style={{ marginTop: 8, fontSize: 10, color: theme.muted, textAlign: "center" }}>{item.stage.title}</div>
+                <div style={{ marginTop: 8, fontSize: 10, color: theme.muted, textAlign: "center" }}>
+                  {stageLabels[item.stage.id] || item.stage.title}
+                </div>
                 <div style={{ marginTop: 3, fontSize: 13, color: theme.text, textAlign: "center" }}>{item.count}</div>
               </div>
 
@@ -108,8 +135,8 @@ export default function Pipeline({
   );
 
   const stageLabels = useMemo(
-    () => Object.fromEntries(stages.map((stage) => [stage.id, stage.title])),
-    [stages]
+    () => Object.fromEntries(stages.map((stage) => [stage.id, getLocalizedStageLabel(stage, activeFunnel?.type, t)])),
+    [stages, activeFunnel?.type, t]
   );
 
   const scopedLeads = useMemo(() => {
@@ -119,6 +146,12 @@ export default function Pipeline({
   const newItemLabel = activeFunnel
     ? t(`pipeline.newItemByType.${activeFunnel.type}`)
     : t("pipeline.newLead");
+  const totalLabel = activeFunnel
+    ? t(`pipeline.totalByType.${activeFunnel.type}`)
+    : t("pipeline.totalLeads");
+  const finalLabel = activeFunnel
+    ? t(`pipeline.finalConversionByType.${activeFunnel.type}`)
+    : t("pipeline.finalConversion");
 
   if (!activeFunnel) {
     const templateCards = [
@@ -367,7 +400,7 @@ export default function Pipeline({
           </button>
         </div>
 
-        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} t={t} />
+        <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} t={t} />
 
         {stages.map((stage) => {
           const stageLeads = scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id));
@@ -375,7 +408,7 @@ export default function Pipeline({
           return (
             <div key={stage.id} style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", marginBottom: 8 }}>
-                {stage.title} · {stageLeads.length}
+                {stageLabels[stage.id] || stage.title} · {stageLeads.length}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {stageLeads.map((lead) => (
@@ -451,7 +484,7 @@ export default function Pipeline({
         </button>
       </div>
 
-      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} t={t} />
+      <FunnelGraph theme={theme} leads={scopedLeads} stages={stages} stageLabels={stageLabels} totalLabel={totalLabel} finalLabel={finalLabel} t={t} />
 
       <DndContext
         sensors={sensors}
@@ -463,7 +496,7 @@ export default function Pipeline({
             <PipelineColumn
               key={stage.id}
               stage={stage.id}
-              stageLabel={stage.title}
+              stageLabel={stageLabels[stage.id] || stage.title}
               leads={scopedLeads.filter((lead) => leadInStage(lead, stage, activeFunnel.id))}
               theme={theme}
               onEdit={(lead) => setModal({ lead })}

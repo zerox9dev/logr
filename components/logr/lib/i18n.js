@@ -239,7 +239,17 @@ const resources = {
         funnelTitle: "FUNNEL GRAPH",
         funnelSubtitle: "Stage conversion overview",
         totalLeads: "TOTAL LEADS",
+        totalByType: {
+          freelancer: "TOTAL LEADS",
+          jobseeker: "TOTAL VACANCIES",
+          custom: "TOTAL CARDS",
+        },
         finalConversion: "LEAD → DONE",
+        finalConversionByType: {
+          freelancer: "LEAD → DONE",
+          jobseeker: "VACANCY → OFFER",
+          custom: "FIRST → LAST STAGE",
+        },
         fromPrevious: "from previous",
         newLead: "NEW LEAD",
         newItemByType: {
@@ -551,7 +561,17 @@ const resources = {
         funnelTitle: "ГРАФИК ВОРОНКИ",
         funnelSubtitle: "Конверсия по этапам",
         totalLeads: "ЛИДОВ ВСЕГО",
+        totalByType: {
+          freelancer: "ЛИДОВ ВСЕГО",
+          jobseeker: "ВАКАНСИЙ ВСЕГО",
+          custom: "КАРТОЧЕК ВСЕГО",
+        },
         finalConversion: "ЛИД → ЗАВЕРШЕН",
+        finalConversionByType: {
+          freelancer: "ЛИД → ЗАВЕРШЕН",
+          jobseeker: "ВАКАНСИЯ → ОФФЕР",
+          custom: "ПЕРВЫЙ → ПОСЛЕДНИЙ ЭТАП",
+        },
         fromPrevious: "от пред. этапа",
         newLead: "НОВЫЙ ЛИД",
         newItemByType: {
@@ -863,7 +883,17 @@ const resources = {
         funnelTitle: "ГРАФІК ВОРОНКИ",
         funnelSubtitle: "Конверсія по етапах",
         totalLeads: "ЛІДІВ УСЬОГО",
+        totalByType: {
+          freelancer: "ЛІДІВ УСЬОГО",
+          jobseeker: "ВАКАНСІЙ УСЬОГО",
+          custom: "КАРТОК УСЬОГО",
+        },
         finalConversion: "ЛІД → ЗАВЕРШЕНО",
+        finalConversionByType: {
+          freelancer: "ЛІД → ЗАВЕРШЕНО",
+          jobseeker: "ВАКАНСІЯ → ОФЕР",
+          custom: "ПЕРШИЙ → ОСТАННІЙ ЕТАП",
+        },
         fromPrevious: "від попер. етапу",
         newLead: "НОВИЙ ЛІД",
         newItemByType: {
