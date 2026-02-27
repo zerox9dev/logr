@@ -1200,7 +1200,7 @@ export default function LogrApp({ initialScreen = "tracker" }) {
     const invoiceDateLabel = invoiceDate.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
     const invoiceId = `INV-${invoiceDate.getTime().toString().slice(-6)}`;
     const serviceBrand = "LOGR";
-    const serviceDomain = "logr.app";
+    const serviceDomain = "logr.work";
 
     const countedProjects = new Set();
     const rows = unpaidDoneSessions

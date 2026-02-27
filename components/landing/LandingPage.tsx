@@ -1,27 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const ARM_RATE = 75;
 const BASE_SECONDS = 3600 + 23 * 60 + 47;
 const LOST_TARGET = 6500;
-type SiteLang = "en" | "ru" | "uk";
-
-function detectSiteLanguage(): SiteLang {
-  if (typeof window === "undefined") return "en";
-  const raw = window.navigator.language || window.navigator.languages?.[0] || "en";
-  const normalized = String(raw).toLowerCase();
-  if (normalized.startsWith("ru")) return "ru";
-  if (normalized.startsWith("uk")) return "uk";
-  return "en";
-}
-
-function subscribeLanguageChange(onChange: () => void) {
-  if (typeof window === "undefined") return () => {};
-  window.addEventListener("languagechange", onChange);
-  return () => window.removeEventListener("languagechange", onChange);
-}
+export type SiteLang = "en" | "ru" | "uk";
 
 const LANDING_COPY = {
   en: {
@@ -321,8 +306,7 @@ function formatClock(seconds: number) {
   return `${h}:${m}:${s}`;
 }
 
-export default function LandingPage() {
-  const lang = useSyncExternalStore<SiteLang>(subscribeLanguageChange, detectSiteLanguage, () => "en");
+export default function LandingPage({ lang }: { lang: SiteLang }) {
   const [scrolled, setScrolled] = useState(false);
   const [seconds, setSeconds] = useState(BASE_SECONDS);
   const [lostCounter, setLostCounter] = useState(0);
@@ -507,7 +491,7 @@ export default function LandingPage() {
             <div className="mock-dot" style={{ background: "#ff5f57" }} />
             <div className="mock-dot" style={{ background: "#febc2e" }} />
             <div className="mock-dot" style={{ background: "#28c840" }} />
-            <div className="mock-url">logr.app/dashboard</div>
+            <div className="mock-url">logr.work/dashboard</div>
           </div>
 
           <div className="mock-inner">

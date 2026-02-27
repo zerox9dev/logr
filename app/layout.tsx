@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -10,7 +11,7 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://logr.app"),
+  metadataBase: new URL("https://logr.work"),
   title: {
     default: "Logr — Freelancer CRM & Time Tracker",
     template: "%s | Logr",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     description:
       "All-in-one CRM for freelancers: track time, manage clients, run sales funnels, and generate professional invoices.",
     type: "website",
-    url: "https://logr.app",
+    url: "https://logr.work",
     images: [
       {
         url: "/og-image.png",
@@ -57,13 +58,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const lang = (headersList.get("x-lang") as "en" | "ru" | "uk") || "en";
+
   return (
-    <html lang="en">
+    <html lang={lang}>
       <body className={`${interTight.variable} antialiased`}>
         {children}
         <Analytics />

@@ -5,10 +5,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/ru", "/uk"],
         disallow: ["/dashboard", "/tracker", "/clients", "/funnels", "/invoices", "/profile"],
       },
     ],
-    sitemap: "https://logr.app/sitemap.xml",
+    sitemap: "https://logr.work/sitemap.xml",
   };
 }

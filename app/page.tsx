@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "Logr — Freelancer CRM & Time Tracker",
     description:
       "All-in-one CRM for freelancers: track time, manage clients, run sales funnels, and generate professional invoices.",
-    url: "https://logr.app",
+    url: "https://logr.work",
     images: [
       {
         url: "/og-image.png",
@@ -26,10 +26,16 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   alternates: {
-    canonical: "https://logr.app",
+    canonical: "https://logr.work",
+    languages: {
+      en: "https://logr.work",
+      ru: "https://logr.work/ru",
+      uk: "https://logr.work/uk",
+      "x-default": "https://logr.work",
+    },
   },
 };
 
 export default function Page() {
-  return <LandingPage />;
+  return <LandingPage lang="en" />;
 }

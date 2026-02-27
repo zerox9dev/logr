@@ -1,7 +1,7 @@
 import { formatMoney, formatDate } from "../lib/utils";
 
 const SERVICE_BRAND = "LOGR";
-const SERVICE_DOMAIN = "logr.app";
+const SERVICE_DOMAIN = "logr.work";
 
 export function openInvoicePrintWindow(invoice, profileName) {
   const currency = invoice.currency || "USD";
