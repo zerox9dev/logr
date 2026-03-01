@@ -30,6 +30,7 @@ import {
 import GlobalStyles from "./ui/GlobalStyles";
 import MobileTopBar from "./ui/MobileTopBar";
 import Sidebar from "./ui/Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import WelcomeState from "./ui/WelcomeState";
 import TimerHeader from "./ui/TimerHeader";
 import ProjectAndDateFilters from "./ui/ProjectAndDateFilters";
@@ -1479,32 +1480,33 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
     <div className="logr-app" style={{ minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'Inter Tight',sans-serif", transition: "background 0.2s" }}>
       <GlobalStyles />
 
-      <div style={{ display: "flex", minHeight: "100vh" }}>
-        <MobileTopBar
-          theme={theme}
-          activeClient={activeClient}
-          mobileView={mobileView}
-          screen={screen}
-          onToggle={() => setMobileView((view) => (view === "clients" ? "main" : "clients"))}
-        />
+      <SidebarProvider defaultOpen>
+        <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+          <MobileTopBar
+            theme={theme}
+            activeClient={activeClient}
+            mobileView={mobileView}
+            screen={screen}
+            onToggle={() => setMobileView((view) => (view === "clients" ? "main" : "clients"))}
+          />
 
-        {mobileView === "clients" && <div onClick={() => setMobileView("main")} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 98 }} />}
+          {mobileView === "clients" && <div onClick={() => setMobileView("main")} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 98 }} />}
 
-        <Sidebar
-          theme={theme}
-          dark={dark}
-          screen={screen}
-          mobileView={mobileView}
-          onSelectScreen={(nextScreen) => {
-            navigateToScreen(nextScreen);
-            setMobileView("main");
-          }}
-          onToggleTheme={() => setDark((value) => !value)}
-          onOpenOnboarding={openTour}
-        />
+          <Sidebar
+            theme={theme}
+            dark={dark}
+            screen={screen}
+            mobileView={mobileView}
+            onSelectScreen={(nextScreen) => {
+              navigateToScreen(nextScreen);
+              setMobileView("main");
+            }}
+            onToggleTheme={() => setDark((value) => !value)}
+            onOpenOnboarding={openTour}
+          />
 
-        <div className="main-area" style={{ flex: 1, padding: "32px", background: "#fff" }}>
-          <div className="mobile-bar" style={{ height: 52 }} />
+          <div className="main-area" style={{ flex: 1, padding: "32px", background: "#fff" }}>
+            <div className="mobile-bar" style={{ height: 52 }} />
 
           {screen === "dashboard" ? (
             <SummaryDashboard theme={theme} currency={profileCurrency} clients={clients} sessions={sessions} targetHourlyRate={parseFloat(profileHourlyRate || 50)} />
@@ -1680,8 +1682,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
               />
             </>
           )}
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
       {showTour ? (
         <GuidedTour
           theme={theme}
