@@ -88,7 +88,7 @@ export default function InvoicesList({
   };
 
   return (
-    <div style={{ maxWidth: 720 }}>
+    <div>
       <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em" }}>{t("invoices.title")}</div>
         <button
