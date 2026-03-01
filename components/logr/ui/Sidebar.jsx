@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 function MenuIcon({ name, color }) {
@@ -19,6 +18,16 @@ function MenuIcon({ name, color }) {
         <circle cx="12" cy="13" r="8" />
         <path d="M12 13V8" />
         <path d="M12 13L16 15" />
+      </svg>
+    );
+  }
+  if (name === "clients") {
+    return (
+      <svg {...common}>
+        <circle cx="9" cy="9" r="3" />
+        <circle cx="16.5" cy="10.5" r="2.5" />
+        <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+        <path d="M13 20a4.5 4.5 0 0 1 8 0" />
       </svg>
     );
   }
@@ -53,49 +62,12 @@ export default function Sidebar({
   theme,
   dark,
   screen,
-  clients,
-  activeClientId,
   mobileView,
-  showAddClient,
-  newClientName,
-  setNewClientName,
-  setShowAddClient,
-  onAddClient,
-  onSelectClient,
-  onRemoveClient,
-  onRenameClient,
   onSelectScreen,
   onToggleTheme,
   onOpenOnboarding,
 }) {
   const { t } = useTranslation();
-  const [editClientId, setEditClientId] = useState(null);
-  const [editClientName, setEditClientName] = useState("");
-
-  const inputStyle = {
-    background: "transparent",
-    border: "none",
-    outline: "none",
-    fontFamily: "inherit",
-    color: theme.inputColor,
-  };
-
-  function startRename(client) {
-    setEditClientId(client.id);
-    setEditClientName(client.name);
-  }
-
-  function cancelRename() {
-    setEditClientId(null);
-    setEditClientName("");
-  }
-
-  function submitRename(clientId) {
-    onRenameClient(clientId, editClientName);
-    cancelRename();
-  }
-
-  const showClientList = screen === "tracker" || screen === "clients";
 
   return (
     <div
@@ -117,12 +89,13 @@ export default function Sidebar({
         {[
           ["dashboard", t("sidebar.dashboard")],
           ["tracker", t("sidebar.tracker")],
+          ["clients", t("sidebar.clients")],
           ["pipeline", t("sidebar.pipeline")],
           ["invoices", t("sidebar.invoices")],
         ].map(([value, label]) => (
           <button
             key={value}
-            data-tour={value === "tracker" ? "tracker-tab" : undefined}
+            data-tour={value === "tracker" ? "tracker-tab" : value === "clients" ? "clients-tab" : undefined}
             onClick={() => onSelectScreen(value)}
             style={{
               padding: "6px 10px",
@@ -145,116 +118,6 @@ export default function Sidebar({
           </button>
         ))}
       </div>
-
-      {showClientList ? (
-        <>
-          <div style={{ fontSize: 9, color: theme.muted, letterSpacing: "0.2em", padding: "0 20px", marginBottom: 16 }}>{t("sidebar.clients")}</div>
-
-          {clients.map((client) => (
-            <div
-              key={client.id}
-              className="row"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "8px 20px",
-                cursor: "pointer",
-                background: client.id === activeClientId ? theme.tabActiveBg : "transparent",
-                borderLeft: client.id === activeClientId ? `2px solid ${theme.tabActive}` : "2px solid transparent",
-              }}
-              onClick={() => onSelectClient(client.id)}
-            >
-              {editClientId === client.id ? (
-                <input
-                  autoFocus
-                  value={editClientName}
-                  onChange={(event) => setEditClientName(event.target.value)}
-                  onClick={(event) => event.stopPropagation()}
-                  onBlur={() => submitRename(client.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") submitRename(client.id);
-                    if (event.key === "Escape") {
-                      event.stopPropagation();
-                      cancelRename();
-                    }
-                  }}
-                  style={{
-                    ...inputStyle,
-                    flex: 1,
-                    fontSize: 12,
-                    color: client.id === activeClientId ? theme.tabActive : theme.tabInactive,
-                    borderBottom: `1px solid ${theme.border}`,
-                    paddingBottom: 2,
-                  }}
-                />
-              ) : (
-                <div
-                  onDoubleClick={(event) => {
-                    event.stopPropagation();
-                    startRename(client);
-                  }}
-                  style={{
-                    flex: 1,
-                    fontSize: 12,
-                    color: client.id === activeClientId ? theme.tabActive : theme.tabInactive,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {client.name}
-                </div>
-              )}
-              <button
-                className="del"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  startRename(client);
-                }}
-                style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 12, transition: "opacity 0.15s", padding: "0 2px" }}
-                aria-label={t("sidebar.editClientName")}
-                title={t("sidebar.editClientName")}
-              >
-                ✎
-              </button>
-              <button
-                className="del"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onRemoveClient(client.id);
-                }}
-                style={{ opacity: 0, background: "none", border: "none", color: theme.muted, cursor: "pointer", fontSize: 14, transition: "opacity 0.15s", padding: "0 2px" }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-
-          {showAddClient ? (
-            <div style={{ padding: "8px 20px" }}>
-              <input
-                autoFocus
-                value={newClientName}
-                onChange={(event) => setNewClientName(event.target.value)}
-                placeholder={t("sidebar.clientName")}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") onAddClient();
-                  if (event.key === "Escape") setShowAddClient(false);
-                }}
-                style={{ ...inputStyle, width: "100%", fontSize: 12, borderBottom: `1px solid ${theme.border}`, paddingBottom: 4 }}
-              />
-            </div>
-          ) : (
-            <button
-              data-tour="add-client-btn"
-              onClick={() => setShowAddClient(true)}
-              style={{ margin: "8px 20px 0", padding: "6px 0", background: "none", border: `1px dashed ${theme.border}`, color: theme.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 11, letterSpacing: "0.1em" }}
-            >
-              {t("sidebar.addClient")}
-            </button>
-          )}
-        </>
-      ) : null}
 
       <div style={{ marginTop: "auto", padding: "0 20px" }}>
         <button

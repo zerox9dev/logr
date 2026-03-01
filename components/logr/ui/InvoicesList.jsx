@@ -253,7 +253,7 @@ export default function InvoicesList({
                           {t("invoices.edit")}
                         </button>
                       )}
-                      {inv.status === "draft" && (
+                      {(inv.status === "draft" || inv.status === "sent") && (
                         <button
                           onClick={() => handleDeleteDraft(inv)}
                           style={{

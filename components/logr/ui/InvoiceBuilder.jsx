@@ -14,11 +14,12 @@ export default function InvoiceBuilder({
   onSave,
   onClose,
   initialInvoice = null,
+  initialClientId = "",
 }) {
   const { t } = useTranslation();
   const isEditing = Boolean(initialInvoice);
-  const [step, setStep] = useState(isEditing ? 2 : 0);
-  const [selectedClientId, setSelectedClientId] = useState(initialInvoice?.client_id || "");
+  const [step, setStep] = useState(isEditing ? 2 : (initialClientId ? 1 : 0));
+  const [selectedClientId, setSelectedClientId] = useState(initialInvoice?.client_id || initialClientId || "");
   const [selectedSessionIds, setSelectedSessionIds] = useState(
     new Set(initialInvoice?.session_ids || [])
   );

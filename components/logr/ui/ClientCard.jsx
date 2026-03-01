@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { upsertClientProfile } from "../lib/crm";
 import { formatMoney } from "../lib/utils";
@@ -23,15 +23,6 @@ export default function ClientCard({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    setEmail(clientProfile?.email || "");
-    setPhone(clientProfile?.phone || "");
-    setWebsite(clientProfile?.website || "");
-    setCountry(clientProfile?.country || "");
-    setTagsInput((clientProfile?.tags || []).join(", "));
-    setNotes(clientProfile?.notes || "");
-  }, [client?.id, clientProfile]);
 
   const clientSessions = sessions.filter((s) => s.clientId === client?.id);
   const doneSessions = clientSessions.filter((s) => s.status === "DONE");

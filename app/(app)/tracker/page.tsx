@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LogrApp from "@/components/logr/LogrApp";
 
 export const metadata: Metadata = {
   title: "Tracker",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function TrackerPage() {
-  return null;
+  return <LogrApp initialScreen="tracker" />;
 }

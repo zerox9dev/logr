@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LogrApp from "@/components/logr/LogrApp";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return null;
+  return <LogrApp initialScreen="dashboard" />;
 }

@@ -39,7 +39,7 @@ import SessionsList from "./ui/SessionsList";
 import SummaryDashboard from "./ui/SummaryDashboard";
 import ProfileSettings from "./ui/ProfileSettings";
 import GuidedTour from "./ui/GuidedTour";
-import ClientCard from "./ui/ClientCard";
+import ClientsManager from "./ui/ClientsManager";
 import Pipeline from "./ui/Pipeline";
 import InvoicesList from "./ui/InvoicesList";
 
@@ -146,9 +146,7 @@ export default function LogrApp({ initialScreen = "tracker" }) {
   const [taskFixedAmount, setTaskFixedAmount] = useState("");
   const [taskDateTime, setTaskDateTime] = useState(() => getNowDateTimeLocal());
 
-  const [showAddClient, setShowAddClient] = useState(false);
   const [showAddProject, setShowAddProject] = useState(false);
-  const [newClientName, setNewClientName] = useState("");
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectBillingType, setNewProjectBillingType] = useState("hourly");
   const [newProjectRate, setNewProjectRate] = useState("");
@@ -207,7 +205,7 @@ export default function LogrApp({ initialScreen = "tracker" }) {
   const activeProjects = activeClient?.projects || [];
   const activeTimedSession = sessions.find((session) => session.id === activeSessionId);
   const tourSteps = useMemo(() => ([
-    { selector: '[data-tour="add-client-btn"]', title: t("tour.s1t"), description: t("tour.s1d") },
+    { selector: '[data-tour="clients-tab"]', title: t("tour.s1t"), description: t("tour.s1d") },
     { selector: '[data-tour="add-project-btn"]', title: t("tour.s2t"), description: t("tour.s2d") },
     { selector: '[data-tour="task-name-input"]', title: t("tour.s3t"), description: t("tour.s3d") },
     { selector: '[data-tour="status-select"]', title: t("tour.s4t"), description: t("tour.s4d") },
@@ -664,15 +662,15 @@ export default function LogrApp({ initialScreen = "tracker" }) {
     } catch {}
   }
 
-  function addClient() {
-    if (!newClientName.trim()) return;
+  function addClient(name) {
+    const nextName = (name || "").trim();
+    if (!nextName) return null;
 
-    const client = { id: uid(), name: newClientName.trim(), projects: [] };
+    const client = { id: uid(), name: nextName, projects: [] };
     setClients((prev) => [...prev, client]);
     setActiveClientId(client.id);
     setActiveProjectId("all");
-    setNewClientName("");
-    setShowAddClient(false);
+    return client.id;
   }
 
   function addProject() {
@@ -1496,27 +1494,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           theme={theme}
           dark={dark}
           screen={screen}
-          clients={clients}
-          activeClientId={resolvedActiveClientId}
           mobileView={mobileView}
-          showAddClient={showAddClient}
-          newClientName={newClientName}
-          setNewClientName={setNewClientName}
-          setShowAddClient={setShowAddClient}
-          onAddClient={addClient}
-          onSelectClient={(clientId) => {
-            setActiveClientId(clientId);
-            setActiveProjectId("all");
-            navigateToScreen("clients");
-            setMobileView("main");
-          }}
-          onRemoveClient={removeClient}
-          onRenameClient={renameClient}
           onSelectScreen={(nextScreen) => {
             navigateToScreen(nextScreen);
-            if (nextScreen !== "tracker" && nextScreen !== "clients") {
-              setMobileView("main");
-            }
+            setMobileView("main");
           }}
           onToggleTheme={() => setDark((value) => !value)}
           onOpenOnboarding={openTour}
@@ -1548,18 +1529,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
           ) : screen === "clients" ? (
             crmLoading ? (
               <div style={{ color: theme.muted, fontSize: 12, letterSpacing: "0.1em" }}>...</div>
-            ) : activeClient ? (
-              <ClientCard
+            ) : (
+              <ClientsManager
                 theme={theme}
-                client={activeClient}
-                clientProfile={clientProfiles.find((p) => p.client_id === activeClient.id) || null}
+                clients={clients}
                 sessions={sessions}
+                clientProfiles={clientProfiles}
+                activeClient={activeClient}
                 user={user}
                 currency={profileCurrency}
+                onCreateClient={addClient}
+                onSelectClient={(clientId) => {
+                  setActiveClientId(clientId);
+                  setActiveProjectId("all");
+                }}
+                onRenameClient={renameClient}
+                onRemoveClient={removeClient}
+                invoices={invoices}
+                onCreateInvoice={handleCreateInvoice}
                 onProfileSaved={handleProfileSaved}
               />
-            ) : (
-              <WelcomeState theme={theme} />
             )
           ) : screen === "pipeline" ? (
             crmLoading ? (
