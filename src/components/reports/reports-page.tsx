@@ -20,11 +20,14 @@ export function ReportsPage() {
   const filtered = startStr ? sessions.filter((s) => s.started_at >= startStr) : sessions;
   const totalSeconds = filtered.reduce((s, e) => s + e.duration_seconds, 0);
   const billableSeconds = filtered.filter((s) => s.billing_type === "hourly").reduce((s, e) => s + e.duration_seconds, 0);
-  const earnings = filtered.reduce((s, e) => {
-    if (e.billing_type !== "hourly" || e.payment_status !== "paid") return s;
+  const calcEarnings = (onlyPaid: boolean) => filtered.reduce((s, e) => {
+    if (e.billing_type !== "hourly") return s;
+    if (onlyPaid && e.payment_status !== "paid") return s;
     const rate = Number(e.rate) || (e.project_id ? (getProjectById(e.project_id)?.rate ?? 0) : 0);
     return s + (e.duration_seconds / 3600) * rate;
   }, 0);
+  const billable = calcEarnings(false);
+  const paid = calcEarnings(true);
   const projectMap = new Map<string, number>();
   filtered.forEach((s) => { const key = s.project_id || "__none__"; projectMap.set(key, (projectMap.get(key) || 0) + s.duration_seconds); });
   const topProjects = Array.from(projectMap.entries()).map(([id, dur]) => ({ project: id === "__none__" ? null : getProjectById(id), duration: dur })).sort((a, b) => b.duration - a.duration);
@@ -42,10 +45,11 @@ export function ReportsPage() {
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card><CardContent className="p-5"><p className="text-xs text-muted-foreground font-medium">{t("reports.totalTime")}</p><p className="text-2xl font-bold mt-1">{formatDuration(totalSeconds)}</p></CardContent></Card>
         <Card><CardContent className="p-5"><p className="text-xs text-muted-foreground font-medium">{t("reports.billable")}</p><p className="text-2xl font-bold mt-1">{formatDuration(billableSeconds)}</p></CardContent></Card>
-        <Card><CardContent className="p-5"><p className="text-xs text-muted-foreground font-medium">{t("reports.earnings")}</p><p className="text-2xl font-bold mt-1 text-emerald-600">${earnings.toFixed(0)}</p></CardContent></Card>
+        <Card><CardContent className="p-5"><p className="text-xs text-muted-foreground font-medium">{t("reports.earnings")}</p><p className="text-2xl font-bold mt-1">${billable.toFixed(0)}</p></CardContent></Card>
+        <Card><CardContent className="p-5"><p className="text-xs text-muted-foreground font-medium">Paid</p><p className="text-2xl font-bold mt-1 text-emerald-600">${paid.toFixed(0)}</p></CardContent></Card>
       </div>
       <div className="grid lg:grid-cols-2 gap-6">
         <Card><CardHeader><CardTitle className="text-lg">{t("reports.byProject")}</CardTitle></CardHeader><CardContent>
