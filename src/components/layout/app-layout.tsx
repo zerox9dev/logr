@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/layout/sidebar";
-import { TopBar } from "@/components/layout/top-bar";
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { TimerDisplay } from "@/components/timer/timer-display";
 import { TimeEntries } from "@/components/timer/time-entries";
@@ -21,10 +20,8 @@ export function AppLayout() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar userName={store.settings.name} />
-        <main className="flex-1 overflow-auto">
-          <div className="mx-auto max-w-5xl p-4 md:p-8 pb-20 md:pb-8 space-y-6">
+      <main className="flex-1 overflow-auto">
+        <div className="mx-auto max-w-5xl p-4 md:p-8 pb-20 md:pb-8 space-y-6">
           <Routes>
             <Route
               path="/"
@@ -199,10 +196,9 @@ export function AppLayout() {
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          </div>
-        </main>
-        <CommandPalette />
-      </div>
+        </div>
+      </main>
+      <CommandPalette />
     </div>
   );
 }

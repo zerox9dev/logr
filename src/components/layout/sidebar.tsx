@@ -1,4 +1,4 @@
-import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, GitBranch, LogOut, ChevronsLeft } from "lucide-react";
+import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, GitBranch, LogOut } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -27,19 +27,15 @@ function NavItem({ item, end }: { item: typeof navigation[0]; end?: boolean }) {
       end={end}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all w-full",
+          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors w-full",
           isActive
-            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-            : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+            : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
         )
       }
     >
-      {({ isActive }) => (
-        <>
-          <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive && "text-blue-600")} />
-          <span className="hidden lg:block">{item.name}</span>
-        </>
-      )}
+      <item.icon className="h-[18px] w-[18px] shrink-0" />
+      <span className="hidden lg:block">{item.name}</span>
     </NavLink>
   );
 }
@@ -48,25 +44,21 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex h-screen w-14 flex-col border-r border-sidebar-border bg-sidebar-background py-4 lg:w-52 lg:px-3">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 px-3 mb-6">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-xs shrink-0">
+      <aside className="hidden md:flex h-screen w-16 flex-col items-center border-r border-sidebar-border bg-sidebar-background py-5 lg:w-52 lg:items-start lg:px-3">
+        <Link to="/" className="mb-8 flex items-center gap-2.5 px-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-xs">
             L
           </div>
-          <span className="hidden text-[15px] font-bold tracking-tight lg:block">Logr</span>
+          <span className="hidden text-base font-bold tracking-tight lg:block">Logr</span>
         </Link>
 
-        {/* Nav */}
         <nav className="flex flex-1 flex-col gap-0.5 w-full">
           {navigation.map((item) => (
             <NavItem key={item.name} item={item} end={item.href === "/app"} />
           ))}
         </nav>
 
-        {/* Bottom */}
-        <div className="w-full space-y-1">
-          <div className="border-t border-dashed border-sidebar-border my-2" />
+        <div className="w-full space-y-0.5">
           <NavItem item={{ name: "Settings", icon: Settings, href: "/app/settings" }} />
         </div>
       </aside>
@@ -81,7 +73,7 @@ export function Sidebar() {
             className={({ isActive }) =>
               cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg text-[10px] font-medium transition-colors",
-                isActive ? "text-blue-600" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-muted-foreground"
               )
             }
           >
