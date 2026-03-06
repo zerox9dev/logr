@@ -49,35 +49,37 @@ export function InvoicesPage() {
           const client = getClientById(invoice.client_id);
           const config = STATUS_CONFIG[invoice.status];
           return (
-            <Card key={invoice.id} className="group">
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{invoice.invoice_number}</p>
-                    <Badge variant={config.variant}>{config.label}</Badge>
+            <Link key={invoice.id} to={`/app/invoices/${invoice.id}`}>
+              <Card className="group hover:bg-accent/40 transition-colors cursor-pointer">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{invoice.invoice_number}</p>
+                      <Badge variant={config.variant}>{config.label}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {client?.name || "No client"} · {invoice.currency} {Number(invoice.total).toFixed(2)}
+                      {invoice.due_date && ` · Due ${new Date(invoice.due_date).toLocaleDateString()}`}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {client?.name || "No client"} · {invoice.currency} {Number(invoice.total).toFixed(2)}
-                    {invoice.due_date && ` · Due ${new Date(invoice.due_date).toLocaleDateString()}`}
-                  </p>
-                </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {invoice.status === "draft" && (
-                    <Button variant="ghost" size="sm" onClick={() => updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() })}>
-                      <Send className="h-3 w-3" /> Send
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.preventDefault()}>
+                    {invoice.status === "draft" && (
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() }); }}>
+                        <Send className="h-3 w-3" /> {t("invoices.send")}
+                      </Button>
+                    )}
+                    {(invoice.status === "sent" || invoice.status === "overdue") && (
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() }); }}>
+                        <CheckCircle className="h-3 w-3" /> {t("invoices.markPaid")}
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); deleteInvoice(invoice.id); }}>
+                      <Trash2 className="h-3 w-3" />
                     </Button>
-                  )}
-                  {(invoice.status === "sent" || invoice.status === "overdue") && (
-                    <Button variant="ghost" size="sm" onClick={() => updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() })}>
-                      <CheckCircle className="h-3 w-3" /> Mark Paid
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteInvoice(invoice.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
         {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("invoices.noInvoices")}</p>}
