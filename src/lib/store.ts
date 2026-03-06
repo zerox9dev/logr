@@ -24,6 +24,11 @@ export function useStore() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
 
+  // Timer state (shared for dashboard indicator)
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerDescription, setTimerDescription] = useState("");
+
   // Projects
   const addProject = (data: Omit<Project, "id" | "createdAt" | "color" | "status" | "budgetHours" | "notes"> & Partial<Pick<Project, "color" | "status" | "budgetHours" | "notes">>) => {
     const project: Project = {
@@ -123,5 +128,6 @@ export function useStore() {
     entries, addEntry, updateEntry, deleteEntry,
     invoices, addInvoice, updateInvoice, deleteInvoice,
     settings, updateSettings,
+    timerRunning, setTimerRunning, timerSeconds, setTimerSeconds, timerDescription, setTimerDescription,
   };
 }

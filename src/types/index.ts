@@ -37,6 +37,10 @@ export interface TimeEntry {
 
 export type Currency = "USD" | "EUR" | "GBP" | "UAH" | "PLN";
 
+export type DateFormat = "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
+export type TimeFormat = "24h" | "12h";
+export type WeekStart = "monday" | "sunday";
+
 export interface Settings {
   name: string;
   email: string;
@@ -47,6 +51,10 @@ export interface Settings {
   invoicePrefix: string;
   paymentTermsDays: number;
   invoiceNotes: string;
+  dateFormat: DateFormat;
+  timeFormat: TimeFormat;
+  weekStart: WeekStart;
+  defaultProjectId: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -59,6 +67,10 @@ export const DEFAULT_SETTINGS: Settings = {
   invoicePrefix: "INV",
   paymentTermsDays: 30,
   invoiceNotes: "",
+  dateFormat: "DD/MM/YYYY",
+  timeFormat: "24h",
+  weekStart: "monday",
+  defaultProjectId: "",
 };
 
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";

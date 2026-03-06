@@ -12,23 +12,25 @@ function formatTime(seconds: number): string {
 
 interface TimerDisplayProps {
   projects: Project[];
+  isRunning: boolean;
+  seconds: number;
+  description: string;
+  onSetRunning: (v: boolean) => void;
+  onSetSeconds: (v: number | ((prev: number) => number)) => void;
+  onSetDescription: (v: string) => void;
   onSave: (entry: Omit<TimeEntry, "id">) => void;
 }
 
-export function TimerDisplay({ projects, onSave }: TimerDisplayProps) {
-  const [isRunning, setIsRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const [description, setDescription] = useState("");
+export function TimerDisplay({ projects, isRunning, seconds, description, onSetRunning, onSetSeconds, onSetDescription, onSave }: TimerDisplayProps) {
   const [projectId, setProjectId] = useState("");
   const [billable, setBillable] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<Date | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
-        setSeconds((s) => s + 1);
+        onSetSeconds((s: number) => s + 1);
       }, 1000);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -36,18 +38,18 @@ export function TimerDisplay({ projects, onSave }: TimerDisplayProps) {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning]);
+  }, [isRunning, onSetSeconds]);
 
   const handleStart = useCallback(() => {
     if (!isRunning) {
       startTimeRef.current = new Date();
     }
-    setIsRunning(true);
-  }, [isRunning]);
+    onSetRunning(true);
+  }, [isRunning, onSetRunning]);
 
   const handlePause = useCallback(() => {
-    setIsRunning(false);
-  }, []);
+    onSetRunning(false);
+  }, [onSetRunning]);
 
   const handleStop = useCallback(() => {
     if (seconds > 0) {
@@ -59,28 +61,25 @@ export function TimerDisplay({ projects, onSave }: TimerDisplayProps) {
         billable,
       });
     }
-    setIsRunning(false);
-    setSeconds(0);
-    setDescription("");
+    onSetRunning(false);
+    onSetSeconds(0);
+    onSetDescription("");
     setProjectId("");
     setBillable(true);
     startTimeRef.current = null;
-  }, [seconds, description, projectId, billable, onSave]);
+  }, [seconds, description, projectId, billable, onSave, onSetRunning, onSetSeconds, onSetDescription]);
 
   const handleDiscard = useCallback(() => {
-    setIsRunning(false);
-    setSeconds(0);
-    setDescription("");
+    onSetRunning(false);
+    onSetSeconds(0);
+    onSetDescription("");
     startTimeRef.current = null;
-  }, []);
+  }, [onSetRunning, onSetSeconds, onSetDescription]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // Don't trigger if typing in an input
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
       if (e.code === "Space") {
         e.preventDefault();
         if (isRunning) handlePause();
@@ -99,44 +98,24 @@ export function TimerDisplay({ projects, onSave }: TimerDisplayProps) {
     <div className="space-y-1">
       <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
         <input
-          ref={inputRef}
           type="text"
           placeholder="What are you working on?"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => onSetDescription(e.target.value)}
           className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground outline-none"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !isRunning) handleStart();
-          }}
+          onKeyDown={(e) => { if (e.key === "Enter" && !isRunning) handleStart(); }}
         />
-
-        <select
-          value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
-          className="w-36 bg-transparent text-sm outline-none border-l border-border pl-4"
-        >
+        <select value={projectId} onChange={(e) => setProjectId(e.target.value)}
+          className="w-36 bg-transparent text-sm outline-none border-l border-border pl-4">
           <option value="">No project</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-
-        <button
-          onClick={() => setBillable(!billable)}
-          className={`flex items-center justify-center h-8 w-8 rounded-md border transition-colors ${
-            billable
-              ? "border-emerald-500 text-emerald-600 bg-emerald-50"
-              : "border-border text-muted-foreground"
-          }`}
-          title={billable ? "Billable" : "Non-billable"}
-        >
+        <button onClick={() => setBillable(!billable)}
+          className={`flex items-center justify-center h-8 w-8 rounded-md border transition-colors ${billable ? "border-emerald-500 text-emerald-600 bg-emerald-50" : "border-border text-muted-foreground"}`}
+          title={billable ? "Billable" : "Non-billable"}>
           <DollarSign className="h-3.5 w-3.5" />
         </button>
-
-        <div className="font-mono text-2xl font-bold tabular-nums min-w-[120px] text-center">
-          {formatTime(seconds)}
-        </div>
-
+        <div className="font-mono text-2xl font-bold tabular-nums min-w-[120px] text-center">{formatTime(seconds)}</div>
         <div className="flex items-center gap-2">
           {!isRunning ? (
             <Button size="icon" onClick={handleStart} className="bg-emerald-600 hover:bg-emerald-700 text-white">
