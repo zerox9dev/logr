@@ -82,6 +82,7 @@ export function TimeEntries({ entries, projects, getProjectById, onUpdate, onDel
   const [manualDuration, setManualDuration] = useState("");
   const [manualProjectId, setManualProjectId] = useState("");
   const [manualBillable, setManualBillable] = useState(true);
+  const [manualDate, setManualDate] = useState("");
 
   const grouped = groupByDate(entries);
 
@@ -114,13 +115,14 @@ export function TimeEntries({ entries, projects, getProjectById, onUpdate, onDel
       description: manualDesc || "Untitled",
       duration: dur,
       projectId: manualProjectId || null,
-      startedAt: new Date(),
+      startedAt: manualDate ? new Date(manualDate + "T12:00:00") : new Date(),
       billable: manualBillable,
     });
     setManualDesc("");
     setManualDuration("");
     setManualProjectId("");
     setManualBillable(true);
+    setManualDate("");
     setShowManual(false);
   };
 
@@ -260,10 +262,14 @@ export function TimeEntries({ entries, projects, getProjectById, onUpdate, onDel
             <label className="text-sm font-medium">Description</label>
             <Input value={manualDesc} onChange={(e) => setManualDesc(e.target.value)} placeholder="What did you work on?" autoFocus />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Duration</label>
               <Input value={manualDuration} onChange={(e) => setManualDuration(e.target.value)} placeholder="1h 30m, 1:30, or 90m" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Date</label>
+              <Input type="date" value={manualDate} onChange={(e) => setManualDate(e.target.value)} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Project</label>
