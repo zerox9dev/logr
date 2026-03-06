@@ -21,6 +21,7 @@ export function ReportsPage() {
   const totalSeconds = filtered.reduce((s, e) => s + e.duration_seconds, 0);
   const billableSeconds = filtered.filter((s) => s.billing_type === "hourly").reduce((s, e) => s + e.duration_seconds, 0);
   const earnings = filtered.reduce((s, e) => {
+    if (e.billing_type !== "hourly") return s;
     const rate = Number(e.rate) || (e.project_id ? (getProjectById(e.project_id)?.rate ?? 0) : 0);
     return s + (e.duration_seconds / 3600) * rate;
   }, 0);

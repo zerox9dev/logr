@@ -55,8 +55,8 @@ export function TimerPage() {
     setTimerRunning(false);
     if (timerSeconds > 0) {
       const project = selectedProjectId ? projects.find((p) => p.id === selectedProjectId) : null;
-      const rate = project?.rate ?? Number(settings?.default_rate) ?? 0;
       const billingType = project?.billing_type || "hourly";
+      const rate = billingType === "hourly" ? (project?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
       await addSession({ name: timerDescription || t("timer.untitled"), project_id: selectedProjectId || null, client_id: project?.client_id || null, notes: null, started_at: new Date(Date.now() - timerSeconds * 1000).toISOString(), duration_seconds: timerSeconds, rate, billing_type: billingType, payment_status: "unpaid" });
       setTimerSeconds(0); setTimerDescription("");
     }
@@ -64,8 +64,8 @@ export function TimerPage() {
   const handleManualAdd = async () => {
     const dur = parseDuration(manualDuration); if (!manualName || !dur) return;
     const mProject = manualProjectId ? projects.find((p) => p.id === manualProjectId) : null;
-    const mRate = mProject?.rate ?? Number(settings?.default_rate) ?? 0;
     const mBilling = mProject?.billing_type || "hourly";
+    const mRate = mBilling === "hourly" ? (mProject?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
     await addSession({ name: manualName, project_id: manualProjectId || null, client_id: mProject?.client_id || null, notes: null, started_at: new Date(manualDate).toISOString(), duration_seconds: dur, rate: mRate, billing_type: mBilling, payment_status: "unpaid" });
     setShowManual(false); setManualName(""); setManualDuration("");
   };
