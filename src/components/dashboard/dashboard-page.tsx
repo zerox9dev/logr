@@ -316,25 +316,25 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
       ) : (
         <>
           {/* Stats grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-l-[3px] border-l-emerald-400">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 text-muted-foreground mb-2">
                   <Clock className="h-4 w-4" />
-                  <span className="text-xs">Today</span>
+                  <span className="text-xs font-medium">Today</span>
                 </div>
                 <p className="text-2xl font-bold">{formatDuration(todayTotal)}</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-1">
+            <Card className="border-l-[3px] border-l-blue-400">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <TrendingUp className="h-4 w-4" />
-                    <span className="text-xs">This Week</span>
+                    <span className="text-xs font-medium">This Week</span>
                   </div>
                   {weekChange !== 0 && (
-                    <span className={`text-[10px] font-medium ${weekChange > 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    <span className={`text-[11px] font-medium ${weekChange > 0 ? "text-emerald-600" : "text-red-500"}`}>
                       {weekChange > 0 ? "+" : ""}{weekChange.toFixed(0)}%
                     </span>
                   )}
@@ -342,24 +342,24 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
                 <p className="text-2xl font-bold">{formatDuration(weekTotal)}</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <Card className="border-l-[3px] border-l-amber-400">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 text-muted-foreground mb-2">
                   <FileText className="h-4 w-4" />
-                  <span className="text-xs">Unpaid</span>
+                  <span className="text-xs font-medium">Unpaid</span>
                 </div>
                 <p className="text-2xl font-bold">${unpaidTotal.toFixed(0)}</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-1">
+            <Card className="border-l-[3px] border-l-violet-400">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <FileText className="h-4 w-4" />
-                    <span className="text-xs">This Month</span>
+                    <span className="text-xs font-medium">This Month</span>
                   </div>
                   {monthChange !== 0 && (
-                    <span className={`text-[10px] font-medium ${monthChange > 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    <span className={`text-[11px] font-medium ${monthChange > 0 ? "text-emerald-600" : "text-red-500"}`}>
                       {monthChange > 0 ? "+" : ""}{monthChange.toFixed(0)}%
                     </span>
                   )}
@@ -373,7 +373,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
           <ActivityGraph entries={entries} />
 
           {/* Quick start + links */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-4">
             <Link to="/app/timer">
               <Card className="hover:bg-emerald-50 hover:border-emerald-200 transition-colors cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
