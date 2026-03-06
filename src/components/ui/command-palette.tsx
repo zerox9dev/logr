@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, Search } from "lucide-react";
+import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, Search, GitBranch } from "lucide-react";
 
 const pages = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard, keywords: "home overview" },
@@ -8,6 +8,7 @@ const pages = [
   { name: "Projects", href: "/projects", icon: FolderKanban, keywords: "project manage" },
   { name: "Clients", href: "/clients", icon: Users, keywords: "client customer" },
   { name: "Invoices", href: "/invoices", icon: FileText, keywords: "invoice bill payment" },
+  { name: "Funnels", href: "/funnels", icon: GitBranch, keywords: "funnel pipeline deal lead job search kanban" },
   { name: "Reports", href: "/reports", icon: BarChart3, keywords: "report analytics stats" },
   { name: "Settings", href: "/settings", icon: Settings, keywords: "settings preferences profile" },
 ];

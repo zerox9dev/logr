@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Project, Client, TimeEntry, Invoice, Settings } from "@/types";
-import { DEFAULT_SETTINGS } from "@/types";
+import type { Project, Client, TimeEntry, Invoice, Settings, FunnelStage, FunnelDeal, FunnelType } from "@/types";
+import { DEFAULT_SETTINGS, DEFAULT_FREELANCE_STAGES, DEFAULT_JOBSEARCH_STAGES } from "@/types";
 
 const PROJECT_COLORS = [
   "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6",
@@ -23,6 +23,37 @@ export function useStore() {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
+
+  // Funnels
+  const initStages = (defaults: Omit<FunnelStage, "id">[]): FunnelStage[] =>
+    defaults.map((s) => ({ ...s, id: crypto.randomUUID() }));
+
+  const [freelanceStages] = useState<FunnelStage[]>(() => initStages(DEFAULT_FREELANCE_STAGES));
+  const [jobsearchStages] = useState<FunnelStage[]>(() => initStages(DEFAULT_JOBSEARCH_STAGES));
+  const [deals, setDeals] = useState<FunnelDeal[]>([]);
+
+  const addDeal = (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => {
+    const deal: FunnelDeal = {
+      ...data,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setDeals((prev) => [deal, ...prev]);
+    return deal;
+  };
+
+  const updateDeal = (id: string, data: Partial<FunnelDeal>) => {
+    setDeals((prev) => prev.map((d) => (d.id === id ? { ...d, ...data, updatedAt: new Date() } : d)));
+  };
+
+  const deleteDeal = (id: string) => {
+    setDeals((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const moveDeal = (id: string, stageId: string) => {
+    setDeals((prev) => prev.map((d) => (d.id === id ? { ...d, stageId, updatedAt: new Date() } : d)));
+  };
 
   // Timer state (shared for dashboard indicator)
   const [timerRunning, setTimerRunning] = useState(false);
@@ -128,6 +159,7 @@ export function useStore() {
     entries, addEntry, updateEntry, deleteEntry,
     invoices, addInvoice, updateInvoice, deleteInvoice,
     settings, updateSettings,
+    freelanceStages, jobsearchStages, deals, addDeal, updateDeal, deleteDeal, moveDeal,
     timerRunning, setTimerRunning, timerSeconds, setTimerSeconds, timerDescription, setTimerDescription,
   };
 }

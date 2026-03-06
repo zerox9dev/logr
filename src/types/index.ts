@@ -73,6 +73,48 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultProjectId: "",
 };
 
+// Funnels
+export type FunnelType = "freelance" | "jobsearch";
+
+export interface FunnelStage {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+}
+
+export interface FunnelDeal {
+  id: string;
+  funnelType: FunnelType;
+  stageId: string;
+  title: string;
+  company: string;
+  value: number | null;
+  currency: string;
+  contactName: string;
+  contactEmail: string;
+  url: string;
+  notes: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const DEFAULT_FREELANCE_STAGES: Omit<FunnelStage, "id">[] = [
+  { name: "Lead", color: "#6366f1", order: 0 },
+  { name: "Proposal", color: "#3b82f6", order: 1 },
+  { name: "Negotiation", color: "#f59e0b", order: 2 },
+  { name: "Won", color: "#10b981", order: 3 },
+  { name: "Lost", color: "#ef4444", order: 4 },
+];
+
+export const DEFAULT_JOBSEARCH_STAGES: Omit<FunnelStage, "id">[] = [
+  { name: "Applied", color: "#6366f1", order: 0 },
+  { name: "Interview", color: "#3b82f6", order: 1 },
+  { name: "Offer", color: "#f59e0b", order: 2 },
+  { name: "Accepted", color: "#10b981", order: 3 },
+  { name: "Rejected", color: "#ef4444", order: 4 },
+];
+
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
 
 export interface InvoiceItem {

@@ -7,6 +7,7 @@ import { ProjectsPage } from "@/components/projects/projects-page";
 import { ClientsPage } from "@/components/clients/clients-page";
 import { InvoicesPage } from "@/components/invoices/invoices-page";
 import { ReportsPage } from "@/components/reports/reports-page";
+import { FunnelsPage } from "@/components/funnels/funnels-page";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { NotFound } from "@/components/not-found";
 import { ToastProvider } from "@/components/ui/toast";
@@ -113,6 +114,20 @@ function App() {
                           onUpdate={store.updateInvoice}
                           onDelete={store.deleteInvoice}
                           getClientById={store.getClientById}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/funnels"
+                      element={
+                        <FunnelsPage
+                          freelanceStages={store.freelanceStages}
+                          jobsearchStages={store.jobsearchStages}
+                          deals={store.deals}
+                          onAddDeal={store.addDeal}
+                          onUpdateDeal={store.updateDeal}
+                          onDeleteDeal={store.deleteDeal}
+                          onMoveDeal={store.moveDeal}
                         />
                       }
                     />
