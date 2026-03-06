@@ -10,7 +10,7 @@ function formatDuration(seconds: number): string {
 }
 
 export function ReportsPage() {
-  const { sessions, clients, getProjectById } = useAppData();
+  const { sessions, clients, settings, getProjectById } = useAppData();
   const [range, setRange] = useState<"week" | "month" | "all">("week");
   const now = new Date();
   let startDate: Date | null = null;
@@ -20,10 +20,19 @@ export function ReportsPage() {
   const filtered = startStr ? sessions.filter((s) => s.started_at >= startStr) : sessions;
   const totalSeconds = filtered.reduce((s, e) => s + e.duration_seconds, 0);
   const billableSeconds = filtered.filter((s) => s.billing_type === "hourly").reduce((s, e) => s + e.duration_seconds, 0);
+  const getRate = (e: typeof filtered[0]) => {
+    const sessionRate = Number(e.rate);
+    if (sessionRate > 0) return sessionRate;
+    if (e.project_id) {
+      const p = getProjectById(e.project_id);
+      if (p?.rate && p.rate > 0) return p.rate;
+    }
+    return Number(settings?.default_rate) || 0;
+  };
   const calcEarnings = (onlyPaid: boolean) => filtered.reduce((s, e) => {
-    if (e.billing_type !== "hourly") return s;
     if (onlyPaid && e.payment_status !== "paid") return s;
-    const rate = Number(e.rate) || (e.project_id ? (getProjectById(e.project_id)?.rate ?? 0) : 0);
+    const rate = getRate(e);
+    if (rate <= 0) return s;
     return s + (e.duration_seconds / 3600) * rate;
   }, 0);
   const billable = calcEarnings(false);
