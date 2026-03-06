@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Square, Plus, Trash2, Pencil } from "lucide-react";
+import { Play, Square, Plus, Trash2, Pencil, Check, CircleDollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,7 @@ export function TimerPage() {
   const [formDuration, setFormDuration] = useState("");
   const [formProjectId, setFormProjectId] = useState("");
   const [formDate, setFormDate] = useState(new Date().toISOString().slice(0, 10));
+  const [formStatus, setFormStatus] = useState<string>("unpaid");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -72,13 +73,13 @@ export function TimerPage() {
 
   const openCreate = () => {
     setEditSession(null);
-    setFormName(""); setFormDuration(""); setFormProjectId(""); setFormDate(new Date().toISOString().slice(0, 10));
+    setFormName(""); setFormDuration(""); setFormProjectId(""); setFormDate(new Date().toISOString().slice(0, 10)); setFormStatus("unpaid");
     setShowManual(true);
   };
   const openEdit = (s: Session) => {
     setEditSession(s);
     setFormName(s.name); setFormDuration(durationToInput(s.duration_seconds));
-    setFormProjectId(s.project_id || ""); setFormDate(s.started_at.slice(0, 10));
+    setFormProjectId(s.project_id || ""); setFormDate(s.started_at.slice(0, 10)); setFormStatus(s.payment_status);
     setShowManual(true);
   };
   const handleSave = async () => {
@@ -88,9 +89,9 @@ export function TimerPage() {
     const rate = billing === "hourly" ? (proj?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
 
     if (editSession) {
-      await updateSession(editSession.id, { name: formName, project_id: formProjectId || null, client_id: proj?.client_id || null, started_at: new Date(formDate).toISOString(), duration_seconds: dur, rate, billing_type: billing });
+      await updateSession(editSession.id, { name: formName, project_id: formProjectId || null, client_id: proj?.client_id || null, started_at: new Date(formDate).toISOString(), duration_seconds: dur, rate, billing_type: billing, payment_status: formStatus as any });
     } else {
-      await addSession({ name: formName, project_id: formProjectId || null, client_id: proj?.client_id || null, notes: null, started_at: new Date(formDate).toISOString(), duration_seconds: dur, rate, billing_type: billing, payment_status: "unpaid" });
+      await addSession({ name: formName, project_id: formProjectId || null, client_id: proj?.client_id || null, notes: null, started_at: new Date(formDate).toISOString(), duration_seconds: dur, rate, billing_type: billing, payment_status: formStatus as any });
     }
     setShowManual(false); setEditSession(null);
   };
@@ -139,6 +140,12 @@ export function TimerPage() {
                         <td className="py-2.5 px-4 font-medium">{session.name}</td>
                         <td className="py-2.5 px-3 text-muted-foreground">{project?.name || <span className="text-muted-foreground/50">—</span>}</td>
                         <td className="py-2.5 px-3 text-right font-mono text-muted-foreground w-20">{formatShort(session.duration_seconds)}</td>
+                        <td className="py-2.5 px-2 w-24">
+                          <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${session.payment_status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                            {session.payment_status === "paid" ? <><Check className="h-3 w-3" /> Paid</> : <><CircleDollarSign className="h-3 w-3" /> Unpaid</>}
+                          </button>
+                        </td>
                         <td className="py-2.5 px-3 text-right w-20">
                           <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(session)}><Pencil className="h-3 w-3" /></Button>
@@ -163,10 +170,16 @@ export function TimerPage() {
             <div className="space-y-2"><label className="text-sm font-medium">{t("timer.duration")}</label><Input value={formDuration} onChange={(e) => setFormDuration(e.target.value)} placeholder="1h 30m, 1:30, 90m" /></div>
             <div className="space-y-2"><label className="text-sm font-medium">{t("timer.date")}</label><Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} /></div>
           </div>
-          <div className="space-y-2"><label className="text-sm font-medium">{t("timer.project")}</label>
-            <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
-              <option value="">{t("timer.noProject")}</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2"><label className="text-sm font-medium">{t("timer.project")}</label>
+              <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+                <option value="">{t("timer.noProject")}</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select></div>
+            <div className="space-y-2"><label className="text-sm font-medium">Status</label>
+              <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+                <option value="unpaid">Unpaid</option><option value="paid">Paid</option>
+              </select></div>
+          </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => { setShowManual(false); setEditSession(null); }}>{t("common.cancel")}</Button>
             <Button onClick={handleSave}>{editSession ? t("common.save") : t("timer.addEntry")}</Button>
