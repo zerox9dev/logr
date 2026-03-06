@@ -20,7 +20,10 @@ export function ReportsPage() {
   const filtered = startStr ? sessions.filter((s) => s.started_at >= startStr) : sessions;
   const totalSeconds = filtered.reduce((s, e) => s + e.duration_seconds, 0);
   const billableSeconds = filtered.filter((s) => s.billing_type === "hourly").reduce((s, e) => s + e.duration_seconds, 0);
-  const earnings = filtered.reduce((s, e) => s + (e.duration_seconds / 3600) * Number(e.rate), 0);
+  const earnings = filtered.reduce((s, e) => {
+    const rate = Number(e.rate) || (e.project_id ? (getProjectById(e.project_id)?.rate ?? 0) : 0);
+    return s + (e.duration_seconds / 3600) * rate;
+  }, 0);
   const projectMap = new Map<string, number>();
   filtered.forEach((s) => { const key = s.project_id || "__none__"; projectMap.set(key, (projectMap.get(key) || 0) + s.duration_seconds); });
   const topProjects = Array.from(projectMap.entries()).map(([id, dur]) => ({ project: id === "__none__" ? null : getProjectById(id), duration: dur })).sort((a, b) => b.duration - a.duration);
