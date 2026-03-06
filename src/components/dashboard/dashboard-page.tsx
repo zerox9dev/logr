@@ -65,7 +65,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
 
   // Invoice stats
   const overdueInvoices = invoices.filter((i) => (i.status === "sent" && i.dueDate < now) || i.status === "overdue");
-  const unpaidTotal = invoices.filter((i) => i.status === "sent" || i.status === "overdue").reduce((s, i) => s + getInvoiceTotal(i), 0);
+  const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((s, i) => s + getInvoiceTotal(i), 0);
   const paidTotal = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + getInvoiceTotal(i), 0);
 
   // Recent entries
