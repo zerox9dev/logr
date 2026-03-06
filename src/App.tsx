@@ -7,6 +7,7 @@ import { ProjectsPage } from "@/components/projects/projects-page";
 import { ClientsPage } from "@/components/clients/clients-page";
 import { InvoicesPage } from "@/components/invoices/invoices-page";
 import { ReportsPage } from "@/components/reports/reports-page";
+import { SettingsPage } from "@/components/settings/settings-page";
 import { useStore } from "@/lib/store";
 
 function App() {
@@ -94,7 +95,37 @@ function App() {
                   />
                 }
               />
-              <Route path="/settings" element={<Placeholder title="Settings" />} />
+              <Route
+                path="/settings"
+                element={
+                  <SettingsPage
+                    settings={store.settings}
+                    onUpdate={store.updateSettings}
+                    onExportData={() => {
+                      const data = {
+                        projects: store.projects,
+                        clients: store.clients,
+                        entries: store.entries,
+                        invoices: store.invoices,
+                        settings: store.settings,
+                        exportedAt: new Date().toISOString(),
+                      };
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `logr-export-${new Date().toISOString().slice(0, 10)}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    onClearData={() => {
+                      if (window.confirm("Clear all data? This cannot be undone.")) {
+                        window.location.reload();
+                      }
+                    }}
+                  />
+                }
+              />
             </Routes>
           </div>
         </main>
@@ -103,13 +134,5 @@ function App() {
   );
 }
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-    </div>
-  );
-}
 
 export default App;

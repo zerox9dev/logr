@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { Project, Client, TimeEntry, Invoice, InvoiceItem } from "@/types";
+import type { Project, Client, TimeEntry, Invoice, Settings } from "@/types";
+import { DEFAULT_SETTINGS } from "@/types";
 
 const PROJECT_COLORS = [
   "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6",
@@ -21,6 +22,7 @@ export function useStore() {
   const [clients, setClients] = useState<Client[]>([]);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
 
   // Projects
   const addProject = (data: Omit<Project, "id" | "createdAt" | "color">) => {
@@ -88,6 +90,11 @@ export function useStore() {
     setInvoices((prev) => prev.filter((i) => i.id !== id));
   };
 
+  // Settings
+  const updateSettings = (data: Partial<Settings>) => {
+    setSettings((prev) => ({ ...prev, ...data }));
+  };
+
   // Lookups
   const getProjectById = (id: string | null) => projects.find((p) => p.id === id);
   const getClientById = (id: string | null) => clients.find((c) => c.id === id);
@@ -97,5 +104,6 @@ export function useStore() {
     clients, addClient, updateClient, deleteClient, getClientById,
     entries, addEntry,
     invoices, addInvoice, updateInvoice, deleteInvoice,
+    settings, updateSettings,
   };
 }

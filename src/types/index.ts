@@ -23,6 +23,32 @@ export interface TimeEntry {
   startedAt: Date;
 }
 
+export type Currency = "USD" | "EUR" | "GBP" | "UAH" | "PLN";
+
+export interface Settings {
+  name: string;
+  email: string;
+  company: string;
+  address: string;
+  defaultRate: number;
+  currency: Currency;
+  invoicePrefix: string;
+  paymentTermsDays: number;
+  invoiceNotes: string;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  name: "",
+  email: "",
+  company: "",
+  address: "",
+  defaultRate: 50,
+  currency: "USD",
+  invoicePrefix: "INV",
+  paymentTermsDays: 30,
+  invoiceNotes: "",
+};
+
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
 
 export interface InvoiceItem {
