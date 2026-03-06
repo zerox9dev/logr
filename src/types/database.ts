@@ -1,7 +1,7 @@
 // ── Enums (match DB exactly) ──
 
 export type BillingType = "hourly" | "fixed";
-export type PaymentStatus = "unpaid" | "invoiced" | "paid";
+export type PaymentStatus = "unpaid" | "paid";
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
 export type ProjectStatus = "active" | "paused" | "completed" | "cancelled";
 export type FunnelType = "sales" | "onboarding" | "delivery" | "reactivation" | "job_hunting";
