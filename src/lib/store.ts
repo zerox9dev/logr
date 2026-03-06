@@ -65,7 +65,7 @@ export function useStore() {
 
   // Time entries
   const addEntry = (data: Omit<TimeEntry, "id">) => {
-    const entry: TimeEntry = { ...data, id: crypto.randomUUID() };
+    const entry: TimeEntry = { ...data, billable: data.billable ?? true, id: crypto.randomUUID() };
     setEntries((prev) => [entry, ...prev]);
     return entry;
   };

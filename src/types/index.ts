@@ -21,6 +21,7 @@ export interface TimeEntry {
   projectId: string | null;
   duration: number;
   startedAt: Date;
+  billable: boolean;
 }
 
 export type Currency = "USD" | "EUR" | "GBP" | "UAH" | "PLN";
