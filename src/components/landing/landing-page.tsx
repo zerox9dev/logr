@@ -1,17 +1,10 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Timer, BarChart3, Receipt, Kanban, Users, FolderOpen,
   Zap, Shield, Smartphone, ArrowRight, Check, Github, Star,
-  Clock, Keyboard, ChevronDown,
+  Clock, Keyboard,
 } from "lucide-react";
-import { t, getLang, setLang, onLangChange, getFreeFeatures, getProFeatures, LANGS, type Lang } from "@/lib/i18n";
-
-function useLang() {
-  const [, rerender] = useState(0);
-  useEffect(() => onLangChange(() => rerender((n) => n + 1)), []);
-  return getLang();
-}
+import { t, getFreeFeatures, getProFeatures } from "@/lib/i18n";
 
 function Logo() {
   return (
@@ -24,42 +17,12 @@ function Logo() {
   );
 }
 
-function LangSwitcher() {
-  const lang = useLang();
-  const [open, setOpen] = useState(false);
-  const current = LANGS.find((l) => l.code === lang)!;
-  return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-sm text-[#7a7570] hover:text-[#1a1a1a] transition-colors">
-        <span>{current.flag}</span>
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-8 z-50 rounded-lg border border-[#e5e0d8] bg-white shadow-sm py-1 min-w-[140px]">
-            {LANGS.map((l) => (
-              <button key={l.code} onClick={() => { setLang(l.code); setOpen(false); }}
-                className={`flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-[#f5f1eb] transition-colors ${l.code === lang ? "font-medium text-[#1a1a1a]" : "text-[#7a7570]"}`}>
-                <span>{l.flag}</span> {l.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 const FEATURE_ICONS = [Clock, FolderOpen, Users, Receipt, Kanban, BarChart3];
 const FEATURE_KEYS = ["time", "projects", "clients", "invoices", "funnels", "reports"];
 const EXTRA_ICONS = [Keyboard, Zap, Smartphone, Shield];
 const EXTRA_KEYS = ["keyboard", "speed", "mobile", "privacy"];
 
 export function LandingPage() {
-  useLang();
-
   return (
     <div className="min-h-screen bg-[#f5f1eb]">
       {/* Nav */}
@@ -73,7 +36,6 @@ export function LandingPage() {
               className="text-sm text-[#7a7570] hover:text-[#1a1a1a] transition-colors hidden sm:block">
               <Github className="h-4 w-4" />
             </a>
-            <LangSwitcher />
             <Link to="/app"
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-sm font-medium text-white hover:bg-[#333] transition-colors">
               {t("nav.openApp")} <ArrowRight className="h-3.5 w-3.5" />
