@@ -1,0 +1,19 @@
+# Pipeline results (local work, don't commit)
+.pipeline/*-prd.md
+.pipeline/*-design.md
+.pipeline/*-code.md
+.pipeline/*-qa.md
+.pipeline/*-review.md
+
+# Keep task templates
+!.pipeline/*-task.md
+!.pipeline/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
