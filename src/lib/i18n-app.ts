@@ -1,7 +1,7 @@
 import type { Lang } from "./i18n";
 
-// App UI translations — sidebar, pages, dialogs, common actions
-const app: Record<Lang, Record<string, string>> = {
+// App UI translations — only EN / UK / RU inside the cabinet
+const app: Record<string, Record<string, string>> = {
   en: {
     // Sidebar
     "sidebar.dashboard": "Dashboard",
@@ -466,105 +466,10 @@ const app: Record<Lang, Record<string, string>> = {
     "login.redirecting": "Переадресация...",
     "login.free": "Бесплатно навсегда · Без кредитной карты",
   },
-  de: {
-    "sidebar.dashboard": "Dashboard", "sidebar.timer": "Timer", "sidebar.projects": "Projekte", "sidebar.clients": "Kunden", "sidebar.invoices": "Rechnungen", "sidebar.funnels": "Funnels", "sidebar.reports": "Berichte", "sidebar.settings": "Einstellungen",
-    "common.save": "Speichern", "common.cancel": "Abbrechen", "common.delete": "Löschen", "common.edit": "Bearbeiten", "common.create": "Erstellen", "common.search": "Suchen...", "common.noData": "Noch keine Daten.", "common.loading": "Laden...", "common.all": "Alle", "common.viewAll": "Alle anzeigen",
-    "dash.greeting": "Willkommen zurück", "dash.today": "Heute", "dash.thisWeek": "Diese Woche", "dash.unpaid": "Unbezahlt", "dash.thisMonth": "Dieser Monat", "dash.activity": "Aktivität", "dash.activeDays": "aktive Tage", "dash.total": "gesamt", "dash.dayStreak": "Tage Streak", "dash.recentActivity": "Letzte Aktivität", "dash.quickLinks": "Schnelllinks", "dash.noEntries": "Noch keine Einträge.", "dash.getStarted": "Starte mit Logr", "dash.getStartedDesc": "Erfasse Zeit, verwalte Projekte und erstelle Rechnungen.", "dash.startTimer": "Timer starten", "dash.createProject": "Projekt erstellen", "dash.addClient": "Kunde hinzufügen", "dash.overdueInvoice": "überfällige Rechnung", "dash.overdueInvoices": "überfällige Rechnungen",
-    "timer.title": "Timer", "timer.desc": "Erfasse deine Zeit.", "timer.manualEntry": "Manueller Eintrag", "timer.whatWorking": "Woran arbeitest du?", "timer.noProject": "Kein Projekt", "timer.spaceStart": "Space — Start/Stop · Esc — Stop", "timer.noEntries": "Noch keine Zeiteinträge.", "timer.untitled": "Ohne Titel", "timer.description": "Beschreibung", "timer.whatDidWork": "Woran hast du gearbeitet?", "timer.duration": "Dauer", "timer.date": "Datum", "timer.project": "Projekt", "timer.addEntry": "Eintrag hinzufügen",
-    "projects.title": "Projekte", "projects.new": "Neues Projekt", "projects.edit": "Bearbeiten", "projects.name": "Name", "projects.client": "Kunde", "projects.selectClient": "Kunde wählen", "projects.billing": "Abrechnung", "projects.rate": "Stundensatz ($/h)", "projects.fixedBudget": "Festbudget ($)", "projects.status": "Status", "projects.active": "aktiv", "projects.paused": "pausiert", "projects.completed": "abgeschlossen", "projects.cancelled": "abgebrochen", "projects.hourly": "stündlich", "projects.fixed": "fest", "projects.noProjects": "Noch keine Projekte.", "projects.tracked": "erfasst",
-    "clients.title": "Kunden", "clients.new": "Neuer Kunde", "clients.edit": "Bearbeiten", "clients.name": "Name", "clients.company": "Firma", "clients.email": "Email", "clients.phone": "Telefon", "clients.website": "Website", "clients.country": "Land", "clients.address": "Adresse", "clients.notes": "Notizen", "clients.noClients": "Noch keine Kunden.",
-    "invoices.title": "Rechnungen", "invoices.new": "Neue Rechnung", "invoices.unpaid": "unbezahlt", "invoices.draft": "Entwurf", "invoices.sent": "Gesendet", "invoices.paid": "Bezahlt", "invoices.overdue": "Überfällig", "invoices.send": "Senden", "invoices.markPaid": "Als bezahlt markieren", "invoices.noInvoices": "Noch keine Rechnungen.", "invoices.dueDate": "Fällig am", "invoices.lineItems": "Positionen", "invoices.add": "Hinzufügen", "invoices.qty": "Menge", "invoices.amount": "Betrag", "invoices.subtotal": "Zwischensumme", "invoices.tax": "Steuer", "invoices.discount": "Rabatt", "invoices.total": "Gesamt", "invoices.notesLabel": "Notizen", "invoices.paymentTerms": "Zahlungsbedingungen...", "invoices.preview": "Vorschau", "invoices.createDraft": "Entwurf erstellen", "invoices.billTo": "Rechnungsempfänger", "invoices.noClient": "Kein Kunde ausgewählt", "invoices.addItems": "Positionen hinzufügen",
-    "funnels.title": "Funnels", "funnels.new": "Neuer Funnel", "funnels.newLead": "Neuer Lead", "funnels.editLead": "Lead bearbeiten", "funnels.noFunnels": "Noch keine Funnels.", "funnels.createFunnel": "Funnel erstellen", "funnels.name": "Name", "funnels.type": "Typ", "funnels.stages": "Stufen (links nach rechts)", "funnels.leadName": "Lead-Name", "funnels.company": "Firma", "funnels.stage": "Stufe", "funnels.value": "Wert ($)", "funnels.source": "Quelle", "funnels.pipeline": "Pipeline", "funnels.lead": "Lead", "funnels.leads": "Leads",
-    "reports.title": "Berichte", "reports.week": "Woche", "reports.month": "Monat", "reports.totalTime": "Gesamtzeit", "reports.billable": "Abrechenbar", "reports.earnings": "Einnahmen", "reports.byProject": "Nach Projekt", "reports.byClient": "Nach Kunde",
-    "settings.title": "Einstellungen", "settings.profile": "Profil", "settings.fullName": "Vollständiger Name", "settings.company": "Firma", "settings.email": "Email", "settings.phone": "Telefon", "settings.address": "Adresse", "settings.billingDefaults": "Abrechnungsstandards", "settings.currency": "Währung", "settings.defaultRate": "Standard-Stundensatz", "settings.saveSettings": "Speichern", "settings.saving": "Speichern...", "settings.signOut": "Abmelden",
-    "login.title": "Zeiterfassung für Freelancer", "login.google": "Mit Google anmelden", "login.redirecting": "Weiterleitung...", "login.free": "Für immer kostenlos · Keine Kreditkarte",
-  },
-  fr: {
-    "sidebar.dashboard": "Tableau de bord", "sidebar.timer": "Minuteur", "sidebar.projects": "Projets", "sidebar.clients": "Clients", "sidebar.invoices": "Factures", "sidebar.funnels": "Entonnoirs", "sidebar.reports": "Rapports", "sidebar.settings": "Paramètres",
-    "common.save": "Enregistrer", "common.cancel": "Annuler", "common.delete": "Supprimer", "common.edit": "Modifier", "common.create": "Créer", "common.search": "Rechercher...", "common.noData": "Pas encore de données.", "common.loading": "Chargement...", "common.all": "Tous", "common.viewAll": "Tout voir",
-    "dash.greeting": "Bon retour", "dash.today": "Aujourd'hui", "dash.thisWeek": "Cette semaine", "dash.unpaid": "Impayé", "dash.thisMonth": "Ce mois", "dash.activity": "Activité", "dash.activeDays": "jours actifs", "dash.total": "total", "dash.dayStreak": "jours consécutifs", "dash.recentActivity": "Activité récente", "dash.quickLinks": "Liens rapides", "dash.noEntries": "Pas encore d'entrées.", "dash.getStarted": "Commencez avec Logr", "dash.getStartedDesc": "Suivez le temps, gérez les projets et facturez.", "dash.startTimer": "Démarrer le minuteur", "dash.createProject": "Créer un projet", "dash.addClient": "Ajouter un client", "dash.overdueInvoice": "facture en retard", "dash.overdueInvoices": "factures en retard",
-    "timer.title": "Minuteur", "timer.desc": "Suivez votre temps.", "timer.manualEntry": "Entrée manuelle", "timer.whatWorking": "Sur quoi travaillez-vous?", "timer.noProject": "Sans projet", "timer.spaceStart": "Space — démarrer/arrêter", "timer.noEntries": "Pas encore d'entrées.", "timer.untitled": "Sans titre", "timer.description": "Description", "timer.whatDidWork": "Sur quoi avez-vous travaillé?", "timer.duration": "Durée", "timer.date": "Date", "timer.project": "Projet", "timer.addEntry": "Ajouter",
-    "projects.title": "Projets", "projects.new": "Nouveau projet", "projects.edit": "Modifier", "projects.name": "Nom", "projects.client": "Client", "projects.selectClient": "Choisir un client", "projects.billing": "Facturation", "projects.rate": "Tarif ($/h)", "projects.fixedBudget": "Budget fixe ($)", "projects.status": "Statut", "projects.active": "actif", "projects.paused": "en pause", "projects.completed": "terminé", "projects.cancelled": "annulé", "projects.hourly": "horaire", "projects.fixed": "fixe", "projects.noProjects": "Pas encore de projets.", "projects.tracked": "suivi",
-    "clients.title": "Clients", "clients.new": "Nouveau client", "clients.edit": "Modifier", "clients.name": "Nom", "clients.company": "Entreprise", "clients.email": "Email", "clients.phone": "Téléphone", "clients.website": "Site web", "clients.country": "Pays", "clients.address": "Adresse", "clients.notes": "Notes", "clients.noClients": "Pas encore de clients.",
-    "invoices.title": "Factures", "invoices.new": "Nouvelle facture", "invoices.unpaid": "impayé", "invoices.draft": "Brouillon", "invoices.sent": "Envoyée", "invoices.paid": "Payée", "invoices.overdue": "En retard", "invoices.send": "Envoyer", "invoices.markPaid": "Marquer payée", "invoices.noInvoices": "Pas encore de factures.", "invoices.dueDate": "Échéance", "invoices.lineItems": "Lignes", "invoices.add": "Ajouter", "invoices.qty": "Qté", "invoices.amount": "Montant", "invoices.subtotal": "Sous-total", "invoices.tax": "Taxe", "invoices.discount": "Remise", "invoices.total": "Total", "invoices.notesLabel": "Notes", "invoices.paymentTerms": "Conditions de paiement...", "invoices.preview": "Aperçu", "invoices.createDraft": "Créer brouillon", "invoices.billTo": "Facturer à", "invoices.noClient": "Aucun client sélectionné", "invoices.addItems": "Ajoutez des lignes",
-    "funnels.title": "Entonnoirs", "funnels.new": "Nouvel entonnoir", "funnels.newLead": "Nouveau lead", "funnels.editLead": "Modifier le lead", "funnels.noFunnels": "Pas encore d'entonnoirs.", "funnels.createFunnel": "Créer un entonnoir", "funnels.name": "Nom", "funnels.type": "Type", "funnels.stages": "Étapes (gauche à droite)", "funnels.leadName": "Nom du lead", "funnels.company": "Entreprise", "funnels.stage": "Étape", "funnels.value": "Valeur ($)", "funnels.source": "Source", "funnels.pipeline": "pipeline", "funnels.lead": "lead", "funnels.leads": "leads",
-    "reports.title": "Rapports", "reports.week": "semaine", "reports.month": "mois", "reports.totalTime": "Temps total", "reports.billable": "Facturable", "reports.earnings": "Revenus", "reports.byProject": "Par projet", "reports.byClient": "Par client",
-    "settings.title": "Paramètres", "settings.profile": "Profil", "settings.fullName": "Nom complet", "settings.company": "Entreprise", "settings.email": "Email", "settings.phone": "Téléphone", "settings.address": "Adresse", "settings.billingDefaults": "Facturation par défaut", "settings.currency": "Devise", "settings.defaultRate": "Tarif par défaut", "settings.saveSettings": "Enregistrer", "settings.saving": "Enregistrement...", "settings.signOut": "Déconnexion",
-    "login.title": "Suivi du temps pour freelances", "login.google": "Continuer avec Google", "login.redirecting": "Redirection...", "login.free": "Gratuit pour toujours · Sans carte bancaire",
-  },
-  es: {
-    "sidebar.dashboard": "Panel", "sidebar.timer": "Temporizador", "sidebar.projects": "Proyectos", "sidebar.clients": "Clientes", "sidebar.invoices": "Facturas", "sidebar.funnels": "Embudos", "sidebar.reports": "Informes", "sidebar.settings": "Configuración",
-    "common.save": "Guardar", "common.cancel": "Cancelar", "common.delete": "Eliminar", "common.edit": "Editar", "common.create": "Crear", "common.search": "Buscar...", "common.noData": "Sin datos aún.", "common.loading": "Cargando...", "common.all": "Todos", "common.viewAll": "Ver todo",
-    "dash.greeting": "Bienvenido", "dash.today": "Hoy", "dash.thisWeek": "Esta semana", "dash.unpaid": "Sin pagar", "dash.thisMonth": "Este mes", "dash.activity": "Actividad", "dash.startTimer": "Iniciar", "dash.createProject": "Crear proyecto", "dash.addClient": "Añadir cliente",
-    "timer.title": "Temporizador", "timer.desc": "Registra tu tiempo.", "timer.manualEntry": "Entrada manual", "timer.whatWorking": "¿En qué trabajas?", "timer.noProject": "Sin proyecto", "timer.noEntries": "Sin entradas aún.", "timer.addEntry": "Añadir",
-    "projects.title": "Proyectos", "projects.new": "Nuevo proyecto", "projects.noProjects": "Sin proyectos aún.",
-    "clients.title": "Clientes", "clients.new": "Nuevo cliente", "clients.noClients": "Sin clientes aún.",
-    "invoices.title": "Facturas", "invoices.new": "Nueva factura", "invoices.noInvoices": "Sin facturas aún.",
-    "funnels.title": "Embudos", "funnels.new": "Nuevo embudo", "funnels.noFunnels": "Sin embudos aún.",
-    "reports.title": "Informes", "reports.totalTime": "Tiempo total", "reports.billable": "Facturable", "reports.earnings": "Ganancias", "reports.byProject": "Por proyecto", "reports.byClient": "Por cliente",
-    "settings.title": "Configuración", "settings.saveSettings": "Guardar", "settings.signOut": "Cerrar sesión",
-    "login.google": "Continuar con Google", "login.free": "Gratis para siempre",
-  },
-  pt: {
-    "sidebar.dashboard": "Painel", "sidebar.timer": "Timer", "sidebar.projects": "Projetos", "sidebar.clients": "Clientes", "sidebar.invoices": "Faturas", "sidebar.funnels": "Funis", "sidebar.reports": "Relatórios", "sidebar.settings": "Configurações",
-    "common.save": "Salvar", "common.cancel": "Cancelar", "common.delete": "Excluir", "common.edit": "Editar", "common.create": "Criar", "common.search": "Buscar...", "common.noData": "Sem dados ainda.", "common.loading": "Carregando...", "common.all": "Todos", "common.viewAll": "Ver tudo",
-    "dash.greeting": "Bem-vindo", "dash.today": "Hoje", "dash.thisWeek": "Esta semana", "dash.unpaid": "Não pago", "dash.thisMonth": "Este mês", "dash.startTimer": "Iniciar", "dash.createProject": "Criar projeto", "dash.addClient": "Adicionar cliente",
-    "timer.title": "Timer", "timer.manualEntry": "Entrada manual", "timer.whatWorking": "No que está trabalhando?", "timer.noProject": "Sem projeto", "timer.noEntries": "Sem entradas ainda.", "timer.addEntry": "Adicionar",
-    "projects.title": "Projetos", "projects.new": "Novo projeto", "projects.noProjects": "Sem projetos ainda.",
-    "clients.title": "Clientes", "clients.new": "Novo cliente", "clients.noClients": "Sem clientes ainda.",
-    "invoices.title": "Faturas", "invoices.new": "Nova fatura", "invoices.noInvoices": "Sem faturas ainda.",
-    "funnels.title": "Funis", "funnels.new": "Novo funil", "funnels.noFunnels": "Sem funis ainda.",
-    "reports.title": "Relatórios", "reports.totalTime": "Tempo total", "reports.earnings": "Ganhos", "reports.byProject": "Por projeto", "reports.byClient": "Por cliente",
-    "settings.title": "Configurações", "settings.saveSettings": "Salvar", "settings.signOut": "Sair",
-    "login.google": "Continuar com Google", "login.free": "Grátis para sempre",
-  },
-  pl: {
-    "sidebar.dashboard": "Panel", "sidebar.timer": "Timer", "sidebar.projects": "Projekty", "sidebar.clients": "Klienci", "sidebar.invoices": "Faktury", "sidebar.funnels": "Lejki", "sidebar.reports": "Raporty", "sidebar.settings": "Ustawienia",
-    "common.save": "Zapisz", "common.cancel": "Anuluj", "common.delete": "Usuń", "common.edit": "Edytuj", "common.create": "Utwórz", "common.search": "Szukaj...", "common.noData": "Brak danych.", "common.loading": "Ładowanie...", "common.all": "Wszystkie", "common.viewAll": "Zobacz wszystko",
-    "dash.greeting": "Witaj ponownie", "dash.today": "Dziś", "dash.thisWeek": "Ten tydzień", "dash.unpaid": "Nieopłacone", "dash.thisMonth": "Ten miesiąc", "dash.startTimer": "Start", "dash.createProject": "Nowy projekt", "dash.addClient": "Dodaj klienta",
-    "timer.title": "Timer", "timer.manualEntry": "Ręczny wpis", "timer.whatWorking": "Nad czym pracujesz?", "timer.noProject": "Bez projektu", "timer.noEntries": "Brak wpisów.", "timer.addEntry": "Dodaj",
-    "projects.title": "Projekty", "projects.new": "Nowy projekt", "projects.noProjects": "Brak projektów.",
-    "clients.title": "Klienci", "clients.new": "Nowy klient", "clients.noClients": "Brak klientów.",
-    "invoices.title": "Faktury", "invoices.new": "Nowa faktura", "invoices.noInvoices": "Brak faktur.",
-    "funnels.title": "Lejki", "funnels.new": "Nowy lejek", "funnels.noFunnels": "Brak lejków.",
-    "reports.title": "Raporty", "reports.totalTime": "Łączny czas", "reports.earnings": "Zarobki", "reports.byProject": "Wg projektu", "reports.byClient": "Wg klienta",
-    "settings.title": "Ustawienia", "settings.saveSettings": "Zapisz", "settings.signOut": "Wyloguj",
-    "login.google": "Kontynuuj z Google", "login.free": "Darmowy na zawsze",
-  },
-  ja: {
-    "sidebar.dashboard": "ダッシュボード", "sidebar.timer": "タイマー", "sidebar.projects": "プロジェクト", "sidebar.clients": "クライアント", "sidebar.invoices": "請求書", "sidebar.funnels": "ファネル", "sidebar.reports": "レポート", "sidebar.settings": "設定",
-    "common.save": "保存", "common.cancel": "キャンセル", "common.delete": "削除", "common.edit": "編集", "common.create": "作成", "common.search": "検索...", "common.noData": "データなし", "common.loading": "読み込み中...", "common.all": "すべて", "common.viewAll": "すべて表示",
-    "dash.greeting": "おかえりなさい", "dash.today": "今日", "dash.thisWeek": "今週", "dash.unpaid": "未払い", "dash.thisMonth": "今月", "dash.startTimer": "開始", "dash.createProject": "プロジェクト作成", "dash.addClient": "クライアント追加",
-    "timer.title": "タイマー", "timer.manualEntry": "手動入力", "timer.whatWorking": "何に取り組んでいますか?", "timer.noProject": "プロジェクトなし", "timer.noEntries": "エントリーなし", "timer.addEntry": "追加",
-    "settings.title": "設定", "settings.saveSettings": "保存", "settings.signOut": "ログアウト",
-    "login.google": "Googleで続行", "login.free": "永久無料",
-  },
-  ko: {
-    "sidebar.dashboard": "대시보드", "sidebar.timer": "타이머", "sidebar.projects": "프로젝트", "sidebar.clients": "클라이언트", "sidebar.invoices": "인보이스", "sidebar.funnels": "퍼널", "sidebar.reports": "보고서", "sidebar.settings": "설정",
-    "common.save": "저장", "common.cancel": "취소", "common.delete": "삭제", "common.edit": "편집", "common.create": "생성", "common.search": "검색...", "common.noData": "데이터 없음", "common.loading": "로딩...", "common.all": "전체",
-    "dash.greeting": "다시 오신 것을 환영합니다", "dash.today": "오늘", "dash.thisWeek": "이번 주", "dash.unpaid": "미결제", "dash.thisMonth": "이번 달",
-    "timer.title": "타이머", "timer.manualEntry": "수동 입력", "timer.whatWorking": "무엇을 하고 있나요?", "timer.noProject": "프로젝트 없음",
-    "settings.title": "설정", "settings.saveSettings": "저장", "settings.signOut": "로그아웃",
-    "login.google": "Google로 계속", "login.free": "영원히 무료",
-  },
-  zh: {
-    "sidebar.dashboard": "仪表盘", "sidebar.timer": "计时器", "sidebar.projects": "项目", "sidebar.clients": "客户", "sidebar.invoices": "账单", "sidebar.funnels": "漏斗", "sidebar.reports": "报告", "sidebar.settings": "设置",
-    "common.save": "保存", "common.cancel": "取消", "common.delete": "删除", "common.edit": "编辑", "common.create": "创建", "common.search": "搜索...", "common.noData": "暂无数据", "common.loading": "加载中...", "common.all": "全部",
-    "dash.greeting": "欢迎回来", "dash.today": "今天", "dash.thisWeek": "本周", "dash.unpaid": "未付款", "dash.thisMonth": "本月",
-    "timer.title": "计时器", "timer.manualEntry": "手动输入", "timer.whatWorking": "你在做什么?", "timer.noProject": "无项目",
-    "settings.title": "设置", "settings.saveSettings": "保存", "settings.signOut": "退出登录",
-    "login.google": "使用Google继续", "login.free": "永久免费",
-  },
-  tr: {
-    "sidebar.dashboard": "Panel", "sidebar.timer": "Zamanlayıcı", "sidebar.projects": "Projeler", "sidebar.clients": "Müşteriler", "sidebar.invoices": "Faturalar", "sidebar.funnels": "Huniler", "sidebar.reports": "Raporlar", "sidebar.settings": "Ayarlar",
-    "common.save": "Kaydet", "common.cancel": "İptal", "common.delete": "Sil", "common.edit": "Düzenle", "common.create": "Oluştur", "common.search": "Ara...", "common.noData": "Henüz veri yok.", "common.loading": "Yükleniyor...", "common.all": "Tümü",
-    "dash.greeting": "Tekrar hoş geldiniz", "dash.today": "Bugün", "dash.thisWeek": "Bu Hafta", "dash.unpaid": "Ödenmemiş", "dash.thisMonth": "Bu Ay",
-    "timer.title": "Zamanlayıcı", "timer.manualEntry": "Manuel giriş", "timer.whatWorking": "Ne üzerinde çalışıyorsun?", "timer.noProject": "Proje yok",
-    "settings.title": "Ayarlar", "settings.saveSettings": "Kaydet", "settings.signOut": "Çıkış yap",
-    "login.google": "Google ile devam et", "login.free": "Sonsuza dek ücretsiz",
-  },
 };
 
 export function getAppTranslations(lang: Lang): Record<string, string> {
-  return { ...(app.en), ...(app[lang] || {}) };
+  // App cabinet: only EN/UK/RU. Other languages fall back to EN.
+  const resolved = (lang === "uk" || lang === "ru") ? lang : "en";
+  return { ...app.en, ...(app[resolved] || {}) };
 }
