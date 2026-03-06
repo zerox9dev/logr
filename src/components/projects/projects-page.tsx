@@ -244,7 +244,7 @@ export function ProjectsPage({ projects, clients, entries, onAdd, onUpdate, onDe
               <select
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="">No client</option>
                 {clients.map((c) => (
@@ -257,7 +257,7 @@ export function ProjectsPage({ projects, clients, entries, onAdd, onUpdate, onDe
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="active">Active</option>
                 <option value="completed">Completed</option>
@@ -284,7 +284,7 @@ export function ProjectsPage({ projects, clients, entries, onAdd, onUpdate, onDe
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Project notes..."
               rows={2}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 

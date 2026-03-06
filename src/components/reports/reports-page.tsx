@@ -168,12 +168,12 @@ export function ReportsPage({ entries, projects, clients, getProjectById }: Repo
 
         <div className="ml-auto flex gap-2">
           <select value={filterProjectId} onChange={(e) => setFilterProjectId(e.target.value)}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs">
+            className="h-8 rounded-lg border border-input bg-white px-2 text-xs">
             <option value="">All projects</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <select value={filterClientId} onChange={(e) => setFilterClientId(e.target.value)}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs">
+            className="h-8 rounded-lg border border-input bg-white px-2 text-xs">
             <option value="">All clients</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>

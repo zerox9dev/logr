@@ -181,7 +181,7 @@ export function TimeEntries({ entries, projects, getProjectById, onUpdate, onDel
                           <select
                             value={editProjectId}
                             onChange={(e) => setEditProjectId(e.target.value)}
-                            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                            className="h-9 rounded-lg border border-input bg-white px-2 text-sm"
                           >
                             <option value="">No project</option>
                             {projects.map((p) => (
@@ -276,7 +276,7 @@ export function TimeEntries({ entries, projects, getProjectById, onUpdate, onDel
               <select
                 value={manualProjectId}
                 onChange={(e) => setManualProjectId(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="">No project</option>
                 {projects.map((p) => (

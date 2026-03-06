@@ -18,10 +18,10 @@ export function AppLayout() {
   const store = useStore();
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-4xl p-4 md:p-6 pb-20 md:pb-6 space-y-6">
+        <div className="mx-auto max-w-5xl p-4 md:p-8 pb-20 md:pb-8 space-y-6">
           <Routes>
             <Route
               path="/"

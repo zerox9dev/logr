@@ -121,7 +121,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
               <div className="space-y-2">
                 <label className="text-sm font-medium">Client</label>
                 <select value={clientId} onChange={(e) => setClientId(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select client</option>
                   {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
@@ -135,7 +135,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
               <div className="space-y-2">
                 <label className="text-sm font-medium">Project</label>
                 <select value={projectId} onChange={(e) => setProjectId(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select project</option>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
@@ -214,7 +214,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
             <label className="text-sm font-medium">Notes</label>
             <textarea placeholder="Payment terms, thank you note..." value={notes}
               onChange={(e) => setNotes(e.target.value)} rows={3}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
           </div>
         </div>
 

@@ -34,7 +34,7 @@ function FieldGroup({ label, children }: { label: string; children: React.ReactN
 function SelectField({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}
-      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+      className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
   );
@@ -96,7 +96,7 @@ export function SettingsPage({ settings, projects, onUpdate, onExportData, onImp
           </FieldGroup>
           <FieldGroup label="Address">
             <textarea value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="Street, City, Country" rows={2}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
           </FieldGroup>
         </CardContent>
       </Card>
@@ -136,7 +136,7 @@ export function SettingsPage({ settings, projects, onUpdate, onExportData, onImp
           </div>
           <FieldGroup label="Default Invoice Notes">
             <textarea value={form.invoiceNotes} onChange={(e) => setForm((f) => ({ ...f, invoiceNotes: e.target.value }))} placeholder="Payment is due within 30 days." rows={3}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+              className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
           </FieldGroup>
         </CardContent>
       </Card>

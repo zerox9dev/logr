@@ -127,7 +127,7 @@ function DealForm({ initial, stages, onSubmit, onCancel, submitLabel }: {
         <div className="space-y-2">
           <label className="text-sm font-medium">Stage</label>
           <select value={stageId} onChange={(e) => setStageId(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+            className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
             {stages.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
@@ -153,7 +153,7 @@ function DealForm({ initial, stages, onSubmit, onCancel, submitLabel }: {
       <div className="space-y-2">
         <label className="text-sm font-medium">Notes</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes..." rows={2}
-          className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+          className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
