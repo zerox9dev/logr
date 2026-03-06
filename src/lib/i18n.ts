@@ -730,12 +730,15 @@ function detectLang(): Lang {
   return "en";
 }
 
+import { getAppTranslations } from "./i18n-app";
+
 const currentLang: Lang = detectLang();
+const appStrings = getAppTranslations(currentLang);
 
 export function getLang(): Lang { return currentLang; }
 
 export function t(key: string): string {
-  return translations[currentLang]?.[key] || translations.en[key] || key;
+  return appStrings[key] || translations[currentLang]?.[key] || translations.en[key] || key;
 }
 
 export function getFreeFeatures(): string[] { return FREE_FEATURES[currentLang] || FREE_FEATURES.en; }
