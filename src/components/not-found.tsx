@@ -9,7 +9,7 @@ export function NotFound() {
       <p className="text-sm text-muted-foreground mt-2">
         The page you're looking for doesn't exist.
       </p>
-      <Link to="/" className="mt-6">
+      <Link to="/app" className="mt-6">
         <Button variant="outline">Back to Dashboard</Button>
       </Link>
     </div>

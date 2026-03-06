@@ -84,7 +84,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
       discount,
       dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + settings.paymentTermsDays * 86400000),
     });
-    navigate("/invoices");
+    navigate("/app/invoices");
   };
 
   const subtotal = items.reduce((s, i) => s + i.hours * i.rate, 0);
@@ -97,7 +97,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/invoices">
+          <Link to="/app/invoices">
             <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
           </Link>
           <div>
@@ -106,7 +106,7 @@ export function InvoiceCreatePage({ clients, projects, entries, invoices, settin
           </div>
         </div>
         <div className="flex gap-2">
-          <Link to="/invoices"><Button variant="outline">Cancel</Button></Link>
+          <Link to="/app/invoices"><Button variant="outline">Cancel</Button></Link>
           <Button onClick={handleSubmit}>Create Draft</Button>
         </div>
       </div>

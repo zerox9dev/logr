@@ -3,21 +3,21 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", icon: LayoutDashboard, href: "/" },
-  { name: "Timer", icon: Timer, href: "/timer" },
-  { name: "Projects", icon: FolderKanban, href: "/projects" },
-  { name: "Clients", icon: Users, href: "/clients" },
-  { name: "Invoices", icon: FileText, href: "/invoices" },
-  { name: "Funnels", icon: GitBranch, href: "/funnels" },
-  { name: "Reports", icon: BarChart3, href: "/reports" },
+  { name: "Dashboard", icon: LayoutDashboard, href: "/app" },
+  { name: "Timer", icon: Timer, href: "/app/timer" },
+  { name: "Projects", icon: FolderKanban, href: "/app/projects" },
+  { name: "Clients", icon: Users, href: "/app/clients" },
+  { name: "Invoices", icon: FileText, href: "/app/invoices" },
+  { name: "Funnels", icon: GitBranch, href: "/app/funnels" },
+  { name: "Reports", icon: BarChart3, href: "/app/reports" },
 ];
 
 const mobileNav = [
-  { name: "Home", icon: LayoutDashboard, href: "/" },
-  { name: "Timer", icon: Timer, href: "/timer" },
-  { name: "Projects", icon: FolderKanban, href: "/projects" },
-  { name: "Invoices", icon: FileText, href: "/invoices" },
-  { name: "More", icon: Settings, href: "/settings" },
+  { name: "Home", icon: LayoutDashboard, href: "/app" },
+  { name: "Timer", icon: Timer, href: "/app/timer" },
+  { name: "Projects", icon: FolderKanban, href: "/app/projects" },
+  { name: "Invoices", icon: FileText, href: "/app/invoices" },
+  { name: "More", icon: Settings, href: "/app/settings" },
 ];
 
 function NavItem({ item, end }: { item: typeof navigation[0]; end?: boolean }) {
@@ -54,11 +54,11 @@ export function Sidebar() {
 
         <nav className="flex flex-1 flex-col gap-1 w-full">
           {navigation.map((item) => (
-            <NavItem key={item.name} item={item} end={item.href === "/"} />
+            <NavItem key={item.name} item={item} end={item.href === "/app"} />
           ))}
         </nav>
 
-        <NavItem item={{ name: "Settings", icon: Settings, href: "/settings" }} />
+        <NavItem item={{ name: "Settings", icon: Settings, href: "/app/settings" }} />
       </aside>
 
       {/* Mobile bottom nav */}
@@ -67,7 +67,7 @@ export function Sidebar() {
           <NavLink
             key={item.name}
             to={item.href}
-            end={item.href === "/"}
+            end={item.href === "/app"}
             className={({ isActive }) =>
               cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg text-[10px] font-medium transition-colors",

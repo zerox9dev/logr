@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, Search, GitBranch } from "lucide-react";
 
 const pages = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard, keywords: "home overview" },
-  { name: "Timer", href: "/timer", icon: Timer, keywords: "track time start" },
-  { name: "Projects", href: "/projects", icon: FolderKanban, keywords: "project manage" },
-  { name: "Clients", href: "/clients", icon: Users, keywords: "client customer" },
-  { name: "Invoices", href: "/invoices", icon: FileText, keywords: "invoice bill payment" },
-  { name: "Funnels", href: "/funnels", icon: GitBranch, keywords: "funnel pipeline deal lead job search kanban" },
-  { name: "Reports", href: "/reports", icon: BarChart3, keywords: "report analytics stats" },
-  { name: "Settings", href: "/settings", icon: Settings, keywords: "settings preferences profile" },
+  { name: "Dashboard", href: "/app", icon: LayoutDashboard, keywords: "home overview" },
+  { name: "Timer", href: "/app/timer", icon: Timer, keywords: "track time start" },
+  { name: "Projects", href: "/app/projects", icon: FolderKanban, keywords: "project manage" },
+  { name: "Clients", href: "/app/clients", icon: Users, keywords: "client customer" },
+  { name: "Invoices", href: "/app/invoices", icon: FileText, keywords: "invoice bill payment" },
+  { name: "Funnels", href: "/app/funnels", icon: GitBranch, keywords: "funnel pipeline deal lead job search kanban" },
+  { name: "Reports", href: "/app/reports", icon: BarChart3, keywords: "report analytics stats" },
+  { name: "Settings", href: "/app/settings", icon: Settings, keywords: "settings preferences profile" },
 ];
 
 export function CommandPalette() {

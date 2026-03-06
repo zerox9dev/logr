@@ -95,7 +95,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
 
       {/* Running timer indicator */}
       {isTimerRunning && (
-        <Link to="/timer">
+        <Link to="/app/timer">
           <Card className="border-emerald-200 bg-emerald-50">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
 
       {/* Overdue alert */}
       {overdueInvoices.length > 0 && (
-        <Link to="/invoices">
+        <Link to="/app/invoices">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -138,9 +138,9 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
               <p className="text-sm text-muted-foreground mt-1">Track time, manage projects, and invoice clients.</p>
             </div>
             <div className="flex justify-center gap-3">
-              <Link to="/timer"><Button><Play className="h-4 w-4" /> Start Timer</Button></Link>
-              <Link to="/projects"><Button variant="outline"><FolderKanban className="h-4 w-4" /> Create Project</Button></Link>
-              <Link to="/clients"><Button variant="outline"><Users className="h-4 w-4" /> Add Client</Button></Link>
+              <Link to="/app/timer"><Button><Play className="h-4 w-4" /> Start Timer</Button></Link>
+              <Link to="/app/projects"><Button variant="outline"><FolderKanban className="h-4 w-4" /> Create Project</Button></Link>
+              <Link to="/app/clients"><Button variant="outline"><Users className="h-4 w-4" /> Add Client</Button></Link>
             </div>
           </CardContent>
         </Card>
@@ -202,7 +202,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
 
           {/* Quick start + links */}
           <div className="grid grid-cols-4 gap-3">
-            <Link to="/timer">
+            <Link to="/app/timer">
               <Card className="hover:bg-emerald-50 hover:border-emerald-200 transition-colors cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -212,7 +212,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/projects">
+            <Link to="/app/projects">
               <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/clients">
+            <Link to="/app/clients">
               <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/invoices">
+            <Link to="/app/invoices">
               <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg">Recent Activity</CardTitle>
-                <Link to="/timer"><Button variant="ghost" size="sm">View all</Button></Link>
+                <Link to="/app/timer"><Button variant="ghost" size="sm">View all</Button></Link>
               </CardHeader>
               <CardContent>
                 {recentEntries.length === 0 ? (
@@ -280,7 +280,7 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg">Top Projects (Week)</CardTitle>
-                <Link to="/reports"><Button variant="ghost" size="sm">Reports</Button></Link>
+                <Link to="/app/reports"><Button variant="ghost" size="sm">Reports</Button></Link>
               </CardHeader>
               <CardContent>
                 {topProjects.length === 0 ? (

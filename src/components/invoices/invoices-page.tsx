@@ -274,7 +274,7 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
             {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Link to="/invoices/new">
+        <Link to="/app/invoices/new">
           <Button>
             <Plus className="h-4 w-4" /> New Invoice
           </Button>
