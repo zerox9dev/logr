@@ -1,73 +1,107 @@
-# React + TypeScript + Vite
+# Logr
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Time tracking & invoicing for freelancers. Built with Vite, React, and Supabase.
 
-Currently, two official plugins are available:
+![Logr](https://img.shields.io/badge/status-beta-orange) ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- ⏱️ **Timer** — Start/stop with one click or keyboard shortcut. Manual entries supported.
+- 📁 **Projects** — Organize work by client. Hourly or fixed billing.
+- 👥 **Clients** — Contact details, notes, project history.
+- 🧾 **Invoices** — Create, preview, send. Track draft → sent → paid → overdue.
+- 🎯 **Funnels** — Custom kanban pipelines for sales, job hunting, onboarding.
+- 📊 **Reports** — Time by project, client, week, month. Billable vs total.
+- 📈 **Activity Graph** — GitHub-style heatmap of your work history.
+- 🔐 **Auth** — Google sign-in via Supabase.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- [Vite 7](https://vite.dev) + [React 19](https://react.dev) + TypeScript 5.9
+- [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- [Supabase](https://supabase.com) — Auth, Database, RLS
+- [React Router 7](https://reactrouter.com)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/zerox9dev/logr-new.git
+cd logr-new
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Create `.env.local`:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run test` | Run tests (Vitest) |
+| `npm run lint` | Lint with ESLint |
+| `npm run check` | Typecheck → Lint → Test → Build |
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── auth/          # Login page (Google OAuth)
+│   ├── dashboard/     # Dashboard with stats & activity graph
+│   ├── timer/         # Timer & time entries
+│   ├── projects/      # Project management
+│   ├── clients/       # Client management
+│   ├── invoices/      # Invoice creation & list
+│   ├── funnels/       # Kanban pipelines
+│   ├── reports/       # Time & earnings reports
+│   ├── settings/      # User profile & billing defaults
+│   ├── landing/       # Public landing page
+│   ├── layout/        # App layout, sidebar
+│   └── ui/            # Shared UI components (shadcn/ui)
+├── lib/
+│   ├── api.ts         # Supabase CRUD for all tables
+│   ├── supabase.ts    # Supabase client
+│   ├── auth-context.tsx
+│   ├── data-context.tsx
+│   └── use-data.ts    # Data hook (loads & manages all entities)
+└── types/
+    └── database.ts    # 1:1 types with Supabase schema
+```
+
+## Supabase Setup
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run the SQL migrations to create tables (11 tables, 6 enums)
+3. Enable Google Auth: Authentication → Providers → Google
+4. Add your Google OAuth Client ID & Secret
+5. Set redirect URI in Google Console: `https://xxx.supabase.co/auth/v1/callback`
+
+All tables use RLS with `user_id = auth.uid()`.
+
+## Pricing Model
+
+- **Free** — Timer, projects, clients, basic reports. Forever.
+- **Pro** ($9/mo) — Funnels, invoices, AI features, integrations. Coming soon.
+
+## License
+
+[AGPL-3.0](LICENSE)
+
+---
+
+Built by [@zerox9dev](https://zerox9dev.com)
