@@ -1,9 +1,10 @@
-import { Timer, FolderKanban, Users, FileText, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Timer", icon: Timer, href: "/" },
+  { name: "Dashboard", icon: LayoutDashboard, href: "/" },
+  { name: "Timer", icon: Timer, href: "/timer" },
   { name: "Projects", icon: FolderKanban, href: "/projects" },
   { name: "Clients", icon: Users, href: "/clients" },
   { name: "Invoices", icon: FileText, href: "/invoices" },

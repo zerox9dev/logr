@@ -134,7 +134,7 @@ export function ProjectsPage({ projects, clients, onAdd, onUpdate, onDelete, get
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">No client</option>
               {clients.map((c) => (

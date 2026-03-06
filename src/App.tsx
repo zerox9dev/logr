@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/layout/sidebar";
+import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { TimerDisplay } from "@/components/timer/timer-display";
 import { TimeEntries } from "@/components/timer/time-entries";
 import { ProjectsPage } from "@/components/projects/projects-page";
@@ -20,6 +21,18 @@ function App() {
             <Routes>
               <Route
                 path="/"
+                element={
+                  <DashboardPage
+                    entries={store.entries}
+                    projects={store.projects}
+                    clients={store.clients}
+                    invoices={store.invoices}
+                    getProjectById={store.getProjectById}
+                  />
+                }
+              />
+              <Route
+                path="/timer"
                 element={
                   <>
                     <div>
