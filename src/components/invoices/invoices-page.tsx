@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, FileText, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { Plus, Trash2, FileText, Send, CheckCircle, AlertCircle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,40 +29,25 @@ interface InvoicesPageProps {
   getClientById: (id: string | null) => Client | undefined;
 }
 
-export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUpdate, onDelete, getClientById }: InvoicesPageProps) {
-  const [showForm, setShowForm] = useState(false);
-  const [clientId, setClientId] = useState("");
-  const [projectId, setProjectId] = useState("");
-  const [notes, setNotes] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [items, setItems] = useState<InvoiceItem[]>([
-    { id: crypto.randomUUID(), description: "", hours: 0, rate: 0 },
-  ]);
-
-  const resetForm = () => {
-    setClientId("");
-    setProjectId("");
-    setNotes("");
-    setDueDate("");
-    setItems([{ id: crypto.randomUUID(), description: "", hours: 0, rate: 0 }]);
-    setShowForm(false);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validItems = items.filter((i) => i.description && i.hours > 0 && i.rate > 0);
-    if (validItems.length === 0) return;
-
-    onAdd({
-      clientId: clientId || null,
-      projectId: projectId || null,
-      status: "draft",
-      items: validItems,
-      notes,
-      dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + 30 * 86400000),
-    });
-    resetForm();
-  };
+function InvoiceForm({
+  initial,
+  clients,
+  onSubmit,
+  onCancel,
+  submitLabel,
+}: {
+  initial?: { clientId: string; notes: string; dueDate: string; items: InvoiceItem[] };
+  clients: Client[];
+  onSubmit: (data: { clientId: string; notes: string; dueDate: string; items: InvoiceItem[] }) => void;
+  onCancel: () => void;
+  submitLabel: string;
+}) {
+  const [clientId, setClientId] = useState(initial?.clientId || "");
+  const [notes, setNotes] = useState(initial?.notes || "");
+  const [dueDate, setDueDate] = useState(initial?.dueDate || "");
+  const [items, setItems] = useState<InvoiceItem[]>(
+    initial?.items || [{ id: crypto.randomUUID(), description: "", hours: 0, rate: 0 }]
+  );
 
   const addItem = () => {
     setItems((prev) => [...prev, { id: crypto.randomUUID(), description: "", hours: 0, rate: 0 }]);
@@ -73,10 +58,102 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
   };
 
   const removeItem = (id: string) => {
-    if (items.length > 1) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
-    }
+    if (items.length > 1) setItems((prev) => prev.filter((item) => item.id !== id));
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validItems = items.filter((i) => i.description && i.hours > 0 && i.rate > 0);
+    if (validItems.length === 0) return;
+    onSubmit({ clientId, notes, dueDate, items: validItems });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-auto">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Client</label>
+          <select
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <option value="">Select client</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Due Date</label>
+          <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Items</label>
+          <Button type="button" variant="ghost" size="sm" onClick={addItem}>
+            <Plus className="h-3 w-3" /> Add item
+          </Button>
+        </div>
+        {items.map((item) => (
+          <div key={item.id} className="flex gap-2 items-start">
+            <Input
+              placeholder="Description"
+              value={item.description}
+              onChange={(e) => updateItem(item.id, "description", e.target.value)}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              placeholder="Hours"
+              value={item.hours || ""}
+              onChange={(e) => updateItem(item.id, "hours", Number(e.target.value))}
+              className="w-20"
+            />
+            <Input
+              type="number"
+              placeholder="Rate"
+              value={item.rate || ""}
+              onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))}
+              className="w-20"
+            />
+            <span className="text-sm font-medium min-w-[60px] text-right pt-2">
+              ${(item.hours * item.rate).toFixed(0)}
+            </span>
+            <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        ))}
+        <div className="text-right text-sm font-bold pt-2 border-t">
+          Total: ${items.reduce((s, i) => s + i.hours * i.rate, 0).toFixed(2)}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Notes</label>
+        <textarea
+          placeholder="Payment terms, thank you note..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={2}
+          className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
+        <Button type="submit">{submitLabel}</Button>
+      </div>
+    </form>
+  );
+}
+
+export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUpdate, onDelete, getClientById }: InvoicesPageProps) {
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
   const totalDraft = invoices.filter((i) => i.status === "draft").reduce((s, i) => s + getInvoiceTotal(i.items), 0);
   const totalPaid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + getInvoiceTotal(i.items), 0);
@@ -91,12 +168,11 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
             {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4" /> New Invoice
         </Button>
       </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-4">
@@ -146,9 +222,14 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
                     <span className="text-lg font-bold">${total.toFixed(2)}</span>
                     <div className="flex gap-1">
                       {invoice.status === "draft" && (
-                        <Button variant="outline" size="sm" onClick={() => onUpdate(invoice.id, { status: "sent" })}>
-                          <Send className="h-3 w-3" /> Send
-                        </Button>
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => setEditingInvoice(invoice)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => onUpdate(invoice.id, { status: "sent" })}>
+                            <Send className="h-3 w-3" /> Send
+                          </Button>
+                        </>
                       )}
                       {invoice.status === "sent" && (
                         <Button variant="outline" size="sm" onClick={() => onUpdate(invoice.id, { status: "paid" })}>
@@ -167,81 +248,54 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
         </div>
       )}
 
-      <Dialog open={showForm} onClose={resetForm} title="New Invoice">
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-auto">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Client</label>
-              <select value={clientId} onChange={(e) => setClientId(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-                <option value="">Select client</option>
-                {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Due Date</label>
-              <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-            </div>
-          </div>
+      {/* Create dialog */}
+      <Dialog open={showCreate} onClose={() => setShowCreate(false)} title="New Invoice">
+        <InvoiceForm
+          clients={clients}
+          onCancel={() => setShowCreate(false)}
+          submitLabel="Create Draft"
+          onSubmit={(data) => {
+            onAdd({
+              clientId: data.clientId || null,
+              projectId: null,
+              status: "draft",
+              items: data.items,
+              notes: data.notes,
+              dueDate: data.dueDate ? new Date(data.dueDate) : new Date(Date.now() + 30 * 86400000),
+            });
+            setShowCreate(false);
+          }}
+        />
+      </Dialog>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Items</label>
-              <Button type="button" variant="ghost" size="sm" onClick={addItem}>
-                <Plus className="h-3 w-3" /> Add item
-              </Button>
-            </div>
-            {items.map((item) => (
-              <div key={item.id} className="flex gap-2 items-start">
-                <Input
-                  placeholder="Description"
-                  value={item.description}
-                  onChange={(e) => updateItem(item.id, "description", e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  type="number"
-                  placeholder="Hours"
-                  value={item.hours || ""}
-                  onChange={(e) => updateItem(item.id, "hours", Number(e.target.value))}
-                  className="w-20"
-                />
-                <Input
-                  type="number"
-                  placeholder="Rate"
-                  value={item.rate || ""}
-                  onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))}
-                  className="w-20"
-                />
-                <span className="text-sm font-medium min-w-[60px] text-right pt-2">
-                  ${(item.hours * item.rate).toFixed(0)}
-                </span>
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-            <div className="text-right text-sm font-bold pt-2 border-t">
-              Total: ${items.reduce((s, i) => s + i.hours * i.rate, 0).toFixed(2)}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notes</label>
-            <textarea
-              placeholder="Payment terms, thank you note..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" type="button" onClick={resetForm}>Cancel</Button>
-            <Button type="submit">Create Draft</Button>
-          </div>
-        </form>
+      {/* Edit dialog */}
+      <Dialog
+        open={!!editingInvoice}
+        onClose={() => setEditingInvoice(null)}
+        title={`Edit ${editingInvoice?.number || ""}`}
+      >
+        {editingInvoice && (
+          <InvoiceForm
+            initial={{
+              clientId: editingInvoice.clientId || "",
+              notes: editingInvoice.notes,
+              dueDate: editingInvoice.dueDate.toISOString().slice(0, 10),
+              items: editingInvoice.items,
+            }}
+            clients={clients}
+            onCancel={() => setEditingInvoice(null)}
+            submitLabel="Save Changes"
+            onSubmit={(data) => {
+              onUpdate(editingInvoice.id, {
+                clientId: data.clientId || null,
+                items: data.items,
+                notes: data.notes,
+                dueDate: data.dueDate ? new Date(data.dueDate) : editingInvoice.dueDate,
+              });
+              setEditingInvoice(null);
+            }}
+          />
+        )}
       </Dialog>
     </div>
   );

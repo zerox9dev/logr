@@ -70,6 +70,14 @@ export function useStore() {
     return entry;
   };
 
+  const updateEntry = (id: string, data: Partial<TimeEntry>) => {
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...data } : e)));
+  };
+
+  const deleteEntry = (id: string) => {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  };
+
   // Invoices
   const addInvoice = (data: Omit<Invoice, "id" | "number" | "createdAt">) => {
     const invoice: Invoice = {
@@ -102,7 +110,7 @@ export function useStore() {
   return {
     projects, addProject, updateProject, deleteProject, getProjectById,
     clients, addClient, updateClient, deleteClient, getClientById,
-    entries, addEntry,
+    entries, addEntry, updateEntry, deleteEntry,
     invoices, addInvoice, updateInvoice, deleteInvoice,
     settings, updateSettings,
   };

@@ -41,7 +41,14 @@ function App() {
                       <p className="text-sm text-muted-foreground mt-1">Track your time, stay focused.</p>
                     </div>
                     <TimerDisplay projects={store.projects} onSave={store.addEntry} />
-                    <TimeEntries entries={store.entries} getProjectById={store.getProjectById} />
+                    <TimeEntries
+                      entries={store.entries}
+                      projects={store.projects}
+                      getProjectById={store.getProjectById}
+                      onUpdate={store.updateEntry}
+                      onDelete={store.deleteEntry}
+                      onAdd={store.addEntry}
+                    />
                   </>
                 }
               />
