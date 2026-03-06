@@ -25,11 +25,14 @@ export function useStore() {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
 
   // Projects
-  const addProject = (data: Omit<Project, "id" | "createdAt" | "color">) => {
+  const addProject = (data: Omit<Project, "id" | "createdAt" | "color" | "status" | "budgetHours" | "notes"> & Partial<Pick<Project, "color" | "status" | "budgetHours" | "notes">>) => {
     const project: Project = {
       ...data,
       id: crypto.randomUUID(),
-      color: getNextColor(projects),
+      color: data.color || getNextColor(projects),
+      status: data.status || "active",
+      budgetHours: data.budgetHours ?? null,
+      notes: data.notes || "",
       createdAt: new Date(),
     };
     setProjects((prev) => [project, ...prev]);
@@ -45,10 +48,14 @@ export function useStore() {
   };
 
   // Clients
-  const addClient = (data: Omit<Client, "id" | "createdAt">) => {
+  const addClient = (data: Omit<Client, "id" | "createdAt" | "status" | "phone" | "address" | "notes"> & Partial<Pick<Client, "status" | "phone" | "address" | "notes">>) => {
     const client: Client = {
       ...data,
       id: crypto.randomUUID(),
+      phone: data.phone || "",
+      address: data.address || "",
+      notes: data.notes || "",
+      status: data.status || "active",
       createdAt: new Date(),
     };
     setClients((prev) => [client, ...prev]);

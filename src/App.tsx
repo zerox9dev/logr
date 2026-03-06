@@ -58,6 +58,7 @@ function App() {
                   <ProjectsPage
                     projects={store.projects}
                     clients={store.clients}
+                    entries={store.entries}
                     onAdd={store.addProject}
                     onUpdate={store.updateProject}
                     onDelete={store.deleteProject}
@@ -70,6 +71,9 @@ function App() {
                 element={
                   <ClientsPage
                     clients={store.clients}
+                    entries={store.entries}
+                    invoices={store.invoices}
+                    projects={store.projects}
                     onAdd={store.addClient}
                     onUpdate={store.updateClient}
                     onDelete={store.deleteClient}

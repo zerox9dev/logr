@@ -1,17 +1,28 @@
+export type ProjectStatus = "active" | "completed" | "archived";
+
 export interface Project {
   id: string;
   name: string;
   color: string;
   clientId: string | null;
   hourlyRate: number | null;
+  status: ProjectStatus;
+  budgetHours: number | null;
+  notes: string;
   createdAt: Date;
 }
+
+export type ClientStatus = "active" | "inactive";
 
 export interface Client {
   id: string;
   name: string;
   email: string;
+  phone: string;
   company: string;
+  address: string;
+  notes: string;
+  status: ClientStatus;
   createdAt: Date;
 }
 
