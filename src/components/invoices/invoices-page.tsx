@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import type { Invoice, InvoiceItem, InvoiceStatus, Client, Project, TimeEntry } from "@/types";
+import { InvoicePreview } from "@/components/invoices/invoice-preview";
+import type { Invoice, InvoiceItem, InvoiceStatus, Client, Project, TimeEntry, Settings } from "@/types";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Draft", variant: "secondary" },
@@ -36,6 +37,7 @@ interface InvoicesPageProps {
   onUpdate: (id: string, data: Partial<Invoice>) => void;
   onDelete: (id: string) => void;
   getClientById: (id: string | null) => Client | undefined;
+  settings: Settings;
 }
 
 function InvoiceForm({
@@ -43,6 +45,8 @@ function InvoiceForm({
   clients,
   projects,
   entries,
+  settings,
+  invoiceNumber,
   onSubmit,
   onCancel,
   submitLabel,
@@ -51,6 +55,8 @@ function InvoiceForm({
   clients: Client[];
   projects: Project[];
   entries: TimeEntry[];
+  settings: Settings;
+  invoiceNumber: string;
   onSubmit: (data: { clientId: string; projectId: string; notes: string; dueDate: string; items: InvoiceItem[]; taxRate: number; discount: number }) => void;
   onCancel: () => void;
   submitLabel: string;
@@ -117,8 +123,11 @@ function InvoiceForm({
     onSubmit({ clientId, projectId, notes, dueDate, items: validItems, taxRate, discount });
   };
 
+  const selectedClient = clients.find((c) => c.id === clientId);
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-auto">
+    <div className="flex gap-6 max-h-[80vh]">
+      <form onSubmit={handleSubmit} className="space-y-4 overflow-auto flex-1 min-w-0">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <label className="text-sm font-medium">Client</label>
@@ -216,10 +225,25 @@ function InvoiceForm({
         <Button type="submit">{submitLabel}</Button>
       </div>
     </form>
+
+      {/* Live preview */}
+      <div className="hidden lg:block overflow-auto flex-1 min-w-0">
+        <InvoicePreview
+          number={invoiceNumber}
+          client={selectedClient}
+          settings={settings}
+          items={items}
+          taxRate={taxRate}
+          discount={discount}
+          dueDate={dueDate}
+          notes={notes}
+        />
+      </div>
+    </div>
   );
 }
 
-export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUpdate, onDelete, getClientById }: InvoicesPageProps) {
+export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUpdate, onDelete, getClientById, settings }: InvoicesPageProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
@@ -335,9 +359,10 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
         </div>
       )}
 
-      <Dialog open={showCreate} onClose={() => setShowCreate(false)} title="New Invoice">
+      <Dialog open={showCreate} onClose={() => setShowCreate(false)} title="New Invoice" wide>
         <InvoiceForm
           clients={clients} projects={projects} entries={entries}
+          settings={settings} invoiceNumber={`${settings.invoicePrefix}-${String(invoices.length + 1).padStart(4, "0")}`}
           onCancel={() => setShowCreate(false)} submitLabel="Create Draft"
           onSubmit={(data) => {
             onAdd({
@@ -352,9 +377,10 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
       </Dialog>
 
       <Dialog open={!!editingInvoice} onClose={() => setEditingInvoice(null)}
-        title={`Edit ${editingInvoice?.number || ""}`}>
+        title={`Edit ${editingInvoice?.number || ""}`} wide>
         {editingInvoice && (
           <InvoiceForm
+            settings={settings} invoiceNumber={editingInvoice.number}
             initial={{
               clientId: editingInvoice.clientId || "",
               projectId: editingInvoice.projectId || "",

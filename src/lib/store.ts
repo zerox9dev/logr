@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Project, Client, TimeEntry, Invoice, Settings, FunnelStage, FunnelDeal, FunnelType } from "@/types";
-import { DEFAULT_SETTINGS, DEFAULT_FREELANCE_STAGES, DEFAULT_JOBSEARCH_STAGES } from "@/types";
+import type { Project, Client, TimeEntry, Invoice, Settings, Funnel, FunnelStage, FunnelDeal } from "@/types";
+import { DEFAULT_SETTINGS } from "@/types";
 
 const PROJECT_COLORS = [
   "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6",
@@ -25,20 +25,31 @@ export function useStore() {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
 
   // Funnels
-  const initStages = (defaults: Omit<FunnelStage, "id">[]): FunnelStage[] =>
-    defaults.map((s) => ({ ...s, id: crypto.randomUUID() }));
-
-  const [freelanceStages] = useState<FunnelStage[]>(() => initStages(DEFAULT_FREELANCE_STAGES));
-  const [jobsearchStages] = useState<FunnelStage[]>(() => initStages(DEFAULT_JOBSEARCH_STAGES));
+  const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [deals, setDeals] = useState<FunnelDeal[]>([]);
 
-  const addDeal = (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => {
-    const deal: FunnelDeal = {
-      ...data,
+  const addFunnel = (data: { name: string; stages: { name: string; color: string }[] }) => {
+    const funnel: Funnel = {
       id: crypto.randomUUID(),
+      name: data.name,
+      stages: data.stages.map((s, i) => ({ ...s, id: crypto.randomUUID(), order: i })),
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
+    setFunnels((prev) => [funnel, ...prev]);
+    return funnel;
+  };
+
+  const updateFunnel = (id: string, data: Partial<Funnel>) => {
+    setFunnels((prev) => prev.map((f) => (f.id === id ? { ...f, ...data } : f)));
+  };
+
+  const deleteFunnel = (id: string) => {
+    setFunnels((prev) => prev.filter((f) => f.id !== id));
+    setDeals((prev) => prev.filter((d) => d.funnelId !== id));
+  };
+
+  const addDeal = (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => {
+    const deal: FunnelDeal = { ...data, id: crypto.randomUUID(), createdAt: new Date(), updatedAt: new Date() };
     setDeals((prev) => [deal, ...prev]);
     return deal;
   };
@@ -159,7 +170,7 @@ export function useStore() {
     entries, addEntry, updateEntry, deleteEntry,
     invoices, addInvoice, updateInvoice, deleteInvoice,
     settings, updateSettings,
-    freelanceStages, jobsearchStages, deals, addDeal, updateDeal, deleteDeal, moveDeal,
+    funnels, addFunnel, updateFunnel, deleteFunnel, deals, addDeal, updateDeal, deleteDeal, moveDeal,
     timerRunning, setTimerRunning, timerSeconds, setTimerSeconds, timerDescription, setTimerDescription,
   };
 }

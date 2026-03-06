@@ -1,34 +1,98 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, GripVertical, ExternalLink, DollarSign } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import type { FunnelStage, FunnelDeal, FunnelType } from "@/types";
+import type { Funnel, FunnelStage, FunnelDeal } from "@/types";
 
-interface FunnelsPageProps {
-  freelanceStages: FunnelStage[];
-  jobsearchStages: FunnelStage[];
-  deals: FunnelDeal[];
-  onAddDeal: (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => void;
-  onUpdateDeal: (id: string, data: Partial<FunnelDeal>) => void;
-  onDeleteDeal: (id: string) => void;
-  onMoveDeal: (id: string, stageId: string) => void;
+const STAGE_COLORS = [
+  "#6366f1", "#3b82f6", "#06b6d4", "#10b981", "#f59e0b",
+  "#ef4444", "#ec4899", "#8b5cf6", "#f97316", "#14b8a6",
+];
+
+// ── Create Funnel Dialog ──
+
+function CreateFunnelForm({ onSubmit, onCancel }: {
+  onSubmit: (data: { name: string; stages: { name: string; color: string }[] }) => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [stages, setStages] = useState<{ name: string; color: string }[]>([
+    { name: "", color: STAGE_COLORS[0] },
+    { name: "", color: STAGE_COLORS[1] },
+    { name: "", color: STAGE_COLORS[2] },
+  ]);
+
+  const addStage = () => {
+    setStages((prev) => [...prev, { name: "", color: STAGE_COLORS[prev.length % STAGE_COLORS.length] }]);
+  };
+
+  const removeStage = (i: number) => {
+    if (stages.length > 2) setStages((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  const updateStage = (i: number, field: "name" | "color", value: string) => {
+    setStages((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const validStages = stages.filter((s) => s.name.trim());
+    if (validStages.length < 2) return;
+    onSubmit({ name: name.trim(), stages: validStages });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Funnel Name</label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Freelance Pipeline, Job Search" autoFocus />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Stages (left to right)</label>
+          <Button type="button" variant="ghost" size="sm" onClick={addStage}>
+            <Plus className="h-3 w-3" /> Add
+          </Button>
+        </div>
+        {stages.map((stage, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground w-5 text-center">{i + 1}</span>
+            <button type="button" onClick={() => {
+              const next = STAGE_COLORS[(STAGE_COLORS.indexOf(stage.color) + 1) % STAGE_COLORS.length];
+              updateStage(i, "color", next);
+            }} className="h-7 w-7 rounded-full shrink-0 border-2 border-transparent hover:border-border transition-colors"
+              style={{ backgroundColor: stage.color }} />
+            <Input value={stage.name} onChange={(e) => updateStage(i, "name", e.target.value)}
+              placeholder={`Stage ${i + 1}`} className="flex-1" />
+            {stages.length > 2 && (
+              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeStage(i)}>
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        ))}
+        <p className="text-xs text-muted-foreground">Min 2 stages. Click color circle to change.</p>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-2">
+        <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
+        <Button type="submit">Create Funnel</Button>
+      </div>
+    </form>
+  );
 }
 
-function DealForm({
-  initial,
-  stages,
-  funnelType,
-  onSubmit,
-  onCancel,
-  submitLabel,
-}: {
+// ── Deal Form ──
+
+function DealForm({ initial, stages, onSubmit, onCancel, submitLabel }: {
   initial?: Partial<FunnelDeal>;
   stages: FunnelStage[];
-  funnelType: FunnelType;
-  onSubmit: (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => void;
+  onSubmit: (data: Omit<FunnelDeal, "id" | "funnelId" | "createdAt" | "updatedAt">) => void;
   onCancel: () => void;
   submitLabel: string;
 }) {
@@ -44,28 +108,15 @@ function DealForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit({
-      funnelType,
-      stageId,
-      title: title.trim(),
-      company,
-      value: value ? Number(value) : null,
-      currency: "USD",
-      contactName,
-      contactEmail,
-      url,
-      notes,
-    });
+    onSubmit({ stageId, title: title.trim(), company, value: value ? Number(value) : null, contactName, contactEmail, url, notes });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-sm font-medium">
-            {funnelType === "freelance" ? "Project / Deal" : "Position"}
-          </label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={funnelType === "freelance" ? "Website redesign" : "Senior Designer"} autoFocus />
+          <label className="text-sm font-medium">Title</label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Deal name" autoFocus />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Company</label>
@@ -81,17 +132,17 @@ function DealForm({
           </select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">{funnelType === "freelance" ? "Value ($)" : "Salary ($)"}</label>
+          <label className="text-sm font-medium">Value ($)</label>
           <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Contact Name</label>
+          <label className="text-sm font-medium">Contact</label>
           <Input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="John Doe" />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Contact Email</label>
+          <label className="text-sm font-medium">Email</label>
           <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="john@example.com" />
         </div>
       </div>
@@ -112,13 +163,9 @@ function DealForm({
   );
 }
 
-function DealCard({
-  deal,
-  stages,
-  onEdit,
-  onDelete,
-  onMove,
-}: {
+// ── Deal Card ──
+
+function DealCard({ deal, stages, onEdit, onDelete, onMove }: {
   deal: FunnelDeal;
   stages: FunnelStage[];
   onEdit: () => void;
@@ -138,149 +185,184 @@ function DealCard({
             {deal.company && <p className="text-xs text-muted-foreground">{deal.company}</p>}
           </div>
           <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit}>
-              <Pencil className="h-3 w-3" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onDelete}>
-              <Trash2 className="h-3 w-3" />
-            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEdit}><Pencil className="h-3 w-3" /></Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onDelete}><Trash2 className="h-3 w-3" /></Button>
           </div>
         </div>
-
         <div className="flex items-center gap-2 flex-wrap">
-          {deal.value && (
-            <span className="text-xs font-medium flex items-center gap-0.5">
-              <DollarSign className="h-3 w-3" />{deal.value.toLocaleString()}
-            </span>
+          {deal.value != null && deal.value > 0 && (
+            <span className="text-xs font-medium flex items-center gap-0.5"><DollarSign className="h-3 w-3" />{deal.value.toLocaleString()}</span>
           )}
           {deal.url && (
-            <a href={deal.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-0.5">
-              <ExternalLink className="h-3 w-3" /> Link
-            </a>
+            <a href={deal.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-0.5"><ExternalLink className="h-3 w-3" /> Link</a>
           )}
-          {deal.contactName && (
-            <span className="text-xs text-muted-foreground">{deal.contactName}</span>
-          )}
+          {deal.contactName && <span className="text-xs text-muted-foreground">{deal.contactName}</span>}
         </div>
-
         {deal.notes && <p className="text-xs text-muted-foreground line-clamp-2">{deal.notes}</p>}
-
-        {/* Move buttons */}
         <div className="flex gap-1 pt-1">
-          {prevStage && (
-            <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" onClick={() => onMove(prevStage.id)}>
-              ← {prevStage.name}
-            </Button>
-          )}
-          {nextStage && (
-            <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 ml-auto" onClick={() => onMove(nextStage.id)}>
-              {nextStage.name} →
-            </Button>
-          )}
+          {prevStage && <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" onClick={() => onMove(prevStage.id)}>← {prevStage.name}</Button>}
+          {nextStage && <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 ml-auto" onClick={() => onMove(nextStage.id)}>{nextStage.name} →</Button>}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export function FunnelsPage({ freelanceStages, jobsearchStages, deals, onAddDeal, onUpdateDeal, onDeleteDeal, onMoveDeal }: FunnelsPageProps) {
-  const [activeTab, setActiveTab] = useState<FunnelType>("freelance");
-  const [showCreate, setShowCreate] = useState(false);
+// ── Main Page ──
+
+interface FunnelsPageProps {
+  funnels: Funnel[];
+  deals: FunnelDeal[];
+  onAddFunnel: (data: { name: string; stages: { name: string; color: string }[] }) => Funnel;
+  onUpdateFunnel: (id: string, data: Partial<Funnel>) => void;
+  onDeleteFunnel: (id: string) => void;
+  onAddDeal: (data: Omit<FunnelDeal, "id" | "createdAt" | "updatedAt">) => void;
+  onUpdateDeal: (id: string, data: Partial<FunnelDeal>) => void;
+  onDeleteDeal: (id: string) => void;
+  onMoveDeal: (id: string, stageId: string) => void;
+}
+
+export function FunnelsPage({ funnels, deals, onAddFunnel, onUpdateFunnel, onDeleteFunnel, onAddDeal, onUpdateDeal, onDeleteDeal, onMoveDeal }: FunnelsPageProps) {
+  const [activeFunnelId, setActiveFunnelId] = useState<string | null>(funnels[0]?.id || null);
+  const [showCreateFunnel, setShowCreateFunnel] = useState(false);
+  const [showCreateDeal, setShowCreateDeal] = useState(false);
   const [editingDeal, setEditingDeal] = useState<FunnelDeal | null>(null);
 
-  const stages = activeTab === "freelance" ? freelanceStages : jobsearchStages;
-  const filteredDeals = deals.filter((d) => d.funnelType === activeTab);
+  const activeFunnel = funnels.find((f) => f.id === activeFunnelId);
+  const funnelDeals = activeFunnel ? deals.filter((d) => d.funnelId === activeFunnel.id) : [];
+  const totalValue = funnelDeals.reduce((s, d) => s + (d.value || 0), 0);
 
-  // Summary
-  const totalValue = filteredDeals.reduce((s, d) => s + (d.value || 0), 0);
-  const wonStage = stages.find((s) => s.name === "Won" || s.name === "Accepted");
-  const wonDeals = wonStage ? filteredDeals.filter((d) => d.stageId === wonStage.id) : [];
-  const wonValue = wonDeals.reduce((s, d) => s + (d.value || 0), 0);
+  // Auto-select first funnel if active deleted
+  if (!activeFunnel && funnels.length > 0 && activeFunnelId !== funnels[0].id) {
+    setActiveFunnelId(funnels[0].id);
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Funnels</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {filteredDeals.length} deal{filteredDeals.length !== 1 ? "s" : ""} · ${totalValue.toLocaleString()} pipeline
-            {wonValue > 0 && <span className="text-emerald-600"> · ${wonValue.toLocaleString()} won</span>}
-          </p>
+          {activeFunnel && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {funnelDeals.length} deal{funnelDeals.length !== 1 ? "s" : ""}
+              {totalValue > 0 && <> · ${totalValue.toLocaleString()} pipeline</>}
+            </p>
+          )}
         </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4" /> New Deal
-        </Button>
+        <div className="flex gap-2">
+          {activeFunnel && (
+            <Button onClick={() => setShowCreateDeal(true)}>
+              <Plus className="h-4 w-4" /> New Deal
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => setShowCreateFunnel(true)}>
+            <Plus className="h-4 w-4" /> New Funnel
+          </Button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1">
-        <Button variant={activeTab === "freelance" ? "default" : "ghost"} size="sm"
-          onClick={() => setActiveTab("freelance")}>
-          🎯 Freelance
-        </Button>
-        <Button variant={activeTab === "jobsearch" ? "default" : "ghost"} size="sm"
-          onClick={() => setActiveTab("jobsearch")}>
-          💼 Job Search
-        </Button>
-      </div>
-
-      {/* Kanban board */}
-      <div className="flex gap-3 overflow-x-auto pb-4">
-        {stages.map((stage) => {
-          const stageDeals = filteredDeals.filter((d) => d.stageId === stage.id);
-          const stageValue = stageDeals.reduce((s, d) => s + (d.value || 0), 0);
-
-          return (
-            <div key={stage.id} className="flex-shrink-0 w-64">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
-                  <span className="text-sm font-medium">{stage.name}</span>
-                  <Badge variant="secondary" className="text-[10px]">{stageDeals.length}</Badge>
-                </div>
-                {stageValue > 0 && (
-                  <span className="text-xs text-muted-foreground">${stageValue.toLocaleString()}</span>
-                )}
-              </div>
-
-              <div className="space-y-2 min-h-[100px]">
-                {stageDeals.map((deal) => (
-                  <DealCard
-                    key={deal.id}
-                    deal={deal}
-                    stages={stages}
-                    onEdit={() => setEditingDeal(deal)}
-                    onDelete={() => onDeleteDeal(deal.id)}
-                    onMove={(stageId) => onMoveDeal(deal.id, stageId)}
-                  />
-                ))}
-              </div>
+      {/* Funnel tabs */}
+      {funnels.length > 0 && (
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {funnels.map((f) => (
+            <div key={f.id} className="flex items-center">
+              <Button
+                variant={activeFunnelId === f.id ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveFunnelId(f.id)}
+              >
+                {f.name}
+                <Badge variant="secondary" className="ml-1 text-[10px]">
+                  {deals.filter((d) => d.funnelId === f.id).length}
+                </Badge>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6 opacity-50 hover:opacity-100"
+                onClick={() => {
+                  if (window.confirm(`Delete "${f.name}" and all its deals?`)) {
+                    onDeleteFunnel(f.id);
+                  }
+                }}>
+                <X className="h-3 w-3" />
+              </Button>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Create dialog */}
-      <Dialog open={showCreate} onClose={() => setShowCreate(false)} title={`New ${activeTab === "freelance" ? "Freelance Deal" : "Job Application"}`}>
-        <DealForm
-          stages={stages}
-          funnelType={activeTab}
-          onCancel={() => setShowCreate(false)}
-          submitLabel="Create"
+      {/* Empty state */}
+      {funnels.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center space-y-3">
+            <p className="text-muted-foreground">No funnels yet. Create one to start tracking deals.</p>
+            <Button onClick={() => setShowCreateFunnel(true)}>
+              <Plus className="h-4 w-4" /> Create First Funnel
+            </Button>
+          </CardContent>
+        </Card>
+      ) : activeFunnel ? (
+        /* Kanban board */
+        <div className="flex gap-3 overflow-x-auto pb-4">
+          {activeFunnel.stages.map((stage) => {
+            const stageDeals = funnelDeals.filter((d) => d.stageId === stage.id);
+            const stageValue = stageDeals.reduce((s, d) => s + (d.value || 0), 0);
+
+            return (
+              <div key={stage.id} className="flex-shrink-0 w-64">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
+                    <span className="text-sm font-medium">{stage.name}</span>
+                    <Badge variant="secondary" className="text-[10px]">{stageDeals.length}</Badge>
+                  </div>
+                  {stageValue > 0 && <span className="text-xs text-muted-foreground">${stageValue.toLocaleString()}</span>}
+                </div>
+                <div className="space-y-2 min-h-[100px]">
+                  {stageDeals.map((deal) => (
+                    <DealCard key={deal.id} deal={deal} stages={activeFunnel.stages}
+                      onEdit={() => setEditingDeal(deal)}
+                      onDelete={() => onDeleteDeal(deal.id)}
+                      onMove={(stageId) => onMoveDeal(deal.id, stageId)} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* Create funnel dialog */}
+      <Dialog open={showCreateFunnel} onClose={() => setShowCreateFunnel(false)} title="New Funnel">
+        <CreateFunnelForm
+          onCancel={() => setShowCreateFunnel(false)}
           onSubmit={(data) => {
-            onAddDeal(data);
-            setShowCreate(false);
+            const funnel = onAddFunnel(data);
+            setActiveFunnelId(funnel.id);
+            setShowCreateFunnel(false);
           }}
         />
       </Dialog>
 
-      {/* Edit dialog */}
+      {/* Create deal dialog */}
+      {activeFunnel && (
+        <Dialog open={showCreateDeal} onClose={() => setShowCreateDeal(false)} title="New Deal">
+          <DealForm
+            stages={activeFunnel.stages}
+            onCancel={() => setShowCreateDeal(false)}
+            submitLabel="Create"
+            onSubmit={(data) => {
+              onAddDeal({ ...data, funnelId: activeFunnel.id });
+              setShowCreateDeal(false);
+            }}
+          />
+        </Dialog>
+      )}
+
+      {/* Edit deal dialog */}
       <Dialog open={!!editingDeal} onClose={() => setEditingDeal(null)} title="Edit Deal">
-        {editingDeal && (
+        {editingDeal && activeFunnel && (
           <DealForm
             initial={editingDeal}
-            stages={stages}
-            funnelType={editingDeal.funnelType}
+            stages={activeFunnel.stages}
             onCancel={() => setEditingDeal(null)}
             submitLabel="Save"
             onSubmit={(data) => {

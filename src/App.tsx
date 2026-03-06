@@ -110,6 +110,7 @@ function App() {
                           clients={store.clients}
                           projects={store.projects}
                           entries={store.entries}
+                          settings={store.settings}
                           onAdd={store.addInvoice}
                           onUpdate={store.updateInvoice}
                           onDelete={store.deleteInvoice}
@@ -121,9 +122,11 @@ function App() {
                       path="/funnels"
                       element={
                         <FunnelsPage
-                          freelanceStages={store.freelanceStages}
-                          jobsearchStages={store.jobsearchStages}
+                          funnels={store.funnels}
                           deals={store.deals}
+                          onAddFunnel={store.addFunnel}
+                          onUpdateFunnel={store.updateFunnel}
+                          onDeleteFunnel={store.deleteFunnel}
                           onAddDeal={store.addDeal}
                           onUpdateDeal={store.updateDeal}
                           onDeleteDeal={store.deleteDeal}
