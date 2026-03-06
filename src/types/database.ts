@@ -178,22 +178,4 @@ export type LeadUpdate = Partial<Omit<Lead, "id" | "user_id" | "created_at">>;
 
 export type ActivityInsert = Omit<Activity, "id" | "created_at">;
 
-// ── Database schema for supabase-js ──
 
-export interface Database {
-  public: {
-    Tables: {
-      user_settings: { Row: UserSettings; Insert: UserSettingsInsert; Update: UserSettingsUpdate };
-      clients: { Row: Client; Insert: ClientInsert; Update: ClientUpdate };
-      projects: { Row: Project; Insert: ProjectInsert; Update: ProjectUpdate };
-      sessions: { Row: Session; Insert: SessionInsert; Update: SessionUpdate };
-      invoices: { Row: Invoice; Insert: InvoiceInsert; Update: InvoiceUpdate };
-      invoice_items: { Row: InvoiceItem; Insert: InvoiceItemInsert; Update: InvoiceItemUpdate };
-      share_links: { Row: ShareLink };
-      funnels: { Row: Funnel; Insert: FunnelInsert; Update: FunnelUpdate };
-      funnel_stages: { Row: FunnelStage; Insert: FunnelStageInsert; Update: FunnelStageUpdate };
-      leads: { Row: Lead; Insert: LeadInsert; Update: LeadUpdate };
-      activities: { Row: Activity; Insert: ActivityInsert };
-    };
-  };
-}
