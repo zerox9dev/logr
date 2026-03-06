@@ -4,21 +4,9 @@ import { TimerDisplay } from "@/components/timer/timer-display";
 import { TimeEntries } from "@/components/timer/time-entries";
 import { ProjectsPage } from "@/components/projects/projects-page";
 import { ClientsPage } from "@/components/clients/clients-page";
+import { InvoicesPage } from "@/components/invoices/invoices-page";
+import { ReportsPage } from "@/components/reports/reports-page";
 import { useStore } from "@/lib/store";
-
-function TimerPage() {
-  const { projects, entries, addEntry, getProjectById } = useStore();
-  return (
-    <>
-      <div>
-        <h1 className="text-2xl font-bold">Timer</h1>
-        <p className="text-sm text-muted-foreground mt-1">Track your time, stay focused.</p>
-      </div>
-      <TimerDisplay projects={projects} onSave={addEntry} />
-      <TimeEntries entries={entries} getProjectById={getProjectById} />
-    </>
-  );
-}
 
 function App() {
   const store = useStore();
@@ -30,7 +18,19 @@ function App() {
         <main className="flex-1 overflow-auto">
           <div className="mx-auto max-w-4xl p-6 space-y-6">
             <Routes>
-              <Route path="/" element={<TimerPage />} />
+              <Route
+                path="/"
+                element={
+                  <>
+                    <div>
+                      <h1 className="text-2xl font-bold">Timer</h1>
+                      <p className="text-sm text-muted-foreground mt-1">Track your time, stay focused.</p>
+                    </div>
+                    <TimerDisplay projects={store.projects} onSave={store.addEntry} />
+                    <TimeEntries entries={store.entries} getProjectById={store.getProjectById} />
+                  </>
+                }
+              />
               <Route
                 path="/projects"
                 element={
@@ -55,8 +55,32 @@ function App() {
                   />
                 }
               />
-              <Route path="/invoices" element={<Placeholder title="Invoices" />} />
-              <Route path="/reports" element={<Placeholder title="Reports" />} />
+              <Route
+                path="/invoices"
+                element={
+                  <InvoicesPage
+                    invoices={store.invoices}
+                    clients={store.clients}
+                    projects={store.projects}
+                    entries={store.entries}
+                    onAdd={store.addInvoice}
+                    onUpdate={store.updateInvoice}
+                    onDelete={store.deleteInvoice}
+                    getClientById={store.getClientById}
+                  />
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ReportsPage
+                    entries={store.entries}
+                    projects={store.projects}
+                    clients={store.clients}
+                    getProjectById={store.getProjectById}
+                  />
+                }
+              />
               <Route path="/settings" element={<Placeholder title="Settings" />} />
             </Routes>
           </div>

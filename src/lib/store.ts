@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Project, Client, TimeEntry } from "@/types";
+import type { Project, Client, TimeEntry, Invoice, InvoiceItem } from "@/types";
 
 const PROJECT_COLORS = [
   "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6",
@@ -10,11 +10,19 @@ function getNextColor(existing: Project[]): string {
   return PROJECT_COLORS[existing.length % PROJECT_COLORS.length];
 }
 
+let invoiceCounter = 0;
+function nextInvoiceNumber(): string {
+  invoiceCounter++;
+  return `INV-${String(invoiceCounter).padStart(4, "0")}`;
+}
+
 export function useStore() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
+  // Projects
   const addProject = (data: Omit<Project, "id" | "createdAt" | "color">) => {
     const project: Project = {
       ...data,
@@ -34,6 +42,7 @@ export function useStore() {
     setProjects((prev) => prev.filter((p) => p.id !== id));
   };
 
+  // Clients
   const addClient = (data: Omit<Client, "id" | "createdAt">) => {
     const client: Client = {
       ...data,
@@ -52,12 +61,34 @@ export function useStore() {
     setClients((prev) => prev.filter((c) => c.id !== id));
   };
 
+  // Time entries
   const addEntry = (data: Omit<TimeEntry, "id">) => {
     const entry: TimeEntry = { ...data, id: crypto.randomUUID() };
     setEntries((prev) => [entry, ...prev]);
     return entry;
   };
 
+  // Invoices
+  const addInvoice = (data: Omit<Invoice, "id" | "number" | "createdAt">) => {
+    const invoice: Invoice = {
+      ...data,
+      id: crypto.randomUUID(),
+      number: nextInvoiceNumber(),
+      createdAt: new Date(),
+    };
+    setInvoices((prev) => [invoice, ...prev]);
+    return invoice;
+  };
+
+  const updateInvoice = (id: string, data: Partial<Invoice>) => {
+    setInvoices((prev) => prev.map((i) => (i.id === id ? { ...i, ...data } : i)));
+  };
+
+  const deleteInvoice = (id: string) => {
+    setInvoices((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  // Lookups
   const getProjectById = (id: string | null) => projects.find((p) => p.id === id);
   const getClientById = (id: string | null) => clients.find((c) => c.id === id);
 
@@ -65,5 +96,6 @@ export function useStore() {
     projects, addProject, updateProject, deleteProject, getProjectById,
     clients, addClient, updateClient, deleteClient, getClientById,
     entries, addEntry,
+    invoices, addInvoice, updateInvoice, deleteInvoice,
   };
 }
