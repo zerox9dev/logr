@@ -6,6 +6,7 @@ import { TimeEntries } from "@/components/timer/time-entries";
 import { ProjectsPage } from "@/components/projects/projects-page";
 import { ClientsPage } from "@/components/clients/clients-page";
 import { InvoicesPage } from "@/components/invoices/invoices-page";
+import { InvoiceCreatePage } from "@/components/invoices/invoice-create-page";
 import { ReportsPage } from "@/components/reports/reports-page";
 import { FunnelsPage } from "@/components/funnels/funnels-page";
 import { SettingsPage } from "@/components/settings/settings-page";
@@ -115,6 +116,20 @@ function App() {
                           onUpdate={store.updateInvoice}
                           onDelete={store.deleteInvoice}
                           getClientById={store.getClientById}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/invoices/new"
+                      element={
+                        <InvoiceCreatePage
+                          clients={store.clients}
+                          projects={store.projects}
+                          entries={store.entries}
+                          invoices={store.invoices}
+                          settings={store.settings}
+                          getClientById={store.getClientById}
+                          onAdd={store.addInvoice}
                         />
                       }
                     />

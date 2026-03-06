@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2, FileText, Send, CheckCircle, AlertCircle, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -244,7 +245,6 @@ function InvoiceForm({
 }
 
 export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUpdate, onDelete, getClientById, settings }: InvoicesPageProps) {
-  const [showCreate, setShowCreate] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
 
@@ -274,9 +274,11 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
             {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4" /> New Invoice
-        </Button>
+        <Link to="/invoices/new">
+          <Button>
+            <Plus className="h-4 w-4" /> New Invoice
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -358,23 +360,6 @@ export function InvoicesPage({ invoices, clients, projects, entries, onAdd, onUp
           })}
         </div>
       )}
-
-      <Dialog open={showCreate} onClose={() => setShowCreate(false)} title="New Invoice" wide>
-        <InvoiceForm
-          clients={clients} projects={projects} entries={entries}
-          settings={settings} invoiceNumber={`${settings.invoicePrefix}-${String(invoices.length + 1).padStart(4, "0")}`}
-          onCancel={() => setShowCreate(false)} submitLabel="Create Draft"
-          onSubmit={(data) => {
-            onAdd({
-              clientId: data.clientId || null, projectId: data.projectId || null,
-              status: "draft", items: data.items, notes: data.notes,
-              taxRate: data.taxRate, discount: data.discount,
-              dueDate: data.dueDate ? new Date(data.dueDate) : new Date(Date.now() + 30 * 86400000),
-            });
-            setShowCreate(false);
-          }}
-        />
-      </Dialog>
 
       <Dialog open={!!editingInvoice} onClose={() => setEditingInvoice(null)}
         title={`Edit ${editingInvoice?.number || ""}`} wide>
