@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Clock, FolderKanban, Users, FileText, TrendingUp, ArrowRight, AlertTriangle, Play, Timer } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,174 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m`;
   return "0m";
+}
+
+// ── Activity Graph (GitHub-style heatmap) ──
+
+const WEEKS = 17; // ~4 months
+const DAYS_OF_WEEK = ["Mon", "", "Wed", "", "Fri", "", ""];
+const INTENSITY = [
+  "bg-[#ebe7e0]",           // 0h
+  "bg-emerald-200",         // <1h
+  "bg-emerald-300",         // 1-2h
+  "bg-emerald-400",         // 2-4h
+  "bg-emerald-500",         // 4-6h
+  "bg-emerald-600",         // 6h+
+];
+
+function getIntensity(hours: number): number {
+  if (hours === 0) return 0;
+  if (hours < 1) return 1;
+  if (hours < 2) return 2;
+  if (hours < 4) return 3;
+  if (hours < 6) return 4;
+  return 5;
+}
+
+function ActivityGraph({ entries }: { entries: TimeEntry[] }) {
+  const [hoveredDay, setHoveredDay] = useState<{ date: string; hours: number; x: number; y: number } | null>(null);
+
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  // Build map: dateStr → total hours
+  const dayMap = new Map<string, number>();
+  entries.forEach((e) => {
+    const key = e.startedAt.toISOString().slice(0, 10);
+    dayMap.set(key, (dayMap.get(key) || 0) + e.duration / 3600);
+  });
+
+  // Build grid: weeks × 7 days, ending today
+  const todayDay = today.getDay(); // 0=Sun
+  const mondayOffset = todayDay === 0 ? 6 : todayDay - 1;
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(endOfWeek.getDate() + (6 - mondayOffset)); // move to Sunday
+
+  const grid: { date: Date; hours: number }[][] = [];
+  for (let w = WEEKS - 1; w >= 0; w--) {
+    const week: { date: Date; hours: number }[] = [];
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(endOfWeek);
+      date.setDate(date.getDate() - w * 7 - (6 - d));
+      const key = date.toISOString().slice(0, 10);
+      const hours = dayMap.get(key) || 0;
+      week.push({ date, hours });
+    }
+    grid.push(week);
+  }
+
+  // Month labels
+  const months: { label: string; col: number }[] = [];
+  let lastMonth = -1;
+  grid.forEach((week, i) => {
+    const m = week[0].date.getMonth();
+    if (m !== lastMonth) {
+      months.push({
+        label: week[0].date.toLocaleDateString([], { month: "short" }),
+        col: i,
+      });
+      lastMonth = m;
+    }
+  });
+
+  // Stats
+  const totalDays = grid.flat().filter((d) => d.date <= today && d.hours > 0).length;
+  const totalHours = grid.flat().filter((d) => d.date <= today).reduce((s, d) => s + d.hours, 0);
+
+  // Current streak
+  let streak = 0;
+  const allDays = grid.flat().filter((d) => d.date <= today).reverse();
+  for (const d of allDays) {
+    if (d.hours > 0) streak++;
+    else break;
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-lg">Activity</CardTitle>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span><strong className="text-foreground">{totalDays}</strong> active days</span>
+          <span><strong className="text-foreground">{totalHours.toFixed(0)}h</strong> total</span>
+          {streak > 0 && <span>🔥 <strong className="text-foreground">{streak}</strong> day streak</span>}
+        </div>
+      </CardHeader>
+      <CardContent className="relative">
+        <div className="flex gap-1">
+          {/* Day labels */}
+          <div className="flex flex-col gap-[3px] pr-2 pt-5">
+            {DAYS_OF_WEEK.map((d, i) => (
+              <div key={i} className="h-[13px] text-[10px] leading-[13px] text-muted-foreground">{d}</div>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="flex-1 overflow-hidden">
+            {/* Month labels */}
+            <div className="flex gap-[3px] mb-1 h-4">
+              {months.map((m, i) => (
+                <div key={i} className="text-[10px] text-muted-foreground" style={{
+                  position: "relative",
+                  left: `${m.col * 16}px`,
+                  marginLeft: i === 0 ? 0 : `-${months[i - 1]?.label.length * 5}px`,
+                }}>
+                  {m.label}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-[3px]">
+              {grid.map((week, wi) => (
+                <div key={wi} className="flex flex-col gap-[3px]">
+                  {week.map((day, di) => {
+                    const isFuture = day.date > today;
+                    const intensity = isFuture ? 0 : getIntensity(day.hours);
+                    return (
+                      <div
+                        key={di}
+                        className={`h-[13px] w-[13px] rounded-sm ${isFuture ? "bg-transparent" : INTENSITY[intensity]} transition-colors`}
+                        onMouseEnter={(e) => {
+                          if (!isFuture) {
+                            const rect = (e.target as HTMLElement).getBoundingClientRect();
+                            setHoveredDay({
+                              date: day.date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }),
+                              hours: day.hours,
+                              x: rect.left + rect.width / 2,
+                              y: rect.top,
+                            });
+                          }
+                        }}
+                        onMouseLeave={() => setHoveredDay(null)}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-end gap-1 mt-3 text-[10px] text-muted-foreground">
+          <span>Less</span>
+          {INTENSITY.map((cls, i) => (
+            <div key={i} className={`h-[11px] w-[11px] rounded-sm ${cls}`} />
+          ))}
+          <span>More</span>
+        </div>
+
+        {/* Tooltip */}
+        {hoveredDay && (
+          <div
+            className="fixed z-50 px-2 py-1 rounded-md bg-foreground text-background text-xs font-medium pointer-events-none"
+            style={{ left: hoveredDay.x, top: hoveredDay.y - 32, transform: "translateX(-50%)" }}
+          >
+            {hoveredDay.hours > 0 ? `${hoveredDay.hours.toFixed(1)}h` : "No activity"} · {hoveredDay.date}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 function getInvoiceTotal(invoice: Invoice): number {
@@ -199,6 +368,9 @@ export function DashboardPage({ entries, projects, clients, invoices, settings, 
               </CardContent>
             </Card>
           </div>
+
+          {/* Activity Graph */}
+          <ActivityGraph entries={entries} />
 
           {/* Quick start + links */}
           <div className="grid grid-cols-4 gap-3">
