@@ -5,8 +5,7 @@ import { auth } from "./api";
 interface AuthState {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -30,13 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await auth.signIn(email, password);
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string) => {
-    const { error } = await auth.signUp(email, password);
+  const signInWithGoogle = async () => {
+    const { error } = await auth.signInWithGoogle();
     return { error };
   };
 
@@ -46,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

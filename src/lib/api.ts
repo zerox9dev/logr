@@ -24,10 +24,11 @@ function unwrap<T>(result: { data: T | null; error: any }): T {
 export const auth = {
   getUser: () => supabase.auth.getUser(),
   getSession: () => supabase.auth.getSession(),
-  signIn: (email: string, password: string) =>
-    supabase.auth.signInWithPassword({ email, password }),
-  signUp: (email: string, password: string) =>
-    supabase.auth.signUp({ email, password }),
+  signInWithGoogle: () =>
+    supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/app` },
+    }),
   signOut: () => supabase.auth.signOut(),
   onAuthStateChange: (cb: Parameters<typeof supabase.auth.onAuthStateChange>[0]) =>
     supabase.auth.onAuthStateChange(cb),
