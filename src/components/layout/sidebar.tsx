@@ -44,7 +44,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex h-screen w-16 flex-col items-center border-r border-sidebar-border bg-sidebar-background py-5 lg:w-52 lg:items-start lg:px-3">
+      <aside className="hidden md:flex h-screen w-14 flex-col items-center bg-transparent py-5 lg:w-48 lg:items-start lg:px-3">
         <Link to="/" className="mb-8 flex items-center gap-2.5 px-3">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-xs">
             L
@@ -64,7 +64,7 @@ export function Sidebar() {
       </aside>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border bg-card py-2 px-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border bg-white py-2 px-1">
         {mobileNav.map((item) => (
           <NavLink
             key={item.name}

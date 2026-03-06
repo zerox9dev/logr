@@ -4,7 +4,7 @@
   /* Warm beige/cream palette — inspired by Caplena */
   --color-background: #f5f1eb;
   --color-foreground: #1a1a1a;
-  --color-card: #ffffff;
+  --color-card: #faf9f7;
   --color-card-foreground: #1a1a1a;
   --color-popover: #ffffff;
   --color-popover-foreground: #1a1a1a;
@@ -18,16 +18,16 @@
   --color-accent-foreground: #1a1a1a;
   --color-destructive: #dc4a3f;
   --color-destructive-foreground: #ffffff;
-  --color-border: #e5e0d8;
-  --color-input: #e5e0d8;
+  --color-border: #e8e4dc;
+  --color-input: #ddd8d0;
   --color-ring: #1a1a1a;
-  --color-sidebar-background: #ffffff;
+  --color-sidebar-background: transparent;
   --color-sidebar-foreground: #7a7570;
   --color-sidebar-primary: #1a1a1a;
   --color-sidebar-primary-foreground: #ffffff;
-  --color-sidebar-accent: #f5f1eb;
+  --color-sidebar-accent: #ebe7e0;
   --color-sidebar-accent-foreground: #1a1a1a;
-  --color-sidebar-border: #e5e0d8;
+  --color-sidebar-border: transparent;
   --color-sidebar-ring: #1a1a1a;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;

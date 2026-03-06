@@ -20,8 +20,9 @@ export function AppLayout() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-5xl p-4 md:p-8 pb-20 md:pb-8 space-y-6">
+      <main className="flex-1 overflow-auto p-3 md:p-4">
+        <div className="h-full rounded-2xl border border-border bg-white overflow-auto">
+          <div className="mx-auto max-w-5xl p-5 md:p-8 pb-20 md:pb-8 space-y-6">
           <Routes>
             <Route
               path="/"
@@ -196,6 +197,7 @@ export function AppLayout() {
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </div>
         </div>
       </main>
       <CommandPalette />
