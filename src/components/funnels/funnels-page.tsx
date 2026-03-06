@@ -7,6 +7,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import type { FunnelType, FunnelStage } from "@/types/database";
+import { t } from "@/lib/i18n";
 
 const FUNNEL_TYPES: FunnelType[] = ["sales", "onboarding", "delivery", "reactivation", "job_hunting"];
 
@@ -30,7 +31,7 @@ export function FunnelsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Funnels</h1>
+          <h1 className="text-2xl font-bold">{t("funnels.title")}</h1>
           {activeFunnel && (
             <p className="text-sm text-muted-foreground mt-1">
               {funnelLeads.length} lead{funnelLeads.length !== 1 ? "s" : ""}
@@ -39,8 +40,8 @@ export function FunnelsPage() {
           )}
         </div>
         <div className="flex gap-2">
-          {activeFunnel && <Button onClick={() => setShowCreateLead(true)}><Plus className="h-4 w-4" /> New Lead</Button>}
-          <Button variant="outline" onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> New Funnel</Button>
+          {activeFunnel && <Button onClick={() => setShowCreateLead(true)}><Plus className="h-4 w-4" /> {t("funnels.newLead")}</Button>}
+          <Button variant="outline" onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> {t("funnels.new")}</Button>
         </div>
       </div>
 
@@ -63,8 +64,8 @@ export function FunnelsPage() {
 
       {funnels.length === 0 ? (
         <Card><CardContent className="py-12 text-center space-y-3">
-          <p className="text-muted-foreground">No funnels yet.</p>
-          <Button onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> Create Funnel</Button>
+          <p className="text-muted-foreground">{t("funnels.noFunnels")}</p>
+          <Button onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> {t("funnels.createFunnel")}</Button>
         </CardContent></Card>
       ) : activeFunnel ? (
         <div className="flex gap-3 overflow-x-auto pb-4">

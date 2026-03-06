@@ -7,6 +7,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import type { ProjectStatus, BillingType } from "@/types/database";
+import { t } from "@/lib/i18n";
 
 export function ProjectsPage() {
   const { projects, clients, sessions, addProject, updateProject, deleteProject, getClientById } = useAppData();
@@ -20,10 +21,10 @@ export function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <p className="text-sm text-muted-foreground mt-1">{projects.length} project{projects.length !== 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-bold">{t("projects.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{projects.length} {t("projects.title").toLowerCase()}</p>
         </div>
-        <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4" /> New Project</Button>
+        <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4" /> {t("projects.new")}</Button>
       </div>
 
       <div className="flex gap-1">
@@ -61,7 +62,7 @@ export function ProjectsPage() {
             </Card>
           );
         })}
-        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No projects yet.</p>}
+        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("projects.noProjects")}</p>}
       </div>
 
       <ProjectDialog

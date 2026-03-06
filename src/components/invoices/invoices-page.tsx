@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAppData } from "@/lib/data-context";
 import type { InvoiceStatus } from "@/types/database";
+import { t } from "@/lib/i18n";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Draft", variant: "secondary" },
@@ -25,14 +26,14 @@ export function InvoicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Invoices</h1>
+          <h1 className="text-2xl font-bold">{t("invoices.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}
-            {unpaidTotal > 0 && <> · ${unpaidTotal.toFixed(0)} unpaid</>}
+            {invoices.length} {t("invoices.title").toLowerCase()}
+            {unpaidTotal > 0 && <> · ${unpaidTotal.toFixed(0)} {t("invoices.unpaid")}</>}
           </p>
         </div>
         <Link to="/app/invoices/new">
-          <Button><Plus className="h-4 w-4" /> New Invoice</Button>
+          <Button><Plus className="h-4 w-4" /> {t("invoices.new")}</Button>
         </Link>
       </div>
 
@@ -79,7 +80,7 @@ export function InvoicesPage() {
             </Card>
           );
         })}
-        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No invoices yet.</p>}
+        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("invoices.noInvoices")}</p>}
       </div>
     </div>
   );
