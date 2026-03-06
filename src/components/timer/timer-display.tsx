@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Project, TimeEntry } from "@/types";
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -9,23 +10,16 @@ function formatTime(seconds: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-interface TimeEntry {
-  id: string;
-  description: string;
-  project: string;
-  duration: number;
-  startedAt: Date;
-}
-
 interface TimerDisplayProps {
-  onSave: (entry: TimeEntry) => void;
+  projects: Project[];
+  onSave: (entry: Omit<TimeEntry, "id">) => void;
 }
 
-export function TimerDisplay({ onSave }: TimerDisplayProps) {
+export function TimerDisplay({ projects, onSave }: TimerDisplayProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [description, setDescription] = useState("");
-  const [project, setProject] = useState("");
+  const [projectId, setProjectId] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<Date | null>(null);
 
@@ -56,9 +50,8 @@ export function TimerDisplay({ onSave }: TimerDisplayProps) {
   const handleStop = () => {
     if (seconds > 0) {
       onSave({
-        id: crypto.randomUUID(),
         description: description || "Untitled",
-        project: project || "No project",
+        projectId: projectId || null,
         duration: seconds,
         startedAt: startTimeRef.current || new Date(),
       });
@@ -66,7 +59,7 @@ export function TimerDisplay({ onSave }: TimerDisplayProps) {
     setIsRunning(false);
     setSeconds(0);
     setDescription("");
-    setProject("");
+    setProjectId("");
     startTimeRef.current = null;
   };
 
@@ -77,24 +70,27 @@ export function TimerDisplay({ onSave }: TimerDisplayProps) {
         placeholder="What are you working on?"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+        className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground outline-none"
       />
 
-      <input
-        type="text"
-        placeholder="Project"
-        value={project}
-        onChange={(e) => setProject(e.target.value)}
-        className="w-32 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none border-l border-border pl-4"
-      />
+      <select
+        value={projectId}
+        onChange={(e) => setProjectId(e.target.value)}
+        className="w-36 bg-transparent text-sm outline-none border-l border-border pl-4"
+      >
+        <option value="">No project</option>
+        {projects.map((p) => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
 
-      <div className="font-mono text-2xl font-bold text-foreground tabular-nums min-w-[120px] text-center">
+      <div className="font-mono text-2xl font-bold tabular-nums min-w-[120px] text-center">
         {formatTime(seconds)}
       </div>
 
       <div className="flex items-center gap-2">
         {!isRunning ? (
-          <Button size="icon" onClick={handleStart} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button size="icon" onClick={handleStart} className="bg-emerald-600 hover:bg-emerald-700 text-white">
             <Play className="h-4 w-4" />
           </Button>
         ) : (

@@ -1,79 +1,76 @@
-import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TimerDisplay } from "@/components/timer/timer-display";
 import { TimeEntries } from "@/components/timer/time-entries";
+import { ProjectsPage } from "@/components/projects/projects-page";
+import { ClientsPage } from "@/components/clients/clients-page";
+import { useStore } from "@/lib/store";
 
-interface TimeEntry {
-  id: string;
-  description: string;
-  project: string;
-  duration: number;
-  startedAt: Date;
+function TimerPage() {
+  const { projects, entries, addEntry, getProjectById } = useStore();
+  return (
+    <>
+      <div>
+        <h1 className="text-2xl font-bold">Timer</h1>
+        <p className="text-sm text-muted-foreground mt-1">Track your time, stay focused.</p>
+      </div>
+      <TimerDisplay projects={projects} onSave={addEntry} />
+      <TimeEntries entries={entries} getProjectById={getProjectById} />
+    </>
+  );
 }
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("/");
-  const [entries, setEntries] = useState<TimeEntry[]>([]);
-
-  const handleSave = (entry: TimeEntry) => {
-    setEntries((prev) => [entry, ...prev]);
-  };
+  const store = useStore();
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+    <BrowserRouter>
+      <div className="flex h-screen">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-4xl p-6 space-y-6">
+            <Routes>
+              <Route path="/" element={<TimerPage />} />
+              <Route
+                path="/projects"
+                element={
+                  <ProjectsPage
+                    projects={store.projects}
+                    clients={store.clients}
+                    onAdd={store.addProject}
+                    onUpdate={store.updateProject}
+                    onDelete={store.deleteProject}
+                    getClientById={store.getClientById}
+                  />
+                }
+              />
+              <Route
+                path="/clients"
+                element={
+                  <ClientsPage
+                    clients={store.clients}
+                    onAdd={store.addClient}
+                    onUpdate={store.updateClient}
+                    onDelete={store.deleteClient}
+                  />
+                }
+              />
+              <Route path="/invoices" element={<Placeholder title="Invoices" />} />
+              <Route path="/reports" element={<Placeholder title="Reports" />} />
+              <Route path="/settings" element={<Placeholder title="Settings" />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </BrowserRouter>
+  );
+}
 
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-4xl p-6 space-y-6">
-          {currentPage === "/" && (
-            <>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Timer</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Track your time, stay focused.
-                </p>
-              </div>
-              <TimerDisplay onSave={handleSave} />
-              <TimeEntries entries={entries} />
-            </>
-          )}
-
-          {currentPage === "/projects" && (
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Projects</h1>
-              <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-            </div>
-          )}
-
-          {currentPage === "/clients" && (
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Clients</h1>
-              <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-            </div>
-          )}
-
-          {currentPage === "/invoices" && (
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Invoices</h1>
-              <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-            </div>
-          )}
-
-          {currentPage === "/reports" && (
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Reports</h1>
-              <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-            </div>
-          )}
-
-          {currentPage === "/settings" && (
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-              <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
-            </div>
-          )}
-        </div>
-      </main>
+function Placeholder({ title }: { title: string }) {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <p className="text-sm text-muted-foreground mt-4">Coming soon.</p>
     </div>
   );
 }

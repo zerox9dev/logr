@@ -1,12 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface TimeEntry {
-  id: string;
-  description: string;
-  project: string;
-  duration: number;
-  startedAt: Date;
-}
+import type { TimeEntry, Project } from "@/types";
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -24,9 +17,10 @@ function formatTimeRange(start: Date, duration: number): string {
 
 interface TimeEntriesProps {
   entries: TimeEntry[];
+  getProjectById: (id: string | null) => Project | undefined;
 }
 
-export function TimeEntries({ entries }: TimeEntriesProps) {
+export function TimeEntries({ entries, getProjectById }: TimeEntriesProps) {
   const today = entries.filter(
     (e) => e.startedAt.toDateString() === new Date().toDateString()
   );
@@ -48,29 +42,42 @@ export function TimeEntries({ entries }: TimeEntriesProps) {
           </p>
         ) : (
           <div className="space-y-3">
-            {today.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-accent/50 transition-colors"
-              >
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium text-foreground">
-                    {entry.description}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {entry.project}
-                  </span>
+            {today.map((entry) => {
+              const project = getProjectById(entry.projectId);
+              return (
+                <div
+                  key={entry.id}
+                  className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {project && (
+                      <div
+                        className="h-2.5 w-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: project.color }}
+                      />
+                    )}
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-medium">
+                        {entry.description}
+                      </span>
+                      {project && (
+                        <span className="text-xs text-muted-foreground">
+                          {project.name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-muted-foreground">
+                      {formatTimeRange(entry.startedAt, entry.duration)}
+                    </span>
+                    <span className="font-mono text-sm font-medium min-w-[60px] text-right">
+                      {formatDuration(entry.duration)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-muted-foreground">
-                    {formatTimeRange(entry.startedAt, entry.duration)}
-                  </span>
-                  <span className="font-mono text-sm font-medium text-foreground min-w-[60px] text-right">
-                    {formatDuration(entry.duration)}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
