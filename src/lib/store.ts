@@ -86,11 +86,14 @@ export function useStore() {
   };
 
   // Invoices
-  const addInvoice = (data: Omit<Invoice, "id" | "number" | "createdAt">) => {
+  const addInvoice = (data: Omit<Invoice, "id" | "number" | "createdAt" | "paidAt" | "taxRate" | "discount"> & Partial<Pick<Invoice, "taxRate" | "discount">>) => {
     const invoice: Invoice = {
       ...data,
       id: crypto.randomUUID(),
       number: nextInvoiceNumber(),
+      taxRate: data.taxRate ?? 0,
+      discount: data.discount ?? 0,
+      paidAt: null,
       createdAt: new Date(),
     };
     setInvoices((prev) => [invoice, ...prev]);

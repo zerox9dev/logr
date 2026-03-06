@@ -77,7 +77,10 @@ export interface Invoice {
   projectId: string | null;
   status: InvoiceStatus;
   items: InvoiceItem[];
+  taxRate: number;
+  discount: number;
   notes: string;
   dueDate: Date;
+  paidAt: Date | null;
   createdAt: Date;
 }
