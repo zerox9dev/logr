@@ -41,6 +41,7 @@ export function TimerPage() {
   const [formProjectId, setFormProjectId] = useState("");
   const [formDate, setFormDate] = useState(new Date().toISOString().slice(0, 10));
   const [formStatus, setFormStatus] = useState<string>("unpaid");
+  const [formRate, setFormRate] = useState<string>("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -73,20 +74,20 @@ export function TimerPage() {
 
   const openCreate = () => {
     setEditSession(null);
-    setFormName(""); setFormDuration(""); setFormProjectId(""); setFormDate(new Date().toISOString().slice(0, 10)); setFormStatus("unpaid");
+    setFormName(""); setFormDuration(""); setFormProjectId(""); setFormDate(new Date().toISOString().slice(0, 10)); setFormStatus("unpaid"); setFormRate("");
     setShowManual(true);
   };
   const openEdit = (s: Session) => {
     setEditSession(s);
     setFormName(s.name); setFormDuration(durationToInput(s.duration_seconds));
-    setFormProjectId(s.project_id || ""); setFormDate(s.started_at.slice(0, 10)); setFormStatus(s.payment_status);
+    setFormProjectId(s.project_id || ""); setFormDate(s.started_at.slice(0, 10)); setFormStatus(s.payment_status); setFormRate(s.rate ? String(s.rate) : "");
     setShowManual(true);
   };
   const handleSave = async () => {
     const dur = parseDuration(formDuration); if (!formName || !dur) return;
     const proj = formProjectId ? projects.find((p) => p.id === formProjectId) : null;
     const billing = proj?.billing_type || "hourly";
-    const rate = billing === "hourly" ? (proj?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
+    const rate = formRate ? Number(formRate) : (billing === "hourly" ? (proj?.rate ?? Number(settings?.default_rate) ?? 0) : 0);
 
     if (editSession) {
       await updateSession(editSession.id, { name: formName, project_id: formProjectId || null, client_id: proj?.client_id || null, started_at: new Date(formDate).toISOString(), duration_seconds: dur, rate, billing_type: billing, payment_status: formStatus as any });
@@ -140,6 +141,15 @@ export function TimerPage() {
                         <td className="py-2.5 px-4 font-medium">{session.name}</td>
                         <td className="py-2.5 px-3 text-muted-foreground">{project?.name || <span className="text-muted-foreground/50">—</span>}</td>
                         <td className="py-2.5 px-3 text-right font-mono text-muted-foreground w-20">{formatShort(session.duration_seconds)}</td>
+                        <td className="py-2.5 px-3 text-right text-muted-foreground w-24">
+                          {session.rate > 0 ? (
+                            <span className="text-xs">${session.rate}/hr</span>
+                          ) : session.billing_type === "fixed" ? (
+                            <span className="text-xs">Fixed</span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground/40">—</span>
+                          )}
+                        </td>
                         <td className="py-2.5 px-2 w-24">
                           <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
                             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${session.payment_status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
@@ -170,11 +180,13 @@ export function TimerPage() {
             <div className="space-y-2"><label className="text-sm font-medium">{t("timer.duration")}</label><Input value={formDuration} onChange={(e) => setFormDuration(e.target.value)} placeholder="1h 30m, 1:30, 90m" /></div>
             <div className="space-y-2"><label className="text-sm font-medium">{t("timer.date")}</label><Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} /></div>
           </div>
+          <div className="space-y-2"><label className="text-sm font-medium">{t("timer.project")}</label>
+            <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+              <option value="">{t("timer.noProject")}</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select></div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("timer.project")}</label>
-              <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
-                <option value="">{t("timer.noProject")}</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select></div>
+            <div className="space-y-2"><label className="text-sm font-medium">{t("projects.rate")}</label>
+              <Input type="number" value={formRate} onChange={(e) => setFormRate(e.target.value)} placeholder="0" /></div>
             <div className="space-y-2"><label className="text-sm font-medium">Status</label>
               <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
                 <option value="unpaid">Unpaid</option><option value="paid">Paid</option>
