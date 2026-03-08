@@ -1,3 +1,4 @@
+/* App Layout — Znaidy style */
 .layout {
   display: flex;
   height: 100vh;
@@ -7,33 +8,34 @@
 .main {
   flex: 1;
   overflow: auto;
-  padding: 0.75rem;
+  padding: 12px;
 }
 
 @media (min-width: 768px) {
   .main {
-    padding: 1rem;
+    padding: 16px;
   }
 }
 
 .workArea {
   height: 100%;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
+  border-radius: 16px;
+  border: 1px solid var(--gray-200);
   background: var(--white);
   overflow: auto;
 }
 
 .workAreaInner {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 1.25rem;
-  padding-bottom: 5rem;
+  padding: 20px;
+  padding-bottom: 80px;
 }
 
 @media (min-width: 768px) {
   .workAreaInner {
-    padding: 2rem;
-    padding-bottom: 2rem;
+    padding: 32px;
+    padding-bottom: 32px;
   }
 }
 
@@ -48,17 +50,17 @@
 .loadingInner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--muted-foreground);
+  gap: 12px;
+  color: var(--gray-400);
 }
 
 .loadingText {
-  font-size: 0.875rem;
+  font-size: 14px;
 }
 
 .loadingIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
   animation: spin 1s linear infinite;
 }
 

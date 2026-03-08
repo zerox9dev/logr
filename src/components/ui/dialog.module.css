@@ -1,3 +1,4 @@
+/* Dialog — Znaidy style */
 .overlay {
   position: fixed;
   inset: 0;
@@ -5,37 +6,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .panel {
   position: relative;
   z-index: 50;
   width: 100%;
-  max-width: 32rem;
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  background: var(--card);
-  padding: 1.5rem;
+  max-width: 480px;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  padding: 24px;
 }
 
 .panelWide {
-  max-width: 56rem;
+  max-width: 720px;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
 }
 
 .title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground);
 }

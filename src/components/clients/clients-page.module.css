@@ -1,9 +1,40 @@
-.clientRow { display: flex; align-items: center; gap: 0.75rem; }
-.avatar {
-  height: 2.5rem; width: 2.5rem; border-radius: 50%;
-  background: var(--accent); display: flex; align-items: center;
-  justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+/* Clients — Znaidy style */
+.clientRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.contactInfo { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.125rem; }
-.contactItem { font-size: 0.75rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 0.25rem; }
-.contactIcon { width: 0.75rem; height: 0.75rem; }
+
+.avatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+
+.contactInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.contactItem {
+  font-size: 13px;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contactIcon {
+  width: 12px;
+  height: 12px;
+}

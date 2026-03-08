@@ -1,12 +1,12 @@
-/* Desktop sidebar */
+/* Sidebar — Znaidy style */
 .sidebar {
   display: none;
   height: 100vh;
-  width: 3.5rem;
+  width: 56px;
   flex-direction: column;
   align-items: center;
   background: transparent;
-  padding: 1.25rem 0;
+  padding: 20px 0;
 }
 
 @media (min-width: 768px) {
@@ -17,40 +17,41 @@
 
 @media (min-width: 1024px) {
   .sidebar {
-    width: 12rem;
+    width: 200px;
     align-items: flex-start;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding: 20px 12px;
   }
 }
 
 /* Logo */
 .logo {
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0 0.75rem;
+  gap: 10px;
+  padding: 0 12px;
+  text-decoration: none;
 }
 
 .logoIcon {
   display: flex;
-  height: 1.75rem;
-  width: 1.75rem;
+  height: 28px;
+  width: 28px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--primary);
-  color: var(--primary-foreground);
+  border-radius: 8px;
+  background: var(--black);
+  color: var(--white);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 12px;
 }
 
 .logoText {
   display: none;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--foreground);
 }
 
 @media (min-width: 1024px) {
@@ -64,7 +65,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 2px;
   width: 100%;
 }
 
@@ -75,14 +76,14 @@
 .navLink {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  border-radius: var(--radius-lg);
-  padding: 0.625rem 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: background-color 0.15s, color 0.15s;
+  gap: 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.15s, background-color 0.15s;
   width: 100%;
-  color: var(--sidebar-foreground);
+  color: var(--gray-500);
   text-decoration: none;
   border: none;
   background: none;
@@ -90,14 +91,14 @@
 }
 
 .navLink:hover {
-  background: rgba(235, 231, 224, 0.6);
-  color: var(--sidebar-accent-foreground);
+  color: var(--foreground);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .navLinkActive {
-  background: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
+  color: var(--foreground);
   font-weight: 600;
+  background: var(--gray-100);
 }
 
 .navIcon {
@@ -126,9 +127,9 @@
   z-index: 50;
   align-items: center;
   justify-content: space-around;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--gray-200);
   background: var(--white);
-  padding: 0.5rem 0.25rem;
+  padding: 8px 4px;
 }
 
 @media (min-width: 768px) {
@@ -141,21 +142,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.125rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-lg);
+  gap: 2px;
+  padding: 4px 12px;
+  border-radius: 8px;
   font-size: 10px;
   font-weight: 500;
   transition: color 0.15s;
-  color: var(--muted-foreground);
+  color: var(--gray-400);
   text-decoration: none;
 }
 
 .mobileLinkActive {
-  color: var(--primary);
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 .mobileIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
 }

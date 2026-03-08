@@ -1,17 +1,93 @@
-.statsGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-@media (min-width: 1024px) { .statsGrid { grid-template-columns: repeat(4, 1fr); } }
-.statContent { padding: 1.25rem; }
-.statLabel { font-size: 0.75rem; color: var(--muted-foreground); font-weight: 500; }
-.statValue { font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem; }
-.statValueGreen { color: var(--emerald-600); }
-.grid2 { display: grid; gap: 1.5rem; }
-@media (min-width: 1024px) { .grid2 { grid-template-columns: 1fr 1fr; } }
-.barList { display: flex; flex-direction: column; gap: 0.75rem; }
-.barItem { display: flex; flex-direction: column; gap: 0.25rem; }
-.barHeader { display: flex; align-items: center; justify-content: space-between; font-size: 0.875rem; }
-.barName { font-weight: 500; }
-.barDuration { color: var(--muted-foreground); }
-.barTrack { height: 0.375rem; width: 100%; border-radius: 9999px; background: var(--muted); }
-.barFill { height: 0.375rem; border-radius: 9999px; }
-.barFillGreen { background: var(--emerald-500); }
-.barFillBlue { background: var(--blue-500); }
+/* Reports — Znaidy style */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statContent {
+  padding: 20px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: var(--foreground);
+}
+
+.statValueGreen {
+  color: var(--emerald-600);
+}
+
+.grid2 {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .grid2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.barHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.barName {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.barDuration {
+  color: var(--gray-500);
+  font-size: 13px;
+}
+
+.barTrack {
+  height: 6px;
+  width: 100%;
+  border-radius: 100px;
+  background: var(--gray-100);
+}
+
+.barFill {
+  height: 6px;
+  border-radius: 100px;
+}
+
+.barFillGreen {
+  background: var(--emerald-500);
+}
+
+.barFillBlue {
+  background: var(--blue-500);
+}

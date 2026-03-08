@@ -1,3 +1,4 @@
+/* Command Palette — Znaidy style */
 .overlay {
   position: fixed;
   inset: 0;
@@ -11,75 +12,75 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .panel {
   position: relative;
   width: 100%;
-  max-width: 28rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  background: var(--background);
+  max-width: 440px;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
   overflow: hidden;
 }
 
 .searchBar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1rem;
+  gap: 10px;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 12px 16px;
 }
 
 .searchIcon {
-  color: var(--muted-foreground);
+  color: var(--gray-400);
   flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
 }
 
 .searchInput {
   flex: 1;
   background: transparent;
-  font-size: 0.875rem;
+  font-size: 14px;
   outline: none;
   border: none;
   color: var(--foreground);
 }
 
 .searchInput::placeholder {
-  color: var(--muted-foreground);
+  color: var(--gray-400);
 }
 
 .kbd {
-  font-size: 10px;
-  color: var(--muted-foreground);
-  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--gray-400);
+  border: 1px solid var(--gray-200);
   border-radius: 4px;
-  padding: 0.125rem 0.375rem;
+  padding: 2px 6px;
 }
 
 .results {
-  max-height: 16rem;
+  max-height: 260px;
   overflow: auto;
-  padding: 0.5rem 0;
+  padding: 8px 0;
 }
 
 .noResults {
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
+  font-size: 14px;
+  color: var(--gray-400);
   text-align: center;
-  padding: 1.5rem 0;
+  padding: 24px 0;
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
   width: 100%;
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  padding: 10px 16px;
+  font-size: 14px;
   transition: background-color 0.1s;
   border: none;
   background: transparent;
@@ -88,15 +89,18 @@
   text-align: left;
 }
 
+.item:hover {
+  background: var(--gray-50);
+}
+
 .itemSelected {
-  background: var(--accent);
-  color: var(--accent-foreground);
+  background: var(--gray-100);
 }
 
 .itemIcon {
-  color: var(--muted-foreground);
-  width: 1rem;
-  height: 1rem;
+  color: var(--gray-400);
+  width: 16px;
+  height: 16px;
 }
 
 .itemLabel {

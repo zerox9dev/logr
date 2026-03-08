@@ -1,32 +1,35 @@
+/* Badge — Znaidy style */
 .badge {
   display: inline-flex;
   align-items: center;
-  border-radius: 9999px;
+  border-radius: 100px;
   border: 1px solid transparent;
-  padding: 0.125rem 0.625rem;
-  font-size: 0.75rem;
+  padding: 3px 10px;
+  font-size: 12px;
   font-weight: 600;
   transition: color 0.15s, background-color 0.15s;
   white-space: nowrap;
+  line-height: 1.4;
 }
 
 .default {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--black);
+  color: var(--white);
 }
 
 .secondary {
-  background: var(--secondary);
-  color: var(--secondary-foreground);
+  background: var(--gray-100);
+  color: var(--gray-600);
 }
 
 .destructive {
-  background: var(--destructive);
-  color: var(--destructive-foreground);
+  background: var(--red-50);
+  border-color: var(--red-200);
+  color: var(--red-700);
 }
 
 .outline {
-  border-color: var(--border);
-  color: var(--foreground);
+  border-color: var(--gray-200);
+  color: var(--gray-500);
   background: transparent;
 }
