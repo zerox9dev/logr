@@ -8,5 +8,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --ignore-scripts
+      - run: npm install
       - run: npm run build
