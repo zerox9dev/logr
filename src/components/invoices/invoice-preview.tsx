@@ -1,4 +1,5 @@
 import type { UserSettings, Client } from "@/types/database";
+import s from "./invoices-page.module.css";
 
 interface InvoicePreviewProps {
   number: string;
@@ -13,78 +14,78 @@ interface InvoicePreviewProps {
 
 export function InvoicePreview({ number, client, settings, items, taxRate, discount, dueDate, notes }: InvoicePreviewProps) {
   const validItems = items.filter((i) => i.description && i.hours > 0 && i.rate > 0);
-  const subtotal = validItems.reduce((s, i) => s + i.hours * i.rate, 0);
+  const subtotal = validItems.reduce((sum, i) => sum + i.hours * i.rate, 0);
   const afterDiscount = subtotal - discount;
   const tax = afterDiscount * (taxRate / 100);
   const total = afterDiscount + tax;
   const sym = { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[settings?.default_currency || "USD"] || "$";
 
   return (
-    <div className="bg-white border border-border rounded-lg p-6 text-sm space-y-6 min-w-[400px]">
-      <div className="flex justify-between items-start">
+    <div style={{ background: "var(--white)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: "1.5rem", fontSize: "0.875rem", display: "flex", flexDirection: "column", gap: "1.5rem", minWidth: 400 }}>
+      <div className={s.docHeader}>
         <div>
-          <h2 className="text-xl font-bold">{settings?.company || settings?.full_name || "Your Company"}</h2>
-          {settings?.email && <p className="text-xs text-muted-foreground">{settings.email}</p>}
-          {settings?.address && <p className="text-xs text-muted-foreground whitespace-pre-line">{settings.address}</p>}
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>{settings?.company || settings?.full_name || "Your Company"}</h2>
+          {settings?.email && <p className={s.docSmall}>{settings.email}</p>}
+          {settings?.address && <p className={[s.docSmall, s.docSmallPre].join(" ")}>{settings.address}</p>}
         </div>
-        <div className="text-right">
-          <p className="text-lg font-bold">INVOICE</p>
-          <p className="text-xs text-muted-foreground">{number}</p>
-          <p className="text-xs text-muted-foreground mt-1">Date: {new Date().toLocaleDateString()}</p>
-          {dueDate && <p className="text-xs text-muted-foreground">Due: {new Date(dueDate).toLocaleDateString()}</p>}
+        <div className={s.docRight}>
+          <p style={{ fontSize: "1.125rem", fontWeight: 700 }}>INVOICE</p>
+          <p className={s.docSmall}>{number}</p>
+          <p className={s.docSmall} style={{ marginTop: "0.25rem" }}>Date: {new Date().toLocaleDateString()}</p>
+          {dueDate && <p className={s.docSmall}>Due: {new Date(dueDate).toLocaleDateString()}</p>}
         </div>
       </div>
 
       <div>
-        <p className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Bill To</p>
+        <p className={s.docSectionLabel}>Bill To</p>
         {client ? (
-          <div className="mt-1">
-            <p className="font-medium">{client.name}</p>
-            {client.company && <p className="text-xs text-muted-foreground">{client.company}</p>}
-            {client.email && <p className="text-xs text-muted-foreground">{client.email}</p>}
-            {client.address && <p className="text-xs text-muted-foreground">{client.address}</p>}
+          <div style={{ marginTop: "0.25rem" }}>
+            <p style={{ fontWeight: 500 }}>{client.name}</p>
+            {client.company && <p className={s.docSmall}>{client.company}</p>}
+            {client.email && <p className={s.docSmall}>{client.email}</p>}
+            {client.address && <p className={s.docSmall}>{client.address}</p>}
           </div>
-        ) : <p className="text-xs text-muted-foreground mt-1">No client selected</p>}
+        ) : <p className={s.docSmall} style={{ marginTop: "0.25rem" }}>No client selected</p>}
       </div>
 
-      <table className="w-full">
+      <table className={s.docTable}>
         <thead>
-          <tr className="border-b border-border text-[10px] uppercase text-muted-foreground tracking-wider">
-            <th className="text-left py-2 font-medium">Description</th>
-            <th className="text-right py-2 font-medium w-16">Qty</th>
-            <th className="text-right py-2 font-medium w-16">Rate</th>
-            <th className="text-right py-2 font-medium w-20">Amount</th>
+          <tr>
+            <th className={s.docTh}>Description</th>
+            <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 64 }}>Qty</th>
+            <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 64 }}>Rate</th>
+            <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>Amount</th>
           </tr>
         </thead>
         <tbody>
           {validItems.length === 0 ? (
-            <tr><td colSpan={4} className="py-4 text-center text-xs text-muted-foreground">Add items to see preview</td></tr>
+            <tr><td colSpan={4} className={s.docEmpty}>Add items to see preview</td></tr>
           ) : validItems.map((item, i) => (
-            <tr key={i} className="border-b border-border/50">
-              <td className="py-2">{item.description}</td>
-              <td className="py-2 text-right">{item.hours}</td>
-              <td className="py-2 text-right">{sym}{item.rate}</td>
-              <td className="py-2 text-right font-medium">{sym}{(item.hours * item.rate).toFixed(2)}</td>
+            <tr key={i}>
+              <td className={s.docTd}>{item.description}</td>
+              <td className={[s.docTd, s.docTdRight].join(" ")}>{item.hours}</td>
+              <td className={[s.docTd, s.docTdRight].join(" ")}>{sym}{item.rate}</td>
+              <td className={[s.docTd, s.docTdRight, s.docTdBold].join(" ")}>{sym}{(item.hours * item.rate).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {validItems.length > 0 && (
-        <div className="flex justify-end">
-          <div className="w-48 space-y-1 text-xs">
-            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{sym}{subtotal.toFixed(2)}</span></div>
-            {discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span>-{sym}{discount.toFixed(2)}</span></div>}
-            {taxRate > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span>{sym}{tax.toFixed(2)}</span></div>}
-            <div className="flex justify-between font-bold text-sm pt-1 border-t border-border"><span>Total</span><span>{sym}{total.toFixed(2)}</span></div>
+        <div className={s.docTotals}>
+          <div style={{ width: "12rem", display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.75rem" }}>
+            <div className={s.docTotalRow}><span className={s.docTotalLabel}>Subtotal</span><span>{sym}{subtotal.toFixed(2)}</span></div>
+            {discount > 0 && <div className={s.docTotalRow}><span className={s.docTotalLabel}>Discount</span><span>-{sym}{discount.toFixed(2)}</span></div>}
+            {taxRate > 0 && <div className={s.docTotalRow}><span className={s.docTotalLabel}>Tax ({taxRate}%)</span><span>{sym}{tax.toFixed(2)}</span></div>}
+            <div className={s.docTotalFinal}><span>Total</span><span>{sym}{total.toFixed(2)}</span></div>
           </div>
         </div>
       )}
 
       {notes && (
         <div>
-          <p className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Notes</p>
-          <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{notes}</p>
+          <p className={s.docSectionLabel}>Notes</p>
+          <p className={[s.docSmall, s.docSmallPre].join(" ")} style={{ marginTop: "0.25rem" }}>{notes}</p>
         </div>
       )}
     </div>

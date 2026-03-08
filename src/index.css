@@ -1,48 +1,168 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-@theme {
-  /* Warm beige/cream palette — inspired by Caplena */
-  --color-background: #f5f1eb;
-  --color-foreground: #1a1a1a;
-  --color-card: #faf9f7;
-  --color-card-foreground: #1a1a1a;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #1a1a1a;
-  --color-primary: #1a1a1a;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #f0ece6;
-  --color-secondary-foreground: #1a1a1a;
-  --color-muted: #ebe7e0;
-  --color-muted-foreground: #7a7570;
-  --color-accent: #f0ece6;
-  --color-accent-foreground: #1a1a1a;
-  --color-destructive: #dc4a3f;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #e8e4dc;
-  --color-input: #ddd8d0;
-  --color-ring: #1a1a1a;
-  --color-sidebar-background: transparent;
-  --color-sidebar-foreground: #7a7570;
-  --color-sidebar-primary: #1a1a1a;
-  --color-sidebar-primary-foreground: #ffffff;
-  --color-sidebar-accent: #ebe7e0;
-  --color-sidebar-accent-foreground: #1a1a1a;
-  --color-sidebar-border: transparent;
-  --color-sidebar-ring: #1a1a1a;
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Core colors */
+  --black: #1a1a1a;
+  --white: #ffffff;
+  --beige: #f5f1eb;
+
+  /* Gray scale */
+  --gray-50: #faf9f7;
+  --gray-100: #f0ece6;
+  --gray-200: #e8e4dc;
+  --gray-300: #ddd8d0;
+  --gray-400: #9a9590;
+  --gray-500: #7a7570;
+  --gray-600: #5a554f;
+
+  /* Semantic */
+  --background: #f5f1eb;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --primary: #1a1a1a;
+  --primary-foreground: #ffffff;
+  --secondary: #f0ece6;
+  --secondary-foreground: #1a1a1a;
+  --muted: #ebe7e0;
+  --muted-foreground: #7a7570;
+  --accent: #f0ece6;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc4a3f;
+  --destructive-foreground: #ffffff;
+  --border: #e8e4dc;
+  --input: #ddd8d0;
+  --ring: #1a1a1a;
+
+  /* Sidebar */
+  --sidebar-background: transparent;
+  --sidebar-foreground: #7a7570;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebe7e0;
+  --sidebar-accent-foreground: #1a1a1a;
+
+  /* Status colors */
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-200: #a7f3d0;
+  --emerald-300: #6ee7b7;
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+
+  --red-50: #fef2f2;
+  --red-200: #fecaca;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+  --red-800: #991b1b;
+
+  --blue-50: #eff6ff;
+  --blue-200: #bfdbfe;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-800: #1e40af;
+
+  --amber-100: #fef3c7;
+  --amber-400: #fbbf24;
+  --amber-700: #b45309;
+
+  --violet-400: #a78bfa;
+
+  /* Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
-
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-2xl: 1rem;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-family: var(--font-sans);
-  }
+body {
+  font-family: var(--font);
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Global utility: border color defaults */
+*, *::before, *::after {
+  border-color: var(--border);
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.2s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

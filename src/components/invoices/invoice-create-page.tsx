@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InvoicePreview } from "@/components/invoices/invoice-preview";
 import { useAppData } from "@/lib/data-context";
+import sh from "@/components/shared.module.css";
+import s from "./invoices-page.module.css";
 
 interface LineItem {
   id: string;
@@ -35,7 +37,7 @@ export function InvoiceCreatePage() {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
-  const subtotal = items.reduce((s, i) => s + i.quantity * i.rate, 0);
+  const subtotal = items.reduce((sum, i) => sum + i.quantity * i.rate, 0);
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
@@ -58,81 +60,79 @@ export function InvoiceCreatePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/app/invoices"><Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button></Link>
+    <div className={sh.page}>
+      <div className={sh.header}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link to="/app/invoices"><Button variant="ghost" size="icon"><ArrowLeft style={{ width: 16, height: 16 }} /></Button></Link>
           <div>
-            <h1 className="text-2xl font-bold">New Invoice</h1>
-            <p className="text-sm text-muted-foreground">{invoiceNumber}</p>
+            <h1 className={sh.title}>New Invoice</h1>
+            <p className={sh.subtitle}>{invoiceNumber}</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div style={{ display: "flex", gap: "0.5rem" }}>
           <Link to="/app/invoices"><Button variant="outline">Cancel</Button></Link>
           <Button onClick={handleSubmit}>Create Draft</Button>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <div className="space-y-4 rounded-xl border border-border p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Client</label>
-                <select value={clientId} onChange={(e) => setClientId(e.target.value)}
-                  className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+      <div className={sh.grid2col}>
+        <div className={sh.page}>
+          <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div className={sh.formRow2}>
+              <div className={sh.formField}>
+                <label className={sh.formLabel}>Client</label>
+                <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={sh.formSelect}>
                   <option value="">Select client</option>
                   {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Due Date</label>
+              <div className={sh.formField}>
+                <label className={sh.formLabel}>Due Date</label>
                 <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Line Items</label>
-              <Button variant="ghost" size="sm" onClick={addItem}><Plus className="h-3 w-3" /> Add</Button>
+          <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <label className={sh.formLabel}>Line Items</label>
+              <Button variant="ghost" size="sm" onClick={addItem}><Plus style={{ width: 12, height: 12 }} /> Add</Button>
             </div>
-            <div className="space-y-2">
-              <div className="grid grid-cols-[1fr_70px_70px_70px_32px] gap-2 text-[10px] uppercase text-muted-foreground font-medium tracking-wider px-1">
-                <span>Description</span><span className="text-right">Qty</span><span className="text-right">Rate</span><span className="text-right">Amount</span><span></span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 70px 32px", gap: "0.5rem", fontSize: 10, textTransform: "uppercase", color: "var(--muted-foreground)", fontWeight: 500, letterSpacing: "0.05em", padding: "0 0.25rem" }}>
+                <span>Description</span><span style={{ textAlign: "right" }}>Qty</span><span style={{ textAlign: "right" }}>Rate</span><span style={{ textAlign: "right" }}>Amount</span><span></span>
               </div>
               {items.map((item) => (
-                <div key={item.id} className="grid grid-cols-[1fr_70px_70px_70px_32px] gap-2 items-center">
+                <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 70px 32px", gap: "0.5rem", alignItems: "center" }}>
                   <Input placeholder="Description" value={item.description} onChange={(e) => updateItem(item.id, "description", e.target.value)} />
-                  <Input type="number" placeholder="0" value={item.quantity || ""} onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value))} className="text-right" />
-                  <Input type="number" placeholder="0" value={item.rate || ""} onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))} className="text-right" />
-                  <span className="text-sm font-medium text-right">${(item.quantity * item.rate).toFixed(0)}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeItem(item.id)}><Trash2 className="h-3 w-3" /></Button>
+                  <Input type="number" placeholder="0" value={item.quantity || ""} onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value))} style={{ textAlign: "right" }} />
+                  <Input type="number" placeholder="0" value={item.rate || ""} onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))} style={{ textAlign: "right" }} />
+                  <span style={{ fontSize: "0.875rem", fontWeight: 500, textAlign: "right" }}>${(item.quantity * item.rate).toFixed(0)}</span>
+                  <Button variant="ghost" size="icon" style={{ width: 32, height: 32 }} onClick={() => removeItem(item.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
                 </div>
               ))}
             </div>
-            <div className="space-y-1.5 pt-3 border-t text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Tax</span>
-                <div className="flex items-center gap-1">
-                  <Input type="number" value={taxRate || ""} onChange={(e) => setTaxRate(Number(e.target.value))} className="w-16 h-7 text-xs text-right" placeholder="0" />
-                  <span>%</span><span className="min-w-[60px] text-right">${taxAmount.toFixed(2)}</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)", fontSize: "0.875rem" }}>
+              <div className={s.docTotalRow}><span className={s.docTotalLabel}>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className={s.docTotalLabel}>Tax</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                  <Input type="number" value={taxRate || ""} onChange={(e) => setTaxRate(Number(e.target.value))} style={{ width: 64, height: 28, fontSize: "0.75rem", textAlign: "right" }} placeholder="0" />
+                  <span>%</span><span style={{ minWidth: 60, textAlign: "right" }}>${taxAmount.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="flex justify-between font-bold text-base pt-2 border-t"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className={s.docTotalFinal}><span>Total</span><span>${total.toFixed(2)}</span></div>
             </div>
           </div>
 
-          <div className="space-y-2 rounded-xl border border-border p-4">
-            <label className="text-sm font-medium">Notes</label>
-            <textarea placeholder="Payment terms..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-              className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground" />
+          <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <label className={sh.formLabel}>Notes</label>
+            <textarea placeholder="Payment terms..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={sh.formTextarea} />
           </div>
         </div>
 
-        <div className="hidden lg:block sticky top-6">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-3">Preview</p>
+        <div style={{ position: "sticky", top: "1.5rem" }}>
+          <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Preview</p>
           <InvoicePreview number={invoiceNumber} client={selectedClient} settings={settings}
             items={items.map((i) => ({ ...i, hours: i.quantity }))} taxRate={taxRate} discount={0} dueDate={dueDate} notes={notes} />
         </div>

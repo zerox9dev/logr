@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import s from "./confirm.module.css";
 
 interface ConfirmOptions {
   title: string;
@@ -40,16 +41,16 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   const handleClose = (result: boolean) => {
     state.resolve?.(result);
-    setState((s) => ({ ...s, open: false, resolve: null }));
+    setState((prev) => ({ ...prev, open: false, resolve: null }));
   };
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       <Dialog open={state.open} onClose={() => handleClose(false)} title={state.options.title}>
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">{state.options.message}</p>
-          <div className="flex justify-end gap-2">
+        <div className={s.body}>
+          <p className={s.message}>{state.options.message}</p>
+          <div className={s.actions}>
             <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
             <Button
               variant={state.options.destructive ? "destructive" : "default"}

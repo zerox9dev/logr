@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import { useAuth } from "@/lib/auth-context";
 import { t } from "@/lib/i18n";
+import sh from "@/components/shared.module.css";
 
 export function SettingsPage() {
   const { settings, updateSettings } = useAppData();
@@ -25,36 +26,39 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
+    <div className={sh.page}>
+      <h1 className={sh.title}>{t("settings.title")}</h1>
       <Card><CardHeader><CardTitle>{t("settings.profile")}</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.fullName")}</label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.company")}</label><Input value={company} onChange={(e) => setCompany(e.target.value)} /></div>
+        <CardContent className={sh.formGrid}>
+          <div className={sh.formRow2}>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.fullName")}</label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.company")}</label><Input value={company} onChange={(e) => setCompany(e.target.value)} /></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.email")}</label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.phone")}</label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          <div className={sh.formRow2}>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.email")}</label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.phone")}</label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
           </div>
-          <div className="space-y-2"><label className="text-sm font-medium">{t("settings.address")}</label>
-            <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground" /></div>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("settings.address")}</label>
+            <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className={sh.formTextarea} /></div>
         </CardContent>
       </Card>
       <Card><CardHeader><CardTitle>{t("settings.billingDefaults")}</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.currency")}</label>
-              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+        <CardContent className={sh.formGrid}>
+          <div className={sh.formRow2}>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.currency")}</label>
+              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={sh.formSelect}>
                 <option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="UAH">UAH (₴)</option><option value="PLN">PLN (zł)</option>
               </select></div>
-            <div className="space-y-2"><label className="text-sm font-medium">{t("settings.defaultRate")}</label><Input type="number" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="50" /></div>
+            <div className={sh.formField}><label className={sh.formLabel}>{t("settings.defaultRate")}</label><Input type="number" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="50" /></div>
           </div>
         </CardContent>
       </Card>
-      <div className="flex items-center justify-between">
+      <div className={sh.header}>
         <Button onClick={handleSave} disabled={saving}>{saving ? t("settings.saving") : t("settings.saveSettings")}</Button>
-        <div className="flex items-center gap-3"><span className="text-xs text-muted-foreground">{user?.email}</span><Button variant="outline" onClick={signOut}>{t("settings.signOut")}</Button></div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)" }}>{user?.email}</span>
+          <Button variant="outline" onClick={signOut}>{t("settings.signOut")}</Button>
+        </div>
       </div>
     </div>
   );

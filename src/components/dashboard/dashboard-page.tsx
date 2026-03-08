@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppData } from "@/lib/data-context";
 import { t } from "@/lib/i18n";
+import s from "./dashboard-page.module.css";
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -16,7 +17,7 @@ function formatDuration(seconds: number): string {
 
 const WEEKS = 17;
 const DAYS_OF_WEEK = ["Mon", "", "Wed", "", "Fri", "", ""];
-const INTENSITY = ["bg-[#ebe7e0]", "bg-emerald-200", "bg-emerald-300", "bg-emerald-400", "bg-emerald-500", "bg-emerald-600"];
+const INTENSITY_CLASSES = [s.intensity0, s.intensity1, s.intensity2, s.intensity3, s.intensity4, s.intensity5];
 
 function getIntensity(hours: number): number {
   if (hours === 0) return 0;
@@ -32,7 +33,7 @@ function ActivityGraph({ sessions }: { sessions: { started_at: string; duration_
   const today = new Date();
   today.setHours(23, 59, 59, 999);
   const dayMap = new Map<string, number>();
-  sessions.forEach((s) => { const key = s.started_at.slice(0, 10); dayMap.set(key, (dayMap.get(key) || 0) + s.duration_seconds / 3600); });
+  sessions.forEach((se) => { const key = se.started_at.slice(0, 10); dayMap.set(key, (dayMap.get(key) || 0) + se.duration_seconds / 3600); });
   const todayDay = today.getDay();
   const mondayOffset = todayDay === 0 ? 6 : todayDay - 1;
   const endOfWeek = new Date(today);
@@ -53,35 +54,35 @@ function ActivityGraph({ sessions }: { sessions: { started_at: string; duration_
   grid.forEach((week, i) => { const m = week[0].date.getMonth(); if (m !== lastMonth) { months.push({ label: week[0].date.toLocaleDateString([], { month: "short" }), col: i }); lastMonth = m; } });
   const allDays = grid.flat().filter((d) => d.date <= today);
   const totalDays = allDays.filter((d) => d.hours > 0).length;
-  const totalHours = allDays.reduce((s, d) => s + d.hours, 0);
+  const totalHours = allDays.reduce((sum, d) => sum + d.hours, 0);
   let streak = 0;
   for (const d of [...allDays].reverse()) { if (d.hours > 0) streak++; else break; }
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">{t("dash.activity")}</CardTitle>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span><strong className="text-foreground">{totalDays}</strong> {t("dash.activeDays")}</span>
-          <span><strong className="text-foreground">{totalHours.toFixed(0)}h</strong> {t("dash.total")}</span>
-          {streak > 0 && <span>🔥 <strong className="text-foreground">{streak}</strong> {t("dash.dayStreak")}</span>}
+      <CardHeader className={s.activityHeader}>
+        <CardTitle className={s.activityTitle}>{t("dash.activity")}</CardTitle>
+        <div className={s.activityStats}>
+          <span><strong className={s.activityStrong}>{totalDays}</strong> {t("dash.activeDays")}</span>
+          <span><strong className={s.activityStrong}>{totalHours.toFixed(0)}h</strong> {t("dash.total")}</span>
+          {streak > 0 && <span>🔥 <strong className={s.activityStrong}>{streak}</strong> {t("dash.dayStreak")}</span>}
         </div>
       </CardHeader>
-      <CardContent className="relative">
-        <div className="flex gap-1">
-          <div className="flex flex-col gap-[3px] pr-2 pt-5">
-            {DAYS_OF_WEEK.map((d, i) => <div key={i} className="h-[13px] text-[10px] leading-[13px] text-muted-foreground">{d}</div>)}
+      <CardContent style={{ position: "relative" }}>
+        <div className={s.graphWrap}>
+          <div className={s.graphDays}>
+            {DAYS_OF_WEEK.map((d, i) => <div key={i} className={s.graphDayLabel}>{d}</div>)}
           </div>
-          <div className="flex-1 overflow-hidden">
-            <div className="flex gap-[3px] mb-1 h-4">
-              {months.map((m, i) => <div key={i} className="text-[10px] text-muted-foreground" style={{ position: "relative", left: `${m.col * 16}px`, marginLeft: i === 0 ? 0 : `-${months[i - 1]?.label.length * 5}px` }}>{m.label}</div>)}
+          <div className={s.graphMain}>
+            <div className={s.graphMonths}>
+              {months.map((m, i) => <div key={i} className={s.graphMonthLabel} style={{ left: `${m.col * 16}px`, marginLeft: i === 0 ? 0 : `-${months[i - 1]?.label.length * 5}px` }}>{m.label}</div>)}
             </div>
-            <div className="flex gap-[3px]">
+            <div className={s.graphWeeks}>
               {grid.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[3px]">
+                <div key={wi} className={s.graphWeek}>
                   {week.map((day, di) => {
                     const isFuture = day.date > today;
-                    return <div key={di} className={`h-[13px] w-[13px] rounded-sm ${isFuture ? "bg-transparent" : INTENSITY[getIntensity(day.hours)]} transition-colors`}
+                    return <div key={di} className={[s.graphCell, isFuture ? s.graphCellFuture : INTENSITY_CLASSES[getIntensity(day.hours)]].join(" ")}
                       onMouseEnter={(e) => { if (!isFuture) { const rect = (e.target as HTMLElement).getBoundingClientRect(); setHoveredDay({ date: day.date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }), hours: day.hours, x: rect.left + rect.width / 2, y: rect.top }); } }}
                       onMouseLeave={() => setHoveredDay(null)} />;
                   })}
@@ -90,10 +91,10 @@ function ActivityGraph({ sessions }: { sessions: { started_at: string; duration_
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-end gap-1 mt-3 text-[10px] text-muted-foreground">
-          <span>Less</span>{INTENSITY.map((cls, i) => <div key={i} className={`h-[11px] w-[11px] rounded-sm ${cls}`} />)}<span>More</span>
+        <div className={s.graphLegend}>
+          <span>Less</span>{INTENSITY_CLASSES.map((cls, i) => <div key={i} className={[s.graphLegendCell, cls].join(" ")} />)}<span>More</span>
         </div>
-        {hoveredDay && <div className="fixed z-50 px-2 py-1 rounded-md bg-foreground text-background text-xs font-medium pointer-events-none" style={{ left: hoveredDay.x, top: hoveredDay.y - 32, transform: "translateX(-50%)" }}>{hoveredDay.hours > 0 ? `${hoveredDay.hours.toFixed(1)}h` : "No activity"} · {hoveredDay.date}</div>}
+        {hoveredDay && <div className={s.graphTooltip} style={{ left: hoveredDay.x, top: hoveredDay.y - 32 }}>{hoveredDay.hours > 0 ? `${hoveredDay.hours.toFixed(1)}h` : "No activity"} · {hoveredDay.date}</div>}
       </CardContent>
     </Card>
   );
@@ -105,13 +106,13 @@ export function DashboardPage() {
   const todayStr = now.toISOString().slice(0, 10);
   const name = settings?.full_name?.split(" ")[0];
   const greeting = name ? `${t("dash.greeting")}, ${name}` : `${t("dash.greeting")}`;
-  const todayTotal = sessions.filter((s) => s.started_at.slice(0, 10) === todayStr).reduce((sum, s) => sum + s.duration_seconds, 0);
+  const todayTotal = sessions.filter((se) => se.started_at.slice(0, 10) === todayStr).reduce((sum, se) => sum + se.duration_seconds, 0);
   const weekStart = new Date(now);
   const day = weekStart.getDay();
   weekStart.setDate(weekStart.getDate() - day + (day === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
-  const weekSessions = sessions.filter((s) => s.started_at >= weekStart.toISOString());
-  const weekTotal = weekSessions.reduce((sum, s) => sum + s.duration_seconds, 0);
+  const weekSessions = sessions.filter((se) => se.started_at >= weekStart.toISOString());
+  const weekTotal = weekSessions.reduce((sum, se) => sum + se.duration_seconds, 0);
   const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((sum, i) => sum + Number(i.total), 0);
   const overdueInvoices = invoices.filter((i) => i.status === "overdue" || (i.status === "sent" && i.due_date && i.due_date < todayStr));
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
@@ -120,22 +121,22 @@ export function DashboardPage() {
   const isEmpty = sessions.length === 0 && projects.length === 0 && clients.length === 0;
 
   return (
-    <div className="space-y-6">
+    <div className={s.page}>
       <div>
-        <h1 className="text-2xl font-bold">{greeting} 👋</h1>
-        <p className="text-sm text-muted-foreground mt-1">{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</p>
+        <h1 className={s.greeting}>{greeting} 👋</h1>
+        <p className={s.dateLine}>{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</p>
       </div>
 
       {timerRunning && (
         <Link to="/app/timer">
-          <Card className="border-emerald-200 bg-emerald-50">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-sm font-medium">{timerDescription || t("timer.untitled")}</span>
-                <span className="text-xs text-muted-foreground">{formatDuration(timerSeconds)}</span>
+          <Card className={s.timerBanner}>
+            <CardContent className={s.timerBannerContent}>
+              <div className={s.timerBannerLeft}>
+                <div className={s.timerDot} />
+                <span className={s.timerBannerName}>{timerDescription || t("timer.untitled")}</span>
+                <span className={s.timerBannerTime}>{formatDuration(timerSeconds)}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-emerald-600" />
+              <ArrowRight className={s.timerBannerArrow} />
             </CardContent>
           </Card>
         </Link>
@@ -143,15 +144,15 @@ export function DashboardPage() {
 
       {overdueInvoices.length > 0 && (
         <Link to="/app/invoices">
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-4 w-4 text-red-500" />
-                <span className="text-sm font-medium text-red-700">
-                  {overdueInvoices.length} {overdueInvoices.length > 1 ? t("dash.overdueInvoices") : t("dash.overdueInvoice")} — ${overdueInvoices.reduce((s, i) => s + Number(i.total), 0).toFixed(0)}
+          <Card className={s.overdueBanner}>
+            <CardContent className={s.overdueBannerContent}>
+              <div className={s.overdueBannerLeft}>
+                <AlertTriangle className={s.overdueIcon} />
+                <span className={s.overdueText}>
+                  {overdueInvoices.length} {overdueInvoices.length > 1 ? t("dash.overdueInvoices") : t("dash.overdueInvoice")} — ${overdueInvoices.reduce((su, i) => su + Number(i.total), 0).toFixed(0)}
                 </span>
               </div>
-              <ArrowRight className="h-4 w-4 text-red-400" />
+              <ArrowRight className={s.overdueArrow} />
             </CardContent>
           </Card>
         </Link>
@@ -159,48 +160,50 @@ export function DashboardPage() {
 
       {isEmpty ? (
         <Card>
-          <CardContent className="py-12 text-center space-y-4">
-            <Timer className="h-12 w-12 text-muted-foreground/30 mx-auto" />
+          <CardContent className={s.emptyContent}>
+            <Timer className={s.emptyIcon} />
             <div>
-              <h2 className="text-lg font-semibold">{t("dash.getStarted")}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{t("dash.getStartedDesc")}</p>
+              <h2 className={s.emptyTitle}>{t("dash.getStarted")}</h2>
+              <p className={s.emptyDesc}>{t("dash.getStartedDesc")}</p>
             </div>
-            <div className="flex justify-center gap-3">
-              <Link to="/app/timer"><Button><Play className="h-4 w-4" /> {t("dash.startTimer")}</Button></Link>
-              <Link to="/app/projects"><Button variant="outline"><FolderKanban className="h-4 w-4" /> {t("dash.createProject")}</Button></Link>
-              <Link to="/app/clients"><Button variant="outline"><Users className="h-4 w-4" /> {t("dash.addClient")}</Button></Link>
+            <div className={s.emptyActions}>
+              <Link to="/app/timer"><Button><Play style={{ width: 16, height: 16 }} /> {t("dash.startTimer")}</Button></Link>
+              <Link to="/app/projects"><Button variant="outline"><FolderKanban style={{ width: 16, height: 16 }} /> {t("dash.createProject")}</Button></Link>
+              <Link to="/app/clients"><Button variant="outline"><Users style={{ width: 16, height: 16 }} /> {t("dash.addClient")}</Button></Link>
             </div>
           </CardContent>
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-l-[3px] border-l-emerald-400"><CardContent className="p-5"><div className="flex items-center gap-2 text-muted-foreground mb-2"><Clock className="h-4 w-4" /><span className="text-xs font-medium">{t("dash.today")}</span></div><p className="text-2xl font-bold">{formatDuration(todayTotal)}</p></CardContent></Card>
-            <Card className="border-l-[3px] border-l-blue-400"><CardContent className="p-5"><div className="flex items-center gap-2 text-muted-foreground mb-2"><TrendingUp className="h-4 w-4" /><span className="text-xs font-medium">{t("dash.thisWeek")}</span></div><p className="text-2xl font-bold">{formatDuration(weekTotal)}</p></CardContent></Card>
-            <Card className="border-l-[3px] border-l-amber-400"><CardContent className="p-5"><div className="flex items-center gap-2 text-muted-foreground mb-2"><FileText className="h-4 w-4" /><span className="text-xs font-medium">{t("dash.unpaid")}</span></div><p className="text-2xl font-bold">${unpaidTotal.toFixed(0)}</p></CardContent></Card>
-            <Card className="border-l-[3px] border-l-violet-400"><CardContent className="p-5"><div className="flex items-center gap-2 text-muted-foreground mb-2"><FileText className="h-4 w-4" /><span className="text-xs font-medium">{t("dash.thisMonth")}</span></div><p className="text-2xl font-bold text-emerald-600">${thisMonthPaid.toFixed(0)}</p></CardContent></Card>
+          <div className={s.statsGrid}>
+            <Card className={[s.statCard, s.statEmerald].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><Clock className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.today")}</span></div><p className={s.statValue}>{formatDuration(todayTotal)}</p></CardContent></Card>
+            <Card className={[s.statCard, s.statBlue].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><TrendingUp className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.thisWeek")}</span></div><p className={s.statValue}>{formatDuration(weekTotal)}</p></CardContent></Card>
+            <Card className={[s.statCard, s.statAmber].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><FileText className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.unpaid")}</span></div><p className={s.statValue}>${unpaidTotal.toFixed(0)}</p></CardContent></Card>
+            <Card className={[s.statCard, s.statViolet].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><FileText className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.thisMonth")}</span></div><p className={[s.statValue, s.statValueGreen].join(" ")}>${thisMonthPaid.toFixed(0)}</p></CardContent></Card>
           </div>
           <ActivityGraph sessions={sessions} />
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className={s.bottomGrid}>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between"><CardTitle className="text-lg">{t("dash.recentActivity")}</CardTitle><Link to="/app/timer"><Button variant="ghost" size="sm">{t("common.viewAll")}</Button></Link></CardHeader>
+              <CardHeader className={s.cardHeader}><CardTitle className={s.cardTitle}>{t("dash.recentActivity")}</CardTitle><Link to="/app/timer"><Button variant="ghost" size="sm">{t("common.viewAll")}</Button></Link></CardHeader>
               <CardContent>
-                {recentSessions.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">{t("dash.noEntries")}</p> : (
-                  <div className="space-y-3">
+                {recentSessions.length === 0 ? <p className={s.emptyText}>{t("dash.noEntries")}</p> : (
+                  <div className={s.sessionList}>
                     {recentSessions.map((session) => { const project = getProjectById(session.project_id); return (
-                      <div key={session.id} className="flex items-center justify-between"><div><p className="text-sm font-medium">{session.name}</p><p className="text-xs text-muted-foreground">{project?.name || t("timer.noProject")}</p></div><span className="text-sm font-mono">{formatDuration(session.duration_seconds)}</span></div>
+                      <div key={session.id} className={s.sessionRow}><div><p className={s.sessionName}>{session.name}</p><p className={s.sessionProject}>{project?.name || t("timer.noProject")}</p></div><span className={s.sessionDuration}>{formatDuration(session.duration_seconds)}</span></div>
                     ); })}
                   </div>
                 )}
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg">{t("dash.quickLinks")}</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <Link to="/app/timer" className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors"><Play className="h-4 w-4 text-emerald-600" /><span className="text-sm font-medium">{t("dash.startTimer")}</span></Link>
-                <Link to="/app/projects" className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors"><FolderKanban className="h-4 w-4 text-muted-foreground" /><span className="text-sm font-medium">{projects.length} {t("sidebar.projects")}</span></Link>
-                <Link to="/app/clients" className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm font-medium">{clients.length} {t("sidebar.clients")}</span></Link>
-                <Link to="/app/invoices" className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors"><FileText className="h-4 w-4 text-muted-foreground" /><span className="text-sm font-medium">{invoices.length} {t("sidebar.invoices")}</span></Link>
+              <CardHeader><CardTitle className={s.cardTitle}>{t("dash.quickLinks")}</CardTitle></CardHeader>
+              <CardContent>
+                <div className={s.quickLinkList}>
+                  <Link to="/app/timer" className={s.quickLink}><Play className={[s.quickLinkIcon, s.quickLinkIconGreen].join(" ")} /><span className={s.quickLinkText}>{t("dash.startTimer")}</span></Link>
+                  <Link to="/app/projects" className={s.quickLink}><FolderKanban className={s.quickLinkIcon} /><span className={s.quickLinkText}>{projects.length} {t("sidebar.projects")}</span></Link>
+                  <Link to="/app/clients" className={s.quickLink}><Users className={s.quickLinkIcon} /><span className={s.quickLinkText}>{clients.length} {t("sidebar.clients")}</span></Link>
+                  <Link to="/app/invoices" className={s.quickLink}><FileText className={s.quickLinkIcon} /><span className={s.quickLinkText}>{invoices.length} {t("sidebar.invoices")}</span></Link>
+                </div>
               </CardContent>
             </Card>
           </div>

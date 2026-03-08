@@ -1,0 +1,90 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  text-align: center;
+}
+
+.logoWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.logoIcon {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: var(--radius-xl);
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIconSvg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-foreground);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-top: 0.25rem;
+}
+
+.card {
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.googleBtn {
+  width: 100%;
+  height: 2.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: 0.75rem;
+}
+
+.googleIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.error {
+  font-size: 0.875rem;
+  color: var(--destructive);
+  text-align: center;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

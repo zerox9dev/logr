@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, Search, GitBranch } from "lucide-react";
+import s from "./command-palette.module.css";
 
 const pages = [
   { name: "Dashboard", href: "/app", icon: LayoutDashboard, keywords: "home overview" },
@@ -53,11 +54,11 @@ export function CommandPalette() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelected((s) => Math.min(s + 1, filtered.length - 1));
+      setSelected((idx) => Math.min(idx + 1, filtered.length - 1));
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelected((s) => Math.max(s - 1, 0));
+      setSelected((idx) => Math.max(idx - 1, 0));
     }
     if (e.key === "Enter" && filtered[selected]) {
       handleSelect(filtered[selected].href);
@@ -67,36 +68,34 @@ export function CommandPalette() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]">
-      <div className="fixed inset-0 bg-black/50" onClick={() => setOpen(false)} />
-      <div className="relative w-full max-w-md rounded-xl border border-border bg-background overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+    <div className={s.overlay}>
+      <div className={s.backdrop} onClick={() => setOpen(false)} />
+      <div className={s.panel}>
+        <div className={s.searchBar}>
+          <Search className={s.searchIcon} />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => { setQuery(e.target.value); setSelected(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Search pages..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className={s.searchInput}
           />
-          <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">ESC</kbd>
+          <kbd className={s.kbd}>ESC</kbd>
         </div>
-        <div className="max-h-64 overflow-auto py-2">
+        <div className={s.results}>
           {filtered.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No results.</p>
+            <p className={s.noResults}>No results.</p>
           ) : (
             filtered.map((page, i) => (
               <button
                 key={page.href}
                 onClick={() => handleSelect(page.href)}
                 onMouseEnter={() => setSelected(i)}
-                className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors ${
-                  i === selected ? "bg-accent text-accent-foreground" : "text-foreground"
-                }`}
+                className={[s.item, i === selected ? s.itemSelected : ""].filter(Boolean).join(" ")}
               >
-                <page.icon className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{page.name}</span>
+                <page.icon className={s.itemIcon} />
+                <span className={s.itemLabel}>{page.name}</span>
               </button>
             ))
           )}

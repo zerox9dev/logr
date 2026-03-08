@@ -18,7 +18,7 @@ Time tracking & invoicing for freelancers. Built with Vite, React, and Supabase.
 ## Stack
 
 - [Vite 7](https://vite.dev) + [React 19](https://react.dev) + TypeScript 5.9
-- [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- **CSS Modules** — scoped component styles, CSS variables for theming
 - [Supabase](https://supabase.com) — Auth, Database, RLS
 - [React Router 7](https://reactrouter.com)
 
@@ -72,7 +72,7 @@ src/
 │   ├── settings/      # User profile & billing defaults
 │   ├── landing/       # Public landing page
 │   ├── layout/        # App layout, sidebar
-│   └── ui/            # Shared UI components (shadcn/ui)
+│   └── ui/            # Shared UI components (CSS Modules)
 ├── lib/
 │   ├── api.ts         # Supabase CRUD for all tables
 │   ├── supabase.ts    # Supabase client

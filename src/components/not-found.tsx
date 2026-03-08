@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import s from "./not-found.module.css";
 
 export function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <span className="text-6xl font-bold text-muted-foreground/30">404</span>
-      <h1 className="text-xl font-bold mt-4">Page not found</h1>
-      <p className="text-sm text-muted-foreground mt-2">
+    <div className={s.container}>
+      <span className={s.code}>404</span>
+      <h1 className={s.title}>Page not found</h1>
+      <p className={s.message}>
         The page you're looking for doesn't exist.
       </p>
-      <Link to="/app" className="mt-6">
+      <Link to="/app" className={s.action}>
         <Button variant="outline">Back to Dashboard</Button>
       </Link>
     </div>

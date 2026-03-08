@@ -1,0 +1,61 @@
+.page { display: flex; flex-direction: column; gap: 1.5rem; }
+.header { display: flex; align-items: center; justify-content: space-between; }
+.title { font-size: 1.5rem; font-weight: 700; }
+.desc { font-size: 0.875rem; color: var(--muted-foreground); margin-top: 0.25rem; }
+
+/* Timer control */
+.timerCard { padding: 1.5rem; }
+.timerRow { display: flex; align-items: center; gap: 1rem; }
+.timerInput { flex: 1; font-size: 1.125rem; height: 3rem; }
+.timerSelect {
+  height: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--input);
+  background: var(--white); padding: 0 0.75rem; font-size: 0.875rem; outline: none;
+}
+.timerDisplay { font-size: 1.5rem; font-family: monospace; font-weight: 700; min-width: 120px; text-align: center; }
+.timerHint { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.5rem; }
+.btnStart { background: var(--emerald-500); color: white; }
+.btnStart:hover { background: var(--emerald-600); }
+.btnStop { background: var(--red-500); color: white; }
+.btnStop:hover { background: var(--red-600); }
+
+/* Day group */
+.dayHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.dayTitle { font-size: 0.875rem; font-weight: 500; }
+.dayTotal { font-size: 0.75rem; color: var(--muted-foreground); font-family: monospace; }
+.dayTable { border-radius: var(--radius-xl); border: 1px solid var(--border); background: var(--white); overflow: hidden; width: 100%; }
+.dayTableInner { width: 100%; font-size: 0.875rem; border-collapse: collapse; }
+.sessionRow { border-bottom: 1px solid var(--border); transition: background-color 0.15s; }
+.sessionRow:last-child { border-bottom: none; }
+.sessionRow:hover { background: rgba(240, 236, 230, 0.4); }
+.sessionRow:hover .actions { opacity: 1; }
+.cellName { padding: 0.625rem 1rem; font-weight: 500; }
+.cellProject { padding: 0.625rem 0.75rem; color: var(--muted-foreground); }
+.cellProjectEmpty { color: rgba(122, 117, 112, 0.5); }
+.cellDuration { padding: 0.625rem 0.75rem; text-align: right; font-family: monospace; color: var(--muted-foreground); width: 5rem; }
+.cellRate { padding: 0.625rem 0.75rem; text-align: right; color: var(--muted-foreground); width: 6rem; font-size: 0.75rem; }
+.cellRateEmpty { color: rgba(122, 117, 112, 0.4); }
+.cellStatus { padding: 0.625rem 0.5rem; width: 6rem; }
+.statusBadge {
+  display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 9999px;
+  padding: 0.125rem 0.5rem; font-size: 11px; font-weight: 500; cursor: pointer;
+  transition: background-color 0.15s; border: none; background: none;
+}
+.statusPaid { background: var(--emerald-100); color: var(--emerald-700); }
+.statusUnpaid { background: var(--amber-100); color: var(--amber-700); }
+.statusIcon { width: 0.75rem; height: 0.75rem; }
+.cellActions { padding: 0.625rem 0.75rem; text-align: right; width: 5rem; }
+.actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; opacity: 0; transition: opacity 0.15s; }
+.actionBtn { width: 1.75rem; height: 1.75rem; }
+.actionBtnDelete { color: var(--destructive); }
+
+/* Dialog form */
+.formGrid { display: flex; flex-direction: column; gap: 1rem; }
+.formRow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.formLabel { font-size: 0.875rem; font-weight: 500; }
+.formField { display: flex; flex-direction: column; gap: 0.5rem; }
+.formSelect {
+  display: flex; height: 2.25rem; width: 100%; border-radius: var(--radius-lg);
+  border: 1px solid var(--input); background: var(--white); padding: 0.25rem 0.75rem; font-size: 0.875rem; outline: none;
+}
+.formActions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+.emptyText { font-size: 0.875rem; color: var(--muted-foreground); text-align: center; padding: 2rem 0; }

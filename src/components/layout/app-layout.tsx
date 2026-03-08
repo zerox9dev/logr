@@ -14,27 +14,28 @@ import { NotFound } from "@/components/not-found";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { useAppData } from "@/lib/data-context";
 import { Timer } from "lucide-react";
+import s from "./app-layout.module.css";
 
 export function AppLayout() {
   const data = useAppData();
 
   if (data.loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <Timer className="h-5 w-5 animate-spin" />
-          <span className="text-sm">Loading your data...</span>
+      <div className={s.loading}>
+        <div className={s.loadingInner}>
+          <Timer className={s.loadingIcon} />
+          <span className={s.loadingText}>Loading your data...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className={s.layout}>
       <Sidebar />
-      <main className="flex-1 overflow-auto p-3 md:p-4">
-        <div className="h-full rounded-2xl border border-border bg-white overflow-auto">
-          <div className="mx-auto p-5 md:p-8 pb-20 md:pb-8 space-y-6">
+      <main className={s.main}>
+        <div className={s.workArea}>
+          <div className={s.workAreaInner}>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/timer" element={<TimerPage />} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, ExternalLink, DollarSign, X } from "lucide-react";
+import { Plus, Pencil, Trash2, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import type { FunnelType, FunnelStage } from "@/types/database";
 import { t } from "@/lib/i18n";
+import sh from "@/components/shared.module.css";
+import s from "./funnels-page.module.css";
 
 const FUNNEL_TYPES: FunnelType[] = ["sales", "onboarding", "delivery", "reactivation", "job_hunting"];
 
@@ -21,41 +23,41 @@ export function FunnelsPage() {
   const activeFunnel = funnels.find((f) => f.id === activeFunnelId);
   const activeStages = activeFunnel ? getStagesForFunnel(activeFunnel.id) : [];
   const funnelLeads = activeFunnel ? leads.filter((l) => l.funnel_id === activeFunnel.id) : [];
-  const totalValue = funnelLeads.reduce((s, l) => s + Number(l.value || 0), 0);
+  const totalValue = funnelLeads.reduce((sum, l) => sum + Number(l.value || 0), 0);
 
   if (!activeFunnel && funnels.length > 0 && activeFunnelId !== funnels[0].id) {
     setActiveFunnelId(funnels[0].id);
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={sh.page}>
+      <div className={sh.header}>
         <div>
-          <h1 className="text-2xl font-bold">{t("funnels.title")}</h1>
+          <h1 className={sh.title}>{t("funnels.title")}</h1>
           {activeFunnel && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className={sh.subtitle}>
               {funnelLeads.length} lead{funnelLeads.length !== 1 ? "s" : ""}
               {totalValue > 0 && <> · ${totalValue.toLocaleString()} pipeline</>}
             </p>
           )}
         </div>
-        <div className="flex gap-2">
-          {activeFunnel && <Button onClick={() => setShowCreateLead(true)}><Plus className="h-4 w-4" /> {t("funnels.newLead")}</Button>}
-          <Button variant="outline" onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> {t("funnels.new")}</Button>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {activeFunnel && <Button onClick={() => setShowCreateLead(true)}><Plus style={{ width: 16, height: 16 }} /> {t("funnels.newLead")}</Button>}
+          <Button variant="outline" onClick={() => setShowCreateFunnel(true)}><Plus style={{ width: 16, height: 16 }} /> {t("funnels.new")}</Button>
         </div>
       </div>
 
       {funnels.length > 0 && (
-        <div className="flex items-center gap-1 overflow-x-auto">
+        <div className={s.funnelTabs}>
           {funnels.map((f) => (
-            <div key={f.id} className="flex items-center">
+            <div key={f.id} className={s.funnelTab}>
               <Button variant={activeFunnelId === f.id ? "default" : "ghost"} size="sm" onClick={() => setActiveFunnelId(f.id)}>
                 {f.name}
-                <Badge variant="secondary" className="ml-1 text-[10px]">{leads.filter((l) => l.funnel_id === f.id).length}</Badge>
+                <Badge variant="secondary" style={{ marginLeft: "0.25rem", fontSize: 10 }}>{leads.filter((l) => l.funnel_id === f.id).length}</Badge>
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 w-6 opacity-50 hover:opacity-100"
+              <Button variant="ghost" size="icon" className={s.funnelDeleteBtn}
                 onClick={() => { if (window.confirm(`Delete "${f.name}"?`)) deleteFunnel(f.id); }}>
-                <X className="h-3 w-3" />
+                <X style={{ width: 12, height: 12 }} />
               </Button>
             </div>
           ))}
@@ -63,51 +65,51 @@ export function FunnelsPage() {
       )}
 
       {funnels.length === 0 ? (
-        <Card><CardContent className="py-12 text-center space-y-3">
-          <p className="text-muted-foreground">{t("funnels.noFunnels")}</p>
-          <Button onClick={() => setShowCreateFunnel(true)}><Plus className="h-4 w-4" /> {t("funnels.createFunnel")}</Button>
+        <Card><CardContent style={{ padding: "3rem 0", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "center" }}>
+          <p style={{ color: "var(--muted-foreground)" }}>{t("funnels.noFunnels")}</p>
+          <Button onClick={() => setShowCreateFunnel(true)}><Plus style={{ width: 16, height: 16 }} /> {t("funnels.createFunnel")}</Button>
         </CardContent></Card>
       ) : activeFunnel ? (
-        <div className="flex gap-3 overflow-x-auto pb-4">
+        <div className={s.kanban}>
           {activeStages.map((stage) => {
             const stageLeads = funnelLeads.filter((l) => l.stage_id === stage.id);
-            const stageValue = stageLeads.reduce((s, l) => s + Number(l.value || 0), 0);
-            const nextStage = activeStages.find((s) => s.position === stage.position + 1);
-            const prevStage = activeStages.find((s) => s.position === stage.position - 1);
+            const stageValue = stageLeads.reduce((sum, l) => sum + Number(l.value || 0), 0);
+            const nextStage = activeStages.find((st) => st.position === stage.position + 1);
+            const prevStage = activeStages.find((st) => st.position === stage.position - 1);
 
             return (
-              <div key={stage.id} className="flex-shrink-0 w-64">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{stage.title}</span>
-                    <Badge variant="secondary" className="text-[10px]">{stageLeads.length}</Badge>
+              <div key={stage.id} className={s.column}>
+                <div className={s.columnHeader}>
+                  <div className={s.columnTitle}>
+                    <span className={s.columnName}>{stage.title}</span>
+                    <Badge variant="secondary" style={{ fontSize: 10 }}>{stageLeads.length}</Badge>
                   </div>
-                  {stageValue > 0 && <span className="text-xs text-muted-foreground">${stageValue.toLocaleString()}</span>}
+                  {stageValue > 0 && <span className={s.columnValue}>${stageValue.toLocaleString()}</span>}
                 </div>
-                <div className="space-y-2 min-h-[100px]">
+                <div className={s.columnCards}>
                   {stageLeads.map((lead) => (
-                    <Card key={lead.id} className="group">
-                      <CardContent className="p-3 space-y-2">
-                        <div className="flex items-start justify-between">
+                    <Card key={lead.id}>
+                      <CardContent className={s.leadContent}>
+                        <div className={s.leadTop}>
                           <div>
-                            <p className="text-sm font-medium">{lead.name}</p>
-                            {lead.company && <p className="text-xs text-muted-foreground">{lead.company}</p>}
+                            <p className={s.leadName}>{lead.name}</p>
+                            {lead.company && <p className={s.leadCompany}>{lead.company}</p>}
                           </div>
-                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingLead(lead)}><Pencil className="h-3 w-3" /></Button>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteLead(lead.id)}><Trash2 className="h-3 w-3" /></Button>
+                          <div className={s.leadActions}>
+                            <Button variant="ghost" size="icon" className={s.leadActionBtn} onClick={() => setEditingLead(lead)}><Pencil style={{ width: 12, height: 12 }} /></Button>
+                            <Button variant="ghost" size="icon" className={s.leadActionBtn} onClick={() => deleteLead(lead.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
                           </div>
                         </div>
                         {(lead.value || lead.email) && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {lead.value && <span className="text-xs font-medium flex items-center gap-0.5"><DollarSign className="h-3 w-3" />{Number(lead.value).toLocaleString()}</span>}
-                            {lead.email && <span className="text-xs text-muted-foreground">{lead.email}</span>}
+                          <div className={s.leadMeta}>
+                            {lead.value && <span className={s.leadValue}><DollarSign className={s.leadValueIcon} />{Number(lead.value).toLocaleString()}</span>}
+                            {lead.email && <span className={s.leadEmail}>{lead.email}</span>}
                           </div>
                         )}
-                        {lead.notes && <p className="text-xs text-muted-foreground line-clamp-2">{lead.notes}</p>}
-                        <div className="flex gap-1 pt-1">
-                          {prevStage && <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" onClick={() => moveLead(lead.id, prevStage.id)}>← {prevStage.title}</Button>}
-                          {nextStage && <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 ml-auto" onClick={() => moveLead(lead.id, nextStage.id)}>{nextStage.title} →</Button>}
+                        {lead.notes && <p className={[s.leadNotes, "line-clamp-2"].join(" ")}>{lead.notes}</p>}
+                        <div className={s.leadMoveButtons}>
+                          {prevStage && <Button variant="ghost" size="sm" className={s.leadMoveBtn} onClick={() => moveLead(lead.id, prevStage.id)}>← {prevStage.title}</Button>}
+                          {nextStage && <Button variant="ghost" size="sm" className={[s.leadMoveBtn, s.leadMoveBtnRight].join(" ")} onClick={() => moveLead(lead.id, nextStage.id)}>{nextStage.title} →</Button>}
                         </div>
                       </CardContent>
                     </Card>
@@ -119,7 +121,6 @@ export function FunnelsPage() {
         </div>
       ) : null}
 
-      {/* Create funnel dialog */}
       <Dialog open={showCreateFunnel} onClose={() => setShowCreateFunnel(false)} title="New Funnel">
         <CreateFunnelForm onCancel={() => setShowCreateFunnel(false)} onSubmit={async (data) => {
           const { funnel } = await addFunnel(data);
@@ -128,7 +129,6 @@ export function FunnelsPage() {
         }} />
       </Dialog>
 
-      {/* Create lead dialog */}
       {activeFunnel && activeStages.length > 0 && (
         <Dialog open={showCreateLead} onClose={() => setShowCreateLead(false)} title="New Lead">
           <LeadForm stages={activeStages} onCancel={() => setShowCreateLead(false)} submitLabel="Create"
@@ -139,7 +139,6 @@ export function FunnelsPage() {
         </Dialog>
       )}
 
-      {/* Edit lead dialog */}
       <Dialog open={!!editingLead} onClose={() => setEditingLead(null)} title="Edit Lead">
         {editingLead && activeFunnel && (
           <LeadForm stages={activeStages} initial={editingLead} onCancel={() => setEditingLead(null)} submitLabel="Save"
@@ -149,8 +148,6 @@ export function FunnelsPage() {
     </div>
   );
 }
-
-// ── Create Funnel Form ──
 
 function CreateFunnelForm({ onSubmit, onCancel }: {
   onSubmit: (data: { name: string; type: FunnelType; stages: { title: string; position: number }[] }) => Promise<void>;
@@ -166,44 +163,42 @@ function CreateFunnelForm({ onSubmit, onCancel }: {
   return (
     <form onSubmit={(e) => {
       e.preventDefault();
-      const validStages = stages.filter((s) => s.title.trim());
+      const validStages = stages.filter((st) => st.title.trim());
       if (!name.trim() || validStages.length < 2) return;
-      onSubmit({ name: name.trim(), type, stages: validStages.map((s, i) => ({ title: s.title.trim(), position: i })) });
-    }} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2"><label className="text-sm font-medium">Name</label>
+      onSubmit({ name: name.trim(), type, stages: validStages.map((st, i) => ({ title: st.title.trim(), position: i })) });
+    }} className={sh.formGrid}>
+      <div className={sh.formRow2}>
+        <div className={sh.formField}><label className={sh.formLabel}>Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Sales Pipeline" autoFocus /></div>
-        <div className="space-y-2"><label className="text-sm font-medium">Type</label>
+        <div className={sh.formField}><label className={sh.formLabel}>Type</label>
           <select value={type} onChange={(e) => setType(e.target.value as FunnelType)}
-            className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm capitalize">
-            {FUNNEL_TYPES.map((t) => <option key={t} value={t}>{t.replace("_", " ")}</option>)}
+            className={sh.formSelect} style={{ textTransform: "capitalize" }}>
+            {FUNNEL_TYPES.map((ft) => <option key={ft} value={ft}>{ft.replace("_", " ")}</option>)}
           </select></div>
       </div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Stages (left to right)</label>
-          <Button type="button" variant="ghost" size="sm" onClick={addStage}><Plus className="h-3 w-3" /> Add</Button>
+      <div className={sh.formField}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <label className={sh.formLabel}>Stages (left to right)</label>
+          <Button type="button" variant="ghost" size="sm" onClick={addStage}><Plus style={{ width: 12, height: 12 }} /> Add</Button>
         </div>
-        {stages.map((s, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground w-5 text-center">{i + 1}</span>
-            <Input value={s.title} onChange={(e) => setStages((prev) => prev.map((st, idx) => idx === i ? { title: e.target.value } : st))}
-              placeholder={`Stage ${i + 1}`} className="flex-1" />
+        {stages.map((st, i) => (
+          <div key={i} className={s.stageRow}>
+            <span className={s.stageNum}>{i + 1}</span>
+            <Input value={st.title} onChange={(e) => setStages((prev) => prev.map((stg, idx) => idx === i ? { title: e.target.value } : stg))}
+              placeholder={`Stage ${i + 1}`} className={s.stageInput} />
             {stages.length > 2 && (
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeStage(i)}><X className="h-3 w-3" /></Button>
+              <Button type="button" variant="ghost" size="icon" className={s.stageDeleteBtn} onClick={() => removeStage(i)}><X style={{ width: 12, height: 12 }} /></Button>
             )}
           </div>
         ))}
       </div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className={sh.formActions}>
         <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
         <Button type="submit">Create</Button>
       </div>
     </form>
   );
 }
-
-// ── Lead Form ──
 
 function LeadForm({ initial, stages, onSubmit, onCancel, submitLabel }: {
   initial?: any; stages: FunnelStage[];
@@ -228,34 +223,32 @@ function LeadForm({ initial, stages, onSubmit, onCancel, submitLabel }: {
         value: value ? Number(value) : null, currency: null,
         email: email || null, phone: phone || null, source: source || null, notes: notes || null, client_id: null,
       });
-    }} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2"><label className="text-sm font-medium">Name</label>
+    }} className={sh.formGrid}>
+      <div className={sh.formRow2}>
+        <div className={sh.formField}><label className={sh.formLabel}>Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Lead name" autoFocus /></div>
-        <div className="space-y-2"><label className="text-sm font-medium">Company</label>
+        <div className={sh.formField}><label className={sh.formLabel}>Company</label>
           <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" /></div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2"><label className="text-sm font-medium">Stage</label>
-          <select value={stageId} onChange={(e) => setStageId(e.target.value)}
-            className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
-            {stages.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+      <div className={sh.formRow2}>
+        <div className={sh.formField}><label className={sh.formLabel}>Stage</label>
+          <select value={stageId} onChange={(e) => setStageId(e.target.value)} className={sh.formSelect}>
+            {stages.map((st) => <option key={st.id} value={st.id}>{st.title}</option>)}
           </select></div>
-        <div className="space-y-2"><label className="text-sm font-medium">Value ($)</label>
+        <div className={sh.formField}><label className={sh.formLabel}>Value ($)</label>
           <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" /></div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2"><label className="text-sm font-medium">Email</label>
+      <div className={sh.formRow2}>
+        <div className={sh.formField}><label className={sh.formLabel}>Email</label>
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@..." /></div>
-        <div className="space-y-2"><label className="text-sm font-medium">Phone</label>
+        <div className={sh.formField}><label className={sh.formLabel}>Phone</label>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+380..." /></div>
       </div>
-      <div className="space-y-2"><label className="text-sm font-medium">Source</label>
+      <div className={sh.formField}><label className={sh.formLabel}>Source</label>
         <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="LinkedIn, referral..." /></div>
-      <div className="space-y-2"><label className="text-sm font-medium">Notes</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes..." rows={2}
-          className="flex w-full rounded-lg border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground" /></div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className={sh.formField}><label className={sh.formLabel}>Notes</label>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes..." rows={2} className={sh.formTextarea} /></div>
+      <div className={sh.formActions}>
         <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
         <Button type="submit">{submitLabel}</Button>
       </div>

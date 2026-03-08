@@ -1,0 +1,36 @@
+.funnelTabs { display: flex; align-items: center; gap: 0.25rem; overflow-x: auto; }
+.funnelTab { display: flex; align-items: center; }
+.funnelDeleteBtn { width: 1.5rem; height: 1.5rem; opacity: 0.5; transition: opacity 0.15s; }
+.funnelDeleteBtn:hover { opacity: 1; }
+
+/* Kanban */
+.kanban { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 1rem; }
+.column { flex-shrink: 0; width: 16rem; }
+.columnHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.columnTitle { display: flex; align-items: center; gap: 0.5rem; }
+.columnName { font-size: 0.875rem; font-weight: 500; }
+.columnValue { font-size: 0.75rem; color: var(--muted-foreground); }
+.columnCards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 100px; }
+
+/* Lead card */
+.leadContent { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.leadTop { display: flex; align-items: flex-start; justify-content: space-between; }
+.leadName { font-size: 0.875rem; font-weight: 500; }
+.leadCompany { font-size: 0.75rem; color: var(--muted-foreground); }
+.leadActions { display: flex; gap: 0.125rem; opacity: 0; transition: opacity 0.15s; }
+.leadContent:hover .leadActions { opacity: 1; }
+.leadActionBtn { width: 1.5rem; height: 1.5rem; }
+.leadMeta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.leadValue { font-size: 0.75rem; font-weight: 500; display: flex; align-items: center; gap: 0.125rem; }
+.leadValueIcon { width: 0.75rem; height: 0.75rem; }
+.leadEmail { font-size: 0.75rem; color: var(--muted-foreground); }
+.leadNotes { font-size: 0.75rem; color: var(--muted-foreground); }
+.leadMoveButtons { display: flex; gap: 0.25rem; padding-top: 0.25rem; }
+.leadMoveBtn { height: 1.5rem; font-size: 10px; padding: 0 0.5rem; }
+.leadMoveBtnRight { margin-left: auto; }
+
+/* Stage form */
+.stageRow { display: flex; align-items: center; gap: 0.5rem; }
+.stageNum { font-size: 0.75rem; color: var(--muted-foreground); width: 1.25rem; text-align: center; }
+.stageInput { flex: 1; }
+.stageDeleteBtn { width: 2rem; height: 2rem; }

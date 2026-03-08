@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAppData } from "@/lib/data-context";
 import type { InvoiceStatus, Invoice, InvoiceItem } from "@/types/database";
 import { t } from "@/lib/i18n";
+import sh from "@/components/shared.module.css";
+import s from "./invoices-page.module.css";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Draft", variant: "secondary" },
@@ -30,98 +32,96 @@ function InvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: () => v
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-background rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Top bar */}
-        <div className="sticky top-0 bg-background/95 backdrop-blur border-b px-6 py-3 flex items-center justify-between rounded-t-2xl z-10">
-          <div className="flex items-center gap-3">
-            <span className="font-semibold">{invoice.invoice_number}</span>
+    <div className={s.modal}>
+      <div className={s.modalBackdrop} onClick={onClose} />
+      <div className={s.modalPanel}>
+        <div className={s.modalTop}>
+          <div className={s.modalTopLeft}>
+            <span style={{ fontWeight: 600 }}>{invoice.invoice_number}</span>
             <Badge variant={config.variant}>{config.label}</Badge>
           </div>
-          <div className="flex items-center gap-2">
+          <div className={s.modalTopRight}>
             {invoice.status === "draft" && (
               <Button size="sm" variant="outline" onClick={() => updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() })}>
-                <Send className="h-3.5 w-3.5" /> {t("invoices.send")}
+                <Send style={{ width: 14, height: 14 }} /> {t("invoices.send")}
               </Button>
             )}
             {(invoice.status === "sent" || invoice.status === "overdue") && (
               <Button size="sm" onClick={() => updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() })}>
-                <CheckCircle className="h-3.5 w-3.5" /> {t("invoices.markPaid")}
+                <CheckCircle style={{ width: 14, height: 14 }} /> {t("invoices.markPaid")}
               </Button>
             )}
-            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { deleteInvoice(invoice.id); onClose(); }}>
-              <Trash2 className="h-3.5 w-3.5" />
+            <Button size="sm" variant="ghost" style={{ color: "var(--destructive)" }} onClick={() => { deleteInvoice(invoice.id); onClose(); }}>
+              <Trash2 style={{ width: 14, height: 14 }} />
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onClose}>
-              <X className="h-4 w-4" />
+            <Button size="icon" variant="ghost" style={{ width: 32, height: 32 }} onClick={onClose}>
+              <X style={{ width: 16, height: 16 }} />
             </Button>
           </div>
         </div>
 
-        {/* Invoice document */}
-        <div className="p-6 space-y-6">
-          <div className="flex justify-between items-start">
+        <div className={s.modalBody}>
+          <div className={s.docHeader}>
             <div>
-              <h2 className="text-lg font-bold">{settings?.company || settings?.full_name || "Your Company"}</h2>
-              {settings?.email && <p className="text-xs text-muted-foreground">{settings.email}</p>}
-              {settings?.address && <p className="text-xs text-muted-foreground whitespace-pre-line">{settings.address}</p>}
+              <h2 className={s.docCompany}>{settings?.company || settings?.full_name || "Your Company"}</h2>
+              {settings?.email && <p className={s.docSmall}>{settings.email}</p>}
+              {settings?.address && <p className={[s.docSmall, s.docSmallPre].join(" ")}>{settings.address}</p>}
             </div>
-            <div className="text-right text-sm space-y-0.5">
-              <p><span className="text-muted-foreground">Created:</span> {new Date(invoice.created_at).toLocaleDateString()}</p>
-              {invoice.due_date && <p><span className="text-muted-foreground">Due:</span> {new Date(invoice.due_date).toLocaleDateString()}</p>}
-              {invoice.sent_at && <p><span className="text-muted-foreground">Sent:</span> {new Date(invoice.sent_at).toLocaleDateString()}</p>}
-              {invoice.paid_at && <p className="text-emerald-600">Paid: {new Date(invoice.paid_at).toLocaleDateString()}</p>}
+            <div className={[s.docRight, s.docDates].join(" ")}>
+              <p><span className={s.docDateLabel}>Created:</span> {new Date(invoice.created_at).toLocaleDateString()}</p>
+              {invoice.due_date && <p><span className={s.docDateLabel}>Due:</span> {new Date(invoice.due_date).toLocaleDateString()}</p>}
+              {invoice.sent_at && <p><span className={s.docDateLabel}>Sent:</span> {new Date(invoice.sent_at).toLocaleDateString()}</p>}
+              {invoice.paid_at && <p className={s.docDatePaid}>Paid: {new Date(invoice.paid_at).toLocaleDateString()}</p>}
             </div>
           </div>
 
           <div>
-            <p className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider mb-1">{t("invoices.billTo")}</p>
+            <p className={s.docSectionLabel}>{t("invoices.billTo")}</p>
             {client ? (
               <div>
-                <p className="font-medium">{client.name}</p>
-                {client.company && <p className="text-xs text-muted-foreground">{client.company}</p>}
-                {client.email && <p className="text-xs text-muted-foreground">{client.email}</p>}
-                {client.address && <p className="text-xs text-muted-foreground">{client.address}</p>}
+                <p style={{ fontWeight: 500 }}>{client.name}</p>
+                {client.company && <p className={s.docSmall}>{client.company}</p>}
+                {client.email && <p className={s.docSmall}>{client.email}</p>}
+                {client.address && <p className={s.docSmall}>{client.address}</p>}
               </div>
-            ) : <p className="text-xs text-muted-foreground">{t("invoices.noClient")}</p>}
+            ) : <p className={s.docSmall}>{t("invoices.noClient")}</p>}
           </div>
 
-          <table className="w-full text-sm">
+          <table className={s.docTable}>
             <thead>
-              <tr className="border-b text-[10px] uppercase text-muted-foreground tracking-wider">
-                <th className="text-left py-2 font-medium">Description</th>
-                <th className="text-right py-2 font-medium w-16">{t("invoices.qty")}</th>
-                <th className="text-right py-2 font-medium w-20">Rate</th>
-                <th className="text-right py-2 font-medium w-24">{t("invoices.amount")}</th>
+              <tr>
+                <th className={s.docTh}>Description</th>
+                <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 64 }}>{t("invoices.qty")}</th>
+                <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>Rate</th>
+                <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 96 }}>{t("invoices.amount")}</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={4} className="py-6 text-center text-muted-foreground text-xs">{t("common.loading")}</td></tr>
+                <tr><td colSpan={4} className={s.docEmpty}>{t("common.loading")}</td></tr>
               ) : items.map((item) => (
-                <tr key={item.id} className="border-b border-border/50">
-                  <td className="py-2.5">{item.description}</td>
-                  <td className="py-2.5 text-right">{item.quantity}</td>
-                  <td className="py-2.5 text-right">{sym}{Number(item.rate).toFixed(2)}</td>
-                  <td className="py-2.5 text-right font-medium">{sym}{Number(item.amount).toFixed(2)}</td>
+                <tr key={item.id}>
+                  <td className={s.docTd}>{item.description}</td>
+                  <td className={[s.docTd, s.docTdRight].join(" ")}>{item.quantity}</td>
+                  <td className={[s.docTd, s.docTdRight].join(" ")}>{sym}{Number(item.rate).toFixed(2)}</td>
+                  <td className={[s.docTd, s.docTdRight, s.docTdBold].join(" ")}>{sym}{Number(item.amount).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="flex justify-end">
-            <div className="w-56 space-y-1.5 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">{t("invoices.subtotal")}</span><span>{sym}{Number(invoice.subtotal).toFixed(2)}</span></div>
-              {invoice.tax_rate > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("invoices.tax")} ({invoice.tax_rate}%)</span><span>{sym}{Number(invoice.tax_amount).toFixed(2)}</span></div>}
-              <div className="flex justify-between font-bold text-base pt-2 border-t"><span>{t("invoices.total")}</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
+          <div className={s.docTotals}>
+            <div className={s.docTotalsInner}>
+              <div className={s.docTotalRow}><span className={s.docTotalLabel}>{t("invoices.subtotal")}</span><span>{sym}{Number(invoice.subtotal).toFixed(2)}</span></div>
+              {invoice.tax_rate > 0 && <div className={s.docTotalRow}><span className={s.docTotalLabel}>{t("invoices.tax")} ({invoice.tax_rate}%)</span><span>{sym}{Number(invoice.tax_amount).toFixed(2)}</span></div>}
+              <div className={s.docTotalFinal}><span>{t("invoices.total")}</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
             </div>
           </div>
 
           {invoice.notes && (
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground font-medium tracking-wider mb-1">{t("invoices.notesLabel")}</p>
-              <p className="text-sm text-muted-foreground whitespace-pre-line">{invoice.notes}</p>
+              <p className={s.docSectionLabel}>{t("invoices.notesLabel")}</p>
+              <p className={[s.docSmall, s.docSmallPre].join(" ")}>{invoice.notes}</p>
             </div>
           )}
         </div>
@@ -136,68 +136,68 @@ export function InvoicesPage() {
   const [viewId, setViewId] = useState<string | null>(null);
 
   const filtered = filter === "all" ? invoices : invoices.filter((i) => i.status === filter);
-  const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((s, i) => s + Number(i.total), 0);
+  const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((sum, i) => sum + Number(i.total), 0);
   const viewInvoice = viewId ? invoices.find((i) => i.id === viewId) : null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={sh.page}>
+      <div className={sh.header}>
         <div>
-          <h1 className="text-2xl font-bold">{t("invoices.title")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className={sh.title}>{t("invoices.title")}</h1>
+          <p className={sh.subtitle}>
             {invoices.length} {t("invoices.title").toLowerCase()}
             {unpaidTotal > 0 && <> · ${unpaidTotal.toFixed(0)} {t("invoices.unpaid")}</>}
           </p>
         </div>
         <Link to="/app/invoices/new">
-          <Button><Plus className="h-4 w-4" /> {t("invoices.new")}</Button>
+          <Button><Plus style={{ width: 16, height: 16 }} /> {t("invoices.new")}</Button>
         </Link>
       </div>
 
-      <div className="flex gap-1">
-        {(["all", "draft", "sent", "paid", "overdue"] as const).map((s) => (
-          <Button key={s} variant={filter === s ? "default" : "ghost"} size="sm"
-            onClick={() => setFilter(s)} className="capitalize">{s}</Button>
+      <div className={sh.filterBar}>
+        {(["all", "draft", "sent", "paid", "overdue"] as const).map((st) => (
+          <Button key={st} variant={filter === st ? "default" : "ghost"} size="sm"
+            onClick={() => setFilter(st)} style={{ textTransform: "capitalize" }}>{st}</Button>
         ))}
       </div>
 
-      <div className="space-y-2">
+      <div className={sh.listGap}>
         {filtered.map((invoice) => {
           const client = getClientById(invoice.client_id);
           const config = STATUS_CONFIG[invoice.status];
           return (
-            <Card key={invoice.id} className="group hover:bg-accent/40 transition-colors cursor-pointer" onClick={() => setViewId(invoice.id)}>
-              <CardContent className="p-4 flex items-center justify-between">
+            <Card key={invoice.id} className={s.invoiceCard} onClick={() => setViewId(invoice.id)}>
+              <CardContent className={sh.cardRow}>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{invoice.invoice_number}</p>
+                  <div className={sh.inlineInfo}>
+                    <p style={{ fontWeight: 500 }}>{invoice.invoice_number}</p>
                     <Badge variant={config.variant}>{config.label}</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className={sh.mutedText}>
                     {client?.name || "No client"} · {invoice.currency} {Number(invoice.total).toFixed(2)}
                     {invoice.due_date && ` · Due ${new Date(invoice.due_date).toLocaleDateString()}`}
                   </p>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={s.hoverActions}>
                   {invoice.status === "draft" && (
                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() }); }}>
-                      <Send className="h-3 w-3" /> {t("invoices.send")}
+                      <Send style={{ width: 12, height: 12 }} /> {t("invoices.send")}
                     </Button>
                   )}
                   {(invoice.status === "sent" || invoice.status === "overdue") && (
                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() }); }}>
-                      <CheckCircle className="h-3 w-3" /> {t("invoices.markPaid")}
+                      <CheckCircle style={{ width: 12, height: 12 }} /> {t("invoices.markPaid")}
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }}>
-                    <Trash2 className="h-3 w-3" />
+                  <Button variant="ghost" size="icon" style={{ width: 32, height: 32 }} onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }}>
+                    <Trash2 style={{ width: 12, height: 12 }} />
                   </Button>
                 </div>
               </CardContent>
             </Card>
           );
         })}
-        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("invoices.noInvoices")}</p>}
+        {filtered.length === 0 && <p className={sh.emptyText}>{t("invoices.noInvoices")}</p>}
       </div>
 
       {viewInvoice && <InvoiceModal invoice={viewInvoice} onClose={() => setViewId(null)} />}

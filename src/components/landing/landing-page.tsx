@@ -5,14 +5,15 @@ import {
   Clock, Keyboard,
 } from "lucide-react";
 import { t, getFreeFeatures, getProFeatures } from "@/lib/i18n";
+import s from "./landing-page.module.css";
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-8 w-8 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
-        <Timer className="h-4 w-4 text-white" />
+    <div className={s.logo}>
+      <div className={s.logoBox}>
+        <Timer className={s.logoIcon} />
       </div>
-      <span className="text-xl font-bold tracking-tight">Logr</span>
+      <span className={s.logoName}>Logr</span>
     </div>
   );
 }
@@ -24,94 +25,90 @@ const EXTRA_KEYS = ["keyboard", "speed", "mobile", "privacy"];
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#f5f1eb]">
+    <div className={s.landing}>
       {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-[#e5e0d8] bg-[#f5f1eb]/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl flex items-center justify-between px-6 py-4">
+      <nav className={s.nav}>
+        <div className={s.navInner}>
           <Logo />
-          <div className="flex items-center gap-6">
-            <a href="#features" className="text-sm text-[#7a7570] hover:text-[#1a1a1a] transition-colors hidden sm:block">{t("nav.features")}</a>
-            <a href="#pricing" className="text-sm text-[#7a7570] hover:text-[#1a1a1a] transition-colors hidden sm:block">{t("nav.pricing")}</a>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer"
-              className="text-sm text-[#7a7570] hover:text-[#1a1a1a] transition-colors hidden sm:block">
-              <Github className="h-4 w-4" />
+          <div className={s.navLinks}>
+            <a href="#features" className={[s.navLink, s.navLinkHidden].join(" ")}>{t("nav.features")}</a>
+            <a href="#pricing" className={[s.navLink, s.navLinkHidden].join(" ")}>{t("nav.pricing")}</a>
+            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={[s.navLink, s.navLinkHidden].join(" ")}>
+              <Github style={{ width: 16, height: 16 }} />
             </a>
-            <Link to="/app"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] px-4 py-2 text-sm font-medium text-white hover:bg-[#333] transition-colors">
-              {t("nav.openApp")} <ArrowRight className="h-3.5 w-3.5" />
+            <Link to="/app" className={s.navCta}>
+              {t("nav.openApp")} <ArrowRight style={{ width: 14, height: 14 }} />
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-16 md:pt-28 md:pb-24">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e5e0d8] px-3 py-1 text-xs text-[#7a7570] mb-6">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      <section className={s.hero}>
+        <div className={s.heroInner}>
+          <div className={s.heroBadge}>
+            <span className={s.heroDot} />
             {t("hero.badge")}
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1a1a1a] leading-[1.1]">
+          <h1 className={s.heroTitle}>
             {t("hero.title1")}<br />
-            <span className="text-[#9a9590]">{t("hero.title2")}</span><br />
+            <span className={s.heroMuted}>{t("hero.title2")}</span><br />
             {t("hero.title3")}
           </h1>
-          <p className="mt-6 text-lg text-[#7a7570] leading-relaxed max-w-lg">{t("hero.desc")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/app"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#1a1a1a] px-6 py-3 text-sm font-medium text-white hover:bg-[#333] transition-colors">
-              {t("hero.cta")} <ArrowRight className="h-4 w-4" />
+          <p className={s.heroDesc}>{t("hero.desc")}</p>
+          <div className={s.heroActions}>
+            <Link to="/app" className={s.heroPrimary}>
+              {t("hero.cta")} <ArrowRight style={{ width: 16, height: 16 }} />
             </Link>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#e5e0d8] px-6 py-3 text-sm font-medium text-[#4a4540] hover:bg-[#f0ece6] transition-colors">
-              <Github className="h-4 w-4" /> {t("hero.github")}
+            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.heroSecondary}>
+              <Github style={{ width: 16, height: 16 }} /> {t("hero.github")}
             </a>
           </div>
-          <div className="mt-8 flex items-center gap-6 text-xs text-[#9a9590]">
-            <span className="flex items-center gap-1"><Check className="h-3 w-3" /> {t("hero.check1")}</span>
-            <span className="flex items-center gap-1"><Check className="h-3 w-3" /> {t("hero.check2")}</span>
-            <span className="flex items-center gap-1"><Check className="h-3 w-3" /> {t("hero.check3")}</span>
+          <div className={s.heroChecks}>
+            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check1")}</span>
+            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check2")}</span>
+            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check3")}</span>
           </div>
         </div>
       </section>
 
       {/* App preview */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="rounded-2xl border border-[#e5e0d8] bg-[#f0ece6] p-2">
-          <div className="rounded-xl border border-[#e5e0d8] bg-white overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-[#e5e0d8] px-4 py-3">
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-zinc-200" />
-                <div className="h-3 w-3 rounded-full bg-zinc-200" />
-                <div className="h-3 w-3 rounded-full bg-zinc-200" />
+      <section className={s.previewSection}>
+        <div className={s.previewOuter}>
+          <div className={s.previewInner}>
+            <div className={s.previewBar}>
+              <div className={s.previewDots}>
+                <div className={s.previewDot} />
+                <div className={s.previewDot} />
+                <div className={s.previewDot} />
               </div>
-              <div className="flex-1 flex justify-center">
-                <div className="rounded-md bg-[#f0ece6] px-4 py-1 text-xs text-[#9a9590]">logr.work</div>
+              <div className={s.previewUrl}>
+                <div className={s.previewUrlBg}>logr.work</div>
               </div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
+            <div className={s.previewBody}>
+              <div className={s.previewTopRow}>
                 <div>
-                  <div className="text-lg font-semibold text-[#1a1a1a]">{t("preview.greeting")}</div>
-                  <div className="text-xs text-[#9a9590] mt-0.5">{t("preview.sub")}</div>
+                  <div className={s.previewGreeting}>{t("preview.greeting")}</div>
+                  <div className={s.previewSub}>{t("preview.sub")}</div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-[#f0ece6] px-3 py-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-sm font-mono font-medium text-[#1a1a1a]">01:24:37</span>
-                  <span className="text-xs text-[#9a9590]">Website Redesign</span>
+                <div className={s.previewTimer}>
+                  <div className={s.previewTimerDot} />
+                  <span className={s.previewTimerTime}>01:24:37</span>
+                  <span className={s.previewTimerProject}>Website Redesign</span>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className={s.previewCards}>
                 {[
                   { key: "preview.today", value: "4h 12m", sub: "+18%" },
                   { key: "preview.week", value: "22h 45m", sub: "Target: 40h" },
                   { key: "preview.unpaid", value: "$3,450", sub: "2 invoices" },
                   { key: "preview.pipeline", value: "$12,800", sub: "5 deals" },
                 ].map((card) => (
-                  <div key={card.key} className="rounded-lg border border-[#e5e0d8] p-3">
-                    <div className="text-[10px] uppercase text-[#9a9590] font-medium tracking-wider">{t(card.key)}</div>
-                    <div className="text-lg font-bold text-[#1a1a1a] mt-1">{card.value}</div>
-                    <div className="text-[10px] text-[#9a9590] mt-0.5">{card.sub}</div>
+                  <div key={card.key} className={s.previewCard}>
+                    <div className={s.previewCardLabel}>{t(card.key)}</div>
+                    <div className={s.previewCardValue}>{card.value}</div>
+                    <div className={s.previewCardSub}>{card.sub}</div>
                   </div>
                 ))}
               </div>
@@ -121,21 +118,21 @@ export function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a]">{t("features.title")}</h2>
-          <p className="mt-3 text-[#7a7570]">{t("features.desc")}</p>
+      <section id="features" className={s.features}>
+        <div className={s.featuresCenter}>
+          <h2 className={s.featuresTitle}>{t("features.title")}</h2>
+          <p className={s.featuresDesc}>{t("features.desc")}</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={s.featuresGrid}>
           {FEATURE_KEYS.map((key, i) => {
             const Icon = FEATURE_ICONS[i];
             return (
-              <div key={key} className="rounded-xl border border-[#e5e0d8] p-5 hover:border-[#ccc] transition-colors">
-                <div className="h-9 w-9 rounded-lg bg-[#f0ece6] flex items-center justify-center mb-3">
-                  <Icon className="h-4.5 w-4.5 text-[#5a554f]" />
+              <div key={key} className={s.featureItem}>
+                <div className={s.featureIcon}>
+                  <Icon className={s.featureIconSvg} />
                 </div>
-                <h3 className="font-semibold text-[#1a1a1a]">{t(`feat.${key}.title`)}</h3>
-                <p className="mt-1.5 text-sm text-[#7a7570] leading-relaxed">{t(`feat.${key}.desc`)}</p>
+                <h3 className={s.featureName}>{t(`feat.${key}.title`)}</h3>
+                <p className={s.featureDesc}>{t(`feat.${key}.desc`)}</p>
               </div>
             );
           })}
@@ -143,18 +140,18 @@ export function LandingPage() {
       </section>
 
       {/* Extras */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="rounded-2xl bg-[#f0ece6] border border-[#e5e0d8] p-8">
-          <h3 className="font-semibold text-[#1a1a1a] mb-4">{t("extras.title")}</h3>
-          <div className="grid sm:grid-cols-2 gap-3">
+      <section className={s.extras}>
+        <div className={s.extrasBox}>
+          <h3 className={s.extrasTitle}>{t("extras.title")}</h3>
+          <div className={s.extrasGrid}>
             {EXTRA_KEYS.map((key, i) => {
               const Icon = EXTRA_ICONS[i];
               return (
-                <div key={key} className="flex items-start gap-3">
-                  <div className="h-7 w-7 rounded-md bg-white border border-[#e5e0d8] flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon className="h-3.5 w-3.5 text-[#7a7570]" />
+                <div key={key} className={s.extraItem}>
+                  <div className={s.extraIcon}>
+                    <Icon className={s.extraIconSvg} />
                   </div>
-                  <p className="text-sm text-[#5a554f]">{t(`extras.${key}`)}</p>
+                  <p className={s.extraText}>{t(`extras.${key}`)}</p>
                 </div>
               );
             })}
@@ -163,49 +160,41 @@ export function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[#1a1a1a]">{t("pricing.title")}</h2>
-          <p className="mt-3 text-[#7a7570]">{t("pricing.desc")}</p>
+      <section id="pricing" className={s.pricing}>
+        <div className={s.featuresCenter}>
+          <h2 className={s.featuresTitle}>{t("pricing.title")}</h2>
+          <p className={s.featuresDesc}>{t("pricing.desc")}</p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          <div className="rounded-xl border border-[#e5e0d8] p-6">
-            <div className="text-sm font-medium text-[#9a9590] uppercase tracking-wider">{t("pricing.free")}</div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-[#1a1a1a]">$0</span>
-              <span className="text-[#9a9590]">{t("pricing.forever")}</span>
+        <div className={s.pricingGrid}>
+          <div className={s.pricingCard}>
+            <div className={s.pricingTier}>{t("pricing.free")}</div>
+            <div className={s.pricingPrice}>
+              <span className={s.pricingAmount}>$0</span>
+              <span className={s.pricingPeriod}>{t("pricing.forever")}</span>
             </div>
-            <p className="mt-2 text-sm text-[#7a7570]">{t("pricing.freeDesc")}</p>
-            <Link to="/app"
-              className="mt-6 block w-full rounded-lg border border-[#e5e0d8] py-2.5 text-center text-sm font-medium text-[#4a4540] hover:bg-[#f0ece6] transition-colors">
-              {t("pricing.getStarted")}
-            </Link>
-            <ul className="mt-6 space-y-2.5">
+            <p className={s.pricingDesc}>{t("pricing.freeDesc")}</p>
+            <Link to="/app" className={s.pricingCta}>{t("pricing.getStarted")}</Link>
+            <ul className={s.pricingFeatures}>
               {getFreeFeatures().map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-[#5a554f]">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> {f}
+                <li key={f} className={s.pricingFeature}>
+                  <Check className={s.pricingCheckIcon} /> {f}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="rounded-xl border-2 border-zinc-900 p-6 relative">
-            <div className="absolute -top-3 left-6 rounded-full bg-[#1a1a1a] px-3 py-0.5 text-[10px] font-medium text-white uppercase tracking-wider">
-              {t("pricing.comingSoon")}
+          <div className={[s.pricingCard, s.pricingCardPro].join(" ")}>
+            <div className={s.pricingBadge}>{t("pricing.comingSoon")}</div>
+            <div className={s.pricingTier}>{t("pricing.pro")}</div>
+            <div className={s.pricingPrice}>
+              <span className={s.pricingAmount}>$9</span>
+              <span className={s.pricingPeriod}>{t("pricing.month")}</span>
             </div>
-            <div className="text-sm font-medium text-[#9a9590] uppercase tracking-wider">{t("pricing.pro")}</div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-[#1a1a1a]">$9</span>
-              <span className="text-[#9a9590]">{t("pricing.month")}</span>
-            </div>
-            <p className="mt-2 text-sm text-[#7a7570]">{t("pricing.proDesc")}</p>
-            <button disabled
-              className="mt-6 block w-full rounded-lg bg-[#1a1a1a] py-2.5 text-center text-sm font-medium text-white opacity-50 cursor-not-allowed">
-              {t("pricing.joinWaitlist")}
-            </button>
-            <ul className="mt-6 space-y-2.5">
+            <p className={s.pricingDesc}>{t("pricing.proDesc")}</p>
+            <button disabled className={s.pricingCtaDisabled}>{t("pricing.joinWaitlist")}</button>
+            <ul className={s.pricingFeatures}>
               {getProFeatures().map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-[#5a554f]">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> {f}
+                <li key={f} className={s.pricingFeature}>
+                  <Check className={s.pricingCheckIcon} /> {f}
                 </li>
               ))}
             </ul>
@@ -214,36 +203,34 @@ export function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
-        <div className="rounded-2xl bg-[#1a1a1a] p-10 md:p-14 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+      <section className={s.ctaSection}>
+        <div className={s.ctaBox}>
+          <h2 className={s.ctaTitle}>
             {t("cta.title1")}<br />{t("cta.title2")}
           </h2>
-          <p className="mt-4 text-[#9a9590] max-w-lg mx-auto">{t("cta.desc")}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/app"
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-medium text-[#1a1a1a] hover:bg-zinc-100 transition-colors">
-              {t("cta.open")} <ArrowRight className="h-4 w-4" />
+          <p className={s.ctaDesc}>{t("cta.desc")}</p>
+          <div className={s.ctaActions}>
+            <Link to="/app" className={s.ctaPrimary}>
+              {t("cta.open")} <ArrowRight style={{ width: 16, height: 16 }} />
             </Link>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#444] px-6 py-3 text-sm font-medium text-white hover:bg-[#333] transition-colors">
-              <Star className="h-4 w-4" /> {t("cta.star")}
+            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.ctaSecondary}>
+              <Star style={{ width: 16, height: 16 }} /> {t("cta.star")}
             </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#e5e0d8]">
-        <div className="mx-auto max-w-5xl px-6 py-8 flex items-center justify-between text-xs text-[#9a9590]">
-          <div className="flex items-center gap-2">
+      <footer className={s.footer}>
+        <div className={s.footerInner}>
+          <div className={s.footerLeft}>
             <Logo />
-            <span className="text-[#c5c0b8]">·</span>
-            <span>{t("footer.builtBy")} <a href="https://zerox9dev.com" target="_blank" rel="noopener noreferrer" className="text-[#5a554f] hover:text-[#1a1a1a]">zerox9dev</a></span>
+            <span className={s.footerDot}>·</span>
+            <span>{t("footer.builtBy")} <a href="https://zerox9dev.com" target="_blank" rel="noopener noreferrer" className={s.footerAuthor}>zerox9dev</a></span>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className="hover:text-[#5a554f] transition-colors">GitHub</a>
-            <a href="https://t.me/Pix2Code" target="_blank" rel="noopener noreferrer" className="hover:text-[#5a554f] transition-colors">Telegram</a>
+          <div className={s.footerRight}>
+            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.footerLink}>GitHub</a>
+            <a href="https://t.me/Pix2Code" target="_blank" rel="noopener noreferrer" className={s.footerLink}>Telegram</a>
           </div>
         </div>
       </footer>

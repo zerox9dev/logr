@@ -1,0 +1,68 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  background: var(--background);
+}
+
+.main {
+  flex: 1;
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+}
+
+.workArea {
+  height: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  overflow: auto;
+}
+
+.workAreaInner {
+  margin: 0 auto;
+  padding: 1.25rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .workAreaInner {
+    padding: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+.loading {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingInner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.loadingText {
+  font-size: 0.875rem;
+}
+
+.loadingIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

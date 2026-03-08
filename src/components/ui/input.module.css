@@ -1,0 +1,34 @@
+.input {
+  display: flex;
+  height: 2.25rem;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--input);
+  background: var(--white);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s;
+  outline: none;
+  color: var(--foreground);
+}
+
+.input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--ring);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input::-webkit-file-upload-button {
+  border: 0;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+}

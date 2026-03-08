@@ -8,13 +8,14 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Timer } from "lucide-react";
+import s from "./App.module.css";
 
 function Loading() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="flex items-center gap-3 text-muted-foreground">
-        <Timer className="h-5 w-5 animate-spin" />
-        <span className="text-sm">Loading...</span>
+    <div className={s.loading}>
+      <div className={s.loadingInner}>
+        <Timer className={s.loadingIcon} />
+        <span className={s.loadingText}>Loading...</span>
       </div>
     </div>
   );

@@ -1,29 +1,19 @@
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import s from "./badge.module.css";
 
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "secondary" | "destructive" | "outline";
 }
 
-export { Badge, badgeVariants };
+const variantMap: Record<string, string> = {
+  default: s.default,
+  secondary: s.secondary,
+  destructive: s.destructive,
+  outline: s.outline,
+};
+
+function Badge({ className, variant = "default", ...props }: BadgeProps) {
+  const cls = [s.badge, variantMap[variant], className].filter(Boolean).join(" ");
+  return <div className={cls} {...props} />;
+}
+
+export { Badge };

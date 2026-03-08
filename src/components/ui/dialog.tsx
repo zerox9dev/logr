@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { Button } from "./button";
+import s from "./dialog.module.css";
 
 interface DialogProps {
   open: boolean;
@@ -13,13 +14,13 @@ export function Dialog({ open, onClose, title, wide, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className={`relative z-50 w-full rounded-2xl border bg-card p-6 ${wide ? "max-w-4xl" : "max-w-lg"}`}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">{title}</h2>
+    <div className={s.overlay}>
+      <div className={s.backdrop} onClick={onClose} />
+      <div className={[s.panel, wide ? s.panelWide : ""].filter(Boolean).join(" ")}>
+        <div className={s.header}>
+          <h2 className={s.title}>{title}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
+            <X style={{ width: 16, height: 16 }} />
           </Button>
         </div>
         {children}

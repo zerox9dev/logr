@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: color 0.15s, background-color 0.15s;
+  white-space: nowrap;
+}
+
+.default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}
+
+.outline {
+  border-color: var(--border);
+  color: var(--foreground);
+  background: transparent;
+}

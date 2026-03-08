@@ -7,10 +7,11 @@ import { Dialog } from "@/components/ui/dialog";
 import { useAppData } from "@/lib/data-context";
 import { t } from "@/lib/i18n";
 import type { Session } from "@/types/database";
+import s from "./timer-page.module.css";
 
 function formatTimer(seconds: number): string {
-  const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60); const s = seconds % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60); const sec = seconds % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 function formatShort(seconds: number): string {
   const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60);
@@ -45,7 +46,7 @@ export function TimerPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (timerRunning) { intervalRef.current = setInterval(() => setTimerSeconds((s) => s + 1), 1000); }
+    if (timerRunning) { intervalRef.current = setInterval(() => setTimerSeconds((v: number) => v + 1), 1000); }
     else if (intervalRef.current) clearInterval(intervalRef.current);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [timerRunning, setTimerSeconds]);
@@ -77,10 +78,10 @@ export function TimerPage() {
     setFormName(""); setFormDuration(""); setFormProjectId(""); setFormDate(new Date().toISOString().slice(0, 10)); setFormStatus("unpaid"); setFormRate("");
     setShowManual(true);
   };
-  const openEdit = (s: Session) => {
-    setEditSession(s);
-    setFormName(s.name); setFormDuration(durationToInput(s.duration_seconds));
-    setFormProjectId(s.project_id || ""); setFormDate(s.started_at.slice(0, 10)); setFormStatus(s.payment_status); setFormRate(s.rate ? String(s.rate) : "");
+  const openEdit = (se: Session) => {
+    setEditSession(se);
+    setFormName(se.name); setFormDuration(durationToInput(se.duration_seconds));
+    setFormProjectId(se.project_id || ""); setFormDate(se.started_at.slice(0, 10)); setFormStatus(se.payment_status); setFormRate(se.rate ? String(se.rate) : "");
     setShowManual(true);
   };
   const handleSave = async () => {
@@ -98,68 +99,62 @@ export function TimerPage() {
   };
 
   const grouped = new Map<string, typeof sessions>();
-  sessions.forEach((s) => { const key = s.started_at.slice(0, 10); const arr = grouped.get(key) || []; arr.push(s); grouped.set(key, arr); });
+  sessions.forEach((se) => { const key = se.started_at.slice(0, 10); const arr = grouped.get(key) || []; arr.push(se); grouped.set(key, arr); });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold">{t("timer.title")}</h1><p className="text-sm text-muted-foreground mt-1">{t("timer.desc")}</p></div>
-        <Button variant="outline" onClick={openCreate}><Plus className="h-4 w-4" /> {t("timer.manualEntry")}</Button>
+    <div className={s.page}>
+      <div className={s.header}>
+        <div><h1 className={s.title}>{t("timer.title")}</h1><p className={s.desc}>{t("timer.desc")}</p></div>
+        <Button variant="outline" onClick={openCreate}><Plus style={{ width: 16, height: 16 }} /> {t("timer.manualEntry")}</Button>
       </div>
 
-      <Card><CardContent className="p-6">
-        <div className="flex items-center gap-4">
-          <Input value={timerDescription} onChange={(e) => setTimerDescription(e.target.value)} placeholder={t("timer.whatWorking")} className="flex-1 text-lg h-12" />
-          <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-12 rounded-lg border border-input bg-white px-3 text-sm">
+      <Card><CardContent className={s.timerCard}>
+        <div className={s.timerRow}>
+          <Input value={timerDescription} onChange={(e) => setTimerDescription(e.target.value)} placeholder={t("timer.whatWorking")} className={s.timerInput} />
+          <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className={s.timerSelect}>
             <option value="">{t("timer.noProject")}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <div className="text-2xl font-mono font-bold min-w-[120px] text-center">{formatTimer(timerSeconds)}</div>
-          <Button size="lg" onClick={handleToggle} className={timerRunning ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"}>
-            {timerRunning ? <Square className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          <div className={s.timerDisplay}>{formatTimer(timerSeconds)}</div>
+          <Button size="lg" onClick={handleToggle} className={timerRunning ? s.btnStop : s.btnStart}>
+            {timerRunning ? <Square style={{ width: 20, height: 20 }} /> : <Play style={{ width: 20, height: 20 }} />}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">{t("timer.spaceStart")}</p>
+        <p className={s.timerHint}>{t("timer.spaceStart")}</p>
       </CardContent></Card>
 
       {Array.from(grouped.entries()).map(([date, entries]) => {
-        const dayTotal = entries.reduce((s, e) => s + e.duration_seconds, 0);
+        const dayTotal = entries.reduce((sum, e) => sum + e.duration_seconds, 0);
         const isToday = date === new Date().toISOString().slice(0, 10);
         return (
           <div key={date}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium">{isToday ? t("dash.today") : new Date(date + "T00:00:00").toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" })}</h3>
-              <span className="text-xs text-muted-foreground font-mono">{formatShort(dayTotal)}</span>
+            <div className={s.dayHeader}>
+              <h3 className={s.dayTitle}>{isToday ? t("dash.today") : new Date(date + "T00:00:00").toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" })}</h3>
+              <span className={s.dayTotal}>{formatShort(dayTotal)}</span>
             </div>
-            <div className="rounded-xl border bg-white overflow-hidden">
-              <table className="w-full text-sm">
+            <div className={s.dayTable}>
+              <table className={s.dayTableInner}>
                 <tbody>
                   {entries.map((session) => {
                     const project = getProjectById(session.project_id);
                     return (
-                      <tr key={session.id} className="group border-b last:border-b-0 hover:bg-accent/40 transition-colors">
-                        <td className="py-2.5 px-4 font-medium">{session.name}</td>
-                        <td className="py-2.5 px-3 text-muted-foreground">{project?.name || <span className="text-muted-foreground/50">—</span>}</td>
-                        <td className="py-2.5 px-3 text-right font-mono text-muted-foreground w-20">{formatShort(session.duration_seconds)}</td>
-                        <td className="py-2.5 px-3 text-right text-muted-foreground w-24">
-                          {session.rate > 0 ? (
-                            <span className="text-xs">${session.rate}/hr</span>
-                          ) : session.billing_type === "fixed" ? (
-                            <span className="text-xs">Fixed</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground/40">—</span>
-                          )}
+                      <tr key={session.id} className={s.sessionRow}>
+                        <td className={s.cellName}>{session.name}</td>
+                        <td className={s.cellProject}>{project?.name || <span className={s.cellProjectEmpty}>—</span>}</td>
+                        <td className={s.cellDuration}>{formatShort(session.duration_seconds)}</td>
+                        <td className={s.cellRate}>
+                          {session.rate > 0 ? `$${session.rate}/hr` : session.billing_type === "fixed" ? "Fixed" : <span className={s.cellRateEmpty}>—</span>}
                         </td>
-                        <td className="py-2.5 px-2 w-24">
+                        <td className={s.cellStatus}>
                           <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${session.payment_status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                            {session.payment_status === "paid" ? <><Check className="h-3 w-3" /> Paid</> : <><CircleDollarSign className="h-3 w-3" /> Unpaid</>}
+                            className={[s.statusBadge, session.payment_status === "paid" ? s.statusPaid : s.statusUnpaid].join(" ")}>
+                            {session.payment_status === "paid" ? <><Check className={s.statusIcon} /> Paid</> : <><CircleDollarSign className={s.statusIcon} /> Unpaid</>}
                           </button>
                         </td>
-                        <td className="py-2.5 px-3 text-right w-20">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(session)}><Pencil className="h-3 w-3" /></Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteSession(session.id)}><Trash2 className="h-3 w-3" /></Button>
+                        <td className={s.cellActions}>
+                          <div className={s.actions}>
+                            <Button variant="ghost" size="icon" className={s.actionBtn} onClick={() => openEdit(session)}><Pencil style={{ width: 12, height: 12 }} /></Button>
+                            <Button variant="ghost" size="icon" className={[s.actionBtn, s.actionBtnDelete].join(" ")} onClick={() => deleteSession(session.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
                           </div>
                         </td>
                       </tr>
@@ -171,28 +166,28 @@ export function TimerPage() {
           </div>
         );
       })}
-      {sessions.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("timer.noEntries")}</p>}
+      {sessions.length === 0 && <p className={s.emptyText}>{t("timer.noEntries")}</p>}
 
       <Dialog open={showManual} onClose={() => { setShowManual(false); setEditSession(null); }} title={editSession ? t("common.edit") : t("timer.manualEntry")}>
-        <div className="space-y-4">
-          <div className="space-y-2"><label className="text-sm font-medium">{t("timer.description")}</label><Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t("timer.whatDidWork")} autoFocus /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("timer.duration")}</label><Input value={formDuration} onChange={(e) => setFormDuration(e.target.value)} placeholder="1h 30m, 1:30, 90m" /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">{t("timer.date")}</label><Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} /></div>
+        <div className={s.formGrid}>
+          <div className={s.formField}><label className={s.formLabel}>{t("timer.description")}</label><Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t("timer.whatDidWork")} autoFocus /></div>
+          <div className={s.formRow2}>
+            <div className={s.formField}><label className={s.formLabel}>{t("timer.duration")}</label><Input value={formDuration} onChange={(e) => setFormDuration(e.target.value)} placeholder="1h 30m, 1:30, 90m" /></div>
+            <div className={s.formField}><label className={s.formLabel}>{t("timer.date")}</label><Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} /></div>
           </div>
-          <div className="space-y-2"><label className="text-sm font-medium">{t("timer.project")}</label>
-            <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+          <div className={s.formField}><label className={s.formLabel}>{t("timer.project")}</label>
+            <select value={formProjectId} onChange={(e) => setFormProjectId(e.target.value)} className={s.formSelect}>
               <option value="">{t("timer.noProject")}</option>{projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><label className="text-sm font-medium">{t("projects.rate")}</label>
+          <div className={s.formRow2}>
+            <div className={s.formField}><label className={s.formLabel}>{t("projects.rate")}</label>
               <Input type="number" value={formRate} onChange={(e) => setFormRate(e.target.value)} placeholder="0" /></div>
-            <div className="space-y-2"><label className="text-sm font-medium">Status</label>
-              <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+            <div className={s.formField}><label className={s.formLabel}>Status</label>
+              <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className={s.formSelect}>
                 <option value="unpaid">Unpaid</option><option value="paid">Paid</option>
               </select></div>
           </div>
-          <div className="flex justify-end gap-2">
+          <div className={s.formActions}>
             <Button variant="outline" onClick={() => { setShowManual(false); setEditSession(null); }}>{t("common.cancel")}</Button>
             <Button onClick={handleSave}>{editSession ? t("common.save") : t("timer.addEntry")}</Button>
           </div>

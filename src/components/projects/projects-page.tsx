@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import type { ProjectStatus, BillingType } from "@/types/database";
 import { t } from "@/lib/i18n";
+import sh from "@/components/shared.module.css";
 
 export function ProjectsPage() {
   const { projects, clients, sessions, addProject, updateProject, deleteProject, getClientById } = useAppData();
@@ -18,51 +19,51 @@ export function ProjectsPage() {
   const filtered = filter === "all" ? projects : projects.filter((p) => p.status === filter);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={sh.page}>
+      <div className={sh.header}>
         <div>
-          <h1 className="text-2xl font-bold">{t("projects.title")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{projects.length} {t("projects.title").toLowerCase()}</p>
+          <h1 className={sh.title}>{t("projects.title")}</h1>
+          <p className={sh.subtitle}>{projects.length} {t("projects.title").toLowerCase()}</p>
         </div>
-        <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4" /> {t("projects.new")}</Button>
+        <Button onClick={() => setShowCreate(true)}><Plus style={{ width: 16, height: 16 }} /> {t("projects.new")}</Button>
       </div>
 
-      <div className="flex gap-1">
+      <div className={sh.filterBar}>
         {(["all", "active", "paused", "completed", "cancelled"] as const).map((s) => (
           <Button key={s} variant={filter === s ? "default" : "ghost"} size="sm"
-            onClick={() => setFilter(s)} className="capitalize">{s}</Button>
+            onClick={() => setFilter(s)} style={{ textTransform: "capitalize" }}>{s}</Button>
         ))}
       </div>
 
-      <div className="space-y-2">
+      <div className={sh.listGap}>
         {filtered.map((project) => {
           const client = getClientById(project.client_id);
           const totalSeconds = sessions.filter((s) => s.project_id === project.id).reduce((sum, s) => sum + s.duration_seconds, 0);
           const hours = Math.round(totalSeconds / 3600 * 10) / 10;
 
           return (
-            <Card key={project.id} className="group">
-              <CardContent className="p-4 flex items-center justify-between">
+            <Card key={project.id}>
+              <CardContent className={sh.cardRow}>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{project.name}</p>
-                    <Badge variant="secondary" className="text-[10px] capitalize">{project.status}</Badge>
-                    <Badge variant="outline" className="text-[10px]">{project.billing_type}</Badge>
+                  <div className={sh.inlineInfo}>
+                    <p style={{ fontWeight: 500 }}>{project.name}</p>
+                    <Badge variant="secondary" className={sh.inlineBadge}>{project.status}</Badge>
+                    <Badge variant="outline" className={sh.inlineBadge}>{project.billing_type}</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className={sh.mutedText}>
                     {client?.name || "No client"} · {hours}h tracked
                     {project.rate && ` · $${project.rate}/hr`}
                   </p>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingId(project.id)}><Pencil className="h-3 w-3" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteProject(project.id)}><Trash2 className="h-3 w-3" /></Button>
+                <div className={sh.hoverActions}>
+                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => setEditingId(project.id)}><Pencil style={{ width: 12, height: 12 }} /></Button>
+                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => deleteProject(project.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
                 </div>
               </CardContent>
             </Card>
           );
         })}
-        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t("projects.noProjects")}</p>}
+        {filtered.length === 0 && <p className={sh.emptyText}>{t("projects.noProjects")}</p>}
       </div>
 
       <ProjectDialog
@@ -113,46 +114,43 @@ function ProjectDialog({ open, onClose, title, clients, initial, onSubmit }: {
 
   return (
     <Dialog open={open} onClose={onClose} title={title}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Name</label>
+      <form onSubmit={handleSubmit} className={sh.formGrid}>
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" autoFocus />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Client</label>
-          <select value={clientId} onChange={(e) => setClientId(e.target.value)}
-            className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>Client</label>
+          <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={sh.formSelect}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Billing</label>
-            <select value={billingType} onChange={(e) => setBillingType(e.target.value as BillingType)}
-              className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+        <div className={sh.formRow2}>
+          <div className={sh.formField}>
+            <label className={sh.formLabel}>Billing</label>
+            <select value={billingType} onChange={(e) => setBillingType(e.target.value as BillingType)} className={sh.formSelect}>
               <option value="hourly">Hourly</option>
               <option value="fixed">Fixed</option>
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{billingType === "hourly" ? "Rate ($/hr)" : "Fixed Budget ($)"}</label>
+          <div className={sh.formField}>
+            <label className={sh.formLabel}>{billingType === "hourly" ? "Rate ($/hr)" : "Fixed Budget ($)"}</label>
             <Input type="number" value={billingType === "hourly" ? rate : fixedBudget}
               onChange={(e) => billingType === "hourly" ? setRate(e.target.value) : setFixedBudget(e.target.value)}
               placeholder="0" />
           </div>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Status</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-            className="flex h-9 w-full rounded-lg border border-input bg-white px-3 py-1 text-sm">
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value as ProjectStatus)} className={sh.formSelect}>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-        <div className="flex justify-end gap-2 pt-2">
+        <div className={sh.formActions}>
           <Button variant="outline" type="button" onClick={onClose}>Cancel</Button>
           <Button type="submit">{initial ? "Save" : "Create"}</Button>
         </div>
