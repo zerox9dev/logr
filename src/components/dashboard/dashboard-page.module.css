@@ -238,30 +238,36 @@
   height: 12px;
 }
 
-/* Activity graph */
-.activityHeader {
+/* Activity — stats above graph */
+.activityContent {
+  padding: 20px;
+}
+
+.activityStatsRow {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 8px;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
-.activityTitle {
-  font-size: 16px;
-}
-
-.activityStats {
+.activityStatBlock {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--gray-500);
+  flex-direction: column;
+  gap: 2px;
 }
 
-.activityStrong {
+.activityStatNum {
+  font-size: 20px;
   font-weight: 700;
   color: var(--foreground);
+  line-height: 1.2;
+}
+
+.activityStatLabel {
+  font-size: 12px;
+  color: var(--gray-400);
+  font-weight: 500;
 }
 
 .graphWrap {
@@ -419,40 +425,144 @@
   color: var(--gray-500);
 }
 
-.quickLinkList {
+/* Weekly bar chart */
+.weekTotal {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 140px;
+  padding-top: 8px;
+}
+
+.barCol {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.quickLink {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 8px;
-  transition: background-color 0.15s;
-  text-decoration: none;
-  color: inherit;
+  gap: 6px;
+  height: 100%;
 }
 
-.quickLink:hover {
-  background: var(--gray-50);
+.barTrack {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-.quickLinkIcon {
-  width: 16px;
-  height: 16px;
+.bar {
+  width: 100%;
+  max-width: 32px;
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.barDefault {
+  background: var(--gray-200);
+}
+
+.barToday {
+  background: var(--emerald-500);
+}
+
+.barLabel {
+  font-size: 11px;
   color: var(--gray-400);
+  font-weight: 500;
 }
 
-.quickLinkIconGreen {
+.barLabelToday {
   color: var(--emerald-600);
+  font-weight: 600;
 }
 
-.quickLinkText {
+.barValue {
+  font-size: 10px;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* Top projects */
+.topProjectsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.topProjectRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.topProjectInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topProjectName {
   font-size: 14px;
   font-weight: 500;
+  color: var(--foreground);
+}
+
+.topProjectTime {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-family: monospace;
+}
+
+.topProjectBarTrack {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--gray-100);
+  overflow: hidden;
+}
+
+.topProjectBar {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--emerald-400);
+  transition: width 0.3s ease;
+}
+
+/* Effective rate card */
+.rateCard {
+  border-color: var(--gray-150);
+}
+
+.rateContent {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rateIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--emerald-500);
+}
+
+.rateValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-right: 8px;
+}
+
+.rateLabel {
+  font-size: 13px;
+  color: var(--gray-400);
 }
 
 .emptyText {
