@@ -466,3 +466,64 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .greeting {
+    font-size: 22px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statContent {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .activityHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .activityStats {
+    font-size: 12px;
+    gap: 12px;
+  }
+
+  .graphWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .graphCell {
+    height: 11px;
+    width: 11px;
+  }
+
+  .graphLegend {
+    justify-content: flex-start;
+  }
+
+  .timerBannerContent {
+    padding: 12px 16px;
+  }
+
+  .overdueBannerContent {
+    padding: 12px 16px;
+  }
+
+  .emptyContent {
+    padding: 32px 0;
+  }
+}

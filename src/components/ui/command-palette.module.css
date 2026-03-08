@@ -106,3 +106,15 @@
 .itemLabel {
   font-weight: 500;
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .overlay {
+    padding-top: 10vh;
+    padding: 16px;
+  }
+
+  .panel {
+    max-width: 100%;
+  }
+}

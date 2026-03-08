@@ -180,3 +180,28 @@
   width: 32px;
   height: 32px;
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .kanban {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  .column {
+    width: 260px;
+    scroll-snap-align: start;
+  }
+
+  .funnelTabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .leadActions {
+    opacity: 1;
+  }
+}

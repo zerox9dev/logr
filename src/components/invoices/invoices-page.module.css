@@ -207,3 +207,59 @@
   opacity: 0;
   transition: opacity 0.15s;
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modalPanel {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 95vh;
+  }
+
+  .modalTop {
+    padding: 12px 16px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .modalTopRight {
+    gap: 4px;
+  }
+
+  .modalBody {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .docHeader {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .docRight {
+    text-align: left;
+  }
+
+  .docTable {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 13px;
+  }
+
+  .docTotalsInner {
+    width: 100%;
+  }
+
+  .docTotals {
+    justify-content: stretch;
+  }
+
+  .hoverActions {
+    opacity: 1;
+  }
+}

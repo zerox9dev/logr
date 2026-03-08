@@ -18,6 +18,13 @@
   padding-bottom: 80px;
 }
 
+@media (max-width: 768px) {
+  .contentWrap {
+    padding: 0 16px 16px;
+    padding-bottom: 72px; /* 56px bottom nav + 16px breathing room */
+  }
+}
+
 @media (min-width: 768px) {
   .contentWrap {
     padding-bottom: 32px;

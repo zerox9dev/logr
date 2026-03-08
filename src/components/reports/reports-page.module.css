@@ -93,3 +93,22 @@
 .barFillBlue {
   background: var(--blue-500);
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statContent {
+    padding: 16px;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}

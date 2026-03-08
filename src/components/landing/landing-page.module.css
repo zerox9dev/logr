@@ -799,3 +799,130 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .navInner {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .hero {
+    padding: 48px 16px 40px;
+  }
+
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .heroDesc {
+    font-size: 16px;
+    margin-top: 16px;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    margin-top: 24px;
+  }
+
+  .heroPrimary,
+  .heroSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .heroChecks {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .previewSection {
+    padding: 0 16px 48px;
+  }
+
+  .previewCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .previewBody {
+    padding: 16px;
+  }
+
+  .previewTopRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .features {
+    padding: 0 16px 48px;
+  }
+
+  .featuresTitle {
+    font-size: 22px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .extras {
+    padding: 0 16px 48px;
+  }
+
+  .extrasBox {
+    padding: 20px;
+  }
+
+  .extrasGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing {
+    padding: 0 16px 48px;
+  }
+
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaSection {
+    padding: 0 16px 48px;
+  }
+
+  .ctaBox {
+    padding: 32px 20px;
+  }
+
+  .ctaTitle {
+    font-size: 20px;
+  }
+
+  .ctaActions {
+    flex-direction: column;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .footerInner {
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .footerLeft {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .footerDot {
+    display: none;
+  }
+}

@@ -43,3 +43,21 @@
   font-weight: 700;
   color: var(--foreground);
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .panel {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 16px;
+  }
+
+  .panelWide {
+    max-width: 100%;
+  }
+}

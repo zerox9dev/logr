@@ -38,3 +38,18 @@
   width: 12px;
   height: 12px;
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .clientRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .contactInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

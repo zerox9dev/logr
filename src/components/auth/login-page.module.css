@@ -93,3 +93,18 @@
   font-size: 13px;
   color: var(--gray-400);
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .title {
+    font-size: 22px;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 20px;
+  }
+}
