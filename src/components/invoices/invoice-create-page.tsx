@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InvoicePreview } from "@/components/invoices/invoice-preview";
 import { useAppData } from "@/lib/data-context";
+import { t } from "@/lib/i18n";
 import sh from "@/components/shared.module.css";
 import s from "./invoices-page.module.css";
 
@@ -65,13 +66,13 @@ export function InvoiceCreatePage() {
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <Link to="/app/invoices"><Button variant="ghost" size="icon"><ArrowLeft style={{ width: 16, height: 16 }} /></Button></Link>
           <div>
-            <h1 className={sh.title}>New Invoice</h1>
+            <h1 className={sh.title}>{t("invoices.new")}</h1>
             <p className={sh.subtitle}>{invoiceNumber}</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <Link to="/app/invoices"><Button variant="outline">Cancel</Button></Link>
-          <Button onClick={handleSubmit}>Create Draft</Button>
+          <Link to="/app/invoices"><Button variant="outline">{t("common.cancel")}</Button></Link>
+          <Button onClick={handleSubmit}>{t("common.create")}</Button>
         </div>
       </div>
 
@@ -80,14 +81,14 @@ export function InvoiceCreatePage() {
           <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div className={sh.formRow2}>
               <div className={sh.formField}>
-                <label className={sh.formLabel}>Client</label>
+                <label className={sh.formLabel}>{t("projects.client")}</label>
                 <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={sh.formSelect}>
-                  <option value="">Select client</option>
+                  <option value="">{t("projects.selectClient")}</option>
                   {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div className={sh.formField}>
-                <label className={sh.formLabel}>Due Date</label>
+                <label className={sh.formLabel}>{t("invoices.dueDate")}</label>
                 <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
               </div>
             </div>
@@ -95,12 +96,12 @@ export function InvoiceCreatePage() {
 
           <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <label className={sh.formLabel}>Line Items</label>
+              <label className={sh.formLabel}>{t("invoices.lineItems")}</label>
               <Button variant="ghost" size="sm" onClick={addItem}><Plus style={{ width: 12, height: 12 }} /> Add</Button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 70px 32px", gap: "0.5rem", fontSize: 10, textTransform: "uppercase", color: "var(--muted-foreground)", fontWeight: 500, letterSpacing: "0.05em", padding: "0 0.25rem" }}>
-                <span>Description</span><span style={{ textAlign: "right" }}>Qty</span><span style={{ textAlign: "right" }}>Rate</span><span style={{ textAlign: "right" }}>Amount</span><span></span>
+                <span>{t("timer.description")}</span><span style={{ textAlign: "right" }}>{t("invoices.qty")}</span><span style={{ textAlign: "right" }}>{t("projects.rate")}</span><span style={{ textAlign: "right" }}>{t("invoices.amount")}</span><span></span>
               </div>
               {items.map((item) => (
                 <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 70px 32px", gap: "0.5rem", alignItems: "center" }}>
@@ -113,26 +114,26 @@ export function InvoiceCreatePage() {
               ))}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)", fontSize: "0.875rem" }}>
-              <div className={s.docTotalRow}><span className={s.docTotalLabel}>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className={s.docTotalRow}><span className={s.docTotalLabel}>{t("invoices.subtotal")}</span><span>${subtotal.toFixed(2)}</span></div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span className={s.docTotalLabel}>Tax</span>
+                <span className={s.docTotalLabel}>{t("invoices.tax")}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                   <Input type="number" value={taxRate || ""} onChange={(e) => setTaxRate(Number(e.target.value))} style={{ width: 64, height: 28, fontSize: "0.75rem", textAlign: "right" }} placeholder="0" />
                   <span>%</span><span style={{ minWidth: 60, textAlign: "right" }}>${taxAmount.toFixed(2)}</span>
                 </div>
               </div>
-              <div className={s.docTotalFinal}><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className={s.docTotalFinal}><span>{t("invoices.total")}</span><span>${total.toFixed(2)}</span></div>
             </div>
           </div>
 
           <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label className={sh.formLabel}>Notes</label>
+            <label className={sh.formLabel}>{t("invoices.notesLabel")}</label>
             <textarea placeholder="Payment terms..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={sh.formTextarea} />
           </div>
         </div>
 
         <div style={{ position: "sticky", top: "1.5rem" }}>
-          <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>Preview</p>
+          <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>{t("invoices.preview")}</p>
           <InvoicePreview number={invoiceNumber} client={selectedClient} settings={settings}
             items={items.map((i) => ({ ...i, hours: i.quantity }))} taxRate={taxRate} discount={0} dueDate={dueDate} notes={notes} />
         </div>

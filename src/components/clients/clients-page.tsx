@@ -27,11 +27,11 @@ export function ClientsPage() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Company</th>
-              <th>Email</th>
-              <th>Projects</th>
-              <th>Hours</th>
+              <th>{t("clients.name")}</th>
+              <th>{t("clients.company")}</th>
+              <th>{t("clients.email")}</th>
+              <th>{t("projects.title")}</th>
+              <th>{t("reports.totalTime")}</th>
               <th></th>
             </tr>
           </thead>
@@ -65,14 +65,14 @@ export function ClientsPage() {
         {clients.length === 0 && <p className={sh.emptyText}>{t("clients.noClients")}</p>}
       </div>
 
-      <ClientDialog open={showCreate} onClose={() => setShowCreate(false)} title="New Client"
+      <ClientDialog open={showCreate} onClose={() => setShowCreate(false)} title={t("clients.new")}
         onSubmit={async (data) => { await addClient(data); setShowCreate(false); }} />
 
       {editingId && (() => {
         const c = clients.find((cl) => cl.id === editingId);
         if (!c) return null;
         return (
-          <ClientDialog open={true} onClose={() => setEditingId(null)} title="Edit Client"
+          <ClientDialog open={true} onClose={() => setEditingId(null)} title={t("clients.edit")}
             initial={c}
             onSubmit={async (data) => { await updateClient(editingId, data); setEditingId(null); }} />
         );
@@ -105,30 +105,30 @@ function ClientDialog({ open, onClose, title, initial, onSubmit }: {
     <Dialog open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className={sh.formGrid}>
         <div className={sh.formRow2}>
-          <div className={sh.formField}><label className={sh.formLabel}>Name</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.name")}</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" autoFocus /></div>
-          <div className={sh.formField}><label className={sh.formLabel}>Company</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.company")}</label>
             <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" /></div>
         </div>
         <div className={sh.formRow2}>
-          <div className={sh.formField}><label className={sh.formLabel}>Email</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.email")}</label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" /></div>
-          <div className={sh.formField}><label className={sh.formLabel}>Phone</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.phone")}</label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+380..." /></div>
         </div>
         <div className={sh.formRow2}>
-          <div className={sh.formField}><label className={sh.formLabel}>Website</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.website")}</label>
             <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." /></div>
-          <div className={sh.formField}><label className={sh.formLabel}>Country</label>
+          <div className={sh.formField}><label className={sh.formLabel}>{t("clients.country")}</label>
             <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ukraine" /></div>
         </div>
-        <div className={sh.formField}><label className={sh.formLabel}>Address</label>
+        <div className={sh.formField}><label className={sh.formLabel}>{t("clients.address")}</label>
           <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" /></div>
-        <div className={sh.formField}><label className={sh.formLabel}>Notes</label>
+        <div className={sh.formField}><label className={sh.formLabel}>{t("clients.notes")}</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes..." rows={2} className={sh.formTextarea} /></div>
         <div className={sh.formActions}>
-          <Button variant="outline" type="button" onClick={onClose}>Cancel</Button>
-          <Button type="submit">{initial ? "Save" : "Create"}</Button>
+          <Button variant="outline" type="button" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit">{initial ? t("common.save") : t("common.create")}</Button>
         </div>
       </form>
     </Dialog>

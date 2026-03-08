@@ -89,9 +89,9 @@ function InvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: () => v
           <table className={s.docTable}>
             <thead>
               <tr>
-                <th className={s.docTh}>Description</th>
+                <th className={s.docTh}>{t("timer.description")}</th>
                 <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 64 }}>{t("invoices.qty")}</th>
-                <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>Rate</th>
+                <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>{t("projects.rate")}</th>
                 <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 96 }}>{t("invoices.amount")}</th>
               </tr>
             </thead>
@@ -164,11 +164,11 @@ export function InvoicesPage() {
         <table className={s.listTable}>
           <thead>
             <tr>
-              <th>Invoice</th>
-              <th>Client</th>
-              <th>Status</th>
-              <th>Amount</th>
-              <th>Due</th>
+              <th>{t("invoices.title")}</th>
+              <th>{t("projects.client")}</th>
+              <th>{t("projects.status")}</th>
+              <th>{t("invoices.amount")}</th>
+              <th>{t("invoices.dueDate")}</th>
               <th></th>
             </tr>
           </thead>

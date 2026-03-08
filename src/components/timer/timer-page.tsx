@@ -135,12 +135,12 @@ export function TimerPage() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Project</th>
-              <th>Date</th>
-              <th>Duration</th>
-              <th>Rate</th>
-              <th>Status</th>
+              <th>{t("timer.description")}</th>
+              <th>{t("timer.project")}</th>
+              <th>{t("timer.date")}</th>
+              <th>{t("timer.duration")}</th>
+              <th>{t("projects.rate")}</th>
+              <th>{t("projects.status")}</th>
               <th></th>
             </tr>
           </thead>
@@ -153,11 +153,11 @@ export function TimerPage() {
                   <td className={s.mutedCell}>{project?.name || "—"}</td>
                   <td className={s.mutedCell}>{formatDate(session.started_at.slice(0, 10))}</td>
                   <td className={s.durationCell}>{formatShort(session.duration_seconds)}</td>
-                  <td className={s.mutedCell}>{session.rate > 0 ? `$${session.rate}/hr` : session.billing_type === "fixed" ? "Fixed" : "—"}</td>
+                  <td className={s.mutedCell}>{session.rate > 0 ? `$${session.rate}/hr` : session.billing_type === "fixed" ? t("projects.fixed") : "—"}</td>
                   <td>
                     <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
                       className={[s.statusBadge, session.payment_status === "paid" ? s.statusPaid : s.statusUnpaid].join(" ")}>
-                      {session.payment_status === "paid" ? <><Check className={s.statusIcon} /> Paid</> : <><CircleDollarSign className={s.statusIcon} /> Unpaid</>}
+                      {session.payment_status === "paid" ? <><Check className={s.statusIcon} /> {t("invoices.paid")}</> : <><CircleDollarSign className={s.statusIcon} /> {t("invoices.unpaid")}</>}
                     </button>
                   </td>
                   <td className={s.actionsCell}>
@@ -186,9 +186,9 @@ export function TimerPage() {
           <div className={s.formRow2}>
             <div className={s.formField}><label className={s.formLabel}>{t("projects.rate")}</label>
               <Input type="number" value={formRate} onChange={(e) => setFormRate(e.target.value)} placeholder="0" /></div>
-            <div className={s.formField}><label className={s.formLabel}>Status</label>
+            <div className={s.formField}><label className={s.formLabel}>{t("projects.status")}</label>
               <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className={s.formSelect}>
-                <option value="unpaid">Unpaid</option><option value="paid">Paid</option>
+                <option value="unpaid">{t("invoices.unpaid")}</option><option value="paid">{t("invoices.paid")}</option>
               </select></div>
           </div>
           <div className={s.formActions}>

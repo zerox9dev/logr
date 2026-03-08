@@ -30,7 +30,7 @@ export function InvoiceViewPage() {
 
   if (!invoice) return (
     <div style={{ textAlign: "center", padding: "3rem 0" }}>
-      <p style={{ color: "var(--muted-foreground)" }}>Invoice not found</p>
+      <p style={{ color: "var(--muted-foreground)" }}>{t("common.noData")}</p>
       <Link to="/app/invoices"><Button variant="outline" style={{ marginTop: "1rem" }}>← Back</Button></Link>
     </div>
   );
@@ -104,9 +104,9 @@ export function InvoiceViewPage() {
         <table className={s.docTable}>
           <thead>
             <tr>
-              <th className={s.docTh}>Description</th>
+              <th className={s.docTh}>{t("timer.description")}</th>
               <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 64 }}>{t("invoices.qty")}</th>
-              <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>Rate</th>
+              <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 80 }}>{t("projects.rate")}</th>
               <th className={[s.docTh, s.docThRight].join(" ")} style={{ width: 96 }}>{t("invoices.amount")}</th>
             </tr>
           </thead>

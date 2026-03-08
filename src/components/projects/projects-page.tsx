@@ -39,12 +39,12 @@ export function ProjectsPage() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Client</th>
-              <th>Status</th>
-              <th>Billing</th>
-              <th>Rate</th>
-              <th>Hours</th>
+              <th>{t("projects.name")}</th>
+              <th>{t("projects.client")}</th>
+              <th>{t("projects.status")}</th>
+              <th>{t("projects.billing")}</th>
+              <th>{t("projects.rate")}</th>
+              <th>{t("reports.totalTime")}</th>
               <th></th>
             </tr>
           </thead>
@@ -75,7 +75,7 @@ export function ProjectsPage() {
       </div>
 
       <ProjectDialog
-        open={showCreate} onClose={() => setShowCreate(false)} title="New Project"
+        open={showCreate} onClose={() => setShowCreate(false)} title={t("projects.new")}
         clients={clients}
         onSubmit={async (data) => { await addProject(data); setShowCreate(false); }}
       />
@@ -85,7 +85,7 @@ export function ProjectsPage() {
         if (!p) return null;
         return (
           <ProjectDialog
-            open={true} onClose={() => setEditingId(null)} title="Edit Project"
+            open={true} onClose={() => setEditingId(null)} title={t("projects.edit")}
             clients={clients}
             initial={{ name: p.name, client_id: p.client_id, billing_type: p.billing_type, rate: p.rate, fixed_budget: p.fixed_budget, status: p.status }}
             onSubmit={async (data) => { await updateProject(editingId, data); setEditingId(null); }}
@@ -124,43 +124,43 @@ function ProjectDialog({ open, onClose, title, clients, initial, onSubmit }: {
     <Dialog open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className={sh.formGrid}>
         <div className={sh.formField}>
-          <label className={sh.formLabel}>Name</label>
+          <label className={sh.formLabel}>{t("projects.name")}</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" autoFocus />
         </div>
         <div className={sh.formField}>
-          <label className={sh.formLabel}>Client</label>
+          <label className={sh.formLabel}>{t("projects.client")}</label>
           <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={sh.formSelect}>
-            <option value="">Select client</option>
+            <option value="">{t("projects.selectClient")}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div className={sh.formRow2}>
           <div className={sh.formField}>
-            <label className={sh.formLabel}>Billing</label>
+            <label className={sh.formLabel}>{t("projects.billing")}</label>
             <select value={billingType} onChange={(e) => setBillingType(e.target.value as BillingType)} className={sh.formSelect}>
-              <option value="hourly">Hourly</option>
-              <option value="fixed">Fixed</option>
+              <option value="hourly">{t("projects.hourly")}</option>
+              <option value="fixed">{t("projects.fixed")}</option>
             </select>
           </div>
           <div className={sh.formField}>
-            <label className={sh.formLabel}>{billingType === "hourly" ? "Rate ($/hr)" : "Fixed Budget ($)"}</label>
+            <label className={sh.formLabel}>{billingType === "hourly" ? t("projects.rate") : t("projects.fixedBudget")}</label>
             <Input type="number" value={billingType === "hourly" ? rate : fixedBudget}
               onChange={(e) => billingType === "hourly" ? setRate(e.target.value) : setFixedBudget(e.target.value)}
               placeholder="0" />
           </div>
         </div>
         <div className={sh.formField}>
-          <label className={sh.formLabel}>Status</label>
+          <label className={sh.formLabel}>{t("projects.status")}</label>
           <select value={status} onChange={(e) => setStatus(e.target.value as ProjectStatus)} className={sh.formSelect}>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="active">{t("projects.active")}</option>
+            <option value="paused">{t("projects.paused")}</option>
+            <option value="completed">{t("projects.completed")}</option>
+            <option value="cancelled">{t("projects.cancelled")}</option>
           </select>
         </div>
         <div className={sh.formActions}>
-          <Button variant="outline" type="button" onClick={onClose}>Cancel</Button>
-          <Button type="submit">{initial ? "Save" : "Create"}</Button>
+          <Button variant="outline" type="button" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit">{initial ? t("common.save") : t("common.create")}</Button>
         </div>
       </form>
     </Dialog>
