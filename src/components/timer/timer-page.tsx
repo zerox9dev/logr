@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Square, Plus, Trash2, Pencil, Check, CircleDollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useAppData } from "@/lib/data-context";
 import { t } from "@/lib/i18n";
 import type { Session } from "@/types/database";
+import sh from "@/components/shared.module.css";
 import s from "./timer-page.module.css";
 
 function formatTimer(seconds: number): string {
@@ -29,6 +29,12 @@ function parseDuration(input: string): number | null {
   const mOnly = input.match(/^(\d+)m$/i); if (mOnly) return Number(mOnly[1]) * 60;
   const colon = input.match(/^(\d+):(\d{2})$/); if (colon) return Number(colon[1]) * 3600 + Number(colon[2]) * 60;
   return null;
+}
+function formatDate(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  const today = new Date().toISOString().slice(0, 10);
+  if (iso === today) return "Today";
+  return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 export function TimerPage() {
@@ -98,17 +104,19 @@ export function TimerPage() {
     setShowManual(false); setEditSession(null);
   };
 
-  const grouped = new Map<string, typeof sessions>();
-  sessions.forEach((se) => { const key = se.started_at.slice(0, 10); const arr = grouped.get(key) || []; arr.push(se); grouped.set(key, arr); });
+  const sorted = [...sessions].sort((a, b) => b.started_at.localeCompare(a.started_at));
 
   return (
-    <div className={s.page}>
-      <div className={s.header}>
-        <div><h1 className={s.title}>{t("timer.title")}</h1><p className={s.desc}>{t("timer.desc")}</p></div>
-        <Button variant="outline" onClick={openCreate}><Plus style={{ width: 16, height: 16 }} /> {t("timer.manualEntry")}</Button>
+    <div className={sh.page}>
+      <div className={sh.header}>
+        <div>
+          <h1 className={sh.title}>{t("timer.title")}</h1>
+          <p className={sh.subtitle}>{sessions.length} sessions</p>
+        </div>
+        <Button onClick={openCreate}><Plus style={{ width: 16, height: 16 }} /> {t("timer.manualEntry")}</Button>
       </div>
 
-      <Card><CardContent className={s.timerCard}>
+      <div className={s.timerControl}>
         <div className={s.timerRow}>
           <Input value={timerDescription} onChange={(e) => setTimerDescription(e.target.value)} placeholder={t("timer.whatWorking")} className={s.timerInput} />
           <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className={s.timerSelect}>
@@ -121,52 +129,48 @@ export function TimerPage() {
           </Button>
         </div>
         <p className={s.timerHint}>{t("timer.spaceStart")}</p>
-      </CardContent></Card>
+      </div>
 
-      {Array.from(grouped.entries()).map(([date, entries]) => {
-        const dayTotal = entries.reduce((sum, e) => sum + e.duration_seconds, 0);
-        const isToday = date === new Date().toISOString().slice(0, 10);
-        return (
-          <div key={date}>
-            <div className={s.dayHeader}>
-              <h3 className={s.dayTitle}>{isToday ? t("dash.today") : new Date(date + "T00:00:00").toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" })}</h3>
-              <span className={s.dayTotal}>{formatShort(dayTotal)}</span>
-            </div>
-            <div className={s.dayTable}>
-              <table className={s.dayTableInner}>
-                <tbody>
-                  {entries.map((session) => {
-                    const project = getProjectById(session.project_id);
-                    return (
-                      <tr key={session.id} className={s.sessionRow}>
-                        <td className={s.cellName}>{session.name}</td>
-                        <td className={s.cellProject}>{project?.name || <span className={s.cellProjectEmpty}>—</span>}</td>
-                        <td className={s.cellDuration}>{formatShort(session.duration_seconds)}</td>
-                        <td className={s.cellRate}>
-                          {session.rate > 0 ? `$${session.rate}/hr` : session.billing_type === "fixed" ? "Fixed" : <span className={s.cellRateEmpty}>—</span>}
-                        </td>
-                        <td className={s.cellStatus}>
-                          <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
-                            className={[s.statusBadge, session.payment_status === "paid" ? s.statusPaid : s.statusUnpaid].join(" ")}>
-                            {session.payment_status === "paid" ? <><Check className={s.statusIcon} /> Paid</> : <><CircleDollarSign className={s.statusIcon} /> Unpaid</>}
-                          </button>
-                        </td>
-                        <td className={s.cellActions}>
-                          <div className={s.actions}>
-                            <Button variant="ghost" size="icon" className={s.actionBtn} onClick={() => openEdit(session)}><Pencil style={{ width: 12, height: 12 }} /></Button>
-                            <Button variant="ghost" size="icon" className={[s.actionBtn, s.actionBtnDelete].join(" ")} onClick={() => deleteSession(session.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })}
-      {sessions.length === 0 && <p className={s.emptyText}>{t("timer.noEntries")}</p>}
+      <div className={s.tableWrap}>
+        <table className={s.table}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Project</th>
+              <th>Date</th>
+              <th>Duration</th>
+              <th>Rate</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((session) => {
+              const project = getProjectById(session.project_id);
+              return (
+                <tr key={session.id}>
+                  <td className={s.nameCell}>{session.name}</td>
+                  <td className={s.mutedCell}>{project?.name || "—"}</td>
+                  <td className={s.mutedCell}>{formatDate(session.started_at.slice(0, 10))}</td>
+                  <td className={s.durationCell}>{formatShort(session.duration_seconds)}</td>
+                  <td className={s.mutedCell}>{session.rate > 0 ? `$${session.rate}/hr` : session.billing_type === "fixed" ? "Fixed" : "—"}</td>
+                  <td>
+                    <button onClick={() => updateSession(session.id, { payment_status: session.payment_status === "paid" ? "unpaid" : "paid" } as any)}
+                      className={[s.statusBadge, session.payment_status === "paid" ? s.statusPaid : s.statusUnpaid].join(" ")}>
+                      {session.payment_status === "paid" ? <><Check className={s.statusIcon} /> Paid</> : <><CircleDollarSign className={s.statusIcon} /> Unpaid</>}
+                    </button>
+                  </td>
+                  <td className={s.actionsCell}>
+                    <button className={s.actionBtn} onClick={() => openEdit(session)}><Pencil style={{ width: 14, height: 14 }} /></button>
+                    <button className={s.actionBtn} onClick={() => deleteSession(session.id)}><Trash2 style={{ width: 14, height: 14 }} /></button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {sessions.length === 0 && <p className={sh.emptyText}>{t("timer.noEntries")}</p>}
+      </div>
 
       <Dialog open={showManual} onClose={() => { setShowManual(false); setEditSession(null); }} title={editSession ? t("common.edit") : t("timer.manualEntry")}>
         <div className={s.formGrid}>

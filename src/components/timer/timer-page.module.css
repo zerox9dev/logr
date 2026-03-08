@@ -1,31 +1,8 @@
-/* Timer — Relatio style */
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--foreground);
-  line-height: 1.2;
-}
-
-.desc {
-  font-size: 14px;
-  color: var(--gray-500);
-  margin-top: 4px;
-}
-
 /* Timer control */
-.timerCard {
+.timerControl {
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  background: var(--white);
   padding: 24px;
 }
 
@@ -98,100 +75,65 @@
   background: var(--red-600);
 }
 
-/* Day group */
-.dayHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+/* Table — same pattern as Projects/Clients/Invoices */
+.tableWrap {
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  background: var(--white);
+  overflow: hidden;
 }
 
-.dayTitle {
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead th {
+  text-align: left;
+  padding: 10px 16px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--gray-400);
+  border-bottom: 1px solid var(--gray-100);
 }
 
-.dayTotal {
-  font-size: 13px;
-  color: var(--gray-500);
-  font-family: monospace;
-}
-
-.dayTable {
-  border-radius: 12px;
-  border: 1px solid #f0f0f0;
-  background: var(--white);
-  overflow: hidden;
-  width: 100%;
-  
-}
-
-.dayTableInner {
-  width: 100%;
-  font-size: 14px;
-  border-collapse: collapse;
-}
-
-.sessionRow {
+.table tbody tr {
   border-bottom: 1px solid var(--gray-100);
   transition: background-color 0.15s;
 }
 
-.sessionRow:last-child {
+.table tbody tr:last-child {
   border-bottom: none;
 }
 
-.sessionRow:hover {
+.table tbody tr:hover {
   background: var(--gray-50);
 }
 
-.sessionRow:hover .actions {
+.table tbody tr:hover .actionsCell button {
   opacity: 1;
 }
 
-.cellName {
+.nameCell {
   padding: 12px 16px;
   font-weight: 500;
   color: var(--foreground);
 }
 
-.cellProject {
-  padding: 12px;
+.mutedCell {
+  padding: 12px 16px;
   color: var(--gray-500);
   font-size: 13px;
 }
 
-.cellProjectEmpty {
-  color: var(--gray-300);
-}
-
-.cellDuration {
-  padding: 12px;
-  text-align: right;
+.durationCell {
+  padding: 12px 16px;
   font-family: monospace;
   color: var(--gray-500);
-  width: 80px;
   font-size: 13px;
-}
-
-.cellRate {
-  padding: 12px;
-  text-align: right;
-  color: var(--gray-500);
-  width: 80px;
-  font-size: 13px;
-}
-
-.cellRateEmpty {
-  color: var(--gray-300);
-}
-
-.cellStatus {
-  padding: 12px 8px;
-  width: 80px;
 }
 
 .statusBadge {
@@ -223,27 +165,31 @@
   height: 12px;
 }
 
-.cellActions {
-  padding: 12px;
+.actionsCell {
+  padding: 12px 16px;
   text-align: right;
-  width: 80px;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
+.actionsCell button {
   opacity: 0;
   transition: opacity 0.15s;
 }
 
 .actionBtn {
-  width: 28px;
-  height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--gray-400);
+  border-radius: 4px;
+  transition: color 0.15s;
 }
 
-.actionBtnDelete {
+.actionBtn:hover {
+  color: var(--foreground);
+}
+
+.actionBtn:last-child:hover {
   color: var(--destructive);
 }
 
@@ -295,26 +241,9 @@
   gap: 8px;
 }
 
-.emptyText {
-  font-size: 14px;
-  color: var(--gray-400);
-  text-align: center;
-  padding: 32px 0;
-}
-
 /* Mobile */
 @media (max-width: 768px) {
-  .title {
-    font-size: 22px;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .timerCard {
+  .timerControl {
     padding: 16px;
   }
 
@@ -338,36 +267,16 @@
     min-width: 100px;
   }
 
-  .dayTable {
+  .tableWrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .dayTableInner {
-    min-width: 500px;
+  .table {
+    min-width: 600px;
   }
 
-  .cellName {
-    padding: 10px 12px;
-  }
-
-  .cellProject {
-    padding: 10px 8px;
-  }
-
-  .cellDuration {
-    padding: 10px 8px;
-  }
-
-  .cellRate {
-    padding: 10px 8px;
-  }
-
-  .cellActions {
-    padding: 10px 8px;
-  }
-
-  .actions {
+  .actionsCell button {
     opacity: 1;
   }
 
