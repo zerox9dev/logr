@@ -1,4 +1,4 @@
-import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, GitBranch, Bell } from "lucide-react";
+import { LayoutDashboard, Timer, FolderKanban, Users, FileText, BarChart3, Settings, GitBranch } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import { t } from "@/lib/i18n";
 import { useAppData } from "@/lib/data-context";
@@ -29,8 +29,6 @@ const mobileNav = [
   { key: "sidebar.settings", icon: Settings, href: "/app/settings" },
 ];
 
-const iconStripColors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4"];
-
 function SidebarNavItem({ item, end, badge }: { item: typeof mainNav[0]; end?: boolean; badge?: number }) {
   return (
     <NavLink to={item.href} end={end}
@@ -56,50 +54,31 @@ export function Sidebar() {
   return (
     <>
       <aside className={s.sidebar}>
-        {/* Icon strip */}
-        <div className={s.iconStrip}>
-          <Link to="/" className={s.iconStripLogo}>L</Link>
-          {iconStripColors.map((color, i) => (
-            <div key={i} className={s.iconStripDot} style={{ background: color }} />
-          ))}
-        </div>
+        <Link to="/" className={s.logo}>
+          <div className={s.logoIcon}>L</div>
+          <span className={s.logoText}>Logr</span>
+        </Link>
 
-        {/* Nav panel */}
-        <div className={s.navPanel}>
-          <Link to="/" className={s.logo}>
-            <div className={s.logoIcon}>L</div>
-            <span className={s.logoText}>Logr</span>
-          </Link>
-
-          <nav className={s.nav}>
-            <div className={s.navSection}>
-              <span className={s.navSectionLabel}>MAIN MENU</span>
-              {mainNav.map((item) => (
-                <SidebarNavItem key={item.key} item={item} end={item.href === "/app"} badge={badgeMap[item.key]} />
-              ))}
-            </div>
-            <div className={s.navSection}>
-              <span className={s.navSectionLabel}>RESOURCES</span>
-              {resourcesNav.map((item) => (
-                <SidebarNavItem key={item.key} item={item} />
-              ))}
-            </div>
-            <div className={s.navSection}>
-              <span className={s.navSectionLabel}>SYSTEM</span>
-              {systemNav.map((item) => (
-                <SidebarNavItem key={item.key} item={item} />
-              ))}
-            </div>
-          </nav>
-
-          <div className={s.userBlock}>
-            <div className={s.userAvatar}>U</div>
-            <div className={s.userInfo}>
-              <span className={s.userName}>User</span>
-              <span className={s.userEmail}>user@logr.work</span>
-            </div>
+        <nav className={s.nav}>
+          <div className={s.navSection}>
+            <span className={s.navSectionLabel}>MAIN MENU</span>
+            {mainNav.map((item) => (
+              <SidebarNavItem key={item.key} item={item} end={item.href === "/app"} badge={badgeMap[item.key]} />
+            ))}
           </div>
-        </div>
+          <div className={s.navSection}>
+            <span className={s.navSectionLabel}>RESOURCES</span>
+            {resourcesNav.map((item) => (
+              <SidebarNavItem key={item.key} item={item} />
+            ))}
+          </div>
+          <div className={s.navSection}>
+            <span className={s.navSectionLabel}>SYSTEM</span>
+            {systemNav.map((item) => (
+              <SidebarNavItem key={item.key} item={item} />
+            ))}
+          </div>
+        </nav>
       </aside>
 
       {/* Mobile bottom tab bar */}
@@ -115,24 +94,5 @@ export function Sidebar() {
         ))}
       </nav>
     </>
-  );
-}
-
-export function TopBar() {
-  return (
-    <div className={s.topBar}>
-      <div className={s.searchWrap}>
-        <input type="text" placeholder="Search anything..." className={s.searchInput} />
-        <span className={s.searchHint}>⌘F</span>
-      </div>
-      <div className={s.topBarRight}>
-        <button className={s.bellBtn}>
-          <Bell className={s.bellIcon} />
-        </button>
-        <Link to="/app/timer" className={s.addBtn}>
-          + Add
-        </Link>
-      </div>
-    </div>
   );
 }

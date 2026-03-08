@@ -1,12 +1,12 @@
-/* Sidebar — Relatio style */
+/* Sidebar */
 .sidebar {
   display: none;
   height: 100vh;
-  flex-direction: row;
+  width: 200px;
+  flex-direction: column;
   background: var(--white);
   border-right: 1px solid var(--border);
-  position: sticky;
-  top: 0;
+  padding: 20px 12px;
 }
 
 @media (min-width: 768px) {
@@ -15,82 +15,14 @@
   }
 }
 
-/* Icon strip — far left narrow column */
-.iconStrip {
-  display: none;
-  width: 56px;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 0;
-  gap: 12px;
-  border-right: 1px solid var(--border);
-  background: var(--white);
-}
-
-@media (min-width: 1024px) {
-  .iconStrip {
-    display: flex;
-  }
-}
-
-.iconStripLogo {
-  height: 32px;
-  width: 32px;
-  border-radius: 8px;
-  background: var(--black);
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  margin-bottom: 8px;
-}
-
-.iconStripDot {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  opacity: 0.7;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.iconStripDot:hover {
-  opacity: 1;
-}
-
-/* Nav panel — expanded sidebar */
-.navPanel {
-  width: 56px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 20px 0;
-}
-
-@media (min-width: 1024px) {
-  .navPanel {
-    width: 200px;
-    padding: 20px 12px;
-  }
-}
-
-/* Logo (shown in navPanel on desktop) */
+/* Logo */
 .logo {
-  display: none;
+  display: flex;
   align-items: center;
   gap: 10px;
   padding: 0 12px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   text-decoration: none;
-}
-
-@media (min-width: 1024px) {
-  .logo {
-    display: flex;
-  }
 }
 
 .logoIcon {
@@ -113,14 +45,13 @@
   color: var(--foreground);
 }
 
-/* Nav sections */
+/* Nav */
 .nav {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
-  overflow-y: auto;
 }
 
 .navSection {
@@ -130,27 +61,20 @@
 }
 
 .navSectionLabel {
-  display: none;
   font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--gray-400);
   padding: 0 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-@media (min-width: 1024px) {
-  .navSectionLabel {
-    display: block;
-  }
-}
-
-/* Nav links */
 .navLink {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  border-radius: 8px;
   padding: 8px 12px;
   font-size: 14px;
   font-weight: 400;
@@ -162,14 +86,6 @@
   background: none;
   cursor: pointer;
   border-left: 3px solid transparent;
-  border-radius: 0;
-  justify-content: center;
-}
-
-@media (min-width: 1024px) {
-  .navLink {
-    justify-content: flex-start;
-  }
 }
 
 .navLink:hover {
@@ -181,7 +97,7 @@
   color: var(--foreground);
   font-weight: 600;
   border-left-color: var(--black);
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--gray-50);
 }
 
 .navIcon {
@@ -191,181 +107,16 @@
 }
 
 .navLabel {
-  display: none;
   flex: 1;
-}
-
-@media (min-width: 1024px) {
-  .navLabel {
-    display: block;
-  }
 }
 
 .navBadge {
-  display: none;
-  background: var(--gray-100);
-  color: var(--gray-500);
   font-size: 11px;
   font-weight: 600;
-  padding: 1px 8px;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  padding: 2px 8px;
   border-radius: 100px;
-  line-height: 1.4;
-}
-
-@media (min-width: 1024px) {
-  .navBadge {
-    display: inline-flex;
-  }
-}
-
-/* User block at bottom */
-.userBlock {
-  display: none;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 12px;
-  border-top: 1px solid var(--border);
-  margin-top: auto;
-}
-
-@media (min-width: 1024px) {
-  .userBlock {
-    display: flex;
-  }
-}
-
-.userAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--gray-200);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gray-600);
-  flex-shrink: 0;
-}
-
-.userInfo {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.userName {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--foreground);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.userEmail {
-  font-size: 12px;
-  color: var(--gray-400);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Top bar */
-.topBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  margin-bottom: 24px;
-  gap: 16px;
-}
-
-.searchWrap {
-  position: relative;
-  flex: 1;
-  max-width: 400px;
-}
-
-.searchInput {
-  width: 100%;
-  height: 40px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--white);
-  padding: 0 40px 0 14px;
-  font-size: 14px;
-  color: var(--foreground);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.searchInput::placeholder {
-  color: var(--gray-400);
-}
-
-.searchInput:focus {
-  border-color: var(--gray-300);
-}
-
-.searchHint {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 11px;
-  color: var(--gray-400);
-  background: var(--gray-100);
-  padding: 2px 6px;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-.topBarRight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bellBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-.bellBtn:hover {
-  background: var(--gray-50);
-}
-
-.bellIcon {
-  width: 18px;
-  height: 18px;
-  color: var(--gray-500);
-}
-
-.addBtn {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  background: var(--black);
-  color: var(--white);
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-
-.addBtn:hover {
-  opacity: 0.85;
 }
 
 /* Mobile bottom nav */

@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Sidebar, TopBar } from "@/components/layout/sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { TimerPage } from "@/components/timer/timer-page";
 import { ProjectsPage } from "@/components/projects/projects-page";
@@ -35,7 +35,6 @@ export function AppLayout() {
       <Sidebar />
       <main className={s.main}>
         <div className={s.contentWrap}>
-          <TopBar />
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/timer" element={<TimerPage />} />
