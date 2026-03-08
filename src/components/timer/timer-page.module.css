@@ -1,4 +1,4 @@
-/* Timer — Znaidy style */
+/* Timer — Relatio style */
 .page {
   display: flex;
   flex-direction: column;
@@ -44,7 +44,7 @@
 .timerSelect {
   height: 48px;
   border-radius: 8px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   background: var(--white);
   padding: 0 14px;
   font-size: 14px;
@@ -107,9 +107,11 @@
 }
 
 .dayTitle {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-400);
 }
 
 .dayTotal {
@@ -120,10 +122,11 @@
 
 .dayTable {
   border-radius: 12px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   background: var(--white);
   overflow: hidden;
   width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .dayTableInner {
@@ -274,7 +277,7 @@
   height: 44px;
   width: 100%;
   border-radius: 8px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   background: var(--white);
   padding: 0 14px;
   font-size: 14px;

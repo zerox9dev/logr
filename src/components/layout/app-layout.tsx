@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Sidebar } from "@/components/layout/sidebar";
+import { Sidebar, TopBar } from "@/components/layout/sidebar";
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { TimerPage } from "@/components/timer/timer-page";
 import { ProjectsPage } from "@/components/projects/projects-page";
@@ -34,8 +34,8 @@ export function AppLayout() {
     <div className={s.layout}>
       <Sidebar />
       <main className={s.main}>
-        <div className={s.workArea}>
-          <div className={s.workAreaInner}>
+        <div className={s.contentWrap}>
+          <TopBar />
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/timer" element={<TimerPage />} />
@@ -49,7 +49,6 @@ export function AppLayout() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          </div>
         </div>
       </main>
       <CommandPalette />

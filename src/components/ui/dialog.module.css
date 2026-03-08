@@ -1,4 +1,4 @@
-/* Dialog — Znaidy style */
+/* Dialog — Relatio style */
 .overlay {
   position: fixed;
   inset: 0;
@@ -21,9 +21,10 @@
   width: 100%;
   max-width: 480px;
   border-radius: 12px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   background: var(--white);
   padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .panelWide {

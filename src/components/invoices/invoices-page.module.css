@@ -1,4 +1,4 @@
-/* Invoices — Znaidy style */
+/* Invoices — Relatio style */
 
 /* Invoice modal */
 .modal {
@@ -20,13 +20,14 @@
 .modalPanel {
   position: relative;
   background: var(--white);
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   border-radius: 16px;
   max-width: 680px;
   width: 100%;
   margin: 0;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .modalTop {
@@ -34,7 +35,7 @@
   top: 0;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid #f0f0f0;
   padding: 12px 24px;
   display: flex;
   align-items: center;
@@ -127,7 +128,7 @@
   text-transform: uppercase;
   color: var(--gray-500);
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .docThRight {
@@ -183,7 +184,7 @@
   font-weight: 700;
   font-size: 16px;
   padding-top: 8px;
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid #f0f0f0;
 }
 
 /* Card hover for list */

@@ -1,9 +1,10 @@
-/* Card — Znaidy style */
+/* Card — Relatio style */
 .card {
   border-radius: 12px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid #f0f0f0;
   background: var(--white);
   color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .header {

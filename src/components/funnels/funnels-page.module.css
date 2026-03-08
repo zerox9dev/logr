@@ -1,4 +1,4 @@
-/* Funnels — Znaidy style */
+/* Funnels — Relatio style */
 .funnelTabs {
   display: flex;
   align-items: center;
@@ -32,7 +32,10 @@
 
 .column {
   flex-shrink: 0;
-  width: 260px;
+  width: 280px;
+  background: var(--gray-50);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .columnHeader {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, FolderKanban, Users, FileText, TrendingUp, ArrowRight, AlertTriangle, Play, Timer } from "lucide-react";
+import { Clock, FolderKanban, Users, FileText, TrendingUp, TrendingDown, ArrowRight, AlertTriangle, Play, Timer } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,28 @@ function ActivityGraph({ sessions }: { sessions: { started_at: string; duration_
   );
 }
 
+function StatCard({ icon: Icon, label, value, trend, trendUp, colorClass }: { icon: any; label: string; value: string; trend?: string; trendUp?: boolean; colorClass: string }) {
+  return (
+    <Card className={s.statCard}>
+      <CardContent className={s.statContent}>
+        <div className={[s.statIconWrap, colorClass].join(" ")}>
+          <Icon className={s.statIcon} />
+        </div>
+        <div className={s.statBody}>
+          <p className={s.statValue}>{value}</p>
+          <p className={s.statLabel}>{label}</p>
+        </div>
+        {trend && (
+          <div className={[s.trendBadge, trendUp ? s.trendUp : s.trendDown].join(" ")}>
+            {trendUp ? <TrendingUp className={s.trendIcon} /> : <TrendingDown className={s.trendIcon} />}
+            {trend}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function DashboardPage() {
   const { sessions, projects, clients, invoices, settings, timerRunning, timerSeconds, timerDescription, getProjectById } = useAppData();
   const now = new Date();
@@ -119,6 +141,13 @@ export function DashboardPage() {
   const thisMonthPaid = invoices.filter((i) => i.status === "paid" && i.paid_at && i.paid_at >= monthStart).reduce((sum, i) => sum + Number(i.total), 0);
   const recentSessions = sessions.slice(0, 5);
   const isEmpty = sessions.length === 0 && projects.length === 0 && clients.length === 0;
+
+  // Compute simple trend for today vs yesterday
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  const yesterdayTotal = sessions.filter((se) => se.started_at.slice(0, 10) === yesterdayStr).reduce((sum, se) => sum + se.duration_seconds, 0);
+  const todayTrend = yesterdayTotal > 0 ? Math.round(((todayTotal - yesterdayTotal) / yesterdayTotal) * 100) : null;
 
   return (
     <div className={s.page}>
@@ -176,10 +205,33 @@ export function DashboardPage() {
       ) : (
         <>
           <div className={s.statsGrid}>
-            <Card className={[s.statCard, s.statEmerald].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><Clock className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.today")}</span></div><p className={s.statValue}>{formatDuration(todayTotal)}</p></CardContent></Card>
-            <Card className={[s.statCard, s.statBlue].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><TrendingUp className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.thisWeek")}</span></div><p className={s.statValue}>{formatDuration(weekTotal)}</p></CardContent></Card>
-            <Card className={[s.statCard, s.statAmber].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><FileText className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.unpaid")}</span></div><p className={s.statValue}>${unpaidTotal.toFixed(0)}</p></CardContent></Card>
-            <Card className={[s.statCard, s.statViolet].join(" ")}><CardContent className={s.statContent}><div className={s.statHeader}><FileText className={s.statHeaderIcon} /><span className={s.statLabel}>{t("dash.thisMonth")}</span></div><p className={[s.statValue, s.statValueGreen].join(" ")}>${thisMonthPaid.toFixed(0)}</p></CardContent></Card>
+            <StatCard
+              icon={Clock}
+              label={t("dash.today")}
+              value={formatDuration(todayTotal)}
+              trend={todayTrend !== null ? `${todayTrend > 0 ? "+" : ""}${todayTrend}%` : undefined}
+              trendUp={todayTrend !== null ? todayTrend >= 0 : undefined}
+              colorClass={s.iconEmerald}
+            />
+            <StatCard
+              icon={TrendingUp}
+              label={t("dash.thisWeek")}
+              value={formatDuration(weekTotal)}
+              colorClass={s.iconBlue}
+            />
+            <StatCard
+              icon={FileText}
+              label={t("dash.unpaid")}
+              value={`$${unpaidTotal.toFixed(0)}`}
+              colorClass={s.iconAmber}
+            />
+            <StatCard
+              icon={FileText}
+              label={t("dash.thisMonth")}
+              value={`$${thisMonthPaid.toFixed(0)}`}
+              trendUp={true}
+              colorClass={s.iconViolet}
+            />
           </div>
           <ActivityGraph sessions={sessions} />
           <div className={s.bottomGrid}>

@@ -1,4 +1,4 @@
-/* Badge — Znaidy style */
+/* Badge — Relatio style */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -29,7 +29,7 @@
 }
 
 .outline {
-  border-color: var(--gray-200);
+  border-color: #e8e8e8;
   color: var(--gray-500);
   background: transparent;
 }

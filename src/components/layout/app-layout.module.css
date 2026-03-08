@@ -1,47 +1,32 @@
-/* App Layout — Znaidy style */
+/* App Layout — Relatio style */
 .layout {
   display: flex;
   height: 100vh;
-  background: var(--background);
+  background: var(--white);
 }
 
 .main {
   flex: 1;
   overflow: auto;
-  padding: 12px;
-}
-
-@media (min-width: 768px) {
-  .main {
-    padding: 16px;
-  }
-}
-
-.workArea {
-  height: 100%;
-  border-radius: 16px;
-  border: 1px solid var(--gray-200);
   background: var(--white);
-  overflow: auto;
 }
 
-.workAreaInner {
-  max-width: 960px;
+.contentWrap {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 32px 32px;
   padding-bottom: 80px;
 }
 
 @media (min-width: 768px) {
-  .workAreaInner {
-    padding: 32px;
+  .contentWrap {
     padding-bottom: 32px;
   }
 }
 
 .loading {
   min-height: 100vh;
-  background: var(--background);
+  background: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
