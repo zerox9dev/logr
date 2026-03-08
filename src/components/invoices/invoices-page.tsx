@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Send, CheckCircle, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAppData } from "@/lib/data-context";
 import type { InvoiceStatus, Invoice, InvoiceItem } from "@/types/database";
@@ -161,42 +160,49 @@ export function InvoicesPage() {
         ))}
       </div>
 
-      <div className={sh.listGap}>
-        {filtered.map((invoice) => {
-          const client = getClientById(invoice.client_id);
-          const config = STATUS_CONFIG[invoice.status];
-          return (
-            <Card key={invoice.id} className={s.invoiceCard} onClick={() => setViewId(invoice.id)}>
-              <CardContent className={sh.cardRow}>
-                <div>
-                  <div className={sh.inlineInfo}>
-                    <p style={{ fontWeight: 500 }}>{invoice.invoice_number}</p>
-                    <Badge variant={config.variant}>{config.label}</Badge>
-                  </div>
-                  <p className={sh.mutedText}>
-                    {client?.name || "No client"} · {invoice.currency} {Number(invoice.total).toFixed(2)}
-                    {invoice.due_date && ` · Due ${new Date(invoice.due_date).toLocaleDateString()}`}
-                  </p>
-                </div>
-                <div className={s.hoverActions}>
-                  {invoice.status === "draft" && (
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() }); }}>
-                      <Send style={{ width: 12, height: 12 }} /> {t("invoices.send")}
-                    </Button>
-                  )}
-                  {(invoice.status === "sent" || invoice.status === "overdue") && (
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() }); }}>
-                      <CheckCircle style={{ width: 12, height: 12 }} /> {t("invoices.markPaid")}
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="icon" style={{ width: 32, height: 32 }} onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }}>
-                    <Trash2 style={{ width: 12, height: 12 }} />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className={s.tableWrap}>
+        <table className={s.listTable}>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Amount</th>
+              <th>Due</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((invoice) => {
+              const client = getClientById(invoice.client_id);
+              const config = STATUS_CONFIG[invoice.status];
+              return (
+                <tr key={invoice.id} className={s.clickableRow} onClick={() => setViewId(invoice.id)}>
+                  <td className={s.nameCell}>{invoice.invoice_number}</td>
+                  <td className={s.mutedCell}>{client?.name || "—"}</td>
+                  <td><Badge variant={config.variant}>{config.label}</Badge></td>
+                  <td className={s.amountCell}>{invoice.currency} {Number(invoice.total).toFixed(2)}</td>
+                  <td className={s.mutedCell}>{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</td>
+                  <td className={s.actionsCell}>
+                    {invoice.status === "draft" && (
+                      <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() }); }} title="Send">
+                        <Send style={{ width: 14, height: 14 }} />
+                      </button>
+                    )}
+                    {(invoice.status === "sent" || invoice.status === "overdue") && (
+                      <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() }); }} title="Mark paid">
+                        <CheckCircle style={{ width: 14, height: 14 }} />
+                      </button>
+                    )}
+                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }} title="Delete">
+                      <Trash2 style={{ width: 14, height: 14 }} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         {filtered.length === 0 && <p className={sh.emptyText}>{t("invoices.noInvoices")}</p>}
       </div>
 

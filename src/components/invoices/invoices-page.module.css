@@ -187,25 +187,82 @@
   border-top: 1px solid #f0f0f0;
 }
 
-/* Card hover for list */
-.invoiceCard {
-  cursor: pointer;
-  transition: background-color 0.15s;
+/* Invoice list table */
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.invoiceCard:hover {
+.listTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.listTable th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-400);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.listTable td {
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-50);
+  vertical-align: middle;
+}
+
+.clickableRow {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.clickableRow:hover {
   background: var(--gray-50);
 }
 
-.invoiceCard:hover .hoverActions {
-  opacity: 1;
+.nameCell {
+  font-weight: 500;
+  color: var(--foreground);
 }
 
-.hoverActions {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.15s;
+.mutedCell {
+  color: var(--gray-500);
+  font-size: 13px;
+}
+
+.amountCell {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.actionsCell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.actionBtn:hover {
+  color: var(--foreground);
+  background: var(--gray-100);
 }
 
 /* Mobile */
@@ -259,7 +316,9 @@
     justify-content: stretch;
   }
 
-  .hoverActions {
-    opacity: 1;
+  .listTable th,
+  .listTable td {
+    padding: 10px 8px;
+    font-size: 13px;
   }
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,7 @@ import { useAppData } from "@/lib/data-context";
 import type { ProjectStatus, BillingType } from "@/types/database";
 import { t } from "@/lib/i18n";
 import sh from "@/components/shared.module.css";
+import s from "./projects-page.module.css";
 
 export function ProjectsPage() {
   const { projects, clients, sessions, addProject, updateProject, deleteProject, getClientById } = useAppData();
@@ -29,40 +29,48 @@ export function ProjectsPage() {
       </div>
 
       <div className={sh.filterBar}>
-        {(["all", "active", "paused", "completed", "cancelled"] as const).map((s) => (
-          <Button key={s} variant={filter === s ? "default" : "ghost"} size="sm"
-            onClick={() => setFilter(s)} style={{ textTransform: "capitalize" }}>{s}</Button>
+        {(["all", "active", "paused", "completed", "cancelled"] as const).map((st) => (
+          <Button key={st} variant={filter === st ? "default" : "ghost"} size="sm"
+            onClick={() => setFilter(st)} style={{ textTransform: "capitalize" }}>{st}</Button>
         ))}
       </div>
 
-      <div className={sh.listGap}>
-        {filtered.map((project) => {
-          const client = getClientById(project.client_id);
-          const totalSeconds = sessions.filter((s) => s.project_id === project.id).reduce((sum, s) => sum + s.duration_seconds, 0);
-          const hours = Math.round(totalSeconds / 3600 * 10) / 10;
+      <div className={s.tableWrap}>
+        <table className={s.table}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Billing</th>
+              <th>Rate</th>
+              <th>Hours</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((project) => {
+              const client = getClientById(project.client_id);
+              const totalSeconds = sessions.filter((se) => se.project_id === project.id).reduce((sum, se) => sum + se.duration_seconds, 0);
+              const hours = Math.round(totalSeconds / 3600 * 10) / 10;
 
-          return (
-            <Card key={project.id}>
-              <CardContent className={sh.cardRow}>
-                <div>
-                  <div className={sh.inlineInfo}>
-                    <p style={{ fontWeight: 500 }}>{project.name}</p>
-                    <Badge variant="secondary" className={sh.inlineBadge}>{project.status}</Badge>
-                    <Badge variant="outline" className={sh.inlineBadge}>{project.billing_type}</Badge>
-                  </div>
-                  <p className={sh.mutedText}>
-                    {client?.name || "No client"} · {hours}h tracked
-                    {project.rate && ` · $${project.rate}/hr`}
-                  </p>
-                </div>
-                <div className={sh.hoverActions}>
-                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => setEditingId(project.id)}><Pencil style={{ width: 12, height: 12 }} /></Button>
-                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => deleteProject(project.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+              return (
+                <tr key={project.id}>
+                  <td className={s.nameCell}>{project.name}</td>
+                  <td className={s.mutedCell}>{client?.name || "—"}</td>
+                  <td><Badge variant="secondary">{project.status}</Badge></td>
+                  <td className={s.mutedCell}>{project.billing_type}</td>
+                  <td className={s.mutedCell}>{project.rate ? `$${project.rate}/hr` : "—"}</td>
+                  <td className={s.mutedCell}>{hours}h</td>
+                  <td className={s.actionsCell}>
+                    <button className={s.actionBtn} onClick={() => setEditingId(project.id)}><Pencil style={{ width: 14, height: 14 }} /></button>
+                    <button className={s.actionBtn} onClick={() => deleteProject(project.id)}><Trash2 style={{ width: 14, height: 14 }} /></button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         {filtered.length === 0 && <p className={sh.emptyText}>{t("projects.noProjects")}</p>}
       </div>
 

@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Mail, Phone, Globe } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
@@ -10,7 +9,7 @@ import sh from "@/components/shared.module.css";
 import s from "./clients-page.module.css";
 
 export function ClientsPage() {
-  const { clients, sessions, invoices, projects, addClient, updateClient, deleteClient } = useAppData();
+  const { clients, sessions, projects, addClient, updateClient, deleteClient } = useAppData();
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -24,39 +23,45 @@ export function ClientsPage() {
         <Button onClick={() => setShowCreate(true)}><Plus style={{ width: 16, height: 16 }} /> {t("clients.new")}</Button>
       </div>
 
-      <div className={sh.listGap}>
-        {clients.map((client) => {
-          const clientProjects = projects.filter((p) => p.client_id === client.id);
-          const totalSeconds = sessions.filter((se) => se.client_id === client.id).reduce((sum, se) => sum + se.duration_seconds, 0);
-          const hours = Math.round(totalSeconds / 3600 * 10) / 10;
-          const initials = client.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+      <div className={s.tableWrap}>
+        <table className={s.table}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Company</th>
+              <th>Email</th>
+              <th>Projects</th>
+              <th>Hours</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {clients.map((client) => {
+              const clientProjects = projects.filter((p) => p.client_id === client.id);
+              const totalSeconds = sessions.filter((se) => se.client_id === client.id).reduce((sum, se) => sum + se.duration_seconds, 0);
+              const hours = Math.round(totalSeconds / 3600 * 10) / 10;
 
-          return (
-            <Card key={client.id}>
-              <CardContent className={sh.cardRow}>
-                <div className={s.clientRow}>
-                  <div className={s.avatar}>{initials}</div>
-                  <div>
-                    <p style={{ fontWeight: 500 }}>{client.name}</p>
-                    <p className={sh.mutedText}>
-                      {client.company && `${client.company} · `}
-                      {clientProjects.length} project{clientProjects.length !== 1 ? "s" : ""} · {hours}h
-                    </p>
-                    <div className={s.contactInfo}>
-                      {client.email && <span className={s.contactItem}><Mail className={s.contactIcon} />{client.email}</span>}
-                      {client.phone && <span className={s.contactItem}><Phone className={s.contactIcon} />{client.phone}</span>}
-                      {client.website && <span className={s.contactItem}><Globe className={s.contactIcon} />{client.website}</span>}
+              return (
+                <tr key={client.id}>
+                  <td className={s.nameCell}>
+                    <div className={s.nameRow}>
+                      <div className={s.avatar}>{client.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}</div>
+                      {client.name}
                     </div>
-                  </div>
-                </div>
-                <div className={sh.hoverActions}>
-                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => setEditingId(client.id)}><Pencil style={{ width: 12, height: 12 }} /></Button>
-                  <Button variant="ghost" size="icon" className={sh.hoverBtn} onClick={() => deleteClient(client.id)}><Trash2 style={{ width: 12, height: 12 }} /></Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                  </td>
+                  <td className={s.mutedCell}>{client.company || "—"}</td>
+                  <td className={s.mutedCell}>{client.email || "—"}</td>
+                  <td className={s.mutedCell}>{clientProjects.length}</td>
+                  <td className={s.mutedCell}>{hours}h</td>
+                  <td className={s.actionsCell}>
+                    <button className={s.actionBtn} onClick={() => setEditingId(client.id)}><Pencil style={{ width: 14, height: 14 }} /></button>
+                    <button className={s.actionBtn} onClick={() => deleteClient(client.id)}><Trash2 style={{ width: 14, height: 14 }} /></button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         {clients.length === 0 && <p className={sh.emptyText}>{t("clients.noClients")}</p>}
       </div>
 
