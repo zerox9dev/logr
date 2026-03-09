@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ export function ProjectsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | ProjectStatus>("all");
+  const navigate = useNavigate();
 
   const filtered = filter === "all" ? projects : projects.filter((p) => p.status === filter);
 
@@ -55,7 +57,7 @@ export function ProjectsPage() {
               const hours = Math.round(totalSeconds / 3600 * 10) / 10;
 
               return (
-                <tr key={project.id}>
+                <tr key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} style={{ cursor: "pointer" }}>
                   <td className={s.nameCell}>{project.name}</td>
                   <td className={s.mutedCell}>{client?.name || "—"}</td>
                   <td><Badge variant="secondary">{project.status}</Badge></td>
@@ -63,8 +65,8 @@ export function ProjectsPage() {
                   <td className={s.mutedCell}>{project.rate ? `$${project.rate}/hr` : "—"}</td>
                   <td className={s.mutedCell}>{hours}h</td>
                   <td className={s.actionsCell}>
-                    <button className={s.actionBtn} onClick={() => setEditingId(project.id)}><Pencil style={{ width: 14, height: 14 }} /></button>
-                    <button className={s.actionBtn} onClick={() => deleteProject(project.id)}><Trash2 style={{ width: 14, height: 14 }} /></button>
+                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); setEditingId(project.id); }}><Pencil style={{ width: 14, height: 14 }} /></button>
+                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}><Trash2 style={{ width: 14, height: 14 }} /></button>
                   </td>
                 </tr>
               );

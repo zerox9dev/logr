@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { TimerPage } from "@/components/timer/timer-page";
 import { ProjectsPage } from "@/components/projects/projects-page";
+import { ProjectDetailPage } from "@/components/projects/project-detail-page";
 import { ClientsPage } from "@/components/clients/clients-page";
 import { InvoicesPage } from "@/components/invoices/invoices-page";
 import { InvoiceCreatePage } from "@/components/invoices/invoice-create-page";
@@ -39,6 +40,7 @@ export function AppLayout() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/timer" element={<TimerPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/invoices" element={<InvoicesPage />} />
             <Route path="/invoices/new" element={<InvoiceCreatePage />} />
