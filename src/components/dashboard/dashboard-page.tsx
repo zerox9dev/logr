@@ -16,7 +16,7 @@ function formatDuration(seconds: number): string {
 }
 
 const WEEKS = 52;
-const DAYS_OF_WEEK = ["Mon", "", "Wed", "", "Fri", "", ""];
+const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const INTENSITY_CLASSES = [s.intensity0, s.intensity1, s.intensity2, s.intensity3, s.intensity4, s.intensity5];
 
 function getIntensity(hours: number): number {
