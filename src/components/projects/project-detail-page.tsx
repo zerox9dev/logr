@@ -1,9 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Clock, DollarSign, Calendar } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, Calendar, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useAppData } from "@/lib/data-context";
 import { t } from "@/lib/i18n";
 import sh from "@/components/shared.module.css";
@@ -12,14 +14,16 @@ import s from "./project-detail-page.module.css";
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h}h ${m}m`;
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
   if (m > 0) return `${m}m`;
   return "0m";
 }
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { projects, sessions, clients, getClientById } = useAppData();
+  const { projects, sessions, clients, getClientById, addSession } = useAppData();
+  const [showAddSession, setShowAddSession] = useState(false);
 
   const project = projects.find((p) => p.id === id);
 
@@ -42,11 +46,6 @@ export function ProjectDetailPage() {
     }
     return project.fixed_budget || 0;
   }, [project, totalSeconds]);
-
-  const paidSeconds = useMemo(() =>
-    projectSessions.filter((se) => se.payment_status === "paid").reduce((sum, se) => sum + se.duration_seconds, 0),
-    [projectSessions]
-  );
 
   if (!project) {
     return (
@@ -73,9 +72,14 @@ export function ProjectDetailPage() {
             {client?.name || "—"} · <Badge variant="secondary">{project.status}</Badge> · {project.billing_type === "hourly" ? `$${project.rate}/hr` : `$${project.fixed_budget} fixed`}
           </p>
         </div>
-        <Link to="/app/timer">
-          <Button>{t("dash.startTimer")}</Button>
-        </Link>
+        <div className={s.headerActions}>
+          <Button variant="outline" onClick={() => setShowAddSession(true)}>
+            <Plus style={{ width: 16, height: 16 }} /> {t("timer.addManual")}
+          </Button>
+          <Link to="/app/timer">
+            <Button>{t("dash.startTimer")}</Button>
+          </Link>
+        </div>
       </div>
 
       <div className={s.statsGrid}>
@@ -148,6 +152,87 @@ export function ProjectDetailPage() {
           <p className={sh.emptyText}>{t("dash.noEntries")}</p>
         )}
       </div>
+
+      {showAddSession && (
+        <AddSessionDialog
+          open={showAddSession}
+          onClose={() => setShowAddSession(false)}
+          project={project}
+          onSubmit={async (data) => {
+            await addSession(data);
+            setShowAddSession(false);
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function AddSessionDialog({ open, onClose, project, onSubmit }: {
+  open: boolean;
+  onClose: () => void;
+  project: { id: string; client_id: string; rate: number | null; billing_type: string };
+  onSubmit: (data: any) => Promise<void>;
+}) {
+  const [name, setName] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
+  const [status, setStatus] = useState<"unpaid" | "paid">("unpaid");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const h = parseInt(hours) || 0;
+    const m = parseInt(minutes) || 0;
+    const totalSec = h * 3600 + m * 60;
+    if (totalSec === 0) return;
+
+    onSubmit({
+      name: name || t("timer.untitled"),
+      project_id: project.id,
+      client_id: project.client_id || null,
+      started_at: `${date}T12:00:00.000Z`,
+      duration_seconds: totalSec,
+      rate: project.rate || 0,
+      billing_type: project.billing_type || "hourly",
+      payment_status: status,
+      notes: null,
+    });
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} title={t("timer.addManual")}>
+      <form onSubmit={handleSubmit} className={sh.formGrid}>
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>{t("timer.description")}</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("timer.whatWorkedOn")} autoFocus />
+        </div>
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>{t("timer.date")}</label>
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+        <div className={sh.formRow2}>
+          <div className={sh.formField}>
+            <label className={sh.formLabel}>{t("timer.hours")}</label>
+            <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
+          </div>
+          <div className={sh.formField}>
+            <label className={sh.formLabel}>{t("timer.minutes")}</label>
+            <Input type="number" min="0" max="59" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="0" />
+          </div>
+        </div>
+        <div className={sh.formField}>
+          <label className={sh.formLabel}>{t("projects.status")}</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value as "unpaid" | "paid")} className={sh.formSelect}>
+            <option value="unpaid">{t("invoices.unpaid")}</option>
+            <option value="paid">{t("invoices.paid")}</option>
+          </select>
+        </div>
+        <div className={sh.formActions}>
+          <Button variant="outline" type="button" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit">{t("common.create")}</Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
