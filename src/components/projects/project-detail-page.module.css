@@ -112,6 +112,26 @@
   color: var(--gray-500);
 }
 
+.actionsCell {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--gray-400);
+  transition: color 0.15s, background 0.15s;
+}
+
+.actionBtn:hover {
+  color: var(--foreground);
+  background: var(--gray-100);
+}
+
 @media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: 1fr;
