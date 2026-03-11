@@ -32,6 +32,7 @@ export function ReportsPage() {
     return Number(settings?.default_rate) || 0;
   };
   const calcEarnings = (onlyPaid: boolean) => filtered.reduce((sum, e) => {
+    if (e.billing_type !== "hourly") return sum;
     if (onlyPaid && e.payment_status !== "paid") return sum;
     const rate = getRate(e);
     if (rate <= 0) return sum;
