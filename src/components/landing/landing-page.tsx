@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Timer, BarChart3, Receipt, Users, FolderOpen,
@@ -10,12 +10,12 @@ import s from "./landing-page.module.css";
 
 /* ─── Feature data ─── */
 const FEATURES = [
-  { icon: Clock, titleKey: "feat.time.title", descKey: "feat.time.desc" },
   { icon: FolderOpen, titleKey: "feat.projects.title", descKey: "feat.projects.desc" },
+  { icon: Clock, titleKey: "feat.time.title", descKey: "feat.time.desc" },
   { icon: Receipt, titleKey: "feat.invoices.title", descKey: "feat.invoices.desc" },
+  { icon: Users, titleKey: "feat.funnels.title", descKey: "feat.funnels.desc" },
   { icon: BarChart3, titleKey: "feat.reports.title", descKey: "feat.reports.desc" },
   { icon: DollarSign, titleKey: "feat.currency.title", descKey: "feat.currency.desc" },
-  { icon: FileText, titleKey: "feat.pdf.title", descKey: "feat.pdf.desc" },
 ];
 
 const STEPS = [
@@ -25,14 +25,13 @@ const STEPS = [
 ];
 
 const PRICING_FEATURE_KEYS = [
-  "pricing.feat.tracking",
-  "pricing.feat.projects",
-  "pricing.feat.invoices",
-  "pricing.feat.pdf",
-  "pricing.feat.currency",
-  "pricing.feat.reports",
-  "pricing.feat.google",
-  "pricing.feat.cloud",
+  "feat.clients.title",
+  "feat.time.title",
+  "feat.invoices.title",
+  "feat.funnels.title",
+  "feat.currency.title",
+  "feat.reports.title",
+  "feat.pdf.title",
 ];
 
 const FAQ_ITEMS = [
@@ -43,15 +42,15 @@ const FAQ_ITEMS = [
 ];
 
 /* ─── FAQ Accordion Item ─── */
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqItem({ qKey, aKey }: { qKey: string; aKey: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={s.faqItem}>
       <button className={s.faqQuestion} onClick={() => setOpen(!open)}>
-        <span>{q}</span>
+        <span>{t(qKey)}</span>
         <ChevronDown className={`${s.faqChevron} ${open ? s.faqChevronOpen : ""}`} />
       </button>
-      {open && <p className={s.faqAnswer}>{a}</p>}
+      {open && <p className={s.faqAnswer}>{t(aKey)}</p>}
     </div>
   );
 }
@@ -80,13 +79,11 @@ export function LandingPage() {
         <div className={s.heroInner}>
           <p className={s.heroLabel}>{t("hero.label")}</p>
           <h1 className={s.heroTitle}>
-            {t("hero.newTitle").split("\n").map((line, i) => (
-              <Fragment key={i}>{i > 0 && <br />}{line}</Fragment>
-            ))}
+            {t("hero.title1")}<br />
+            {t("hero.title2")}<br />
+            {t("hero.title3")}
           </h1>
-          <p className={s.heroDesc}>
-            {t("hero.newDesc")}
-          </p>
+          <p className={s.heroDesc}>{t("hero.desc")}</p>
           <div className={s.heroActions}>
             <Link to="/app" className={s.heroPrimary}>
               {t("hero.tryFree")} <ArrowRight style={{ width: 16, height: 16 }} />
@@ -96,7 +93,7 @@ export function LandingPage() {
             </a>
           </div>
         </div>
-        {/* Dashboard preview placeholder */}
+        {/* Dashboard preview */}
         <div className={s.heroPreview}>
           <div className={s.heroPreviewInner}>
             <div className={s.previewBar}>
@@ -121,13 +118,13 @@ export function LandingPage() {
               </div>
               <div className={s.previewCards}>
                 {[
-                  { label: t("preview.today"), value: "4h 12m", sub: "+18%" },
-                  { label: t("preview.week"), value: "22h 45m", sub: "Target: 40h" },
-                  { label: t("preview.unpaid"), value: "$3,450", sub: "2 invoices" },
-                  { label: t("preview.pipeline"), value: "$12,800", sub: "5 deals" },
+                  { labelKey: "preview.today", value: "4h 12m", sub: "+18%" },
+                  { labelKey: "preview.week", value: "22h 45m", sub: "Target: 40h" },
+                  { labelKey: "preview.unpaid", value: "$3,450", sub: "2 invoices" },
+                  { labelKey: "preview.pipeline", value: "$12,800", sub: "5 deals" },
                 ].map((c) => (
-                  <div key={c.label} className={s.previewCard}>
-                    <div className={s.previewCardLabel}>{c.label}</div>
+                  <div key={c.labelKey} className={s.previewCard}>
+                    <div className={s.previewCardLabel}>{t(c.labelKey)}</div>
                     <div className={s.previewCardValue}>{c.value}</div>
                     <div className={s.previewCardSub}>{c.sub}</div>
                   </div>
@@ -212,7 +209,7 @@ export function LandingPage() {
         </div>
         <div className={s.faqList}>
           {FAQ_ITEMS.map((item) => (
-            <FaqItem key={item.qKey} q={t(item.qKey)} a={t(item.aKey)} />
+            <FaqItem key={item.qKey} qKey={item.qKey} aKey={item.aKey} />
           ))}
         </div>
       </section>
