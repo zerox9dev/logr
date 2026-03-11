@@ -194,7 +194,7 @@ export function InvoicesPage() {
                         <CheckCircle style={{ width: 14, height: 14 }} />
                       </button>
                     )}
-                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); setViewId(invoice.id); setTimeout(() => window.print(), 300); }} title="Download PDF">
+                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); window.open(`/app/invoices/${invoice.id}?print=1`, '_blank'); }} title="Download PDF">
                       <Download style={{ width: 14, height: 14 }} />
                     </button>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }} title="Delete">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Send, CheckCircle, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ const STATUS_CONFIG: Record<InvoiceStatus, { label: string; variant: "default" |
 export function InvoiceViewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { invoices, getClientById, getInvoiceItems, updateInvoice, deleteInvoice, settings } = useAppData();
   const [items, setItems] = useState<InvoiceItem[]>([]);
 
@@ -27,6 +28,13 @@ export function InvoiceViewPage() {
   useEffect(() => {
     if (id) getInvoiceItems(id).then(setItems);
   }, [id, getInvoiceItems]);
+
+  // Auto-print when opened with ?print=1
+  useEffect(() => {
+    if (searchParams.get('print') === '1' && items.length > 0) {
+      setTimeout(() => window.print(), 500);
+    }
+  }, [searchParams, items]);
 
   if (!invoice) return (
     <div style={{ textAlign: "center", padding: "3rem 0" }}>
