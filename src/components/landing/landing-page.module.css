@@ -73,6 +73,8 @@
 
 .heroInner {
   max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .heroLabel {
@@ -98,13 +100,14 @@
   line-height: 1.6;
   color: #666;
   max-width: 520px;
-  margin: 0 0 32px;
+  margin: 0 auto 32px;
 }
 
 .heroActions {
   display: flex;
   gap: 12px;
   align-items: center;
+  justify-content: center;
 }
 
 .heroPrimary {
