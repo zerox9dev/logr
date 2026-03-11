@@ -154,6 +154,17 @@ export function useData() {
     return updated;
   }, []);
 
+  const updateInvoiceWithItems = useCallback(async (id: string, data: InvoiceUpdate, items: Omit<InvoiceItemInsert, "invoice_id">[]) => {
+    const updated = await invoicesApi.update(id, data);
+    await invoiceItemsApi.deleteByInvoice(id);
+    const createdItems = items.length > 0
+      ? await invoiceItemsApi.createMany(items.map((i) => ({ ...i, invoice_id: id })))
+      : [];
+    setInvoices((prev) => prev.map((i) => (i.id === id ? updated : i)));
+    setInvoiceItems((prev) => new Map(prev).set(id, createdItems));
+    return updated;
+  }, []);
+
   const deleteInvoice = useCallback(async (id: string) => {
     await invoicesApi.delete(id);
     setInvoices((prev) => prev.filter((i) => i.id !== id));
@@ -238,7 +249,7 @@ export function useData() {
     clients, addClient, updateClient, deleteClient, getClientById,
     projects, addProject, updateProject, deleteProject, getProjectById,
     sessions, addSession, updateSession, deleteSession,
-    invoices, addInvoice, updateInvoice, deleteInvoice, getInvoiceItems,
+    invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems,
     funnels, addFunnel, updateFunnel, deleteFunnel,
     getStagesForFunnel,
     leads, addLead, updateLead, deleteLead, moveLead,

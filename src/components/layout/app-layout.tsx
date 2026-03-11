@@ -8,6 +8,7 @@ import { ClientsPage } from "@/components/clients/clients-page";
 import { InvoicesPage } from "@/components/invoices/invoices-page";
 import { InvoiceCreatePage } from "@/components/invoices/invoice-create-page";
 import { InvoiceViewPage } from "@/components/invoices/invoice-view-page";
+import { InvoiceEditPage } from "@/components/invoices/invoice-edit-page";
 import { ReportsPage } from "@/components/reports/reports-page";
 import { FunnelsPage } from "@/components/funnels/funnels-page";
 import { SettingsPage } from "@/components/settings/settings-page";
@@ -45,6 +46,7 @@ export function AppLayout() {
             <Route path="/invoices" element={<InvoicesPage />} />
             <Route path="/invoices/new" element={<InvoiceCreatePage />} />
             <Route path="/invoices/:id" element={<InvoiceViewPage />} />
+            <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
             <Route path="/funnels" element={<FunnelsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/settings" element={<SettingsPage />} />

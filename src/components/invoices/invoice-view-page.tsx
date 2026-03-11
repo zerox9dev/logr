@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, CheckCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAppData } from "@/lib/data-context";
@@ -51,6 +51,11 @@ export function InvoiceViewPage() {
           <ArrowLeft style={{ width: 16, height: 16 }} /> {t("invoices.title")}
         </Link>
         <div style={{ display: "flex", gap: "0.5rem" }}>
+          {invoice.status === "draft" && (
+            <Button size="sm" variant="outline" onClick={() => navigate(`/app/invoices/${invoice.id}/edit`)}>
+              <Pencil style={{ width: 14, height: 14 }} /> {t("common.edit")}
+            </Button>
+          )}
           {invoice.status === "draft" && (
             <Button size="sm" variant="outline" onClick={() => updateInvoice(invoice.id, { status: "sent", sent_at: new Date().toISOString() })}>
               <Send style={{ width: 14, height: 14 }} /> {t("invoices.send")}

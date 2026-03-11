@@ -97,6 +97,7 @@ const app: Record<string, Record<string, string>> = {
     // Invoices
     "invoices.title": "Invoices",
     "invoices.new": "New Invoice",
+    "invoices.edit": "Edit Invoice",
     "invoices.unpaid": "unpaid",
     "invoices.draft": "Draft",
     "invoices.sent": "Sent",
@@ -260,6 +261,7 @@ const app: Record<string, Record<string, string>> = {
     "clients.noClients": "Клієнтів ще немає.",
     "invoices.title": "Рахунки",
     "invoices.new": "Новий рахунок",
+    "invoices.edit": "Редагувати рахунок",
     "invoices.unpaid": "неоплачено",
     "invoices.draft": "Чернетка",
     "invoices.sent": "Надіслано",
@@ -419,6 +421,7 @@ const app: Record<string, Record<string, string>> = {
     "clients.noClients": "Клиентов ещё нет.",
     "invoices.title": "Счета",
     "invoices.new": "Новый счёт",
+    "invoices.edit": "Редактировать счёт",
     "invoices.unpaid": "неоплачено",
     "invoices.draft": "Черновик",
     "invoices.sent": "Отправлено",
