@@ -397,13 +397,19 @@
   padding: 80px 32px;
 }
 
-.pricingCard {
-  max-width: 480px;
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 680px;
   margin: 0 auto;
+}
+
+.pricingCard {
   background: white;
   border: 1px solid #e8e5de;
   border-radius: 20px;
-  padding: 36px;
+  padding: 32px;
 }
 
 .pricingHeader { text-align: center; margin-bottom: 28px; }
@@ -479,6 +485,25 @@
 }
 
 .pricingCta:hover { background: #234a31; }
+
+.pricingCtaSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background: transparent;
+  border: 1.5px solid #d0ccc4;
+  padding: 13px 28px;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.pricingCtaSecondary:hover { border-color: #1a1a1a; }
 
 /* ─── FAQ ─── */
 .faq {
@@ -578,6 +603,7 @@
 
   .stepsGrid { grid-template-columns: 1fr; }
 
+  .pricingGrid { grid-template-columns: 1fr; }
   .footerInner { flex-direction: column; gap: 16px; text-align: center; }
 }
 

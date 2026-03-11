@@ -24,7 +24,7 @@ const STEPS = [
   { num: "3", titleKey: "howit.step3.title", descKey: "howit.step3.desc" },
 ];
 
-const PRICING_FEATURE_KEYS = [
+const PRICING_CLOUD_KEYS = [
   "feat.clients.title",
   "feat.time.title",
   "feat.invoices.title",
@@ -32,6 +32,13 @@ const PRICING_FEATURE_KEYS = [
   "feat.currency.title",
   "feat.reports.title",
   "feat.pdf.title",
+];
+
+const PRICING_SELF_KEYS = [
+  "pricing.selfAll",
+  "pricing.selfServer",
+  "pricing.selfOpenSource",
+  "pricing.selfFree",
 ];
 
 const FAQ_ITEMS = [
@@ -180,25 +187,47 @@ export function LandingPage() {
           <h2 className={s.sectionTitle}>{t("pricing.title")}</h2>
           <p className={s.sectionDesc}>{t("pricing.desc")}</p>
         </div>
-        <div className={s.pricingCard}>
-          <div className={s.pricingHeader}>
-            <span className={s.pricingTier}>{t("pricing.free")}</span>
-            <div className={s.pricingPrice}>
-              <span className={s.pricingAmount}>$0</span>
-              <span className={s.pricingPeriod}>{t("pricing.forever")}</span>
+        <div className={s.pricingGrid}>
+          <div className={s.pricingCard}>
+            <div className={s.pricingHeader}>
+              <span className={s.pricingTier}>Cloud</span>
+              <div className={s.pricingPrice}>
+                <span className={s.pricingAmount}>$5</span>
+                <span className={s.pricingPeriod}>{t("pricing.month")}</span>
+              </div>
+              <p className={s.pricingDesc}>{t("pricing.cloudDesc")}</p>
             </div>
-            <p className={s.pricingDesc}>{t("pricing.freeLabel")}</p>
+            <ul className={s.pricingFeatures}>
+              {PRICING_CLOUD_KEYS.map((key) => (
+                <li key={key} className={s.pricingFeature}>
+                  <Check className={s.pricingCheckIcon} /> {t(key)}
+                </li>
+              ))}
+            </ul>
+            <Link to="/app" className={s.pricingCta}>
+              {t("pricing.getStarted")} <ArrowRight style={{ width: 16, height: 16 }} />
+            </Link>
           </div>
-          <ul className={s.pricingFeatures}>
-            {PRICING_FEATURE_KEYS.map((key) => (
-              <li key={key} className={s.pricingFeature}>
-                <Check className={s.pricingCheckIcon} /> {t(key)}
-              </li>
-            ))}
-          </ul>
-          <Link to="/app" className={s.pricingCta}>
-            {t("pricing.tryFree")} <ArrowRight style={{ width: 16, height: 16 }} />
-          </Link>
+          <div className={s.pricingCard}>
+            <div className={s.pricingHeader}>
+              <span className={s.pricingTier}>Self-hosted</span>
+              <div className={s.pricingPrice}>
+                <span className={s.pricingAmount}>$0</span>
+                <span className={s.pricingPeriod}>{t("pricing.forever")}</span>
+              </div>
+              <p className={s.pricingDesc}>{t("pricing.selfDesc")}</p>
+            </div>
+            <ul className={s.pricingFeatures}>
+              {PRICING_SELF_KEYS.map((key) => (
+                <li key={key} className={s.pricingFeature}>
+                  <Check className={s.pricingCheckIcon} /> {t(key)}
+                </li>
+              ))}
+            </ul>
+            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.pricingCtaSecondary}>
+              GitHub <ArrowRight style={{ width: 16, height: 16 }} />
+            </a>
+          </div>
         </div>
       </section>
 
