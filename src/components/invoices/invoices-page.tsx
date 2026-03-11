@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Send, CheckCircle, X } from "lucide-react";
+import { Plus, Trash2, Send, CheckCircle, X, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -194,6 +194,9 @@ export function InvoicesPage() {
                         <CheckCircle style={{ width: 14, height: 14 }} />
                       </button>
                     )}
+                    <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); setViewId(invoice.id); setTimeout(() => window.print(), 300); }} title="Download PDF">
+                      <Download style={{ width: 14, height: 14 }} />
+                    </button>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteInvoice(invoice.id); }} title="Delete">
                       <Trash2 style={{ width: 14, height: 14 }} />
                     </button>
