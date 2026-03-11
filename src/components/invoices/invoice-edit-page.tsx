@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InvoicePreview } from "@/components/invoices/invoice-preview";
+import { Dialog } from "@/components/ui/dialog";
 import { useAppData } from "@/lib/data-context";
 import { t } from "@/lib/i18n";
 import sh from "@/components/shared.module.css";
@@ -20,7 +21,8 @@ interface LineItem {
 export function InvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { clients, settings, invoices, getInvoiceItems, updateInvoiceWithItems, getClientById } = useAppData();
+  const { clients, sessions, projects, settings, invoices, getInvoiceItems, updateInvoiceWithItems, getClientById } = useAppData();
+  const [showSessionPicker, setShowSessionPicker] = useState(false);
 
   const invoice = invoices.find((i) => i.id === id);
 
@@ -59,6 +61,27 @@ export function InvoiceEditPage() {
   const selectedClient = clients.find((c) => c.id === clientId);
   const currency = settings?.default_currency || "USD";
 
+  const availableSessions = useMemo(
+    () => sessions.filter((se) => se.payment_status === "unpaid" && (!clientId || se.client_id === clientId)),
+    [sessions, clientId]
+  );
+
+  const importSessions = (selectedIds: string[]) => {
+    const toImport = sessions.filter((se) => selectedIds.includes(se.id));
+    const newItems: LineItem[] = toImport.map((se) => ({
+      id: crypto.randomUUID(),
+      description: se.name || t("timer.untitled"),
+      quantity: Math.round(se.duration_seconds / 3600 * 100) / 100,
+      rate: se.rate || Number(settings?.default_rate) || 0,
+      sessionId: se.id,
+    }));
+    setItems((prev) => {
+      const empty = prev.length === 1 && !prev[0].description && prev[0].quantity === 0;
+      return empty ? newItems : [...prev, ...newItems];
+    });
+    setShowSessionPicker(false);
+  };
+
   const addItem = () => setItems((prev) => [...prev, { id: crypto.randomUUID(), description: "", quantity: 0, rate: Number(settings?.default_rate) || 0 }]);
   const removeItem = (itemId: string) => { if (items.length > 1) setItems((prev) => prev.filter((i) => i.id !== itemId)); };
   const updateItem = (itemId: string, field: keyof LineItem, value: string | number) => {
@@ -86,6 +109,12 @@ export function InvoiceEditPage() {
       validItems.map((i) => ({ description: i.description, quantity: i.quantity, rate: i.rate, amount: i.quantity * i.rate, session_id: i.sessionId || null }))
     );
     navigate(`/app/invoices/${id}`);
+  };
+
+  const formatDuration = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return `${h}:${String(m).padStart(2, "0")}`;
   };
 
   if (!invoice) return (
@@ -132,7 +161,12 @@ export function InvoiceEditPage() {
           <div style={{ borderRadius: "var(--radius-xl)", border: "1px solid var(--border)", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <label className={sh.formLabel}>{t("invoices.lineItems")}</label>
-              <Button variant="ghost" size="sm" onClick={addItem}><Plus style={{ width: 12, height: 12 }} /> Add</Button>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <Button variant="ghost" size="sm" onClick={() => setShowSessionPicker(true)}>
+                  <Download style={{ width: 12, height: 12 }} /> {t("invoices.importSessions")}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={addItem}><Plus style={{ width: 12, height: 12 }} /> Add</Button>
+              </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px 70px 32px", gap: "0.5rem", fontSize: 10, textTransform: "uppercase", color: "var(--muted-foreground)", fontWeight: 500, letterSpacing: "0.05em", padding: "0 0.25rem" }}>
@@ -173,6 +207,67 @@ export function InvoiceEditPage() {
             items={items.map((i) => ({ ...i, hours: i.quantity }))} taxRate={taxRate} discount={0} dueDate={dueDate} notes={notes} />
         </div>
       </div>
+
+      {showSessionPicker && (
+        <SessionPickerDialog
+          open={showSessionPicker}
+          onClose={() => setShowSessionPicker(false)}
+          sessions={availableSessions}
+          projects={projects}
+          onImport={importSessions}
+        />
+      )}
     </div>
+  );
+}
+
+function SessionPickerDialog({ open, onClose, sessions, projects, onImport }: {
+  open: boolean; onClose: () => void; sessions: any[]; projects: any[]; onImport: (ids: string[]) => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = () => { if (selected.size === sessions.length) setSelected(new Set()); else setSelected(new Set(sessions.map((s) => s.id))); };
+  const projectMap = useMemo(() => new Map(projects.map((p: any) => [p.id, p.name])), [projects]);
+  const formatDuration = (s: number) => { const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); return `${h}:${String(m).padStart(2, "0")}`; };
+
+  return (
+    <Dialog open={open} onClose={onClose} title={t("invoices.importSessions")} wide>
+      <div style={{ maxHeight: "400px", overflow: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--border)" }}>
+              <th style={{ padding: "8px", textAlign: "left", width: 32 }}><input type="checkbox" checked={selected.size === sessions.length && sessions.length > 0} onChange={toggleAll} /></th>
+              <th style={{ padding: "8px", textAlign: "left", fontWeight: 500, color: "var(--gray-500)", fontSize: 13 }}>{t("timer.date")}</th>
+              <th style={{ padding: "8px", textAlign: "left", fontWeight: 500, color: "var(--gray-500)", fontSize: 13 }}>{t("timer.description")}</th>
+              <th style={{ padding: "8px", textAlign: "right", fontWeight: 500, color: "var(--gray-500)", fontSize: 13 }}>{t("timer.duration")}</th>
+              <th style={{ padding: "8px", textAlign: "right", fontWeight: 500, color: "var(--gray-500)", fontSize: 13 }}>{t("invoices.amount")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sessions.map((se: any) => {
+              const hours = se.duration_seconds / 3600;
+              const amount = hours * se.rate;
+              return (
+                <tr key={se.id} onClick={() => toggle(se.id)} style={{ cursor: "pointer", borderBottom: "1px solid var(--gray-50)", background: selected.has(se.id) ? "var(--gray-50)" : undefined }}>
+                  <td style={{ padding: "8px" }}><input type="checkbox" checked={selected.has(se.id)} onChange={() => toggle(se.id)} /></td>
+                  <td style={{ padding: "8px", color: "var(--gray-500)", whiteSpace: "nowrap" }}>{new Date(se.started_at).toLocaleDateString([], { month: "short", day: "numeric" })}</td>
+                  <td style={{ padding: "8px", fontWeight: 500 }}>{se.name || t("timer.untitled")}</td>
+                  <td style={{ padding: "8px", textAlign: "right", fontFamily: "monospace", color: "var(--gray-500)" }}>{formatDuration(se.duration_seconds)}</td>
+                  <td style={{ padding: "8px", textAlign: "right", fontWeight: 500 }}>${amount.toFixed(0)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {sessions.length === 0 && <p style={{ padding: "24px", textAlign: "center", color: "var(--gray-500)" }}>{t("invoices.noUnpaidSessions")}</p>}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0 0", borderTop: "1px solid var(--border)", marginTop: "12px" }}>
+        <span style={{ fontSize: 13, color: "var(--gray-500)" }}>{selected.size} {t("invoices.selected")}</span>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={() => onImport(Array.from(selected))} disabled={selected.size === 0}>{t("invoices.importSelected")}</Button>
+        </div>
+      </div>
+    </Dialog>
   );
 }
