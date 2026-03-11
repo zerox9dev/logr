@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, CheckCircle, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAppData } from "@/lib/data-context";
@@ -44,6 +44,10 @@ export function InvoiceViewPage() {
     navigate("/app/invoices");
   };
 
+  const handleDownloadPdf = () => {
+    window.print();
+  };
+
   return (
     <div className={sh.page} style={{ maxWidth: "48rem" }}>
       <div className={sh.header}>
@@ -66,13 +70,16 @@ export function InvoiceViewPage() {
               <CheckCircle style={{ width: 14, height: 14 }} /> {t("invoices.markPaid")}
             </Button>
           )}
+          <Button size="sm" variant="outline" onClick={handleDownloadPdf}>
+            <Download style={{ width: 14, height: 14 }} /> {t("invoices.downloadPdf")}
+          </Button>
           <Button size="sm" variant="ghost" style={{ color: "var(--destructive)" }} onClick={handleDelete}>
             <Trash2 style={{ width: 14, height: 14 }} />
           </Button>
         </div>
       </div>
 
-      <div style={{ background: "var(--white)", border: "1px solid var(--border)", borderRadius: "1rem", padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div className={s.printable} style={{ background: "var(--white)", border: "1px solid var(--border)", borderRadius: "1rem", padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
         <div className={s.docHeader}>
           <div>
             <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>{settings?.company || settings?.full_name || "Your Company"}</h2>

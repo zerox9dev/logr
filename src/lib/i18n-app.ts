@@ -126,6 +126,7 @@ const app: Record<string, Record<string, string>> = {
     "invoices.createDraft": "Create Draft",
     "invoices.billTo": "Bill To",
     "invoices.noClient": "No client selected",
+    "invoices.downloadPdf": "Download PDF",
     "invoices.addItems": "Add items to see preview",
     // Funnels
     "funnels.title": "Funnels",
@@ -291,6 +292,7 @@ const app: Record<string, Record<string, string>> = {
     "invoices.createDraft": "Створити чернетку",
     "invoices.billTo": "Одержувач",
     "invoices.noClient": "Клієнт не обраний",
+    "invoices.downloadPdf": "Завантажити PDF",
     "invoices.addItems": "Додайте позиції для перегляду",
     "funnels.title": "Воронки",
     "funnels.new": "Нова воронка",
@@ -452,6 +454,7 @@ const app: Record<string, Record<string, string>> = {
     "invoices.createDraft": "Создать черновик",
     "invoices.billTo": "Получатель",
     "invoices.noClient": "Клиент не выбран",
+    "invoices.downloadPdf": "Скачать PDF",
     "invoices.addItems": "Добавьте позиции для просмотра",
     "funnels.title": "Воронки",
     "funnels.new": "Новая воронка",
