@@ -1,114 +1,135 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Timer, BarChart3, Receipt, Kanban, Users, FolderOpen,
-  Zap, Shield, Smartphone, ArrowRight, Check, Github, Star,
-  Clock, Keyboard,
+  Timer, BarChart3, Receipt, Users, FolderOpen,
+  ArrowRight, Check, Github, ChevronDown,
+  Clock, DollarSign, FileText,
 } from "lucide-react";
-import { t, getFreeFeatures, getProFeatures } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 import s from "./landing-page.module.css";
 
-function Logo() {
+/* ─── Feature data ─── */
+const FEATURES = [
+  { icon: Clock, title: "Timer & Sessions", desc: "Track billable hours with one click" },
+  { icon: FolderOpen, title: "Projects & Clients", desc: "Organize work by project and client" },
+  { icon: Receipt, title: "Invoicing", desc: "Generate and send professional invoices" },
+  { icon: BarChart3, title: "Reports", desc: "See where your time goes" },
+  { icon: DollarSign, title: "Multi-currency", desc: "USD, EUR, GBP, UAH, PLN" },
+  { icon: FileText, title: "PDF Export", desc: "Download invoices as PDF" },
+];
+
+const STEPS = [
+  { num: "1", title: "Start Timer", desc: "Track your work session" },
+  { num: "2", title: "Create Invoice", desc: "Auto-generate from tracked time" },
+  { num: "3", title: "Get Paid", desc: "Send to client and mark as paid" },
+];
+
+const PRICING_FEATURES = [
+  "Unlimited time tracking",
+  "Unlimited projects & clients",
+  "Invoice generation",
+  "PDF export",
+  "Multi-currency support",
+  "Reports & analytics",
+  "Google sign-in",
+  "Data stored securely in cloud",
+];
+
+const FAQ_ITEMS = [
+  { q: "Is it really free?", a: "Yes, Logr is completely free during beta." },
+  { q: "Do I need to create an account?", a: "Yes, sign in with Google." },
+  { q: "Can I export my data?", a: "Yes, download invoices as PDF." },
+  { q: "Is my data secure?", a: "Yes, stored in Supabase with encryption." },
+];
+
+/* ─── FAQ Accordion Item ─── */
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className={s.logo}>
-      <div className={s.logoBox}>
-        <Timer className={s.logoIcon} />
-      </div>
-      <span className={s.logoName}>Logr</span>
+    <div className={s.faqItem}>
+      <button className={s.faqQuestion} onClick={() => setOpen(!open)}>
+        <span>{q}</span>
+        <ChevronDown className={`${s.faqChevron} ${open ? s.faqChevronOpen : ""}`} />
+      </button>
+      {open && <p className={s.faqAnswer}>{a}</p>}
     </div>
   );
 }
 
-const FEATURE_ICONS = [Clock, FolderOpen, Users, Receipt, Kanban, BarChart3];
-const FEATURE_KEYS = ["time", "projects", "clients", "invoices", "funnels", "reports"];
-const EXTRA_ICONS = [Keyboard, Zap, Smartphone, Shield];
-const EXTRA_KEYS = ["keyboard", "speed", "mobile", "privacy"];
-
+/* ─── Main Component ─── */
 export function LandingPage() {
   return (
     <div className={s.landing}>
-      {/* Nav */}
+      {/* ── Navbar ── */}
       <nav className={s.nav}>
         <div className={s.navInner}>
-          <Logo />
-          <div className={s.navLinks}>
-            <a href="#features" className={[s.navLink, s.navLinkHidden].join(" ")}>{t("nav.features")}</a>
-            <a href="#pricing" className={[s.navLink, s.navLinkHidden].join(" ")}>{t("nav.pricing")}</a>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={[s.navLink, s.navLinkHidden].join(" ")}>
-              <Github style={{ width: 16, height: 16 }} />
-            </a>
-            <Link to="/app" className={s.navCta}>
-              {t("nav.openApp")} <ArrowRight style={{ width: 14, height: 14 }} />
-            </Link>
+          <div className={s.logo}>
+            <span className={s.logoName}>Logr</span>
           </div>
+          <div className={s.navLinks}>
+            <a href="#how-it-works" className={s.navLink}>How it Works</a>
+            <a href="#features" className={s.navLink}>Features</a>
+            <a href="#pricing" className={s.navLink}>Pricing</a>
+          </div>
+          <Link to="/app" className={s.navCta}>Try for Free</Link>
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* ── Hero ── */}
       <section className={s.hero}>
         <div className={s.heroInner}>
-          <div className={s.heroBadge}>
-            <span className={s.heroDot} />
-            {t("hero.badge")}
-          </div>
+          <p className={s.heroLabel}>Free time tracker for freelancers</p>
           <h1 className={s.heroTitle}>
-            {t("hero.title1")}<br />
-            <span className={s.heroMuted}>{t("hero.title2")}</span><br />
-            {t("hero.title3")}
+            Track time.<br />
+            Get paid.<br />
+            Stay independent.
           </h1>
-          <p className={s.heroDesc}>{t("hero.desc")}</p>
+          <p className={s.heroDesc}>
+            Simple time tracking, project management, and invoicing — built for freelancers who work alone.
+          </p>
           <div className={s.heroActions}>
             <Link to="/app" className={s.heroPrimary}>
-              {t("hero.cta")} <ArrowRight style={{ width: 16, height: 16 }} />
+              Try for Free <ArrowRight style={{ width: 16, height: 16 }} />
             </Link>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.heroSecondary}>
-              <Github style={{ width: 16, height: 16 }} /> {t("hero.github")}
+            <a href="#how-it-works" className={s.heroSecondary}>
+              See How It Works
             </a>
           </div>
-          <div className={s.heroChecks}>
-            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check1")}</span>
-            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check2")}</span>
-            <span className={s.heroCheck}><Check className={s.heroCheckIcon} /> {t("hero.check3")}</span>
-          </div>
         </div>
-      </section>
-
-      {/* App preview */}
-      <section className={s.previewSection}>
-        <div className={s.previewOuter}>
-          <div className={s.previewInner}>
+        {/* Dashboard preview placeholder */}
+        <div className={s.heroPreview}>
+          <div className={s.heroPreviewInner}>
             <div className={s.previewBar}>
               <div className={s.previewDots}>
-                <div className={s.previewDot} />
-                <div className={s.previewDot} />
-                <div className={s.previewDot} />
+                <span className={s.previewDot} />
+                <span className={s.previewDot} />
+                <span className={s.previewDot} />
               </div>
-              <div className={s.previewUrl}>
-                <div className={s.previewUrlBg}>logr.work</div>
-              </div>
+              <div className={s.previewUrl}>logr.work</div>
             </div>
             <div className={s.previewBody}>
               <div className={s.previewTopRow}>
                 <div>
-                  <div className={s.previewGreeting}>{t("preview.greeting")}</div>
-                  <div className={s.previewSub}>{t("preview.sub")}</div>
+                  <div className={s.previewGreeting}>Good evening 👋</div>
+                  <div className={s.previewSub}>3 projects active</div>
                 </div>
                 <div className={s.previewTimer}>
-                  <div className={s.previewTimerDot} />
+                  <span className={s.previewTimerDot} />
                   <span className={s.previewTimerTime}>01:24:37</span>
                   <span className={s.previewTimerProject}>Website Redesign</span>
                 </div>
               </div>
               <div className={s.previewCards}>
                 {[
-                  { key: "preview.today", value: "4h 12m", sub: "+18%" },
-                  { key: "preview.week", value: "22h 45m", sub: "Target: 40h" },
-                  { key: "preview.unpaid", value: "$3,450", sub: "2 invoices" },
-                  { key: "preview.pipeline", value: "$12,800", sub: "5 deals" },
-                ].map((card) => (
-                  <div key={card.key} className={s.previewCard}>
-                    <div className={s.previewCardLabel}>{t(card.key)}</div>
-                    <div className={s.previewCardValue}>{card.value}</div>
-                    <div className={s.previewCardSub}>{card.sub}</div>
+                  { label: "Today", value: "4h 12m", sub: "+18%" },
+                  { label: "This Week", value: "22h 45m", sub: "Target: 40h" },
+                  { label: "Unpaid", value: "$3,450", sub: "2 invoices" },
+                  { label: "Pipeline", value: "$12,800", sub: "5 deals" },
+                ].map((c) => (
+                  <div key={c.label} className={s.previewCard}>
+                    <div className={s.previewCardLabel}>{c.label}</div>
+                    <div className={s.previewCardValue}>{c.value}</div>
+                    <div className={s.previewCardSub}>{c.sub}</div>
                   </div>
                 ))}
               </div>
@@ -117,120 +138,93 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* ── Features ── */}
       <section id="features" className={s.features}>
-        <div className={s.featuresCenter}>
-          <h2 className={s.featuresTitle}>{t("features.title")}</h2>
-          <p className={s.featuresDesc}>{t("features.desc")}</p>
+        <div className={s.sectionCenter}>
+          <h2 className={s.sectionTitle}>Everything you need</h2>
+          <p className={s.sectionDesc}>Built by a freelancer, for freelancers. Every feature solves a real problem.</p>
         </div>
         <div className={s.featuresGrid}>
-          {FEATURE_KEYS.map((key, i) => {
-            const Icon = FEATURE_ICONS[i];
+          {FEATURES.map((f) => {
+            const Icon = f.icon;
             return (
-              <div key={key} className={s.featureItem}>
+              <div key={f.title} className={s.featureItem}>
                 <div className={s.featureIcon}>
                   <Icon className={s.featureIconSvg} />
                 </div>
-                <h3 className={s.featureName}>{t(`feat.${key}.title`)}</h3>
-                <p className={s.featureDesc}>{t(`feat.${key}.desc`)}</p>
+                <h3 className={s.featureName}>{f.title}</h3>
+                <p className={s.featureDesc}>{f.desc}</p>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Extras */}
-      <section className={s.extras}>
-        <div className={s.extrasBox}>
-          <h3 className={s.extrasTitle}>{t("extras.title")}</h3>
-          <div className={s.extrasGrid}>
-            {EXTRA_KEYS.map((key, i) => {
-              const Icon = EXTRA_ICONS[i];
-              return (
-                <div key={key} className={s.extraItem}>
-                  <div className={s.extraIcon}>
-                    <Icon className={s.extraIconSvg} />
-                  </div>
-                  <p className={s.extraText}>{t(`extras.${key}`)}</p>
-                </div>
-              );
-            })}
-          </div>
+      {/* ── How it Works ── */}
+      <section id="how-it-works" className={s.howItWorks}>
+        <div className={s.sectionCenter}>
+          <h2 className={s.sectionTitle}>How it works</h2>
+          <p className={s.sectionDesc}>Three simple steps to get paid for your work.</p>
+        </div>
+        <div className={s.stepsGrid}>
+          {STEPS.map((step) => (
+            <div key={step.num} className={s.stepItem}>
+              <div className={s.stepNum}>{step.num}</div>
+              <h3 className={s.stepTitle}>{step.title}</h3>
+              <p className={s.stepDesc}>{step.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* ── Pricing ── */}
       <section id="pricing" className={s.pricing}>
-        <div className={s.featuresCenter}>
-          <h2 className={s.featuresTitle}>{t("pricing.title")}</h2>
-          <p className={s.featuresDesc}>{t("pricing.desc")}</p>
+        <div className={s.sectionCenter}>
+          <h2 className={s.sectionTitle}>Simple pricing</h2>
+          <p className={s.sectionDesc}>Free while in beta. No credit card required.</p>
         </div>
-        <div className={s.pricingGrid}>
-          <div className={s.pricingCard}>
-            <div className={s.pricingTier}>{t("pricing.free")}</div>
+        <div className={s.pricingCard}>
+          <div className={s.pricingHeader}>
+            <span className={s.pricingTier}>Free</span>
             <div className={s.pricingPrice}>
               <span className={s.pricingAmount}>$0</span>
-              <span className={s.pricingPeriod}>{t("pricing.forever")}</span>
+              <span className={s.pricingPeriod}>/forever</span>
             </div>
-            <p className={s.pricingDesc}>{t("pricing.freeDesc")}</p>
-            <Link to="/app" className={s.pricingCta}>{t("pricing.getStarted")}</Link>
-            <ul className={s.pricingFeatures}>
-              {getFreeFeatures().map((f) => (
-                <li key={f} className={s.pricingFeature}>
-                  <Check className={s.pricingCheckIcon} /> {f}
-                </li>
-              ))}
-            </ul>
+            <p className={s.pricingDesc}>Everything included. No limits during beta.</p>
           </div>
-          <div className={[s.pricingCard, s.pricingCardPro].join(" ")}>
-            <div className={s.pricingBadge}>{t("pricing.comingSoon")}</div>
-            <div className={s.pricingTier}>{t("pricing.pro")}</div>
-            <div className={s.pricingPrice}>
-              <span className={s.pricingAmount}>$9</span>
-              <span className={s.pricingPeriod}>{t("pricing.month")}</span>
-            </div>
-            <p className={s.pricingDesc}>{t("pricing.proDesc")}</p>
-            <button disabled className={s.pricingCtaDisabled}>{t("pricing.joinWaitlist")}</button>
-            <ul className={s.pricingFeatures}>
-              {getProFeatures().map((f) => (
-                <li key={f} className={s.pricingFeature}>
-                  <Check className={s.pricingCheckIcon} /> {f}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className={s.pricingFeatures}>
+            {PRICING_FEATURES.map((f) => (
+              <li key={f} className={s.pricingFeature}>
+                <Check className={s.pricingCheckIcon} /> {f}
+              </li>
+            ))}
+          </ul>
+          <Link to="/app" className={s.pricingCta}>
+            Get Started Free <ArrowRight style={{ width: 16, height: 16 }} />
+          </Link>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className={s.ctaSection}>
-        <div className={s.ctaBox}>
-          <h2 className={s.ctaTitle}>
-            {t("cta.title1")}<br />{t("cta.title2")}
-          </h2>
-          <p className={s.ctaDesc}>{t("cta.desc")}</p>
-          <div className={s.ctaActions}>
-            <Link to="/app" className={s.ctaPrimary}>
-              {t("cta.open")} <ArrowRight style={{ width: 16, height: 16 }} />
-            </Link>
-            <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.ctaSecondary}>
-              <Star style={{ width: 16, height: 16 }} /> {t("cta.star")}
-            </a>
-          </div>
+      {/* ── FAQ ── */}
+      <section className={s.faq}>
+        <div className={s.sectionCenter}>
+          <h2 className={s.sectionTitle}>Frequently asked questions</h2>
+        </div>
+        <div className={s.faqList}>
+          {FAQ_ITEMS.map((item) => (
+            <FaqItem key={item.q} q={item.q} a={item.a} />
+          ))}
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <footer className={s.footer}>
         <div className={s.footerInner}>
-          <div className={s.footerLeft}>
-            <Logo />
-            <span className={s.footerDot}>·</span>
-            <span>{t("footer.builtBy")} <a href="https://zerox9dev.com" target="_blank" rel="noopener noreferrer" className={s.footerAuthor}>zerox9dev</a></span>
-          </div>
-          <div className={s.footerRight}>
+          <span className={s.footerCopy}>Logr © 2025</span>
+          <div className={s.footerLinks}>
             <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.footerLink}>GitHub</a>
-            <a href="https://t.me/Pix2Code" target="_blank" rel="noopener noreferrer" className={s.footerLink}>Telegram</a>
+            <a href="/privacy" className={s.footerLink}>Privacy</a>
+            <a href="mailto:zerox9dev.work@icloud.com" className={s.footerLink}>Contact</a>
           </div>
         </div>
       </footer>
