@@ -10,12 +10,12 @@ import s from "./landing-page.module.css";
 
 /* ─── Feature data ─── */
 const FEATURES = [
-  { icon: Clock, title: "Timer & Sessions", desc: "Track billable hours with one click" },
-  { icon: FolderOpen, title: "Projects & Clients", desc: "Organize work by project and client" },
+  { icon: FolderOpen, title: "Projects & Clients", desc: "Manage all your work and contacts in one place" },
+  { icon: Clock, title: "Time Tracking", desc: "One-click timer with billable hours" },
   { icon: Receipt, title: "Invoicing", desc: "Generate and send professional invoices" },
-  { icon: BarChart3, title: "Reports", desc: "See where your time goes" },
+  { icon: Users, title: "Sales Funnels", desc: "Track deals from lead to close" },
+  { icon: BarChart3, title: "Reports", desc: "See where your time and money go" },
   { icon: DollarSign, title: "Multi-currency", desc: "USD, EUR, GBP, UAH, PLN" },
-  { icon: FileText, title: "PDF Export", desc: "Download invoices as PDF" },
 ];
 
 const STEPS = [
@@ -25,10 +25,10 @@ const STEPS = [
 ];
 
 const PRICING_FEATURES = [
-  "Unlimited time tracking",
-  "Unlimited projects & clients",
-  "Invoice generation",
-  "PDF export",
+  "Unlimited clients & projects",
+  "Time tracking & sessions",
+  "Invoice generation & PDF export",
+  "Sales funnels & pipelines",
   "Multi-currency support",
   "Reports & analytics",
   "Google sign-in",
@@ -78,14 +78,14 @@ export function LandingPage() {
       {/* ── Hero ── */}
       <section className={s.hero}>
         <div className={s.heroInner}>
-          <p className={s.heroLabel}>Free time tracker for freelancers</p>
+          <p className={s.heroLabel}>Free CRM for freelancers</p>
           <h1 className={s.heroTitle}>
+            Manage clients.<br />
             Track time.<br />
-            Get paid.<br />
-            Stay independent.
+            Get paid.
           </h1>
           <p className={s.heroDesc}>
-            Simple time tracking, project management, and invoicing — built for freelancers who work alone.
+            Projects, time tracking, invoicing, and sales funnels - everything a freelancer needs in one place.
           </p>
           <div className={s.heroActions}>
             <Link to="/app" className={s.heroPrimary}>
@@ -141,8 +141,8 @@ export function LandingPage() {
       {/* ── Features ── */}
       <section id="features" className={s.features}>
         <div className={s.sectionCenter}>
-          <h2 className={s.sectionTitle}>Everything you need</h2>
-          <p className={s.sectionDesc}>Built by a freelancer, for freelancers. Every feature solves a real problem.</p>
+          <h2 className={s.sectionTitle}>Your freelance business, organized</h2>
+          <p className={s.sectionDesc}>Clients, projects, time, invoices, and deals - all in one clean tool.</p>
         </div>
         <div className={s.featuresGrid}>
           {FEATURES.map((f) => {
