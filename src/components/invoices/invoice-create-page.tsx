@@ -32,7 +32,11 @@ export function InvoiceCreatePage() {
 
   const [showSessionPicker, setShowSessionPicker] = useState(false);
 
-  const invoiceNumber = `INV-${String(invoices.length + 1).padStart(4, "0")}`;
+  const maxNum = invoices.reduce((max, inv) => {
+    const m = inv.invoice_number?.match(/INV-(\d+)/);
+    return m ? Math.max(max, Number(m[1])) : max;
+  }, 0);
+  const invoiceNumber = `INV-${String(maxNum + 1).padStart(4, "0")}`;
   const selectedClient = clients.find((c) => c.id === clientId);
   const currency = settings?.default_currency || "USD";
 
