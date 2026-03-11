@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { ArrowLeft, Send, CheckCircle, Trash2, Pencil, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +31,12 @@ export function InvoiceViewPage() {
     if (id) getInvoiceItems(id).then(setItems);
   }, [id, getInvoiceItems]);
 
-  // Auto-print when opened with ?print=1
+  const printRef = useRef<HTMLDivElement>(null);
+
+  // Auto-download when opened with ?print=1
   useEffect(() => {
     if (searchParams.get('print') === '1' && items.length > 0) {
-      setTimeout(() => window.print(), 500);
+      setTimeout(() => downloadPdf(), 500);
     }
   }, [searchParams, items]);
 
@@ -52,8 +56,20 @@ export function InvoiceViewPage() {
     navigate("/app/invoices");
   };
 
+  const downloadPdf = async () => {
+    const el = printRef.current;
+    if (!el) return;
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${invoice.invoice_number}.pdf`);
+  };
+
   const handleDownloadPdf = () => {
-    window.print();
+    downloadPdf();
   };
 
   return (
@@ -87,7 +103,7 @@ export function InvoiceViewPage() {
         </div>
       </div>
 
-      <div className={s.printable} style={{ background: "var(--white)", border: "1px solid var(--border)", borderRadius: "1rem", padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div ref={printRef} className={s.printable} style={{ background: "#ffffff", border: "1px solid var(--border)", borderRadius: "1rem", padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
         <div className={s.docHeader}>
           <div>
             <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>{settings?.company || settings?.full_name || "Your Company"}</h2>
