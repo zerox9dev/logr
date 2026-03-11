@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { Link } from "react-router-dom";
 import {
   Timer, BarChart3, Receipt, Users, FolderOpen,
@@ -10,36 +10,36 @@ import s from "./landing-page.module.css";
 
 /* ─── Feature data ─── */
 const FEATURES = [
-  { icon: FolderOpen, title: "Projects & Clients", desc: "Manage all your work and contacts in one place" },
-  { icon: Clock, title: "Time Tracking", desc: "One-click timer with billable hours" },
-  { icon: Receipt, title: "Invoicing", desc: "Generate and send professional invoices" },
-  { icon: Users, title: "Sales Funnels", desc: "Track deals from lead to close" },
-  { icon: BarChart3, title: "Reports", desc: "See where your time and money go" },
-  { icon: DollarSign, title: "Multi-currency", desc: "USD, EUR, GBP, UAH, PLN" },
+  { icon: Clock, titleKey: "feat.time.title", descKey: "feat.time.desc" },
+  { icon: FolderOpen, titleKey: "feat.projects.title", descKey: "feat.projects.desc" },
+  { icon: Receipt, titleKey: "feat.invoices.title", descKey: "feat.invoices.desc" },
+  { icon: BarChart3, titleKey: "feat.reports.title", descKey: "feat.reports.desc" },
+  { icon: DollarSign, titleKey: "feat.currency.title", descKey: "feat.currency.desc" },
+  { icon: FileText, titleKey: "feat.pdf.title", descKey: "feat.pdf.desc" },
 ];
 
 const STEPS = [
-  { num: "1", title: "Start Timer", desc: "Track your work session" },
-  { num: "2", title: "Create Invoice", desc: "Auto-generate from tracked time" },
-  { num: "3", title: "Get Paid", desc: "Send to client and mark as paid" },
+  { num: "1", titleKey: "howit.step1.title", descKey: "howit.step1.desc" },
+  { num: "2", titleKey: "howit.step2.title", descKey: "howit.step2.desc" },
+  { num: "3", titleKey: "howit.step3.title", descKey: "howit.step3.desc" },
 ];
 
-const PRICING_FEATURES = [
-  "Unlimited clients & projects",
-  "Time tracking & sessions",
-  "Invoice generation & PDF export",
-  "Sales funnels & pipelines",
-  "Multi-currency support",
-  "Reports & analytics",
-  "Google sign-in",
-  "Data stored securely in cloud",
+const PRICING_FEATURE_KEYS = [
+  "pricing.feat.tracking",
+  "pricing.feat.projects",
+  "pricing.feat.invoices",
+  "pricing.feat.pdf",
+  "pricing.feat.currency",
+  "pricing.feat.reports",
+  "pricing.feat.google",
+  "pricing.feat.cloud",
 ];
 
 const FAQ_ITEMS = [
-  { q: "Is it really free?", a: "Yes, Logr is completely free during beta." },
-  { q: "Do I need to create an account?", a: "Yes, sign in with Google." },
-  { q: "Can I export my data?", a: "Yes, download invoices as PDF." },
-  { q: "Is my data secure?", a: "Yes, stored in Supabase with encryption." },
+  { qKey: "faq.q1", aKey: "faq.a1" },
+  { qKey: "faq.q2", aKey: "faq.a2" },
+  { qKey: "faq.q3", aKey: "faq.a3" },
+  { qKey: "faq.q4", aKey: "faq.a4" },
 ];
 
 /* ─── FAQ Accordion Item ─── */
@@ -67,32 +67,32 @@ export function LandingPage() {
             <span className={s.logoName}>Logr</span>
           </div>
           <div className={s.navLinks}>
-            <a href="#how-it-works" className={s.navLink}>How it Works</a>
-            <a href="#features" className={s.navLink}>Features</a>
-            <a href="#pricing" className={s.navLink}>Pricing</a>
+            <a href="#how-it-works" className={s.navLink}>{t("nav.howItWorks")}</a>
+            <a href="#features" className={s.navLink}>{t("nav.features")}</a>
+            <a href="#pricing" className={s.navLink}>{t("nav.pricing")}</a>
           </div>
-          <Link to="/app" className={s.navCta}>Try for Free</Link>
+          <Link to="/app" className={s.navCta}>{t("hero.tryFree")}</Link>
         </div>
       </nav>
 
       {/* ── Hero ── */}
       <section className={s.hero}>
         <div className={s.heroInner}>
-          <p className={s.heroLabel}>Free CRM for freelancers</p>
+          <p className={s.heroLabel}>{t("hero.label")}</p>
           <h1 className={s.heroTitle}>
-            Manage clients.<br />
-            Track time.<br />
-            Get paid.
+            {t("hero.newTitle").split("\n").map((line, i) => (
+              <Fragment key={i}>{i > 0 && <br />}{line}</Fragment>
+            ))}
           </h1>
           <p className={s.heroDesc}>
-            Projects, time tracking, invoicing, and sales funnels - everything a freelancer needs in one place.
+            {t("hero.newDesc")}
           </p>
           <div className={s.heroActions}>
             <Link to="/app" className={s.heroPrimary}>
-              Try for Free <ArrowRight style={{ width: 16, height: 16 }} />
+              {t("hero.tryFree")} <ArrowRight style={{ width: 16, height: 16 }} />
             </Link>
             <a href="#how-it-works" className={s.heroSecondary}>
-              See How It Works
+              {t("hero.seeHow")}
             </a>
           </div>
         </div>
@@ -110,8 +110,8 @@ export function LandingPage() {
             <div className={s.previewBody}>
               <div className={s.previewTopRow}>
                 <div>
-                  <div className={s.previewGreeting}>Good evening 👋</div>
-                  <div className={s.previewSub}>3 projects active</div>
+                  <div className={s.previewGreeting}>{t("preview.greeting")}</div>
+                  <div className={s.previewSub}>{t("preview.sub")}</div>
                 </div>
                 <div className={s.previewTimer}>
                   <span className={s.previewTimerDot} />
@@ -121,10 +121,10 @@ export function LandingPage() {
               </div>
               <div className={s.previewCards}>
                 {[
-                  { label: "Today", value: "4h 12m", sub: "+18%" },
-                  { label: "This Week", value: "22h 45m", sub: "Target: 40h" },
-                  { label: "Unpaid", value: "$3,450", sub: "2 invoices" },
-                  { label: "Pipeline", value: "$12,800", sub: "5 deals" },
+                  { label: t("preview.today"), value: "4h 12m", sub: "+18%" },
+                  { label: t("preview.week"), value: "22h 45m", sub: "Target: 40h" },
+                  { label: t("preview.unpaid"), value: "$3,450", sub: "2 invoices" },
+                  { label: t("preview.pipeline"), value: "$12,800", sub: "5 deals" },
                 ].map((c) => (
                   <div key={c.label} className={s.previewCard}>
                     <div className={s.previewCardLabel}>{c.label}</div>
@@ -141,19 +141,19 @@ export function LandingPage() {
       {/* ── Features ── */}
       <section id="features" className={s.features}>
         <div className={s.sectionCenter}>
-          <h2 className={s.sectionTitle}>Your freelance business, organized</h2>
-          <p className={s.sectionDesc}>Clients, projects, time, invoices, and deals - all in one clean tool.</p>
+          <h2 className={s.sectionTitle}>{t("features.title")}</h2>
+          <p className={s.sectionDesc}>{t("features.desc")}</p>
         </div>
         <div className={s.featuresGrid}>
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className={s.featureItem}>
+              <div key={f.titleKey} className={s.featureItem}>
                 <div className={s.featureIcon}>
                   <Icon className={s.featureIconSvg} />
                 </div>
-                <h3 className={s.featureName}>{f.title}</h3>
-                <p className={s.featureDesc}>{f.desc}</p>
+                <h3 className={s.featureName}>{t(f.titleKey)}</h3>
+                <p className={s.featureDesc}>{t(f.descKey)}</p>
               </div>
             );
           })}
@@ -163,15 +163,15 @@ export function LandingPage() {
       {/* ── How it Works ── */}
       <section id="how-it-works" className={s.howItWorks}>
         <div className={s.sectionCenter}>
-          <h2 className={s.sectionTitle}>How it works</h2>
-          <p className={s.sectionDesc}>Three simple steps to get paid for your work.</p>
+          <h2 className={s.sectionTitle}>{t("howit.title")}</h2>
+          <p className={s.sectionDesc}>{t("howit.desc")}</p>
         </div>
         <div className={s.stepsGrid}>
           {STEPS.map((step) => (
             <div key={step.num} className={s.stepItem}>
               <div className={s.stepNum}>{step.num}</div>
-              <h3 className={s.stepTitle}>{step.title}</h3>
-              <p className={s.stepDesc}>{step.desc}</p>
+              <h3 className={s.stepTitle}>{t(step.titleKey)}</h3>
+              <p className={s.stepDesc}>{t(step.descKey)}</p>
             </div>
           ))}
         </div>
@@ -180,27 +180,27 @@ export function LandingPage() {
       {/* ── Pricing ── */}
       <section id="pricing" className={s.pricing}>
         <div className={s.sectionCenter}>
-          <h2 className={s.sectionTitle}>Simple pricing</h2>
-          <p className={s.sectionDesc}>Free while in beta. No credit card required.</p>
+          <h2 className={s.sectionTitle}>{t("pricing.title")}</h2>
+          <p className={s.sectionDesc}>{t("pricing.desc")}</p>
         </div>
         <div className={s.pricingCard}>
           <div className={s.pricingHeader}>
-            <span className={s.pricingTier}>Free</span>
+            <span className={s.pricingTier}>{t("pricing.free")}</span>
             <div className={s.pricingPrice}>
               <span className={s.pricingAmount}>$0</span>
-              <span className={s.pricingPeriod}>/forever</span>
+              <span className={s.pricingPeriod}>{t("pricing.forever")}</span>
             </div>
-            <p className={s.pricingDesc}>Everything included. No limits during beta.</p>
+            <p className={s.pricingDesc}>{t("pricing.freeLabel")}</p>
           </div>
           <ul className={s.pricingFeatures}>
-            {PRICING_FEATURES.map((f) => (
-              <li key={f} className={s.pricingFeature}>
-                <Check className={s.pricingCheckIcon} /> {f}
+            {PRICING_FEATURE_KEYS.map((key) => (
+              <li key={key} className={s.pricingFeature}>
+                <Check className={s.pricingCheckIcon} /> {t(key)}
               </li>
             ))}
           </ul>
           <Link to="/app" className={s.pricingCta}>
-            Get Started Free <ArrowRight style={{ width: 16, height: 16 }} />
+            {t("pricing.tryFree")} <ArrowRight style={{ width: 16, height: 16 }} />
           </Link>
         </div>
       </section>
@@ -208,11 +208,11 @@ export function LandingPage() {
       {/* ── FAQ ── */}
       <section className={s.faq}>
         <div className={s.sectionCenter}>
-          <h2 className={s.sectionTitle}>Frequently asked questions</h2>
+          <h2 className={s.sectionTitle}>{t("faq.title")}</h2>
         </div>
         <div className={s.faqList}>
           {FAQ_ITEMS.map((item) => (
-            <FaqItem key={item.q} q={item.q} a={item.a} />
+            <FaqItem key={item.qKey} q={t(item.qKey)} a={t(item.aKey)} />
           ))}
         </div>
       </section>
@@ -220,11 +220,11 @@ export function LandingPage() {
       {/* ── Footer ── */}
       <footer className={s.footer}>
         <div className={s.footerInner}>
-          <span className={s.footerCopy}>Logr © 2025</span>
+          <span className={s.footerCopy}>{t("footer.copy")}</span>
           <div className={s.footerLinks}>
             <a href="https://github.com/zerox9dev/logr" target="_blank" rel="noopener noreferrer" className={s.footerLink}>GitHub</a>
-            <a href="/privacy" className={s.footerLink}>Privacy</a>
-            <a href="mailto:zerox9dev.work@icloud.com" className={s.footerLink}>Contact</a>
+            <a href="/privacy" className={s.footerLink}>{t("footer.privacy")}</a>
+            <a href="mailto:zerox9dev.work@icloud.com" className={s.footerLink}>{t("footer.contact")}</a>
           </div>
         </div>
       </footer>
