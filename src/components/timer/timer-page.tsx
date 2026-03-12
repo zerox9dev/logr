@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Play, Square, Plus, Trash2, Pencil, Check, CircleDollarSign } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Play, Square, Pause, Plus, Trash2, Pencil, Check, CircleDollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
@@ -39,7 +39,10 @@ function formatDate(iso: string): string {
 
 export function TimerPage() {
   const { sessions, projects, addSession, updateSession, deleteSession, getProjectById, settings,
-    timerRunning, setTimerRunning, timerSeconds, setTimerSeconds, timerDescription, setTimerDescription } = useAppData();
+    timerRunning, setTimerRunning, timerSeconds, setTimerSeconds,
+    timerPaused, setTimerPaused, timerStartedAt, setTimerStartedAt,
+    timerPausedElapsed, setTimerPausedElapsed,
+    timerDescription, setTimerDescription } = useAppData();
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [showManual, setShowManual] = useState(false);
   const [editSession, setEditSession] = useState<Session | null>(null);
@@ -49,22 +52,87 @@ export function TimerPage() {
   const [formDate, setFormDate] = useState(new Date().toISOString().slice(0, 10));
   const [formStatus, setFormStatus] = useState<string>("unpaid");
   const [formRate, setFormRate] = useState<string>("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafRef = useRef<number | null>(null);
 
+  // Timestamp-based timer - works correctly even when tab is inactive
   useEffect(() => {
-    if (timerRunning) { intervalRef.current = setInterval(() => setTimerSeconds((v: number) => v + 1), 1000); }
-    else if (intervalRef.current) clearInterval(intervalRef.current);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [timerRunning, setTimerSeconds]);
+    if (timerRunning && !timerPaused && timerStartedAt) {
+      const tick = () => {
+        const now = Date.now();
+        const elapsed = timerPausedElapsed + Math.floor((now - timerStartedAt) / 1000);
+        setTimerSeconds(elapsed);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      // Use both rAF for active tab and interval for background
+      const interval = setInterval(() => {
+        const now = Date.now();
+        const elapsed = timerPausedElapsed + Math.floor((now - (timerStartedAt as number)) / 1000);
+        setTimerSeconds(elapsed);
+      }, 1000);
+      rafRef.current = requestAnimationFrame(tick);
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        clearInterval(interval);
+      };
+    }
+  }, [timerRunning, timerPaused, timerStartedAt, timerPausedElapsed, setTimerSeconds]);
 
+  // Tab title
   useEffect(() => {
-    if (timerRunning) {
-      document.title = `⏱ ${formatTimer(timerSeconds)} — Logr`;
+    if (timerRunning && !timerPaused) {
+      document.title = `⏱ ${formatTimer(timerSeconds)} - Logr`;
+    } else if (timerRunning && timerPaused) {
+      document.title = `⏸ ${formatTimer(timerSeconds)} - Logr`;
     } else {
       document.title = "Logr";
     }
     return () => { document.title = "Logr"; };
-  }, [timerRunning, timerSeconds]);
+  }, [timerRunning, timerPaused, timerSeconds]);
+
+  const handleStart = useCallback(() => {
+    if (timerPaused) {
+      // Resume from pause
+      setTimerStartedAt(Date.now());
+      setTimerPaused(false);
+      setTimerRunning(true);
+    } else {
+      // Fresh start
+      setTimerPausedElapsed(0);
+      setTimerStartedAt(Date.now());
+      setTimerSeconds(0);
+      setTimerPaused(false);
+      setTimerRunning(true);
+    }
+  }, [timerPaused, setTimerRunning, setTimerSeconds, setTimerPaused, setTimerStartedAt, setTimerPausedElapsed]);
+
+  const handlePause = useCallback(() => {
+    // Save accumulated time
+    setTimerPausedElapsed(timerSeconds);
+    setTimerStartedAt(null);
+    setTimerPaused(true);
+  }, [timerSeconds, setTimerPaused, setTimerStartedAt, setTimerPausedElapsed]);
+
+  const handleStop = useCallback(async () => {
+    setTimerRunning(false);
+    setTimerPaused(false);
+    setTimerStartedAt(null);
+    setTimerPausedElapsed(0);
+    if (timerSeconds > 0) {
+      const project = selectedProjectId ? projects.find((p) => p.id === selectedProjectId) : null;
+      const billingType = project?.billing_type || "hourly";
+      const rate = billingType === "hourly" ? (project?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
+      await addSession({ name: timerDescription || t("timer.untitled"), project_id: selectedProjectId || null, client_id: project?.client_id || null, notes: null, started_at: new Date(Date.now() - timerSeconds * 1000).toISOString(), duration_seconds: timerSeconds, rate, billing_type: billingType, payment_status: "unpaid" });
+      setTimerSeconds(0); setTimerDescription("");
+    }
+  }, [timerSeconds, selectedProjectId, projects, settings, addSession, timerDescription, setTimerRunning, setTimerPaused, setTimerStartedAt, setTimerPausedElapsed, setTimerSeconds, setTimerDescription]);
+
+  const handleToggle = useCallback(() => {
+    if (timerRunning && !timerPaused) {
+      handlePause();
+    } else {
+      handleStart();
+    }
+  }, [timerRunning, timerPaused, handlePause, handleStart]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -74,19 +142,7 @@ export function TimerPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [timerRunning, timerSeconds, timerDescription]);
-
-  const handleToggle = () => { if (timerRunning) handleStop(); else setTimerRunning(true); };
-  const handleStop = async () => {
-    setTimerRunning(false);
-    if (timerSeconds > 0) {
-      const project = selectedProjectId ? projects.find((p) => p.id === selectedProjectId) : null;
-      const billingType = project?.billing_type || "hourly";
-      const rate = billingType === "hourly" ? (project?.rate ?? Number(settings?.default_rate) ?? 0) : 0;
-      await addSession({ name: timerDescription || t("timer.untitled"), project_id: selectedProjectId || null, client_id: project?.client_id || null, notes: null, started_at: new Date(Date.now() - timerSeconds * 1000).toISOString(), duration_seconds: timerSeconds, rate, billing_type: billingType, payment_status: "unpaid" });
-      setTimerSeconds(0); setTimerDescription("");
-    }
-  };
+  }, [handleToggle, handleStop, timerRunning]);
 
   const openCreate = () => {
     setEditSession(null);
@@ -114,6 +170,8 @@ export function TimerPage() {
   };
 
   const sorted = [...sessions].sort((a, b) => b.started_at.localeCompare(a.started_at));
+  const isActive = timerRunning && !timerPaused;
+  const isPaused = timerRunning && timerPaused;
 
   return (
     <div className={sh.page}>
@@ -132,10 +190,15 @@ export function TimerPage() {
             <option value="">{t("timer.noProject")}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <div className={s.timerDisplay}>{formatTimer(timerSeconds)}</div>
-          <Button size="lg" onClick={handleToggle} className={timerRunning ? s.btnStop : s.btnStart}>
-            {timerRunning ? <Square style={{ width: 20, height: 20 }} /> : <Play style={{ width: 20, height: 20 }} />}
+          <div className={`${s.timerDisplay} ${isPaused ? s.timerPaused : ""}`}>{formatTimer(timerSeconds)}</div>
+          <Button size="lg" onClick={handleToggle} className={isActive ? s.btnPause : isPaused ? s.btnStart : s.btnStart}>
+            {isActive ? <Pause style={{ width: 20, height: 20 }} /> : <Play style={{ width: 20, height: 20 }} />}
           </Button>
+          {(isActive || isPaused) && (
+            <Button size="lg" onClick={handleStop} className={s.btnStop}>
+              <Square style={{ width: 20, height: 20 }} />
+            </Button>
+          )}
         </div>
         <p className={s.timerHint}>{t("timer.spaceStart")}</p>
       </div>

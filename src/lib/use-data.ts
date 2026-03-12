@@ -241,6 +241,9 @@ export function useData() {
   // ── Timer (local state, not persisted until save) ──
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const [timerStartedAt, setTimerStartedAt] = useState<number | null>(null);
+  const [timerPausedElapsed, setTimerPausedElapsed] = useState(0);
   const [timerDescription, setTimerDescription] = useState("");
 
   return {
@@ -254,6 +257,9 @@ export function useData() {
     getStagesForFunnel,
     leads, addLead, updateLead, deleteLead, moveLead,
     activities, addActivity,
-    timerRunning, setTimerRunning, timerSeconds, setTimerSeconds, timerDescription, setTimerDescription,
+    timerRunning, setTimerRunning, timerSeconds, setTimerSeconds,
+    timerPaused, setTimerPaused, timerStartedAt, setTimerStartedAt,
+    timerPausedElapsed, setTimerPausedElapsed,
+    timerDescription, setTimerDescription,
   };
 }
