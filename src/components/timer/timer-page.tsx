@@ -58,6 +58,15 @@ export function TimerPage() {
   }, [timerRunning, setTimerSeconds]);
 
   useEffect(() => {
+    if (timerRunning) {
+      document.title = `⏱ ${formatTimer(timerSeconds)} — Logr`;
+    } else {
+      document.title = "Logr";
+    }
+    return () => { document.title = "Logr"; };
+  }, [timerRunning, timerSeconds]);
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.code === "Space") { e.preventDefault(); handleToggle(); }
