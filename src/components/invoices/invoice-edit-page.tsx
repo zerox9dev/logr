@@ -134,12 +134,14 @@ export function InvoiceEditPage() {
           <Link to={`/app/invoices/${id}`}><Button variant="ghost" size="icon"><ArrowLeft style={{ width: 16, height: 16 }} /></Button></Link>
           <div>
             <h1 className={sh.title}>{t("invoices.edit")}</h1>
-            <input
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-              style={{ fontSize: "0.875rem", color: "#888", border: "none", background: "transparent", padding: 0, outline: "none", width: "140px", fontFamily: "inherit" }}
-              title={t("invoices.editNumber")}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <input
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+                style={{ fontSize: "0.875rem", color: "#888", border: "none", background: "transparent", padding: 0, outline: "none", width: "140px", fontFamily: "inherit" }}
+              />
+              <Pencil style={{ width: 12, height: 12, color: "#bbb", flexShrink: 0 }} />
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
