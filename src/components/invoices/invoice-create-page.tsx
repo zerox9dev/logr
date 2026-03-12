@@ -36,7 +36,8 @@ export function InvoiceCreatePage() {
     const m = inv.invoice_number?.match(/INV-(\d+)/);
     return m ? Math.max(max, Number(m[1])) : max;
   }, 0);
-  const invoiceNumber = `INV-${String(maxNum + 1).padStart(4, "0")}`;
+  const autoNumber = `INV-${String(maxNum + 1).padStart(4, "0")}`;
+  const [invoiceNumber, setInvoiceNumber] = useState(autoNumber);
   const selectedClient = clients.find((c) => c.id === clientId);
   const currency = settings?.default_currency || "USD";
 
@@ -96,7 +97,12 @@ export function InvoiceCreatePage() {
           <Link to="/app/invoices"><Button variant="ghost" size="icon"><ArrowLeft style={{ width: 16, height: 16 }} /></Button></Link>
           <div>
             <h1 className={sh.title}>{t("invoices.new")}</h1>
-            <p className={sh.subtitle}>{invoiceNumber}</p>
+            <input
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+              style={{ fontSize: "0.875rem", color: "#888", border: "none", background: "transparent", padding: 0, outline: "none", width: "140px", fontFamily: "inherit" }}
+              title={t("invoices.editNumber")}
+            />
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>

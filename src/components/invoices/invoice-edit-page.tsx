@@ -33,11 +33,13 @@ export function InvoiceEditPage() {
     { id: crypto.randomUUID(), description: "", quantity: 0, rate: Number(settings?.default_rate) || 0 },
   ]);
   const [taxRate, setTaxRate] = useState(0);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!invoice || !id || loaded) return;
     setClientId(invoice.client_id);
+    setInvoiceNumber(invoice.invoice_number || "");
     setNotes(invoice.notes || "");
     setDueDate(invoice.due_date ? invoice.due_date.split("T")[0] : "");
     setTaxRate(invoice.tax_rate || 0);
@@ -101,6 +103,7 @@ export function InvoiceEditPage() {
       id,
       {
         client_id: clientId,
+        invoice_number: invoiceNumber,
         subtotal, tax_rate: taxRate, tax_amount: taxAmount, total,
         currency,
         due_date: dueDate || null,
@@ -131,7 +134,12 @@ export function InvoiceEditPage() {
           <Link to={`/app/invoices/${id}`}><Button variant="ghost" size="icon"><ArrowLeft style={{ width: 16, height: 16 }} /></Button></Link>
           <div>
             <h1 className={sh.title}>{t("invoices.edit")}</h1>
-            <p className={sh.subtitle}>{invoice.invoice_number}</p>
+            <input
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+              style={{ fontSize: "0.875rem", color: "#888", border: "none", background: "transparent", padding: 0, outline: "none", width: "140px", fontFamily: "inherit" }}
+              title={t("invoices.editNumber")}
+            />
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -203,7 +211,7 @@ export function InvoiceEditPage() {
 
         <div style={{ position: "sticky", top: "1.5rem" }}>
           <p style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>{t("invoices.preview")}</p>
-          <InvoicePreview number={invoice.invoice_number} client={selectedClient} settings={settings}
+          <InvoicePreview number={invoiceNumber} client={selectedClient} settings={settings}
             items={items.map((i) => ({ ...i, hours: i.quantity }))} taxRate={taxRate} discount={0} dueDate={dueDate} notes={notes} />
         </div>
       </div>
