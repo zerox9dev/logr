@@ -5,6 +5,18 @@
   gap: 12px;
 }
 
+.widgetsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.breakdownSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .headerActions {
   display: flex;
   align-items: center;
@@ -28,6 +40,53 @@
   margin-top: 6px;
   font-size: 14px;
   color: var(--gray-500);
+}
+
+.metricLabelWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metricHint,
+.metricHintInline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-400);
+  cursor: help;
+}
+
+.metricHintInline {
+  margin-left: 6px;
+}
+
+.metricTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+}
+
+.metricHint:hover .metricTooltip,
+.metricHintInline:hover .metricTooltip {
+  opacity: 1;
 }
 
 @media (min-width: 1024px) {
@@ -57,17 +116,6 @@
 
 .statValueGreen {
   color: var(--emerald-600);
-}
-
-.grid2 {
-  display: grid;
-  gap: 16px;
-}
-
-@media (min-width: 1024px) {
-  .grid2 {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 .barList {
@@ -117,6 +165,104 @@
 
 .barFillBlue {
   background: var(--blue-500);
+}
+
+.projectStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.projectCard {
+  padding: 14px 14px 12px;
+  border: 1px solid var(--gray-100);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(249, 250, 251, 0.9) 100%);
+}
+
+.projectCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.projectCardName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.projectCardMeta {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.projectCardAmount {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+}
+
+.projectTrack {
+  margin-top: 12px;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gray-100), var(--gray-50));
+  overflow: hidden;
+}
+
+.projectFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--emerald-500), #34d399);
+}
+
+.insightGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.insightCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 124px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--gray-100);
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+}
+
+.insightLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
+.insightValue {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+}
+
+.insightValueWarn {
+  color: var(--amber-700);
+}
+
+.insightMeta {
+  margin-top: auto;
+  font-size: 13px;
+  color: var(--gray-500);
 }
 
 .sharePage {
@@ -337,10 +483,6 @@
     font-size: 20px;
   }
 
-  .grid2 {
-    grid-template-columns: 1fr;
-  }
-
   .headerActions {
     width: 100%;
     align-items: stretch;
@@ -377,5 +519,18 @@
 
   .shareSessionStats {
     grid-template-columns: 1fr;
+  }
+
+  .insightGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .projectCardTop {
+    flex-direction: column;
+  }
+
+  .metricTooltip {
+    left: 0;
+    transform: none;
   }
 }

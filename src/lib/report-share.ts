@@ -43,7 +43,14 @@ interface CreateReportSummaryInput {
   defaultRate?: number | null;
   clientId?: string | null;
   clientName?: string | null;
-  getProjectById: (id: string | null) => { id: string; name: string; rate: number | null } | undefined;
+  getProjectById: (id: string | null) => {
+    id: string;
+    name: string;
+    rate: number | null;
+    client_id?: string | null;
+    billing_type?: string;
+    fixed_budget?: number | null;
+  } | undefined;
   noProjectLabel?: string;
   noClientLabel?: string;
 }
@@ -76,7 +83,14 @@ export function createReportSummary({
 }: CreateReportSummaryInput): SharedReportPayload {
   const startDate = getRangeStart(range);
   const startStr = startDate?.toISOString() || "";
-  const filteredByClient = clientId ? sessions.filter((session) => session.client_id === clientId) : sessions;
+  const filteredByClient = clientId
+    ? sessions.filter((session) => {
+        if (session.client_id === clientId) return true;
+        if (!session.project_id) return false;
+        const project = getProjectById(session.project_id);
+        return project?.client_id === clientId;
+      })
+    : sessions;
   const filtered = startStr ? filteredByClient.filter((session) => session.started_at >= startStr) : filteredByClient;
 
   const getRate = (session: Session) => {
@@ -96,7 +110,7 @@ export function createReportSummary({
     .filter((session) => session.billing_type === "hourly")
     .reduce((sum, session) => sum + session.duration_seconds, 0);
 
-  const calcEarnings = (onlyPaid: boolean) =>
+  const hourlyEarnings = (onlyPaid: boolean) =>
     filtered.reduce((sum, session) => {
       if (session.billing_type !== "hourly") return sum;
       if (onlyPaid && session.payment_status !== "paid") return sum;
@@ -105,6 +119,25 @@ export function createReportSummary({
       if (rate <= 0) return sum;
 
       return sum + (session.duration_seconds / 3600) * rate;
+    }, 0);
+
+  const fixedProjectIds = new Set(
+    filtered
+      .filter((session) => session.project_id)
+      .map((session) => session.project_id as string)
+      .filter((projectId) => getProjectById(projectId)?.billing_type === "fixed")
+  );
+
+  const fixedEarnings = (onlyPaid: boolean) =>
+    Array.from(fixedProjectIds).reduce((sum, projectId) => {
+      const project = getProjectById(projectId);
+      if (!project?.fixed_budget || project.fixed_budget <= 0) return sum;
+
+      const projectSessions = filtered.filter((session) => session.project_id === projectId);
+      if (projectSessions.length === 0) return sum;
+      if (onlyPaid && !projectSessions.some((session) => session.payment_status === "paid")) return sum;
+
+      return sum + project.fixed_budget;
     }, 0);
 
   const buildBreakdown = (
@@ -134,16 +167,21 @@ export function createReportSummary({
     clientName: clientName || undefined,
     totalSeconds,
     billableSeconds,
-    billableAmount: calcEarnings(false),
-    paidAmount: calcEarnings(true),
+    billableAmount: hourlyEarnings(false) + fixedEarnings(false),
+    paidAmount: hourlyEarnings(true) + fixedEarnings(true),
     generatedAt: new Date().toISOString(),
     sessions: [...filtered]
       .sort((a, b) => b.started_at.localeCompare(a.started_at))
       .map((session) => {
         const rate = getRate(session);
+        const project = session.project_id ? getProjectById(session.project_id) : undefined;
+        const siblingSessions = session.project_id ? filtered.filter((item) => item.project_id === session.project_id) : [];
+        const fixedAmountPerSession = session.billing_type === "fixed" && project?.fixed_budget
+          ? project.fixed_budget / Math.max(siblingSessions.length, 1)
+          : 0;
         const amount = session.billing_type === "hourly" && rate > 0
           ? (session.duration_seconds / 3600) * rate
-          : 0;
+          : fixedAmountPerSession;
 
         return {
           id: session.id,
