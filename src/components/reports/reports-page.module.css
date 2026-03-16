@@ -5,6 +5,31 @@
   gap: 12px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.clientSelect {
+  min-width: 220px;
+}
+
+.shareActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shareHint {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
 @media (min-width: 1024px) {
   .statsGrid {
     grid-template-columns: repeat(4, 1fr);
@@ -94,6 +119,210 @@
   background: var(--blue-500);
 }
 
+.sharePage {
+  min-height: 100vh;
+  padding: 32px 20px 64px;
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 32%),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 45%);
+}
+
+.shareShell {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.shareHeroCard {
+  overflow: hidden;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+}
+
+.shareHero {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px;
+}
+
+.shareBadge {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--emerald-700);
+  background: var(--emerald-50);
+  border: 1px solid var(--emerald-100);
+}
+
+.shareHeroHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.shareHeroTitle {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.shareHeroText {
+  margin-top: 10px;
+  max-width: 720px;
+  color: var(--gray-600);
+  font-size: 15px;
+}
+
+.sharePrimaryLink,
+.shareSecondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.sharePrimaryLink {
+  color: var(--white);
+  background: var(--black);
+}
+
+.sharePrimaryLink:hover {
+  opacity: 0.85;
+}
+
+.shareSecondaryLink {
+  color: var(--foreground);
+  background: var(--white);
+  border: 1px solid #e8e8e8;
+}
+
+.shareSecondaryLink:hover {
+  background: var(--gray-50);
+}
+
+.shareStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.shareStatCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.shareStatLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-600);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.shareStatValue {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.shareInvalid {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 32px;
+}
+
+.shareInvalidIcon {
+  width: 42px;
+  height: 42px;
+  color: var(--blue-500);
+}
+
+.shareEmpty {
+  color: var(--gray-500);
+  font-size: 14px;
+}
+
+.shareSessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shareSessionCard {
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.8), rgba(255, 255, 255, 0.96));
+}
+
+.shareSessionTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shareSessionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.shareSessionMeta {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.shareSessionStats {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.shareSessionStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shareSessionLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-400);
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .statsGrid {
@@ -109,6 +338,44 @@
   }
 
   .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .headerActions {
+    width: 100%;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .shareActions {
+    width: 100%;
+  }
+
+  .sharePage {
+    padding: 16px 16px 40px;
+  }
+
+  .shareHero {
+    padding: 18px;
+  }
+
+  .shareHeroHeader {
+    flex-direction: column;
+  }
+
+  .shareStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .shareStatValue {
+    font-size: 24px;
+  }
+
+  .shareSessionTop {
+    flex-direction: column;
+  }
+
+  .shareSessionStats {
     grid-template-columns: 1fr;
   }
 }

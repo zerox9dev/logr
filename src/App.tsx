@@ -7,6 +7,7 @@ import { DataProvider } from "@/lib/data-context";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { SharedReportPage } from "@/components/reports/shared-report-page";
 import { Timer } from "lucide-react";
 import s from "./App.module.css";
 
@@ -50,6 +51,7 @@ function App() {
             <AuthProvider>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/share/report" element={<SharedReportPage />} />
                 <Route path="/login" element={<LoginRoute />} />
                 <Route path="/app/*" element={<ProtectedApp />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

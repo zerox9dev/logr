@@ -12,11 +12,12 @@ import sh from "@/components/shared.module.css";
 import s from "./projects-page.module.css";
 
 export function ProjectsPage() {
-  const { projects, clients, sessions, addProject, updateProject, deleteProject, getClientById } = useAppData();
+  const { projects, clients, sessions, settings, addProject, updateProject, deleteProject, getClientById } = useAppData();
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | ProjectStatus>("all");
   const navigate = useNavigate();
+  const currencySymbol = { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[settings?.default_currency || "USD"] || "$";
 
   const filtered = filter === "all" ? projects : projects.filter((p) => p.status === filter);
 
@@ -47,14 +48,19 @@ export function ProjectsPage() {
               <th>{t("projects.billing")}</th>
               <th>{t("projects.rate")}</th>
               <th>{t("reports.totalTime")}</th>
+              <th>{t("reports.earnings")}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((project) => {
               const client = getClientById(project.client_id);
-              const totalSeconds = sessions.filter((se) => se.project_id === project.id).reduce((sum, se) => sum + se.duration_seconds, 0);
+              const projectSessions = sessions.filter((se) => se.project_id === project.id);
+              const totalSeconds = projectSessions.reduce((sum, se) => sum + se.duration_seconds, 0);
               const hours = Math.round(totalSeconds / 3600 * 10) / 10;
+              const earned = project.billing_type === "hourly"
+                ? (totalSeconds / 3600) * (project.rate || 0)
+                : (project.fixed_budget || 0);
 
               return (
                 <tr key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} style={{ cursor: "pointer" }}>
@@ -64,6 +70,7 @@ export function ProjectsPage() {
                   <td className={s.mutedCell}>{project.billing_type}</td>
                   <td className={s.mutedCell}>{project.rate ? `$${project.rate}/hr` : "—"}</td>
                   <td className={s.mutedCell}>{hours}h</td>
+                  <td className={s.mutedCell}>{currencySymbol}{earned.toFixed(0)}</td>
                   <td className={s.actionsCell}>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); setEditingId(project.id); }}><Pencil style={{ width: 14, height: 14 }} /></button>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}><Trash2 style={{ width: 14, height: 14 }} /></button>
