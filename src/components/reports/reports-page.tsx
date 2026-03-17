@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Info, Share2 } from "lucide-react";
+import { Copy, Info, Share2, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppData } from "@/lib/data-context";
@@ -10,6 +10,7 @@ import {
   createReportSummary,
   encodeSharedReport,
   formatDuration,
+  generateCSV,
   getCurrencySymbol,
   type ReportsRange,
 } from "@/lib/report-share";
@@ -99,6 +100,20 @@ export function ReportsPage() {
     }
   }
 
+  function handleExportCSV() {
+    const csv = generateCSV(report);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `logr-report-${range}-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast(t("reports.csvExported"));
+  }
+
   return (
     <div className={sh.page}>
       <div className={sh.header}>
@@ -123,6 +138,10 @@ export function ReportsPage() {
             ))}
           </div>
           <div className={s.shareActions}>
+            <Button variant="outline" size="sm" onClick={handleExportCSV}>
+              <Download style={{ width: 14, height: 14 }} />
+              CSV
+            </Button>
             <Button variant="outline" size="sm" onClick={handleCopy} disabled={!selectedClient}>
               <Copy style={{ width: 14, height: 14 }} />
               {t("reports.copyLink")}

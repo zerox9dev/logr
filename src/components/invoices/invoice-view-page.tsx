@@ -48,7 +48,9 @@ export function InvoiceViewPage() {
   );
 
   const client = getClientById(invoice.client_id);
-  const config = STATUS_CONFIG[invoice.status];
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const effectiveStatus = (invoice.status === "sent" && invoice.due_date && invoice.due_date < todayStr) ? "overdue" : invoice.status;
+  const config = STATUS_CONFIG[effectiveStatus];
   const sym = { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[invoice.currency || settings?.default_currency || "USD"] || "$";
 
   const handleDelete = async () => {

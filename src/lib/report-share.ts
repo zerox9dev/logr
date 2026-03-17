@@ -248,3 +248,19 @@ export function decodeSharedReport(value: string): SharedReportPayload | null {
     return null;
   }
 }
+
+export function generateCSV(report: SharedReportPayload): string {
+  const headers = ["Date", "Description", "Project", "Duration (sec)", "Duration (h)", "Rate", "Amount", "Status"];
+  const rows = report.sessions.map((s) => [
+    s.startedAt.slice(0, 10),
+    `"${s.name.replace(/"/g, '""')}"`,
+    `"${s.projectName.replace(/"/g, '""')}"`,
+    s.durationSeconds,
+    (s.durationSeconds / 3600).toFixed(2),
+    s.rate,
+    s.amount.toFixed(2),
+    s.paymentStatus,
+  ]);
+
+  return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+}

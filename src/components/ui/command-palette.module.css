@@ -107,6 +107,20 @@
   font-weight: 500;
 }
 
+.itemBody {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.itemType {
+  font-size: 11px;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .overlay {

@@ -20,7 +20,11 @@ function InvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: () => v
   const { getClientById, getInvoiceItems, updateInvoice, deleteInvoice, settings } = useAppData();
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const client = getClientById(invoice.client_id);
-  const config = STATUS_CONFIG[invoice.status];
+  
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const effectiveStatus = (invoice.status === "sent" && invoice.due_date && invoice.due_date < todayStr) ? "overdue" : invoice.status;
+  const config = STATUS_CONFIG[effectiveStatus];
+  
   const sym = { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[invoice.currency || settings?.default_currency || "USD"] || "$";
 
   useEffect(() => { getInvoiceItems(invoice.id).then(setItems); }, [invoice.id, getInvoiceItems]);
@@ -134,7 +138,22 @@ export function InvoicesPage() {
   const [filter, setFilter] = useState<"all" | InvoiceStatus>("all");
   const [viewId, setViewId] = useState<string | null>(null);
 
-  const filtered = filter === "all" ? invoices : invoices.filter((i) => i.status === filter);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  
+  const getEffectiveStatus = (invoice: Invoice): InvoiceStatus => {
+    if (invoice.status === "sent" && invoice.due_date && invoice.due_date < todayStr) {
+      return "overdue";
+    }
+    return invoice.status;
+  };
+
+  const filtered = filter === "all" 
+    ? invoices 
+    : invoices.filter((i) => {
+        const status = getEffectiveStatus(i);
+        return status === filter;
+      });
+      
   const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((sum, i) => sum + Number(i.total), 0);
   const viewInvoice = viewId ? invoices.find((i) => i.id === viewId) : null;
 
@@ -175,7 +194,8 @@ export function InvoicesPage() {
           <tbody>
             {filtered.map((invoice) => {
               const client = getClientById(invoice.client_id);
-              const config = STATUS_CONFIG[invoice.status];
+              const status = getEffectiveStatus(invoice);
+              const config = STATUS_CONFIG[status];
               return (
                 <tr key={invoice.id} className={s.clickableRow} onClick={() => setViewId(invoice.id)}>
                   <td className={s.nameCell}>{invoice.invoice_number}</td>
@@ -189,7 +209,7 @@ export function InvoicesPage() {
                         <Send style={{ width: 14, height: 14 }} />
                       </button>
                     )}
-                    {(invoice.status === "sent" || invoice.status === "overdue") && (
+                    {(invoice.status === "sent" || status === "overdue") && (
                       <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); updateInvoice(invoice.id, { status: "paid", paid_at: new Date().toISOString() }); }} title="Mark paid">
                         <CheckCircle style={{ width: 14, height: 14 }} />
                       </button>
