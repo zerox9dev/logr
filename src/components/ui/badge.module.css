@@ -13,8 +13,9 @@
 }
 
 .default {
-  background: var(--black);
-  color: var(--white);
+  background: var(--emerald-50);
+  border-color: var(--emerald-200);
+  color: var(--emerald-700);
 }
 
 .secondary {

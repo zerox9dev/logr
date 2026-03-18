@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Clock, DollarSign, Calendar, Plus, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, Calendar, Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,24 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}h`;
   if (m > 0) return `${m}m`;
   return "0m";
+}
+
+function capitalizeStatus(status: string): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function getStatusBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+  switch (status) {
+    case "active":
+      return "default";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
+    case "paused":
+    default:
+      return "secondary";
+  }
 }
 
 export function ProjectDetailPage() {
@@ -49,6 +67,16 @@ export function ProjectDetailPage() {
     return project.fixed_budget || 0;
   }, [project, totalSeconds]);
 
+  const totalPaidEarned = useMemo(() => {
+    if (!project) return 0;
+    if (project.billing_type === "hourly" && project.rate) {
+      return projectSessions
+        .filter((s) => s.payment_status === "paid")
+        .reduce((sum, s) => sum + ((s.duration_seconds / 3600) * project.rate!), 0);
+    }
+    return project.fixed_budget || 0;
+  }, [project, projectSessions]);
+
   if (!project) {
     return (
       <div className={sh.page}>
@@ -71,7 +99,7 @@ export function ProjectDetailPage() {
         <div>
           <h1 className={s.projectName}>{project.name}</h1>
           <p className={s.meta}>
-            {client?.name || "—"} · <Badge variant="secondary">{project.status}</Badge> · {project.billing_type === "hourly" ? `$${project.rate}/hr` : `$${project.fixed_budget} fixed`}
+            {client?.name || "—"} · <Badge variant={getStatusBadgeVariant(project.status)}>{capitalizeStatus(project.status)}</Badge> · {project.billing_type === "hourly" ? `$${project.rate}/hr` : `$${project.fixed_budget} fixed`}
           </p>
         </div>
         <div className={s.headerActions}>
@@ -100,6 +128,15 @@ export function ProjectDetailPage() {
             <div>
               <p className={s.statValue}>${totalEarned.toFixed(0)}</p>
               <p className={s.statLabel}>{t("reports.earnings")}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className={s.statCard}>
+            <CheckCircle2 className={s.statIcon} style={{ color: "var(--green-500)" }} />
+            <div>
+              <p className={s.statValue}>${totalPaidEarned.toFixed(0)}</p>
+              <p className={s.statLabel}>{t("invoices.paid")}</p>
             </div>
           </CardContent>
         </Card>

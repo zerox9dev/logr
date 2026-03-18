@@ -1,6 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+
+function capitalizeStatus(status: string): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function getStatusBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+  switch (status) {
+    case "active":
+      return "default";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
+    case "paused":
+    default:
+      return "secondary";
+  }
+}
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
@@ -49,6 +67,7 @@ export function ProjectsPage() {
               <th>{t("projects.rate")}</th>
               <th>{t("reports.totalTime")}</th>
               <th>{t("reports.earnings")}</th>
+              <th>{t("invoices.paid")}</th>
               <th></th>
             </tr>
           </thead>
@@ -61,16 +80,22 @@ export function ProjectsPage() {
               const earned = project.billing_type === "hourly"
                 ? (totalSeconds / 3600) * (project.rate || 0)
                 : (project.fixed_budget || 0);
+              const paidEarned = project.billing_type === "hourly"
+                ? projectSessions
+                    .filter((s) => s.payment_status === "paid")
+                    .reduce((sum, s) => sum + ((s.duration_seconds / 3600) * (project.rate || 0)), 0)
+                : (project.fixed_budget || 0);
 
               return (
                 <tr key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} style={{ cursor: "pointer" }}>
                   <td className={s.nameCell}>{project.name}</td>
                   <td className={s.mutedCell}>{client?.name || "—"}</td>
-                  <td><Badge variant="secondary">{project.status}</Badge></td>
+                  <td><Badge variant={getStatusBadgeVariant(project.status)}>{capitalizeStatus(project.status)}</Badge></td>
                   <td className={s.mutedCell}>{project.billing_type}</td>
                   <td className={s.mutedCell}>{project.rate ? `$${project.rate}/hr` : "—"}</td>
                   <td className={s.mutedCell}>{hours}h</td>
                   <td className={s.mutedCell}>{currencySymbol}{earned.toFixed(0)}</td>
+                  <td className={s.mutedCell}>{currencySymbol}{paidEarned.toFixed(0)}</td>
                   <td className={s.actionsCell}>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); setEditingId(project.id); }}><Pencil style={{ width: 14, height: 14 }} /></button>
                     <button className={s.actionBtn} onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}><Trash2 style={{ width: 14, height: 14 }} /></button>
