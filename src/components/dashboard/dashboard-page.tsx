@@ -250,10 +250,28 @@ export function DashboardPage() {
   weekStart.setHours(0, 0, 0, 0);
   const weekSessions = sessions.filter((se) => se.started_at >= weekStart.toISOString());
   const weekTotal = weekSessions.reduce((sum, se) => sum + se.duration_seconds, 0);
-  const unpaidTotal = invoices.filter((i) => i.status !== "paid").reduce((sum, i) => sum + Number(i.total), 0);
+  const unpaidTotal = sessions
+    .filter((s) => s.payment_status === "unpaid")
+    .reduce((sum, s) => {
+      const project = getProjectById(s.project_id);
+      if (!project) return sum;
+      const earned = project.billing_type === "hourly" && project.rate
+        ? (s.duration_seconds / 3600) * project.rate
+        : (project.fixed_budget || 0);
+      return sum + earned;
+    }, 0);
   const overdueInvoices = invoices.filter((i) => i.status === "overdue" || (i.status === "sent" && i.due_date && i.due_date < todayStr));
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  const thisMonthPaid = invoices.filter((i) => i.status === "paid" && i.paid_at && i.paid_at >= monthStart).reduce((sum, i) => sum + Number(i.total), 0);
+  const thisMonthPaid = sessions
+    .filter((s) => s.payment_status === "paid" && s.started_at >= monthStart)
+    .reduce((sum, s) => {
+      const project = getProjectById(s.project_id);
+      if (!project) return sum;
+      const earned = project.billing_type === "hourly" && project.rate
+        ? (s.duration_seconds / 3600) * project.rate
+        : (project.fixed_budget || 0);
+      return sum + earned;
+    }, 0);
   const isEmpty = sessions.length === 0 && projects.length === 0 && clients.length === 0;
 
   const yesterday = new Date(now);
