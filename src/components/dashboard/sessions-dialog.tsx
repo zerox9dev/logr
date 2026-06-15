@@ -239,6 +239,11 @@ export function SessionsDialog({
             </div>
           );
         })}
+        {rows.length > 50 && (
+          <span className="py-6 text-center text-md text-muted">
+            {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(rows.length))}
+          </span>
+        )}
       </div>
     </Dialog>
   );

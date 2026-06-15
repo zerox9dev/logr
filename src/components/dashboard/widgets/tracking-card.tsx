@@ -294,25 +294,21 @@ export function TrackingCard() {
     <div className="flex flex-col gap-4 border border-line bg-card p-6">
       {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col items-start gap-2">
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money" : "bg-track"}`}
-            />
-            <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRatesOpen(true)}
-              aria-label={t("rates.editAria")}
-              className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
-            >
-              ${rate}{t("unit.perHr")}
-            </button>
-            <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
-          </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span
+            aria-hidden="true"
+            className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money" : "bg-track"}`}
+          />
+          <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
+          <button
+            type="button"
+            onClick={() => setRatesOpen(true)}
+            aria-label={t("rates.editAria")}
+            className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
+          >
+            ${rate}{t("unit.perHr")}
+          </button>
+          <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
         </div>
 
         <div className="flex items-center gap-2.5">

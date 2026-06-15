@@ -20,7 +20,7 @@ import { EmptyState } from "@/components/dashboard/empty-state";
  *  Left  (920px): Tracking → Timeline → [Projects&tasks | Billable hours].
  *  Right (496px): Daily Summary → Activity → Goals. Six widgets total. */
 export function DashboardScreen() {
-  const { loading, loadError, reload, sessions, projects, clients } = useAppData();
+  const { loading, loadError, reload, sessions, projects, clients, timerRunning } = useAppData();
   const t = useT();
 
   if (loading) {
@@ -43,8 +43,10 @@ export function DashboardScreen() {
     );
   }
 
+  // A running timer counts as activity — otherwise starting it from the empty
+  // state would keep the onboarding panel up and hide the live TrackingCard.
   const isEmpty =
-    sessions.length === 0 && projects.length === 0 && clients.length === 0;
+    !timerRunning && sessions.length === 0 && projects.length === 0 && clients.length === 0;
 
   return (
     <DashboardProvider>

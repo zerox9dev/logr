@@ -110,7 +110,7 @@ function ClientPicker({
 }
 
 /** New project — client + billing + rate. */
-function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onClose: () => void; onNeedClient: () => void }) {
   const { addProject, clients } = useAppData();
   const { toast } = useToast();
   const t = useT();
@@ -150,6 +150,20 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
 
   const seg = (active: boolean) =>
     `px-4 py-2 text-md font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
+
+  if (clients.length === 0) {
+    return (
+      <Dialog open={open} onClose={onClose} title={t("new.newProject")}>
+        <div className="flex flex-col items-center gap-4 py-4 text-center">
+          <p className="text-md text-tertiary">{t("new.needClientMessage")}</p>
+          <div className="flex justify-center gap-2.5">
+            <Button type="button" variant="outline" onClick={onClose}>{t("new.cancel")}</Button>
+            <Button type="button" onClick={onNeedClient}>{t("new.createClient")}</Button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onClose={onClose} title={t("new.newProject")}>
@@ -216,7 +230,7 @@ export function NewMenu() {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <NewProjectDialog open={dialog === "project"} onClose={() => setDialog(null)} />
+      <NewProjectDialog open={dialog === "project"} onClose={() => setDialog(null)} onNeedClient={() => setDialog("client")} />
       <NewClientDialog open={dialog === "client"} onClose={() => setDialog(null)} />
     </>
   );

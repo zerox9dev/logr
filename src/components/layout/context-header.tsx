@@ -32,7 +32,7 @@ function buildGrid(viewMonth: Date): Date[] {
 }
 
 /** Calendar date picker rendered inside a Radix Popover. */
-function DatePicker() {
+function DatePicker({ disabled = false }: { disabled?: boolean }) {
   const { refDate, goToDate } = useDashboard();
   const t = useT();
   const { lang } = useLang();
@@ -57,6 +57,7 @@ function DatePicker() {
     <Popover.Root
       open={open}
       onOpenChange={(o) => {
+        if (disabled) return;
         setOpen(o);
         if (o) setViewMonth(startOfMonth(refDate));
       }}
@@ -64,10 +65,12 @@ function DatePicker() {
       <Popover.Trigger asChild>
         <button
           type="button"
+          disabled={disabled}
+          aria-disabled={disabled}
           aria-label={t("ctx.pickDate")}
           // Match the segmented tabs' height: tabs = p-1 (4px) + py-2 (8px) ≈ 12px
           // vertical around 15px text; py-3 here mirrors that.
-          className="flex items-center justify-center border border-line bg-card px-3 py-3 hover:bg-wash"
+          className="flex items-center justify-center border border-line bg-card px-3 py-3 hover:bg-wash disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Calendar className="size-4 text-heading" />
         </button>
@@ -164,7 +167,7 @@ export function ContextHeader() {
             ‹
           </Button>
 
-          <DatePicker />
+          <DatePicker disabled={period === "All"} />
 
           <Button
             variant="unstyled"
