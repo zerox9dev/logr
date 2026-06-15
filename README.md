@@ -58,8 +58,6 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run test` | Run the test suite (Vitest) |
 | `npm run lint` | Lint with ESLint |
 | `npm run typecheck` | Type-check without emitting |
-| `npm run format` | Format the codebase with Prettier |
-| `npm run format:check` | Check formatting without writing |
 | `npm run check` | `typecheck` → `lint` → `test` → `build` (run before pushing) |
 
 ## Project Structure

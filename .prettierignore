@@ -1,6 +1,0 @@
-dist
-node_modules
-package-lock.json
-*.md
-src/lib/i18n.ts
-src/lib/i18n-app.ts
