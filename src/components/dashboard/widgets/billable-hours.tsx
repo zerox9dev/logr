@@ -16,8 +16,8 @@ function ClientRow({
         <span className="shrink-0 bg-brand-soft px-2 py-0.5 text-sm-minus font-semibold text-money tnum">{rate}</span>
       )}
       <div className="h-[5px] min-w-px flex-1" />
-      <span className="w-[90px] text-right text-base text-tertiary tnum">{time}</span>
-      <span className={`w-[74px] text-right text-base font-semibold tnum ${internal ? "text-heading" : "text-money"}`}>
+      <span className="line-clamp-1 w-[90px] text-right text-base text-tertiary tnum">{time}</span>
+      <span className={`line-clamp-1 w-[74px] text-right text-base font-semibold tnum ${internal ? "text-heading" : "text-money"}`}>
         {amount}
       </span>
     </div>
