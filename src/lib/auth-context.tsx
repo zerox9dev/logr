@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
+  signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -34,6 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const signInWithMagicLink = async (email: string) => {
+    const { error } = await auth.signInWithMagicLink(email);
+    return { error };
+  };
+
   const signOut = async () => {
     const { error } = await auth.signOut();
     if (error) console.error(error);
@@ -41,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithMagicLink, signOut }}>
       {children}
     </AuthContext.Provider>
   );

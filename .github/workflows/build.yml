@@ -14,5 +14,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # `npm install` (not `npm ci`): the lockfile is generated on macOS and,
+      # due to npm/cli#4828, omits the linux-x64 rollup optional binary. `npm install`
+      # reads the committed lock and resolves the platform-appropriate binary on the runner.
+      - run: npm install --no-audit --no-fund
       - run: npm run check
