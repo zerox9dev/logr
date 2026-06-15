@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
+import { useT } from "@/lib/i18n";
 
 function ClientRow({
   name, rate, time, amount, dot, internal,
@@ -24,23 +25,24 @@ function ClientRow({
   );
 }
 
-const INVOICED_LABELS: Record<string, string> = {
-  Day: "Invoiced today",
-  Week: "Invoiced this week",
-  Month: "Invoiced this month",
-  All: "Invoiced (all time)",
+const INVOICED_LABEL_KEYS: Record<string, string> = {
+  Day: "billable.invoicedToday",
+  Week: "billable.invoicedThisWeek",
+  Month: "billable.invoicedThisMonth",
+  All: "billable.invoicedAllTime",
 };
 
 export function BillableHours() {
   const { metrics, period } = useDashboard();
+  const t = useT();
   const b = metrics.billable;
   const [manageOpen, setManageOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
-        <span className="text-widget font-semibold text-heading">Billable hours</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setManageOpen(true)} aria-label="Manage sessions" className="text-md-minus font-bold text-muted">•••</Button>
+        <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
+        <Button variant="unstyled" size="unstyled" onClick={() => setManageOpen(true)} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted">•••</Button>
       </div>
       <SessionsDialog open={manageOpen} onClose={() => setManageOpen(false)} />
 
@@ -49,7 +51,7 @@ export function BillableHours() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-[7px]">
             <span className="size-[9px] rounded-full bg-money" />
-            <span className="text-md text-muted">Billable</span>
+            <span className="text-md text-muted">{t("billable.billable")}</span>
           </div>
           <span className="text-4xl text-tertiary tnum">{b.billableTimeLabel}</span>
           <span className="text-md font-semibold text-money tnum">{b.billableEarnedLabel}</span>
@@ -57,10 +59,10 @@ export function BillableHours() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-[7px]">
             <span className="size-[9px] rounded-full bg-track" />
-            <span className="text-md text-muted">Non-billable</span>
+            <span className="text-md text-muted">{t("billable.nonBillable")}</span>
           </div>
           <span className="text-4xl text-tertiary tnum">{b.nonBillableTimeLabel}</span>
-          <span className="text-md text-muted">internal work</span>
+          <span className="text-md text-muted">{t("billable.internalWork")}</span>
         </div>
       </div>
 
@@ -76,8 +78,8 @@ export function BillableHours() {
 
       <div className="h-px w-full bg-line" />
 
-      <span className="text-md text-muted">By client</span>
-      {b.clients.length === 0 && <span className="text-base text-muted">No billable time yet.</span>}
+      <span className="text-md text-muted">{t("billable.byClient")}</span>
+      {b.clients.length === 0 && <span className="text-base text-muted">{t("billable.empty")}</span>}
       {b.clients.map((c) => (
         <ClientRow
           key={c.name}
@@ -92,7 +94,7 @@ export function BillableHours() {
 
       {/* Invoiced footer */}
       <div className="flex w-full items-center justify-between bg-brand-faint px-4 py-3">
-        <span className="text-md font-medium text-heading">{INVOICED_LABELS[period] ?? "Invoiced this week"}</span>
+        <span className="text-md font-medium text-heading">{t(INVOICED_LABEL_KEYS[period] ?? "billable.invoicedThisWeek")}</span>
         <span className="text-xl font-semibold text-money tnum">{b.invoicedLabel}</span>
       </div>
     </div>

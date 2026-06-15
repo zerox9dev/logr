@@ -1,4 +1,5 @@
 import { useAppData } from "@/lib/data-context";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { DashboardProvider } from "@/components/dashboard/dashboard-context";
 import { TopBar } from "@/components/layout/top-bar";
@@ -20,6 +21,7 @@ import { EmptyState } from "@/components/dashboard/empty-state";
  *  Right (496px): Daily Summary → Activity → Goals. Six widgets total. */
 export function DashboardScreen() {
   const { loading, loadError, reload, sessions, projects, clients } = useAppData();
+  const t = useT();
 
   if (loading) {
     return (
@@ -32,10 +34,10 @@ export function DashboardScreen() {
   if (loadError) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-page px-4 text-center">
-        <h1 className="text-xl font-semibold text-heading">Couldn't load your data.</h1>
+        <h1 className="text-xl font-semibold text-heading">{t("screen.loadError")}</h1>
         <p className="max-w-md text-md text-tertiary">{loadError}</p>
         <Button variant="outline" onClick={() => reload()}>
-          Try again
+          {t("screen.tryAgain")}
         </Button>
       </div>
     );

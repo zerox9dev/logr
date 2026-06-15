@@ -1,4 +1,5 @@
 import type { Lang } from "./i18n";
+import { dashboard } from "./i18n-dashboard";
 
 // App UI translations — only EN / UK / RU inside the cabinet
 const app: Record<string, Record<string, string>> = {
@@ -545,5 +546,10 @@ const app: Record<string, Record<string, string>> = {
 export function getAppTranslations(lang: Lang): Record<string, string> {
   // App cabinet: only EN/UK/RU. Other languages fall back to EN.
   const resolved = (lang === "uk" || lang === "ru") ? lang : "en";
-  return { ...app.en, ...(app[resolved] || {}) };
+  return {
+    ...app.en,
+    ...dashboard.en,
+    ...(app[resolved] || {}),
+    ...(dashboard[resolved] || {}),
+  };
 }

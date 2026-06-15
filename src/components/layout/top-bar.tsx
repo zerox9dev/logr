@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { useAuth } from "@/lib/auth-context";
 import { useAppData } from "@/lib/data-context";
+import { useLang, useT, LANGS, LANG_LABELS } from "@/lib/i18n";
 
 /** Initials from a name ("Vitaly Mirvald" → "VM") or email ("v@x" → "V"). */
 function initials(name: string): string {
@@ -17,6 +19,8 @@ function initials(name: string): string {
 export function TopBar() {
   const { user, signOut } = useAuth();
   const { settings } = useAppData();
+  const { lang, setLang } = useLang();
+  const t = useT();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   const label = settings?.full_name || user?.email || "";
@@ -50,11 +54,11 @@ export function TopBar() {
         <Button
           variant="unstyled"
           size="unstyled"
-          aria-label="Search"
+          aria-label={t("nav.search")}
           onClick={() => setPaletteOpen(true)}
           className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash"
         >
-          <span className="hidden text-md-minus sm:inline">Search</span>
+          <span className="hidden text-md-minus sm:inline">{t("nav.search")}</span>
           <span className="text-sm font-medium tnum">⌘K</span>
         </Button>
 
@@ -67,7 +71,7 @@ export function TopBar() {
             <Button
               variant="unstyled"
               size="unstyled"
-              aria-label="Account menu"
+              aria-label={t("nav.accountMenu")}
               className="flex size-[30px] items-center justify-center bg-ink text-sm-minus font-semibold text-card"
             >
               {initials(label)}
@@ -84,11 +88,22 @@ export function TopBar() {
                 <span className="text-md-minus text-muted">{email}</span>
               </div>
               <DropdownMenu.Separator className="my-1 h-px bg-line" />
+              {LANGS.map((l) => (
+                <DropdownMenu.Item
+                  key={l}
+                  className="flex cursor-pointer items-center justify-between px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
+                  onSelect={(e) => { e.preventDefault(); setLang(l); }}
+                >
+                  {LANG_LABELS[l]}
+                  {lang === l && <Check className="size-4 text-ink" />}
+                </DropdownMenu.Item>
+              ))}
+              <DropdownMenu.Separator className="my-1 h-px bg-line" />
               <DropdownMenu.Item
                 className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
                 onSelect={() => signOut()}
               >
-                Sign out
+                {t("nav.signOut")}
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/lib/data-context";
+import { useT } from "@/lib/i18n";
 import type { BillingType, Client } from "@/types/database";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -20,6 +21,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addClient } = useAppData();
   const { toast } = useToast();
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
@@ -43,31 +45,31 @@ function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void
         tags: [],
         notes: null,
       });
-      toast(`Client “${name.trim()}” created`, "success");
+      toast(`${t("new.client")} “${name.trim()}” ${t("new.created")}`, "success");
       reset();
       onClose();
     } catch {
-      toast("Failed to create client", "error");
+      toast(t("new.clientFailed"), "error");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} title="New client">
+    <Dialog open={open} onClose={onClose} title={t("new.newClient")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <Field label="Name">
+        <Field label={t("new.name")}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Inc." autoFocus />
         </Field>
-        <Field label="Email">
+        <Field label={t("new.email")}>
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@acme.com" />
         </Field>
-        <Field label="Company">
-          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Optional" />
+        <Field label={t("new.company")}>
+          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t("new.optional")} />
         </Field>
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          <Button type="submit" disabled={!name.trim() || saving}>Create</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t("new.cancel")}</Button>
+          <Button type="submit" disabled={!name.trim() || saving}>{t("new.create")}</Button>
         </div>
       </form>
     </Dialog>
@@ -82,6 +84,7 @@ function ClientPicker({
   onChange: (id: string) => void;
   trigger: React.ReactNode;
 }) {
+  const t = useT();
   const item = "cursor-pointer truncate px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
   return (
     <DropdownMenu.Root>
@@ -98,7 +101,7 @@ function ClientPicker({
             </DropdownMenu.Item>
           ))}
           {clients.length === 0 && (
-            <span className="block px-3 py-2 text-md text-muted">No clients yet</span>
+            <span className="block px-3 py-2 text-md text-muted">{t("new.noClientsYet")}</span>
           )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
@@ -110,13 +113,14 @@ function ClientPicker({
 function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addProject, clients } = useAppData();
   const { toast } = useToast();
+  const t = useT();
   const [name, setName] = useState("");
   const [clientId, setClientId] = useState<string | null>(null);
   const [billing, setBilling] = useState<BillingType>("hourly");
   const [rate, setRate] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const clientName = clients.find((c) => c.id === clientId)?.name ?? "Select client";
+  const clientName = clients.find((c) => c.id === clientId)?.name ?? t("new.selectClient");
   const valid = name.trim() && clientId && !saving;
 
   const reset = () => { setName(""); setClientId(null); setBilling("hourly"); setRate(""); };
@@ -134,11 +138,11 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
         fixed_budget: billing === "fixed" ? Number(rate) || 0 : null,
         status: "active",
       });
-      toast(`Project “${name.trim()}” created`, "success");
+      toast(`${t("new.project")} “${name.trim()}” ${t("new.created")}`, "success");
       reset();
       onClose();
     } catch {
-      toast("Failed to create project", "error");
+      toast(t("new.projectFailed"), "error");
     } finally {
       setSaving(false);
     }
@@ -148,12 +152,12 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
     `px-4 py-2 text-md font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
 
   return (
-    <Dialog open={open} onClose={onClose} title="New project">
+    <Dialog open={open} onClose={onClose} title={t("new.newProject")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <Field label="Name">
+        <Field label={t("new.name")}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Finwall app" autoFocus />
         </Field>
-        <Field label="Client">
+        <Field label={t("new.client")}>
           <ClientPicker
             clients={clients}
             onChange={setClientId}
@@ -166,19 +170,19 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
           />
         </Field>
         <div className="flex items-end gap-3">
-          <Field label="Billing">
+          <Field label={t("new.billing")}>
             <div className="flex items-start bg-wash p-1">
-              <button type="button" className={seg(billing === "hourly")} onClick={() => setBilling("hourly")}>Hourly</button>
-              <button type="button" className={seg(billing === "fixed")} onClick={() => setBilling("fixed")}>Fixed</button>
+              <button type="button" className={seg(billing === "hourly")} onClick={() => setBilling("hourly")}>{t("new.hourly")}</button>
+              <button type="button" className={seg(billing === "fixed")} onClick={() => setBilling("fixed")}>{t("new.fixed")}</button>
             </div>
           </Field>
-          <Field label={billing === "hourly" ? "Rate ($/hr)" : "Budget ($)"}>
+          <Field label={billing === "hourly" ? t("new.rateHr") : t("new.budget")}>
             <Input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="0" />
           </Field>
         </div>
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          <Button type="submit" disabled={!valid}>Create</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t("new.cancel")}</Button>
+          <Button type="submit" disabled={!valid}>{t("new.create")}</Button>
         </div>
       </form>
     </Dialog>
@@ -188,6 +192,7 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
 /** `+ New` button (TopBar) — dropdown to create a project or client. */
 export function NewMenu() {
   const [dialog, setDialog] = useState<null | "project" | "client">(null);
+  const t = useT();
   const item = "cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
 
   return (
@@ -196,7 +201,7 @@ export function NewMenu() {
         <DropdownMenu.Trigger asChild>
           <Button variant="unstyled" size="unstyled" className="flex items-center gap-1.5 bg-black px-4 py-[9px] font-medium text-card">
             <span aria-hidden="true" className="text-base leading-none">+</span>
-            <span className="text-md">New</span>
+            <span className="text-md">{t("new.new")}</span>
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
@@ -205,8 +210,8 @@ export function NewMenu() {
             sideOffset={8}
             className="z-50 min-w-[180px] border border-line bg-card py-1 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)]"
           >
-            <DropdownMenu.Item className={item} onSelect={() => setDialog("project")}>New project</DropdownMenu.Item>
-            <DropdownMenu.Item className={item} onSelect={() => setDialog("client")}>New client</DropdownMenu.Item>
+            <DropdownMenu.Item className={item} onSelect={() => setDialog("project")}>{t("new.newProject")}</DropdownMenu.Item>
+            <DropdownMenu.Item className={item} onSelect={() => setDialog("client")}>{t("new.newClient")}</DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

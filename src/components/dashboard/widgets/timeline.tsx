@@ -6,6 +6,7 @@
  *     tracked in that hour across the range), so it stays readable.
  *  Left-column card: border #ececec, px-28 pt-24 pb-20, gap-18. */
 import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useT } from "@/lib/i18n";
 
 const W = 955;
 const PLOT_TOP = 8;
@@ -16,12 +17,13 @@ const HOURS = ["9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16
 
 export function Timeline() {
   const { metrics } = useDashboard();
+  const t = useT();
   const { mode, blocks, hours, nowLeft, nowLabel, showNow } = metrics.timeline;
   const nowVisible = showNow && nowLeft >= 10 && nowLeft <= W;
 
   return (
     <div className="flex flex-col gap-[18px] border border-line bg-card px-[28px] pb-[20px] pt-[24px]">
-      <span className="text-widget font-semibold text-heading">Timeline</span>
+      <span className="text-widget font-semibold text-heading">{t("timeline.title")}</span>
 
       <div className="relative h-[230px] w-full overflow-hidden">
         {/* Hour gridlines + labels */}

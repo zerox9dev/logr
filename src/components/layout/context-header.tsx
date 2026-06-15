@@ -4,16 +4,17 @@ import * as Popover from "@radix-ui/react-popover";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useT, useLang } from "@/lib/i18n";
 import type { Period } from "@/lib/dashboard-metrics";
 
 const VIEWS: Period[] = ["Day", "Week", "Month", "All"];
 // "Day" period is surfaced as "Today" — selecting it also jumps to the current day.
-const VIEW_LABELS: Record<Period, string> = { Day: "Today", Week: "Week", Month: "Month", All: "All" };
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+const VIEW_KEYS: Record<Period, string> = {
+  Day: "tabs.today",
+  Week: "tabs.week",
+  Month: "tabs.month",
+  All: "tabs.all",
+};
 
 const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
 const sameDay = (a: Date, b: Date) =>
@@ -33,11 +34,19 @@ function buildGrid(viewMonth: Date): Date[] {
 /** Calendar date picker rendered inside a Radix Popover. */
 function DatePicker() {
   const { refDate, goToDate } = useDashboard();
+  const t = useT();
+  const { lang } = useLang();
   const [open, setOpen] = useState(false);
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(refDate));
   const [today] = useState(() => new Date());
 
   const days = buildGrid(viewMonth);
+
+  // Monday-first weekday labels derived from the active language.
+  const weekdays = Array.from({ length: 7 }, (_, i) =>
+    // 2024-01-01 is a Monday; offsetting by i yields Mon..Sun.
+    new Date(2024, 0, 1 + i).toLocaleDateString(lang, { weekday: "short" }),
+  );
 
   const handleSelect = (d: Date) => {
     goToDate(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0));
@@ -55,7 +64,7 @@ function DatePicker() {
       <Popover.Trigger asChild>
         <button
           type="button"
-          aria-label="Pick a date"
+          aria-label={t("ctx.pickDate")}
           // Match the segmented tabs' height: tabs = p-1 (4px) + py-2 (8px) ≈ 12px
           // vertical around 15px text; py-3 here mirrors that.
           className="flex items-center justify-center border border-line bg-card px-3 py-3 hover:bg-wash"
@@ -72,18 +81,18 @@ function DatePicker() {
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"
-              aria-label="Previous month"
+              aria-label={t("ctx.prevMonth")}
               onClick={() => setViewMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
               className="flex size-7 items-center justify-center text-xl leading-none text-heading hover:bg-wash"
             >
               ‹
             </button>
             <span className="text-base font-semibold text-heading">
-              {MONTHS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
+              {viewMonth.toLocaleDateString(lang, { month: "long", year: "numeric" })}
             </span>
             <button
               type="button"
-              aria-label="Next month"
+              aria-label={t("ctx.nextMonth")}
               onClick={() => setViewMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
               className="flex size-7 items-center justify-center text-xl leading-none text-heading hover:bg-wash"
             >
@@ -92,8 +101,8 @@ function DatePicker() {
           </div>
 
           <div className="grid grid-cols-7 gap-0.5">
-            {WEEKDAYS.map((w) => (
-              <div key={w} className="flex h-7 items-center justify-center text-xs font-medium text-muted">
+            {weekdays.map((w, i) => (
+              <div key={i} className="flex h-7 items-center justify-center text-xs font-medium text-muted">
                 {w}
               </div>
             ))}
@@ -105,7 +114,7 @@ function DatePicker() {
                 <button
                   key={d.toISOString()}
                   type="button"
-                  aria-label={d.toLocaleDateString(undefined, {
+                  aria-label={d.toLocaleDateString(lang, {
                     weekday: "long", year: "numeric", month: "long", day: "numeric",
                   })}
                   onClick={() => handleSelect(d)}
@@ -135,6 +144,7 @@ function DatePicker() {
  *  tabs (Today also jumps to the current day). */
 export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
+  const t = useT();
 
   return (
     <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-4 bg-card px-6 py-6">
@@ -148,7 +158,7 @@ export function ContextHeader() {
             size="unstyled"
             onClick={() => pageDate(-1)}
             disabled={!canPageBack}
-            aria-label="Previous period"
+            aria-label={t("ctx.prevPeriod")}
             className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
           >
             ‹
@@ -161,7 +171,7 @@ export function ContextHeader() {
             size="unstyled"
             onClick={() => pageDate(1)}
             disabled={!canPageForward}
-            aria-label="Next period"
+            aria-label={t("ctx.nextPeriod")}
             className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
           >
             ›
@@ -181,7 +191,7 @@ export function ContextHeader() {
                 onClick={v === "Day" ? goToToday : undefined}
                 className="px-4 py-2 text-base font-medium text-dark-3 data-[state=active]:bg-card data-[state=active]:font-semibold data-[state=active]:text-heading data-[state=active]:shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]"
               >
-                {VIEW_LABELS[v]}
+                {t(VIEW_KEYS[v])}
               </Tabs.Trigger>
             ))}
           </Tabs.List>

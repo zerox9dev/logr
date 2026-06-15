@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SharedReportPage } from "@/components/reports/shared-report-page";
+import { LangProvider } from "@/lib/i18n";
 
 function Loading() {
   return (
@@ -30,7 +31,8 @@ function Root() {
 
 function App() {
   return (
-    <ToastProvider>
+    <LangProvider>
+      <ToastProvider>
       <ConfirmProvider>
         <BrowserRouter>
           <ErrorBoundary>
@@ -46,7 +48,8 @@ function App() {
           </ErrorBoundary>
         </BrowserRouter>
       </ConfirmProvider>
-    </ToastProvider>
+      </ToastProvider>
+    </LangProvider>
   );
 }
 

@@ -3,6 +3,7 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
 import { useAppData } from "@/lib/data-context";
+import { useT } from "@/lib/i18n";
 
 /** A single, type-tagged result row in the palette. */
 type Result =
@@ -17,6 +18,7 @@ const RECENT = 30;
  *  result opens a SessionsDialog filtered to that project / task. */
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { sessions, projects, getProjectById } = useAppData();
+  const t = useT();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [match, setMatch] = useState<{ projectId?: string; name?: string } | null>(null);
@@ -49,14 +51,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         kind: "session",
         id: s.id,
         label: s.name,
-        sub: getProjectById(s.project_id)?.name ?? "No project",
+        sub: getProjectById(s.project_id)?.name ?? t("cmd.noProject"),
         group: "Sessions",
         projectId: s.project_id ?? "none",
         name: s.name,
       }));
 
     return [...projectMatches, ...sessionMatches];
-  }, [query, projects, sessions, getProjectById]);
+  }, [query, projects, sessions, getProjectById, t]);
 
   // Clamp the highlight into bounds at render time (results shrink as you type).
   const activeIndex = results.length > 0 ? Math.min(active, results.length - 1) : 0;
@@ -97,24 +99,24 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         <RadixDialog.Portal>
           <RadixDialog.Overlay className="fixed inset-0 z-40 bg-black/35" />
           <RadixDialog.Content
-            aria-label="Search"
+            aria-label={t("cmd.search")}
             onKeyDown={onKeyDown}
             className="fixed left-1/2 top-[18vh] z-50 w-full max-w-[560px] -translate-x-1/2 border border-line bg-card shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)] focus:outline-none"
           >
-            <RadixDialog.Title className="sr-only">Search</RadixDialog.Title>
+            <RadixDialog.Title className="sr-only">{t("cmd.search")}</RadixDialog.Title>
             <div className="border-b border-line p-3">
               <Input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects and sessions…"
+                placeholder={t("cmd.searchPlaceholder")}
                 className="h-10 border-0 px-1 text-base focus-visible:border-0"
               />
             </div>
 
             <div ref={listRef} className="flex max-h-[50vh] flex-col overflow-auto p-1.5">
               {results.length === 0 && (
-                <span className="px-3 py-6 text-center text-md text-muted">No results</span>
+                <span className="px-3 py-6 text-center text-md text-muted">{t("cmd.noResults")}</span>
               )}
               {results.map((r, i) => {
                 const header = r.group !== lastGroup ? r.group : null;
@@ -123,7 +125,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                   <div key={`${r.kind}-${r.id}`}>
                     {header && (
                       <div className="px-3 pb-1 pt-2 text-sm-minus font-medium uppercase tracking-wide text-muted">
-                        {header}
+                        {header === "Projects" ? t("cmd.groupProjects") : t("cmd.groupSessions")}
                       </div>
                     )}
                     <button

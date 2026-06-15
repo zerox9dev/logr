@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { t } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -9,6 +9,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Sign-in gate shown at `/` when not authenticated. Monochrome, square. */
 export function LoginGate() {
   const { signInWithGoogle, signInWithMagicLink } = useAuth();
+  const t = useT();
   const [error, setError] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");

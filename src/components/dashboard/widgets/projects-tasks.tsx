@@ -5,6 +5,7 @@ import { Folder, CircleDot, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
+import { useT } from "@/lib/i18n";
 
 function ProjectRow({
   pct, name, time, active, open, hasTasks, onToggle,
@@ -52,6 +53,7 @@ function TaskRow({ name, time, onClick }: { name: string; time: string; onClick:
 
 export function ProjectsTasks() {
   const { metrics } = useDashboard();
+  const t = useT();
   const { rows, empty } = metrics.projects;
   // null = closed; {} = all sessions (••• menu); {projectId,name} = one task.
   const [dialog, setDialog] = useState<null | { projectId?: string; name?: string }>(null);
@@ -68,12 +70,12 @@ export function ProjectsTasks() {
   return (
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
-        <span className="text-widget font-semibold text-heading">Projects &amp; tasks</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setDialog({})} aria-label="Manage sessions" className="text-md font-bold text-muted">•••</Button>
+        <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
+        <Button variant="unstyled" size="unstyled" onClick={() => setDialog({})} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted">•••</Button>
       </div>
       <SessionsDialog open={dialog !== null} onClose={() => setDialog(null)} match={dialog ?? undefined} />
 
-      {empty && <span className="text-base text-muted">No tracked time in this period.</span>}
+      {empty && <span className="text-base text-muted">{t("projects.empty")}</span>}
 
       {rows.map((p, i) => {
         const open = expanded.has(p.id);
