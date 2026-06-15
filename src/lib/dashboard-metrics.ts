@@ -514,6 +514,21 @@ function timelineView(scoped: Session[], now: Date, period: Period, today: Date)
 
 // ── Entry point ──
 
+/** Header date label, adapted to the active period:
+ *  Day → "Tuesday, June 16, 2026", Week → "Jun 16 – Jun 22, 2026",
+ *  Month → "June 2026", All → "All time". */
+function headerLabel(period: Period, now: Date): string {
+  if (period === "All") return "All time";
+  if (period === "Month") return now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  if (period === "Week") {
+    const r = rangeFor("Week", now);
+    const end = addDays(r.end, -1);
+    const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+    return `${r.start.toLocaleDateString("en-US", opts)} – ${end.toLocaleDateString("en-US", opts)}, ${end.getFullYear()}`;
+  }
+  return fmtDateLong(now);
+}
+
 export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
   const r = rangeFor(period, now);
@@ -523,7 +538,7 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const rate = settings?.default_rate ?? 0;
 
   return {
-    header: { dateLabel: fmtDateLong(now) },
+    header: { dateLabel: headerLabel(period, now) },
     tracking: {
       rate,
       rateLabel: `$${rate}/hr`,

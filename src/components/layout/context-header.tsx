@@ -3,7 +3,6 @@ import * as Tabs from "@radix-ui/react-tabs";
 import * as Popover from "@radix-ui/react-popover";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAppData } from "@/lib/data-context";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import type { Period } from "@/lib/dashboard-metrics";
 
@@ -130,11 +129,10 @@ function DatePicker() {
 }
 
 /** Contextual header below the top bar. Figma node 1:6.
- *  Left: current date + Tracking ● Active. Right: Today/Week/Month/All tabs
- *  (Today also jumps to the current day), ‹ date-picker › date nav. */
+ *  Left: current date + ‹ › date nav. Right: Today/Week/Month/All tabs
+ *  (Today also jumps to the current day) + date-picker. */
 export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
-  const { timerRunning } = useAppData();
 
   return (
     <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-4 bg-card px-6 py-6">
@@ -142,10 +140,28 @@ export function ContextHeader() {
         <h1 className="whitespace-nowrap text-3xl font-semibold text-heading tnum lg:text-5xl">
           {metrics.header.dateLabel}
         </h1>
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-base text-muted">Tracking:</span>
-          <span className={`size-[9px] ${timerRunning ? "bg-brand" : "bg-track"}`} />
-          <span className="text-base font-medium text-heading">{timerRunning ? "Active" : "Idle"}</span>
+        <div className="flex items-center gap-3.5">
+          <Button
+            variant="unstyled"
+            size="unstyled"
+            onClick={() => pageDate(-1)}
+            disabled={!canPageBack}
+            aria-label="Previous period"
+            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
+          >
+            ‹
+          </Button>
+
+          <Button
+            variant="unstyled"
+            size="unstyled"
+            onClick={() => pageDate(1)}
+            disabled={!canPageForward}
+            aria-label="Next period"
+            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
+          >
+            ›
+          </Button>
         </div>
       </div>
 
@@ -167,29 +183,7 @@ export function ContextHeader() {
           </Tabs.List>
         </Tabs.Root>
 
-        <Button
-          variant="unstyled"
-          size="unstyled"
-          onClick={() => pageDate(-1)}
-          disabled={!canPageBack}
-          aria-label="Previous period"
-          className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
-        >
-          ‹
-        </Button>
-
         <DatePicker />
-
-        <Button
-          variant="unstyled"
-          size="unstyled"
-          onClick={() => pageDate(1)}
-          disabled={!canPageForward}
-          aria-label="Next period"
-          className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
-        >
-          ›
-        </Button>
       </div>
     </div>
   );
