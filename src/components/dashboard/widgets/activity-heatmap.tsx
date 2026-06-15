@@ -33,7 +33,7 @@ export function ActivityHeatmap() {
           {weeks.map((days, w) => (
             <div key={w} className="flex flex-col gap-0.5">
               {days.map((day, d) => (
-                <span key={d} className="size-[9px]" style={{ background: LEVELS[day.level] }} />
+                <span key={d} title={day.title} className="size-[9px]" style={{ background: LEVELS[day.level] }} />
               ))}
             </div>
           ))}

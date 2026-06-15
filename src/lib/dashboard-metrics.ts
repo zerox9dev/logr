@@ -181,6 +181,8 @@ export interface DailyView {
 
 export interface HeatmapDay {
   level: number;
+  /** Tooltip text, e.g. "Mar 5 · 2 hr 30 min" or "Mar 5 · No activity". */
+  title: string;
 }
 
 export interface HeatmapView {
@@ -402,9 +404,14 @@ function heatmapView(sessions: Session[], now: Date): HeatmapView {
     if (label !== lastMonthLabel) { months.push(label); lastMonthLabel = label; }
     const days: HeatmapDay[] = [];
     for (let d = 0; d < 7; d++) {
-      const sec = perDay.get(dayKey(addDays(colStart, d))) ?? 0;
+      const cellDate = addDays(colStart, d);
+      const sec = perDay.get(dayKey(cellDate)) ?? 0;
       totalSec += sec;
-      days.push({ level: lvl(sec) });
+      const dateLabel = cellDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      days.push({
+        level: lvl(sec),
+        title: `${dateLabel} · ${sec > 0 ? fmtDuration(sec) : "No activity"}`,
+      });
     }
     weeks.push(days);
   }

@@ -1,4 +1,5 @@
 import { useAppData } from "@/lib/data-context";
+import { Button } from "@/components/ui/button";
 import { DashboardProvider } from "@/components/dashboard/dashboard-context";
 import { TopBar } from "@/components/layout/top-bar";
 import { ContextHeader } from "@/components/layout/context-header";
@@ -17,12 +18,24 @@ import { Goals } from "@/components/dashboard/widgets/goals";
  *  Left  (920px): Tracking → Timeline → [Projects&tasks | Billable hours].
  *  Right (496px): Daily Summary → Activity → Goals. Six widgets total. */
 export function DashboardScreen() {
-  const { loading } = useAppData();
+  const { loading, loadError, reload } = useAppData();
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-page">
         <div className="size-6 animate-spin border-2 border-line border-t-ink" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-page px-4 text-center">
+        <h1 className="text-xl font-semibold text-heading">Couldn't load your data.</h1>
+        <p className="max-w-md text-md text-tertiary">{loadError}</p>
+        <Button variant="outline" onClick={() => reload()}>
+          Try again
+        </Button>
       </div>
     );
   }

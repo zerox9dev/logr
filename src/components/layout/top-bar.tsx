@@ -20,7 +20,7 @@ export function TopBar() {
   const email = user?.email ?? "";
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-8">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-35">
       {/* Left: logo + wordmark */}
       <div className="flex items-center gap-2.5">
         <div className="relative size-6 bg-black">
@@ -32,7 +32,14 @@ export function TopBar() {
 
       {/* Right cluster: search · + New · avatar */}
       <div className="flex items-center gap-3.5">
-        <Button variant="unstyled" size="unstyled" className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary">
+        <Button
+          variant="unstyled"
+          size="unstyled"
+          disabled
+          title="Search — coming soon"
+          aria-label="Search (coming soon)"
+          className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary disabled:opacity-60 disabled:cursor-not-allowed"
+        >
           <span className="text-md-minus">Search</span>
           <span className="text-sm font-medium tnum">⌘K</span>
         </Button>
@@ -44,6 +51,7 @@ export function TopBar() {
             <Button
               variant="unstyled"
               size="unstyled"
+              aria-label="Account menu"
               className="flex size-[30px] items-center justify-center bg-ink text-sm-minus font-semibold text-card"
             >
               {initials(label)}

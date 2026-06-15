@@ -25,7 +25,7 @@ export function Dialog({ open, onClose, title, wide, children }: DialogProps) {
         >
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
             <RadixDialog.Title className="text-base font-semibold text-heading">{title}</RadixDialog.Title>
-            <RadixDialog.Close className="flex size-8 items-center justify-center text-tertiary transition-colors hover:bg-wash hover:text-ink">
+            <RadixDialog.Close aria-label="Close" className="flex size-8 items-center justify-center text-tertiary transition-colors hover:bg-wash hover:text-ink">
               <X className="size-4" />
             </RadixDialog.Close>
           </div>

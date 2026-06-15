@@ -24,8 +24,15 @@ function ClientRow({
   );
 }
 
+const INVOICED_LABELS: Record<string, string> = {
+  Day: "Invoiced today",
+  Week: "Invoiced this week",
+  Month: "Invoiced this month",
+  All: "Invoiced (all time)",
+};
+
 export function BillableHours() {
-  const { metrics } = useDashboard();
+  const { metrics, period } = useDashboard();
   const b = metrics.billable;
   const [manageOpen, setManageOpen] = useState(false);
 
@@ -33,7 +40,7 @@ export function BillableHours() {
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">Billable hours</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setManageOpen(true)} className="text-md-minus font-bold text-muted">•••</Button>
+        <Button variant="unstyled" size="unstyled" onClick={() => setManageOpen(true)} aria-label="Manage sessions" className="text-md-minus font-bold text-muted">•••</Button>
       </div>
       <SessionsDialog open={manageOpen} onClose={() => setManageOpen(false)} />
 
@@ -85,7 +92,7 @@ export function BillableHours() {
 
       {/* Invoiced footer */}
       <div className="flex w-full items-center justify-between bg-brand-faint px-4 py-3">
-        <span className="text-md font-medium text-heading">Invoiced this week</span>
+        <span className="text-md font-medium text-heading">{INVOICED_LABELS[period] ?? "Invoiced this week"}</span>
         <span className="text-xl font-semibold text-money tnum">{b.invoicedLabel}</span>
       </div>
     </div>

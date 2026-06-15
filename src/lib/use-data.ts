@@ -12,6 +12,34 @@ import type {
   InvoiceItemInsert, ActivityInsert, UserSettingsUpdate,
 } from "@/types/database";
 
+const TIMER_KEY = "logr.timer";
+
+interface PersistedTimer {
+  running: boolean;
+  startedAt: number | null;
+  paused: boolean;
+  pausedElapsed: number;
+  description: string;
+}
+
+function readPersistedTimer(): PersistedTimer | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(TIMER_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PersistedTimer>;
+    return {
+      running: Boolean(parsed.running),
+      startedAt: typeof parsed.startedAt === "number" ? parsed.startedAt : null,
+      paused: Boolean(parsed.paused),
+      pausedElapsed: typeof parsed.pausedElapsed === "number" ? parsed.pausedElapsed : 0,
+      description: typeof parsed.description === "string" ? parsed.description : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function useData() {
   const { user } = useAuth();
   const userId = user?.id || "";
@@ -24,39 +52,44 @@ export function useData() {
   const [invoiceItems, setInvoiceItems] = useState<Map<string, InvoiceItem[]>>(new Map());
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // ── Load all data ──
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!userId) return;
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const [s, cl, pr, se, inv, act] = await Promise.all([
-          settingsApi.get(),
-          clientsApi.list(),
-          projectsApi.list(),
-          sessionsApi.list(),
-          invoicesApi.list(),
-          activitiesApi.list(),
-        ]);
-        if (cancelled) return;
-        setSettings(s);
-        setClients(cl);
-        setProjects(pr);
-        setSessions(se);
-        setInvoices(inv);
-        setActivities(act);
-      } catch (err) {
-        console.error("Failed to load data:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [s, cl, pr, se, inv, act] = await Promise.all([
+        settingsApi.get(),
+        clientsApi.list(),
+        projectsApi.list(),
+        sessionsApi.list(),
+        invoicesApi.list(),
+        activitiesApi.list(),
+      ]);
+      setSettings(s);
+      setClients(cl);
+      setProjects(pr);
+      setSessions(se);
+      setInvoices(inv);
+      setActivities(act);
+    } catch (err) {
+      console.error("Failed to load data:", err);
+      setLoadError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
-
-    load();
-    return () => { cancelled = true; };
   }, [userId]);
+
+  useEffect(() => {
+    // Fetch-on-mount and on user change. `load` syncs loading/error state —
+    // a legitimate external-data sync, not a render-driven cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
+
+  const reload = useCallback(() => { void load(); }, [load]);
 
   // ── Settings ──
   const updateSettings = useCallback(async (data: UserSettingsUpdate) => {
@@ -174,16 +207,45 @@ export function useData() {
   const getProjectById = useCallback((id: string | null) => projects.find((p) => p.id === id), [projects]);
   const getClientById = useCallback((id: string | null) => clients.find((c) => c.id === id), [clients]);
 
-  // ── Timer (local state, not persisted until save) ──
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [timerPaused, setTimerPaused] = useState(false);
-  const [timerStartedAt, setTimerStartedAt] = useState<number | null>(null);
-  const [timerPausedElapsed, setTimerPausedElapsed] = useState(0);
-  const [timerDescription, setTimerDescription] = useState("");
+  // ── Timer (local state, persisted to localStorage so it survives reloads) ──
+  const [timerRunning, setTimerRunning] = useState(() => readPersistedTimer()?.running ?? false);
+  const [timerSeconds, setTimerSeconds] = useState(() => {
+    const t = readPersistedTimer();
+    // timerSeconds is derived from startedAt; restore an estimate if running.
+    if (t?.running && t.startedAt != null) {
+      return t.pausedElapsed + Math.floor((Date.now() - t.startedAt) / 1000);
+    }
+    return 0;
+  });
+  const [timerPaused, setTimerPaused] = useState(() => readPersistedTimer()?.paused ?? false);
+  const [timerStartedAt, setTimerStartedAt] = useState<number | null>(() => readPersistedTimer()?.startedAt ?? null);
+  const [timerPausedElapsed, setTimerPausedElapsed] = useState(() => readPersistedTimer()?.pausedElapsed ?? 0);
+  const [timerDescription, setTimerDescription] = useState(() => readPersistedTimer()?.description ?? "");
+
+  // Sync the persisted timer blob whenever any persisted field changes.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      // Idle/reset: nothing running and no started_at — clear so it can't resurrect.
+      if (!timerRunning && timerStartedAt == null) {
+        window.localStorage.removeItem(TIMER_KEY);
+        return;
+      }
+      const blob: PersistedTimer = {
+        running: timerRunning,
+        startedAt: timerStartedAt,
+        paused: timerPaused,
+        pausedElapsed: timerPausedElapsed,
+        description: timerDescription,
+      };
+      window.localStorage.setItem(TIMER_KEY, JSON.stringify(blob));
+    } catch {
+      // localStorage may throw (private mode / quota) — ignore.
+    }
+  }, [timerRunning, timerStartedAt, timerPaused, timerPausedElapsed, timerDescription]);
 
   return {
-    loading, userId,
+    loading, loadError, reload, userId,
     settings, updateSettings,
     clients, addClient, updateClient, deleteClient, getClientById,
     projects, addProject, updateProject, deleteProject, getProjectById,

@@ -82,9 +82,10 @@ function ManualDialog({
   const [minutes, setMinutes] = useState("");
 
   const projectName = projects.find((p) => p.id === projectId)?.name ?? "No project";
+  const seconds = (Number(hours) || 0) * 3600 + (Number(minutes) || 0) * 60;
 
-  const submit = () => {
-    const seconds = (Number(hours) || 0) * 3600 + (Number(minutes) || 0) * 60;
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (seconds <= 0) return;
     onSave(projectId, name, `${date}T09:00:00`, seconds);
     setName(""); setHours(""); setMinutes("");
@@ -93,16 +94,16 @@ function ManualDialog({
 
   return (
     <Dialog open={open} onClose={onClose} title="Log time">
-      <div className="flex flex-col gap-4">
+      <form onSubmit={submit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
           <span className="text-md-minus text-muted">Project</span>
           <ProjectPicker
             onChange={setProjectId}
             projects={projects}
             trigger={
-              <Button variant="outline" size="default" className="w-full justify-between">
+              <Button type="button" variant="outline" size="default" className="w-full justify-between">
                 <span className="line-clamp-1 min-w-0">{projectName}</span>
-                <span className="shrink-0 text-muted">▾</span>
+                <span aria-hidden="true" className="shrink-0 text-muted">▾</span>
               </Button>
             }
           />
@@ -129,10 +130,10 @@ function ManualDialog({
         </div>
 
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit}>Save</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+          <Button type="submit" disabled={seconds <= 0}>Save</Button>
         </div>
-      </div>
+      </form>
     </Dialog>
   );
 }
@@ -214,12 +215,12 @@ export function TrackingCard() {
             projects={projects}
             trigger={
               <Button variant="unstyled" size="unstyled" className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3">
-                <span className="h-3 w-4 shrink-0 bg-black" />
+                <span aria-hidden="true" className="h-3 w-4 shrink-0 bg-black" />
                 <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
               </Button>
             }
           />
-          <span className="text-base text-muted">›</span>
+          <span aria-hidden="true" className="text-base text-muted">›</span>
           <input
             value={timerDescription}
             onChange={(e) => setTimerDescription(e.target.value)}

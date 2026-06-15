@@ -27,7 +27,8 @@ function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void
 
   const reset = () => { setName(""); setEmail(""); setCompany(""); };
 
-  const submit = async () => {
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!name.trim() || saving) return;
     setSaving(true);
     try {
@@ -54,7 +55,7 @@ function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void
 
   return (
     <Dialog open={open} onClose={onClose} title="New client">
-      <div className="flex flex-col gap-4">
+      <form onSubmit={submit} className="flex flex-col gap-4">
         <Field label="Name">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Inc." autoFocus />
         </Field>
@@ -65,10 +66,10 @@ function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void
           <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Optional" />
         </Field>
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit} disabled={!name.trim() || saving}>Create</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+          <Button type="submit" disabled={!name.trim() || saving}>Create</Button>
         </div>
-      </div>
+      </form>
     </Dialog>
   );
 }
@@ -120,7 +121,8 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
 
   const reset = () => { setName(""); setClientId(null); setBilling("hourly"); setRate(""); };
 
-  const submit = async () => {
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!valid || !clientId) return;
     setSaving(true);
     try {
@@ -147,7 +149,7 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
 
   return (
     <Dialog open={open} onClose={onClose} title="New project">
-      <div className="flex flex-col gap-4">
+      <form onSubmit={submit} className="flex flex-col gap-4">
         <Field label="Name">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Finwall app" autoFocus />
         </Field>
@@ -156,9 +158,9 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
             clients={clients}
             onChange={setClientId}
             trigger={
-              <Button variant="outline" size="default" className="w-full justify-between">
+              <Button type="button" variant="outline" size="default" className="w-full justify-between">
                 <span className={`line-clamp-1 min-w-0 ${clientId ? "text-ink" : "text-muted"}`}>{clientName}</span>
-                <span className="shrink-0 text-muted">▾</span>
+                <span aria-hidden="true" className="shrink-0 text-muted">▾</span>
               </Button>
             }
           />
@@ -175,10 +177,10 @@ function NewProjectDialog({ open, onClose }: { open: boolean; onClose: () => voi
           </Field>
         </div>
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit} disabled={!valid}>Create</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+          <Button type="submit" disabled={!valid}>Create</Button>
         </div>
-      </div>
+      </form>
     </Dialog>
   );
 }
@@ -193,7 +195,7 @@ export function NewMenu() {
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <Button variant="unstyled" size="unstyled" className="flex items-center gap-1.5 bg-black px-4 py-[9px] font-medium text-card">
-            <span className="text-base leading-none">+</span>
+            <span aria-hidden="true" className="text-base leading-none">+</span>
             <span className="text-md">New</span>
           </Button>
         </DropdownMenu.Trigger>

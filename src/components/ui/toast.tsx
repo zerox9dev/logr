@@ -53,7 +53,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             )}
           >
             <RadixToast.Description className="text-md text-ink">{t.message}</RadixToast.Description>
-            <RadixToast.Close className="text-tertiary transition-colors hover:text-ink">
+            <RadixToast.Close aria-label="Dismiss" className="text-tertiary transition-colors hover:text-ink">
               <X className="size-3.5" />
             </RadixToast.Close>
           </RadixToast.Root>

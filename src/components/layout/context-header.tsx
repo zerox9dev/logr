@@ -51,16 +51,17 @@ export function ContextHeader() {
           size="unstyled"
           onClick={() => pageDate(-1)}
           disabled={!canPageBack}
+          aria-label="Previous period"
           className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
         >
           ‹
         </Button>
-        <Button variant="unstyled" size="unstyled" className="size-9 border border-line bg-card" />
         <Button
           variant="unstyled"
           size="unstyled"
           onClick={() => pageDate(1)}
           disabled={!canPageForward}
+          aria-label="Next period"
           className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
         >
           ›

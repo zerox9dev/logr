@@ -34,8 +34,14 @@ function EntryForm({
   const [minutes, setMinutes] = useState(initial.minutes);
   const seconds = (Number(hours) || 0) * 3600 + (Number(minutes) || 0) * 60;
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (seconds <= 0) return;
+    onSave(name, date, seconds);
+  };
+
   return (
-    <div className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-md-minus text-muted">Task</span>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Task name" autoFocus />
@@ -55,10 +61,10 @@ function EntryForm({
         </label>
       </div>
       <div className="flex justify-end gap-2.5">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
-        <Button disabled={seconds <= 0} onClick={() => onSave(name, date, seconds)}>{saveLabel}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" disabled={seconds <= 0}>{saveLabel}</Button>
       </div>
-    </div>
+    </form>
   );
 }
 

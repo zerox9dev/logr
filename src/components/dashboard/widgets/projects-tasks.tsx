@@ -78,7 +78,7 @@ export function ProjectsTasks() {
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">Projects &amp; tasks</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setDialog({})} className="text-md font-bold text-muted">•••</Button>
+        <Button variant="unstyled" size="unstyled" onClick={() => setDialog({})} aria-label="Manage sessions" className="text-md font-bold text-muted">•••</Button>
       </div>
       <SessionsDialog open={dialog !== null} onClose={() => setDialog(null)} match={dialog ?? undefined} />
 
