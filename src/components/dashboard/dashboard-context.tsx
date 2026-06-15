@@ -11,6 +11,8 @@ interface DashboardContextType {
   metrics: DashboardMetrics;
   pageDate: (dir: -1 | 1) => void;
   goToToday: () => void;
+  refDate: Date;
+  goToDate: (d: Date) => void;
   canPageBack: boolean;
   canPageForward: boolean;
 }
@@ -29,6 +31,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [period]);
 
   const goToToday = useCallback(() => setRefDate(new Date()), []);
+  const goToDate = useCallback((d: Date) => setRefDate(d), []);
 
   const metrics = useMemo(
     () => computeMetrics({ sessions, projects, clients, invoices, activities, settings, now: refDate, today, period }),
@@ -39,8 +42,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const canPageBack = period !== "All";
 
   const value = useMemo(
-    () => ({ period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward }),
-    [period, metrics, pageDate, goToToday, canPageBack, canPageForward],
+    () => ({ period, setPeriod, metrics, pageDate, goToToday, refDate, goToDate, canPageBack, canPageForward }),
+    [period, metrics, pageDate, goToToday, refDate, goToDate, canPageBack, canPageForward],
   );
   return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>;
 }

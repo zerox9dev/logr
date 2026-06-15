@@ -10,6 +10,7 @@ import { BillableHours } from "@/components/dashboard/widgets/billable-hours";
 import { DailySummary } from "@/components/dashboard/widgets/daily-summary";
 import { ActivityHeatmap } from "@/components/dashboard/widgets/activity-heatmap";
 import { Goals } from "@/components/dashboard/widgets/goals";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 /** The single screen. Everything the product does lives here as panels,
  *  modals, dropdowns, and view-modes — no routing between features.
@@ -18,7 +19,7 @@ import { Goals } from "@/components/dashboard/widgets/goals";
  *  Left  (920px): Tracking → Timeline → [Projects&tasks | Billable hours].
  *  Right (496px): Daily Summary → Activity → Goals. Six widgets total. */
 export function DashboardScreen() {
-  const { loading, loadError, reload } = useAppData();
+  const { loading, loadError, reload, sessions, projects, clients } = useAppData();
 
   if (loading) {
     return (
@@ -40,6 +41,9 @@ export function DashboardScreen() {
     );
   }
 
+  const isEmpty =
+    sessions.length === 0 && projects.length === 0 && clients.length === 0;
+
   return (
     <DashboardProvider>
     <div className="min-h-screen bg-page">
@@ -49,6 +53,9 @@ export function DashboardScreen() {
       <div className="mx-auto max-w-[1440px] pb-10">
         <ContextHeader />
 
+        {isEmpty ? (
+          <EmptyState />
+        ) : (
         <main className="grid grid-cols-1 gap-2 px-2 lg:grid-cols-[920fr_496fr]">
           {/* Left column */}
           <div className="flex flex-col gap-2">
@@ -67,6 +74,7 @@ export function DashboardScreen() {
             <Goals />
           </div>
         </main>
+        )}
       </div>
     </div>
     </DashboardProvider>

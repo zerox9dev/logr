@@ -202,14 +202,14 @@ export function TrackingCard() {
   };
 
   return (
-    <div className="flex items-center justify-between border border-line bg-card px-[28px] py-[22px]">
+    <div className="flex flex-col gap-5 border border-line bg-card px-[28px] py-[22px] lg:flex-row lg:items-center lg:justify-between lg:gap-0">
       {/* Left: TRACKING label + project › task */}
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center gap-2">
           <span className={`size-[9px] ${timerRunning ? "bg-money" : "bg-track"}`} />
           <span className="text-sm font-medium tracking-[1.4px] text-muted">TRACKING</span>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <ProjectPicker
             onChange={setProjectId}
             projects={projects}
@@ -231,10 +231,10 @@ export function TrackingCard() {
       </div>
 
       {/* Center: live timer */}
-      <span className="text-hero font-bold tracking-[2px] text-heading tnum">{fmtClock(timerSeconds)}</span>
+      <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
 
       {/* Right: rate + earned, Start/Stop + Manual */}
-      <div className="flex flex-col items-end gap-3">
+      <div className="flex flex-col items-start gap-3 lg:items-end">
         <div className="flex items-center gap-2">
           <span className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum">${rate}/hr</span>
           <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} earned</span>

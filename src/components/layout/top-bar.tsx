@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
+import { CommandPalette } from "@/components/layout/command-palette";
 import { useAuth } from "@/lib/auth-context";
 import { useAppData } from "@/lib/data-context";
 
@@ -15,12 +17,25 @@ function initials(name: string): string {
 export function TopBar() {
   const { user, signOut } = useAuth();
   const { settings } = useAppData();
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const label = settings?.full_name || user?.email || "";
   const email = user?.email ?? "";
 
+  // Global ⌘K / Ctrl-K opens the command palette.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-35">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-4 sm:px-8 lg:px-35">
       {/* Left: logo + wordmark */}
       <div className="flex items-center gap-2.5">
         <div className="relative size-6 bg-black">
@@ -35,14 +50,15 @@ export function TopBar() {
         <Button
           variant="unstyled"
           size="unstyled"
-          disabled
-          title="Search — coming soon"
-          aria-label="Search (coming soon)"
-          className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary disabled:opacity-60 disabled:cursor-not-allowed"
+          aria-label="Search"
+          onClick={() => setPaletteOpen(true)}
+          className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash"
         >
-          <span className="text-md-minus">Search</span>
+          <span className="hidden text-md-minus sm:inline">Search</span>
           <span className="text-sm font-medium tnum">⌘K</span>
         </Button>
+
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
         <NewMenu />
 
