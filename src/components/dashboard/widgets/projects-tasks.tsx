@@ -6,18 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
 
-function Bar({ w }: { w: number }) {
-  return (
-    <div className="h-[5px] w-[95px] bg-track">
-      <div className="h-[5px] bg-dark-1" style={{ width: w }} />
-    </div>
-  );
-}
-
 function ProjectRow({
-  pct, name, time, active, fill, open, hasTasks, onToggle,
+  pct, name, time, active, open, hasTasks, onToggle,
 }: {
-  pct: string; name: string; time: string; active?: boolean; fill: number;
+  pct: string; name: string; time: string; active?: boolean;
   open: boolean; hasTasks: boolean; onToggle: () => void;
 }) {
   return (
@@ -38,8 +30,7 @@ function ProjectRow({
         )}
       </Button>
       <div className="h-[5px] min-w-px flex-1" />
-      <Bar w={fill} />
-      <span className="w-[96px] text-right text-base font-semibold text-ink tnum">{time}</span>
+      <span className="line-clamp-1 w-[96px] text-right text-base font-semibold text-ink tnum">{time}</span>
     </div>
   );
 }
@@ -93,7 +84,6 @@ export function ProjectsTasks() {
               name={p.name}
               time={p.timeLabel}
               active={i === 0}
-              fill={p.fillPx}
               open={open}
               hasTasks={p.tasks.length > 0}
               onToggle={() => toggle(p.id)}

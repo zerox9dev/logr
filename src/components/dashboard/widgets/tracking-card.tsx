@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/lib/data-context";
 import { fmtClock, fmtMoney } from "@/lib/dashboard-metrics";
-import type { Project, SessionInsert } from "@/types/database";
+import type { BillingType, Project, SessionInsert } from "@/types/database";
 
 /** Build a SessionInsert from a project + task + timing, applying the
  *  project's rate/billing (falling back to the user's defaults). */
@@ -138,8 +138,90 @@ function ManualDialog({
   );
 }
 
-/** Tracking card — Figma 1:28. TRACKING label + project chip, 52px timer,
- *  $-chip + earned, Start/Stop + Manual. Left-column card: px-28 py-22. */
+const seg = (active: boolean) =>
+  `px-3 py-1.5 text-md-minus font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
+
+/** Rate editor for the currently-selected project (billing + rate / budget).
+ *  When no project is selected, edits the user's default hourly rate.
+ *  Mounted fresh per open (no reset effect). */
+function RatesForm({ project, onClose }: { project: Project | undefined; onClose: () => void }) {
+  const { settings, updateSettings, updateProject } = useAppData();
+  const { toast } = useToast();
+  const [billing, setBilling] = useState<BillingType>(project?.billing_type ?? "hourly");
+  const [value, setValue] = useState(
+    project
+      ? String((project.billing_type === "fixed" ? project.fixed_budget : project.rate) ?? "")
+      : String(settings?.default_rate ?? ""),
+  );
+  const [saving, setSaving] = useState(false);
+  const fixed = billing === "fixed";
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    try {
+      const num = Number(value) || 0;
+      if (project) {
+        await updateProject(project.id, {
+          billing_type: billing,
+          rate: fixed ? null : num,
+          fixed_budget: fixed ? num : null,
+        });
+      } else {
+        await updateSettings({ default_rate: num });
+      }
+      toast("Rate updated", "success");
+      onClose();
+    } catch {
+      toast("Failed to update rate", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-4">
+      {project ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-md-minus text-muted">Billing</span>
+            <div className="flex w-fit items-start bg-wash p-1">
+              <button type="button" className={seg(!fixed)} onClick={() => setBilling("hourly")}>Hourly</button>
+              <button type="button" className={seg(fixed)} onClick={() => setBilling("fixed")}>Fixed</button>
+            </div>
+          </div>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-md-minus text-muted">{fixed ? "Budget ($)" : "Rate ($/hr)"}</span>
+            <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
+          </label>
+        </>
+      ) : (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-md-minus text-muted">Default rate ($/hr)</span>
+          <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
+          <span className="text-sm text-muted">No project selected — this sets your default hourly rate.</span>
+        </label>
+      )}
+
+      <div className="flex justify-end gap-2.5 pt-2">
+        <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+        <Button type="submit" disabled={saving}>Save</Button>
+      </div>
+    </form>
+  );
+}
+
+function RatesDialog({ open, onClose, project }: { open: boolean; onClose: () => void; project: Project | undefined }) {
+  return (
+    <Dialog open={open} onClose={onClose} title={project ? `Rate · ${project.name}` : "Default rate"}>
+      {open && <RatesForm project={project} onClose={onClose} />}
+    </Dialog>
+  );
+}
+
+/** Tracking card — Figma 1:28. Blinking dot + 52px timer + rate/earned (rate
+ *  chip opens the Rates manager), Start/Stop + Manual, project › task row. */
 export function TrackingCard() {
   const {
     sessions, projects, settings, getProjectById, addSession,
@@ -153,6 +235,7 @@ export function TrackingCard() {
   const recent = sessions[0];
   const [projectId, setProjectId] = useState<string | null>(recent?.project_id ?? null);
   const [manualOpen, setManualOpen] = useState(false);
+  const [ratesOpen, setRatesOpen] = useState(false);
 
   const project = getProjectById(projectId);
   const projectName = project?.name ?? "Untracked";
@@ -214,7 +297,14 @@ export function TrackingCard() {
             <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum">${rate}/hr</span>
+            <button
+              type="button"
+              onClick={() => setRatesOpen(true)}
+              aria-label="Edit rates"
+              className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
+            >
+              ${rate}/hr
+            </button>
             <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} earned</span>
           </div>
         </div>
@@ -267,6 +357,8 @@ export function TrackingCard() {
         defaultProjectId={projectId}
         onSave={saveManual}
       />
+
+      <RatesDialog open={ratesOpen} onClose={() => setRatesOpen(false)} project={project} />
     </div>
   );
 }
