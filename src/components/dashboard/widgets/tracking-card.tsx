@@ -320,7 +320,9 @@ export function TrackingCard() {
             variant="unstyled"
             size="unstyled"
             onClick={timerRunning ? stop : start}
-            className="bg-heading px-[30px] py-[11px] text-base font-semibold text-card"
+            className={`px-[30px] py-[11px] text-base font-semibold text-card transition-colors ${
+              timerRunning ? "bg-red-600 hover:bg-red-700" : "bg-money hover:opacity-90"
+            }`}
           >
             {timerRunning ? t("track.stop") : t("track.start")}
           </Button>

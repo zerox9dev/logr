@@ -3,8 +3,15 @@
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { useT } from "@/lib/i18n";
 
+const GOAL_LABEL_KEYS: Record<string, string> = {
+  Day: "goals.goalToday",
+  Week: "goals.weeklyGoal",
+  Month: "goals.goalMonth",
+  All: "goals.goalAll",
+};
+
 export function Goals() {
-  const { metrics } = useDashboard();
+  const { metrics, period } = useDashboard();
   const t = useT();
   const g = metrics.goals;
 
@@ -14,7 +21,7 @@ export function Goals() {
 
       <div className="flex w-full flex-col gap-2">
         <div className="flex w-full items-center justify-between">
-          <span className="text-sm text-tertiary">{t("goals.weeklyGoal")}</span>
+          <span className="text-sm text-tertiary">{t(GOAL_LABEL_KEYS[period] ?? "goals.weeklyGoal")}</span>
           <span className="text-md-minus font-semibold text-ink tnum">{g.weeklyPct}%</span>
         </div>
         <div className="h-2 w-full bg-line-2">

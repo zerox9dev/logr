@@ -307,7 +307,7 @@ function projectsView(sessions: Session[], projects: Project[]): ProjectsView {
   return { rows, empty: false };
 }
 
-function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date, tr: TR): BillableView {
+function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date, tr: TR, period: Period): BillableView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const billable = sessions.filter(isBillable);
   const nonBillable = sessions.filter((s) => !isBillable(s));
@@ -348,10 +348,10 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
     });
   }
 
-  // Invoiced this week (always weekly, regardless of period toggle).
-  const week = rangeFor("Week", now);
+  // Invoiced within the active period (matches the rest of the widget).
+  const range = rangeFor(period, now);
   const invoiced = sumBy(
-    invoices.filter((i) => i.status !== "draft" && inRange(i.created_at, week)),
+    invoices.filter((i) => i.status !== "draft" && inRange(i.created_at, range)),
     (i) => i.total,
   );
 
@@ -456,12 +456,17 @@ function heatmapView(sessions: Session[], now: Date, tr: TR, locale: string): He
   };
 }
 
-function goalsView(sessions: Session[], now: Date, tr: TR): GoalsView {
+function goalsView(sessions: Session[], now: Date, tr: TR, period: Period): GoalsView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
-  const week = rangeFor("Week", now);
-  const weekSec = sumBy(sessions.filter((s) => inRange(s.started_at, week)), (s) => s.duration_seconds);
-  const targetSec = 40 * 3600;
-  const weeklyPct = Math.min(100, Math.round((weekSec / targetSec) * 100));
+  // Goal scales with the active period; streaks below stay all-time.
+  const range = rangeFor(period, now);
+  const scoped = sessions.filter((s) => inRange(s.started_at, range));
+  const scopedSec = sumBy(scoped, (s) => s.duration_seconds);
+  const trackedDays = new Set(scoped.map((s) => dayKey(new Date(s.started_at)))).size;
+  const targetHours =
+    period === "Day" ? 8 : period === "Week" ? 40 : period === "Month" ? 160 : Math.max(8, trackedDays * 8);
+  const targetSec = targetHours * 3600;
+  const weeklyPct = Math.min(100, Math.round((scopedSec / targetSec) * 100));
 
   // Streaks from the set of days that have at least one session.
   const days = new Set(sessions.map((s) => dayKey(new Date(s.started_at))));
@@ -486,7 +491,7 @@ function goalsView(sessions: Session[], now: Date, tr: TR): GoalsView {
 
   return {
     weeklyPct,
-    weeklyLabel: `${fmtDuration(weekSec, units)} ${tr("metric.of")} 40 ${tr("unit.hr")}`,
+    weeklyLabel: `${fmtDuration(scopedSec, units)} ${tr("metric.of")} ${targetHours} ${tr("unit.hr")}`,
     currentStreak: current,
     longestStreak: longest,
   };
@@ -581,10 +586,10 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
       earnedLabel: fmtMoney(0),
     },
     projects: projectsView(scoped, projects),
-    billable: billableView(scoped, clients, invoices, now, tr),
+    billable: billableView(scoped, clients, invoices, now, tr, period),
     daily: dailyView(scoped, scopedActs, period, tr),
     heatmap: heatmapView(sessions, now, tr, locale),
-    goals: goalsView(sessions, now, tr),
+    goals: goalsView(sessions, now, tr, period),
     timeline: timelineView(scoped, now, period, today),
   };
 }
