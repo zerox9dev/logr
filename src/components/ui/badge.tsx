@@ -1,19 +1,28 @@
-import s from "./badge.module.css";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "secondary" | "destructive" | "outline";
 }
 
 const variantMap: Record<string, string> = {
-  default: s.default,
-  secondary: s.secondary,
-  destructive: s.destructive,
-  outline: s.outline,
+  default: "bg-ink text-card",
+  secondary: "bg-wash text-tertiary",
+  destructive: "bg-red-50 text-red-700",
+  outline: "border border-line text-ink",
 };
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
-  const cls = [s.badge, variantMap[variant], className].filter(Boolean).join(" ");
-  return <div className={cls} {...props} />;
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-1 px-2 py-0.5 text-sm font-medium",
+        variantMap[variant],
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export { Badge };

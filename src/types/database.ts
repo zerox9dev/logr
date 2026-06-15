@@ -4,7 +4,6 @@ export type BillingType = "hourly" | "fixed";
 export type PaymentStatus = "unpaid" | "paid";
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
 export type ProjectStatus = "active" | "paused" | "completed" | "cancelled";
-export type FunnelType = "sales" | "onboarding" | "delivery" | "reactivation" | "job_hunting";
 export type ActivityType = "call" | "email" | "meeting" | "note" | "payment";
 
 // ── Row types (match DB columns 1:1) ──
@@ -103,45 +102,10 @@ export interface ShareLink {
   created_at: string;
 }
 
-export interface Funnel {
-  id: string;
-  user_id: string;
-  name: string;
-  type: FunnelType;
-  created_at: string;
-}
-
-export interface FunnelStage {
-  id: string;
-  funnel_id: string;
-  title: string;
-  position: number;
-  created_at: string;
-}
-
-export interface Lead {
-  id: string;
-  user_id: string;
-  funnel_id: string;
-  stage_id: string;
-  client_id: string | null;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  company: string | null;
-  value: number | null;
-  currency: string | null;
-  source: string | null;
-  tags: string[];
-  notes: string | null;
-  created_at: string;
-}
-
 export interface Activity {
   id: string;
   user_id: string;
   client_id: string | null;
-  lead_id: string | null;
   type: ActivityType;
   description: string;
   created_at: string;
@@ -166,15 +130,6 @@ export type InvoiceUpdate = Partial<Omit<Invoice, "id" | "user_id" | "created_at
 
 export type InvoiceItemInsert = Omit<InvoiceItem, "id">;
 export type InvoiceItemUpdate = Partial<Omit<InvoiceItem, "id" | "invoice_id">>;
-
-export type FunnelInsert = Omit<Funnel, "id" | "created_at">;
-export type FunnelUpdate = Partial<Omit<Funnel, "id" | "user_id" | "created_at">>;
-
-export type FunnelStageInsert = Omit<FunnelStage, "id" | "created_at">;
-export type FunnelStageUpdate = Partial<Omit<FunnelStage, "id" | "funnel_id" | "created_at">>;
-
-export type LeadInsert = Omit<Lead, "id" | "created_at"> & { tags?: string[] };
-export type LeadUpdate = Partial<Omit<Lead, "id" | "user_id" | "created_at">>;
 
 export type ActivityInsert = Omit<Activity, "id" | "created_at">;
 

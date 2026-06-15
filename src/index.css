@@ -1,167 +1,100 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ─────────────────────────────────────────────────────────────
+   Theme — tokens pulled 1:1 from Figma Dev Mode
+   (file hDwAKcLrZK6CZRpXQxxHgw). Radius 0 everywhere, monochrome,
+   money = green, active project = purple.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Text */
+  --color-ink: #18181b;        /* text/primary — data values */
+  --color-heading: #141414;    /* text/base — headings */
+  --color-muted: #8a8a8e;      /* text/muted — labels, ••• */
+  --color-tertiary: #71717a;   /* text/tertiary — percentages */
+  --color-dark-1: #3f3f42;     /* surface/dark/1 — progress fill, donut focus */
+  --color-dark-2: #4a4a4e;     /* surface/dark/2 — secondary swatch */
+  --color-dark-3: #5a5a5e;     /* surface/dark/3 — inactive tab text */
+  --color-gray-400: #a1a1aa;
+  --color-gray-300: #d4d4d8;
+
+  /* Surfaces / borders */
+  --color-card: #ffffff;       /* background/card */
+  --color-page: #f4f4f5;       /* background/page */
+  --color-wash: #f2f2f3;       /* background/tertiary — inactive chip */
+  --color-icon-tile: #f4f4f5;  /* summary icon tile */
+  --color-line: #ececec;       /* border/subtle — left-column cards + dividers */
+  --color-line-2: #e4e4e7;     /* border/light — right-column cards + dividers */
+  --color-track: #e7e7e9;      /* border/surface — progress track */
+  --color-grid: #f0f0f1;       /* background/secondary — timeline hour lines */
+  --color-timeline: #0b0b0b;   /* background/dark — timeline activity blocks */
+  --color-timeline-track: #efeff0; /* timeline category strip bg */
+
+  /* Accents */
+  --color-money: #16a34a;      /* brand/primary — $ amounts */
+  --color-brand: #2f7a5b;      /* brand/dark — green chip text, billable strip */
+  --color-brand-soft: #e3f0ea; /* brand/light — money chip bg */
+  --color-brand-faint: #f3f8f5;/* brand/faint — Invoiced footer bg */
+  --color-purple-soft: #ede6fb;/* active-project chip bg */
+  --color-error-soft: #e98e8e; /* status/error-light — timeline non-billable seg */
+  --color-placeholder: #a1a1aa;/* text/placeholder — timeline gray seg */
+
+  /* Heatmap — grayscale 5 levels */
+  --color-hm-0: #f4f4f5;
+  --color-hm-1: #d4d4d8;
+  --color-hm-2: #a1a1aa;
+  --color-hm-3: #52525b;
+  --color-hm-4: #18181b;
+
+  /* Font sizes — exact Figma scale */
+  --text-xs: 10px;
+  --text-sm-minus: 11px;
+  --text-sm: 12px;
+  --text-md-minus: 13px;
+  --text-md: 14px;
+  --text-base: 15px;
+  --text-lg: 16px;
+  --text-xl: 17px;             /* xl- — Invoiced amount */
+  --text-widget: 18px;         /* widget titles */
+  --text-summary: 20px;        /* right-column card titles */
+  --text-3xl: 22px;
+  --text-4xl: 24px;            /* billable hours numbers */
+  --text-5xl: 26px;
+  --text-hero: 52px;
+
+  /* Radius — square everywhere */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-full: 0px;
+
+  /* Slide-in for toasts */
+  --animate-slide-in-right: slide-in-right 0.2s ease-out;
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
 }
 
-:root {
-  --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-
-  /* Core colors */
-  --black: #1a1a1a;
-  --white: #ffffff;
-
-  /* Gray scale — cool grays (no warm/beige) */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-
-  /* Semantic */
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --primary: #1a1a1a;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #1a1a1a;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #1a1a1a;
-  --destructive: #dc4a3f;
-  --destructive-foreground: #ffffff;
-  --border: #f0f0f0;
-  --input: #e5e7eb;
-  --ring: #1a1a1a;
-
-  /* Sidebar */
-  --sidebar-background: #ffffff;
-  --sidebar-foreground: #6b7280;
-  --sidebar-primary: #1a1a1a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f3f4f6;
-  --sidebar-accent-foreground: #1a1a1a;
-
-  /* Status colors */
-  --emerald-50: #ecfdf5;
-  --emerald-100: #d1fae5;
-  --emerald-200: #a7f3d0;
-  --emerald-300: #6ee7b7;
-  --emerald-400: #34d399;
-  --emerald-500: #10b981;
-  --emerald-600: #059669;
-  --emerald-700: #047857;
-
-  --red-50: #fef2f2;
-  --red-200: #fecaca;
-  --red-500: #ef4444;
-  --red-600: #dc2626;
-  --red-700: #b91c1c;
-  --red-800: #991b1b;
-
-  --blue-50: #eff6ff;
-  --blue-200: #bfdbfe;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --blue-800: #1e40af;
-
-  --amber-100: #fef3c7;
-  --amber-400: #fbbf24;
-  --amber-700: #b45309;
-
-  --violet-400: #a78bfa;
-
-  /* Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1rem;
+/* Base layer — Tailwind's official place for global element defaults. */
+@layer base {
+  *, *::before, *::after {
+    border-radius: 0 !important;
+    border-color: var(--color-line);
+  }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-page);
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
-body {
-  font-family: var(--font);
-  color: var(--foreground);
-  background: var(--background);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-}
-
-/* Global utility: border color defaults */
-*, *::before, *::after {
-  border-color: var(--border);
-}
-
-/* Animations */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes slideInFromRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-slide-in-right {
-  animation: slideInFromRight 0.2s ease-out;
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gray-300);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-400);
-}
-
-/* Line clamp utility */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* Tabular figures for numeric/data values. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
 }

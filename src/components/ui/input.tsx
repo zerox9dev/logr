@@ -1,11 +1,18 @@
 import * as React from "react";
-import styles from "./input.module.css";
+import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, type, ...props }, ref) => {
-    const cls = [styles.input, className].filter(Boolean).join(" ");
-    return <input type={type} className={cls} ref={ref} {...props} />;
-  }
+  ({ className, type, ...props }, ref) => (
+    <input
+      ref={ref}
+      type={type}
+      className={cn(
+        "h-9 w-full border border-line bg-card px-3 text-md text-ink placeholder:text-muted transition-colors focus-visible:border-ink focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    />
+  ),
 );
 Input.displayName = "Input";
 

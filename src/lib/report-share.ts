@@ -249,12 +249,20 @@ export function decodeSharedReport(value: string): SharedReportPayload | null {
   }
 }
 
+function escapeCSVField(value: string): string {
+  // Guard against CSV/formula injection: prefix a leading apostrophe when the
+  // value starts with a character that spreadsheet apps (Excel/Sheets) may
+  // interpret as a formula or command.
+  const sanitized = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  return `"${sanitized.replace(/"/g, '""')}"`;
+}
+
 export function generateCSV(report: SharedReportPayload): string {
   const headers = ["Date", "Description", "Project", "Duration (sec)", "Duration (h)", "Rate", "Amount", "Status"];
   const rows = report.sessions.map((s) => [
     s.startedAt.slice(0, 10),
-    `"${s.name.replace(/"/g, '""')}"`,
-    `"${s.projectName.replace(/"/g, '""')}"`,
+    escapeCSVField(s.name),
+    escapeCSVField(s.projectName),
     s.durationSeconds,
     (s.durationSeconds / 3600).toFixed(2),
     s.rate,

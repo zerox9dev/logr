@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "./auth-context";
 import {
   settingsApi, clientsApi, projectsApi, sessionsApi,
-  invoicesApi, invoiceItemsApi, funnelsApi, funnelStagesApi, leadsApi, activitiesApi,
+  invoicesApi, invoiceItemsApi, activitiesApi,
 } from "./api";
 import type {
   UserSettings, Client, Project, Session, Invoice, InvoiceItem,
-  Funnel, FunnelStage, Lead, Activity,
+  Activity,
   ClientInsert, ClientUpdate, ProjectInsert, ProjectUpdate,
   SessionInsert, SessionUpdate, InvoiceInsert, InvoiceUpdate,
-  InvoiceItemInsert, FunnelInsert, FunnelStageInsert,
-  LeadInsert, LeadUpdate, ActivityInsert, UserSettingsUpdate,
+  InvoiceItemInsert, ActivityInsert, UserSettingsUpdate,
 } from "@/types/database";
 
 export function useData() {
@@ -23,9 +22,6 @@ export function useData() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [invoiceItems, setInvoiceItems] = useState<Map<string, InvoiceItem[]>>(new Map());
-  const [funnels, setFunnels] = useState<Funnel[]>([]);
-  const [funnelStages, setFunnelStages] = useState<Map<string, FunnelStage[]>>(new Map());
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,14 +32,12 @@ export function useData() {
 
     async function load() {
       try {
-        const [s, cl, pr, se, inv, fu, le, act] = await Promise.all([
+        const [s, cl, pr, se, inv, act] = await Promise.all([
           settingsApi.get(),
           clientsApi.list(),
           projectsApi.list(),
           sessionsApi.list(),
           invoicesApi.list(),
-          funnelsApi.list(),
-          leadsApi.list(),
           activitiesApi.list(),
         ]);
         if (cancelled) return;
@@ -52,17 +46,7 @@ export function useData() {
         setProjects(pr);
         setSessions(se);
         setInvoices(inv);
-        setFunnels(fu);
-        setLeads(le);
         setActivities(act);
-
-        // Load stages for each funnel
-        const stagesMap = new Map<string, FunnelStage[]>();
-        await Promise.all(fu.map(async (f) => {
-          const stages = await funnelStagesApi.listByFunnel(f.id);
-          stagesMap.set(f.id, stages);
-        }));
-        if (!cancelled) setFunnelStages(stagesMap);
       } catch (err) {
         console.error("Failed to load data:", err);
       } finally {
@@ -179,53 +163,6 @@ export function useData() {
     return items;
   }, [invoiceItems]);
 
-  // ── Funnels ──
-  const addFunnel = useCallback(async (data: { name: string; type: Funnel["type"]; stages: { title: string; position: number }[] }) => {
-    const created = await funnelsApi.create({ user_id: userId, name: data.name, type: data.type });
-    const stages = await funnelStagesApi.createMany(
-      data.stages.map((s) => ({ funnel_id: created.id, ...s }))
-    );
-    setFunnels((prev) => [created, ...prev]);
-    setFunnelStages((prev) => new Map(prev).set(created.id, stages));
-    return { funnel: created, stages };
-  }, [userId]);
-
-  const updateFunnel = useCallback(async (id: string, data: Partial<Pick<Funnel, "name" | "type">>) => {
-    const updated = await funnelsApi.update(id, data);
-    setFunnels((prev) => prev.map((f) => (f.id === id ? updated : f)));
-    return updated;
-  }, []);
-
-  const deleteFunnel = useCallback(async (id: string) => {
-    await funnelsApi.delete(id); // cascade deletes stages + leads restricted
-    setFunnels((prev) => prev.filter((f) => f.id !== id));
-    setFunnelStages((prev) => { const m = new Map(prev); m.delete(id); return m; });
-    setLeads((prev) => prev.filter((l) => l.funnel_id !== id));
-  }, []);
-
-  // ── Leads ──
-  const addLead = useCallback(async (data: Omit<LeadInsert, "user_id">) => {
-    const created = await leadsApi.create({ ...data, user_id: userId });
-    setLeads((prev) => [created, ...prev]);
-    return created;
-  }, [userId]);
-
-  const updateLead = useCallback(async (id: string, data: LeadUpdate) => {
-    const updated = await leadsApi.update(id, data);
-    setLeads((prev) => prev.map((l) => (l.id === id ? updated : l)));
-    return updated;
-  }, []);
-
-  const deleteLead = useCallback(async (id: string) => {
-    await leadsApi.delete(id);
-    setLeads((prev) => prev.filter((l) => l.id !== id));
-  }, []);
-
-  const moveLead = useCallback(async (id: string, stageId: string) => {
-    const updated = await leadsApi.update(id, { stage_id: stageId });
-    setLeads((prev) => prev.map((l) => (l.id === id ? updated : l)));
-  }, []);
-
   // ── Activities ──
   const addActivity = useCallback(async (data: Omit<ActivityInsert, "user_id">) => {
     const created = await activitiesApi.create({ ...data, user_id: userId });
@@ -236,7 +173,6 @@ export function useData() {
   // ── Lookups ──
   const getProjectById = useCallback((id: string | null) => projects.find((p) => p.id === id), [projects]);
   const getClientById = useCallback((id: string | null) => clients.find((c) => c.id === id), [clients]);
-  const getStagesForFunnel = useCallback((funnelId: string) => funnelStages.get(funnelId) || [], [funnelStages]);
 
   // ── Timer (local state, not persisted until save) ──
   const [timerRunning, setTimerRunning] = useState(false);
@@ -253,9 +189,6 @@ export function useData() {
     projects, addProject, updateProject, deleteProject, getProjectById,
     sessions, addSession, updateSession, deleteSession,
     invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems,
-    funnels, addFunnel, updateFunnel, deleteFunnel,
-    getStagesForFunnel,
-    leads, addLead, updateLead, deleteLead, moveLead,
     activities, addActivity,
     timerRunning, setTimerRunning, timerSeconds, setTimerSeconds,
     timerPaused, setTimerPaused, timerStartedAt, setTimerStartedAt,

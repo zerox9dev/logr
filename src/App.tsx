@@ -1,43 +1,29 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LandingPage } from "@/components/landing/landing-page";
-import { AppLayout } from "@/components/layout/app-layout";
-import { LoginPage } from "@/components/auth/login-page";
+import { LoginGate } from "@/components/auth/login-gate";
+import { DashboardScreen } from "@/components/dashboard/dashboard-screen";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { DataProvider } from "@/lib/data-context";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SharedReportPage } from "@/components/reports/shared-report-page";
-import { Timer } from "lucide-react";
-import s from "./App.module.css";
 
 function Loading() {
   return (
-    <div className={s.loading}>
-      <div className={s.loadingInner}>
-        <Timer className={s.loadingIcon} />
-        <span className={s.loadingText}>Loading...</span>
-      </div>
+    <div className="flex h-screen items-center justify-center bg-card">
+      <div className="size-6 animate-spin border-2 border-line border-t-ink" />
     </div>
   );
 }
 
-/** /login — shows login form, redirects to /app if already logged in */
-function LoginRoute() {
+/** Root `/` — single screen. Auth gate, then the one dashboard. */
+function Root() {
   const { user, loading } = useAuth();
   if (loading) return <Loading />;
-  if (user) return <Navigate to="/app" replace />;
-  return <LoginPage />;
-}
-
-/** /app/* — protected, redirects to /login if not authenticated */
-function ProtectedApp() {
-  const { user, loading } = useAuth();
-  if (loading) return <Loading />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <LoginGate />;
   return (
     <DataProvider>
-      <AppLayout />
+      <DashboardScreen />
     </DataProvider>
   );
 }
@@ -50,10 +36,10 @@ function App() {
           <ErrorBoundary>
             <AuthProvider>
               <Routes>
-                <Route path="/" element={<LandingPage />} />
+                {/* Public shared report link — kept (not an app page). */}
                 <Route path="/share/report" element={<SharedReportPage />} />
-                <Route path="/login" element={<LoginRoute />} />
-                <Route path="/app/*" element={<ProtectedApp />} />
+                {/* Everything else is the single dashboard screen. */}
+                <Route path="/" element={<Root />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AuthProvider>

@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { Dialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import s from "./confirm.module.css";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface ConfirmOptions {
   title: string;
@@ -18,6 +17,7 @@ const ConfirmContext = createContext<ConfirmContextType>({
   confirm: () => Promise.resolve(false),
 });
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useConfirm() {
   return useContext(ConfirmContext);
 }
@@ -27,11 +27,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     open: boolean;
     options: ConfirmOptions;
     resolve: ((value: boolean) => void) | null;
-  }>({
-    open: false,
-    options: { title: "", message: "" },
-    resolve: null,
-  });
+  }>({ open: false, options: { title: "", message: "" }, resolve: null });
 
   const confirm = useCallback((options: ConfirmOptions) => {
     return new Promise<boolean>((resolve) => {
@@ -47,20 +43,33 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   return (
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
-      <Dialog open={state.open} onClose={() => handleClose(false)} title={state.options.title}>
-        <div className={s.body}>
-          <p className={s.message}>{state.options.message}</p>
-          <div className={s.actions}>
-            <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-            <Button
-              variant={state.options.destructive ? "destructive" : "default"}
-              onClick={() => handleClose(true)}
-            >
-              {state.options.confirmLabel || "Confirm"}
-            </Button>
-          </div>
-        </div>
-      </Dialog>
+      <AlertDialog.Root open={state.open} onOpenChange={(o) => { if (!o) handleClose(false); }}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/35" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 border border-line bg-card p-6 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)] focus:outline-none">
+            <AlertDialog.Title className="text-base font-semibold text-heading">{state.options.title}</AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-md text-tertiary">{state.options.message}</AlertDialog.Description>
+            <div className="mt-6 flex justify-end gap-2">
+              <AlertDialog.Cancel asChild>
+                <button className="h-9 border border-line bg-card px-4 text-md font-medium text-ink transition-colors hover:bg-wash">
+                  Cancel
+                </button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <button
+                  onClick={() => handleClose(true)}
+                  className={cn(
+                    "h-9 px-4 text-md font-medium text-card transition-colors",
+                    state.options.destructive ? "bg-red-600 hover:bg-red-700" : "bg-black hover:bg-ink",
+                  )}
+                >
+                  {state.options.confirmLabel || "Confirm"}
+                </button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </ConfirmContext.Provider>
   );
 }
