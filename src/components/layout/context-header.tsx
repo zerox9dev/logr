@@ -56,7 +56,9 @@ function DatePicker() {
         <button
           type="button"
           aria-label="Pick a date"
-          className="flex size-9 items-center justify-center border border-line bg-card hover:bg-wash"
+          // Match the segmented tabs' height: tabs = p-1 (4px) + py-2 (8px) ≈ 12px
+          // vertical around 15px text; py-3 here mirrors that.
+          className="flex items-center justify-center border border-line bg-card px-3 py-3 hover:bg-wash"
         >
           <Calendar className="size-4 text-heading" />
         </button>
@@ -129,8 +131,8 @@ function DatePicker() {
 }
 
 /** Contextual header below the top bar. Figma node 1:6.
- *  Left: current date + ‹ › date nav. Right: Today/Week/Month/All tabs
- *  (Today also jumps to the current day) + date-picker. */
+ *  Left: current date + ‹ date-picker › date nav. Right: Today/Week/Month/All
+ *  tabs (Today also jumps to the current day). */
 export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
 
@@ -151,6 +153,8 @@ export function ContextHeader() {
           >
             ‹
           </Button>
+
+          <DatePicker />
 
           <Button
             variant="unstyled"
@@ -182,8 +186,6 @@ export function ContextHeader() {
             ))}
           </Tabs.List>
         </Tabs.Root>
-
-        <DatePicker />
       </div>
     </div>
   );

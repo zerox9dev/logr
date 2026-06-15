@@ -202,43 +202,23 @@ export function TrackingCard() {
   };
 
   return (
-    <div className="flex flex-col gap-5 border border-line bg-card px-[28px] py-[22px] lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-      {/* Left: TRACKING label + project › task */}
-      <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-2">
-          <span className={`size-[9px] ${timerRunning ? "bg-money" : "bg-track"}`} />
-          <span className="text-sm font-medium tracking-[1.4px] text-muted">TRACKING</span>
+    <div className="flex flex-col gap-4 border border-line bg-card p-6">
+      {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col items-start gap-2">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money" : "bg-track"}`}
+            />
+            <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum">${rate}/hr</span>
+            <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} earned</span>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <ProjectPicker
-            onChange={setProjectId}
-            projects={projects}
-            trigger={
-              <Button variant="unstyled" size="unstyled" className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3">
-                <span aria-hidden="true" className="h-3 w-4 shrink-0 bg-black" />
-                <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
-              </Button>
-            }
-          />
-          <span aria-hidden="true" className="text-base text-muted">›</span>
-          <input
-            value={timerDescription}
-            onChange={(e) => setTimerDescription(e.target.value)}
-            placeholder="What are you working on?"
-            className="min-w-[180px] bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted focus:outline-none"
-          />
-        </div>
-      </div>
 
-      {/* Center: live timer */}
-      <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
-
-      {/* Right: rate + earned, Start/Stop + Manual */}
-      <div className="flex flex-col items-start gap-3 lg:items-end">
-        <div className="flex items-center gap-2">
-          <span className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum">${rate}/hr</span>
-          <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} earned</span>
-        </div>
         <div className="flex items-center gap-2.5">
           <Button
             variant="unstyled"
@@ -257,6 +237,27 @@ export function TrackingCard() {
             Manual
           </Button>
         </div>
+      </div>
+
+      {/* Bottom row: project › task */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <ProjectPicker
+          onChange={setProjectId}
+          projects={projects}
+          trigger={
+            <Button variant="unstyled" size="unstyled" className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3">
+              <span aria-hidden="true" className="h-3 w-4 shrink-0 bg-black" />
+              <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
+            </Button>
+          }
+        />
+        <span aria-hidden="true" className="text-base text-muted">›</span>
+        <input
+          value={timerDescription}
+          onChange={(e) => setTimerDescription(e.target.value)}
+          placeholder="What are you working on?"
+          className="min-w-[180px] bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted focus:outline-none"
+        />
       </div>
 
       <ManualDialog
