@@ -8,6 +8,8 @@ import { useDashboard } from "@/components/dashboard/dashboard-context";
 import type { Period } from "@/lib/dashboard-metrics";
 
 const VIEWS: Period[] = ["Day", "Week", "Month", "All"];
+// "Day" period is surfaced as "Today" — selecting it also jumps to the current day.
+const VIEW_LABELS: Record<Period, string> = { Day: "Today", Week: "Week", Month: "Month", All: "All" };
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -128,8 +130,8 @@ function DatePicker() {
 }
 
 /** Contextual header below the top bar. Figma node 1:6.
- *  Left: current date + Tracking ● Active. Right: Day/Week/Month tabs,
- *  Today button, ‹ date-picker › date nav. */
+ *  Left: current date + Tracking ● Active. Right: Today/Week/Month/All tabs
+ *  (Today also jumps to the current day), ‹ date-picker › date nav. */
 export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
   const { timerRunning } = useAppData();
@@ -148,24 +150,22 @@ export function ContextHeader() {
       </div>
 
       <div className="flex items-center gap-3.5">
-        {/* Segmented Day / Week / Month tabs */}
+        {/* Segmented Today / Week / Month / All tabs */}
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
           <Tabs.List className="flex items-start bg-wash p-1">
             {VIEWS.map((v) => (
               <Tabs.Trigger
                 key={v}
                 value={v}
+                // "Today" tab also resets to the current day (even on re-click).
+                onClick={v === "Day" ? goToToday : undefined}
                 className="px-4 py-2 text-base font-medium text-dark-3 data-[state=active]:bg-card data-[state=active]:font-semibold data-[state=active]:text-heading data-[state=active]:shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]"
               >
-                {v}
+                {VIEW_LABELS[v]}
               </Tabs.Trigger>
             ))}
           </Tabs.List>
         </Tabs.Root>
-
-        <Button variant="unstyled" size="unstyled" onClick={goToToday} className="border border-line bg-card px-[22px] py-2.5 text-base font-semibold text-heading hover:bg-wash">
-          Today
-        </Button>
 
         <Button
           variant="unstyled"
