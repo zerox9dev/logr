@@ -306,10 +306,10 @@ export function TrackingCard() {
             <button
               type="button"
               onClick={() => setRatesOpen(true)}
-              aria-label="Edit rates"
+              aria-label={t("rates.editAria")}
               className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
             >
-              ${rate}/hr
+              ${rate}{t("unit.perHr")}
             </button>
             <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
           </div>

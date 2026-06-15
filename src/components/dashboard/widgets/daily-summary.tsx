@@ -60,7 +60,7 @@ export function DailySummary() {
           <span className="text-sm text-tertiary">{t("daily.percentOfWorkDay")}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-widget font-semibold tracking-[-0.18px] text-ink tnum">{d.percentOfDay}%</span>
-            <span className="text-sm text-tertiary">of {d.dayBaseLabel}</span>
+            <span className="text-sm text-tertiary">{t("metric.of")} {d.dayBaseLabel}</span>
           </div>
         </div>
       </div>

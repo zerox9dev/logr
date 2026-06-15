@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, useCallback, type ReactNode } from "react";
 import { useAppData } from "@/lib/data-context";
+import { useT, useLang } from "@/lib/i18n";
 import {
   computeMetrics, shiftDate, isAtCurrentPeriod,
   type DashboardMetrics, type Period,
@@ -21,6 +22,8 @@ const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const { sessions, projects, clients, invoices, activities, settings } = useAppData();
+  const t = useT();
+  const { lang } = useLang();
   const [period, setPeriod] = useState<Period>("Day");
   // `today` is the real current date (pinned); `refDate` is the movable anchor.
   const [today] = useState(() => new Date());
@@ -34,8 +37,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const goToDate = useCallback((d: Date) => setRefDate(d), []);
 
   const metrics = useMemo(
-    () => computeMetrics({ sessions, projects, clients, invoices, activities, settings, now: refDate, today, period }),
-    [sessions, projects, clients, invoices, activities, settings, refDate, today, period],
+    () => computeMetrics({ sessions, projects, clients, invoices, activities, settings, now: refDate, today, period, t, lang }),
+    [sessions, projects, clients, invoices, activities, settings, refDate, today, period, t, lang],
   );
 
   const canPageForward = period !== "All" && !isAtCurrentPeriod(period, refDate, today);

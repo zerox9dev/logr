@@ -72,12 +72,12 @@ export function isAtCurrentPeriod(period: Period, ref: Date, today: Date): boole
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
-/** "3 hr 26 min", "2 hr 06 min", "55 min". */
-export function fmtDuration(seconds: number): string {
+/** "3 hr 26 min", "2 hr 06 min", "55 min". Units default to English. */
+export function fmtDuration(seconds: number, units: { hr: string; min: string } = { hr: "hr", min: "min" }): string {
   const total = Math.max(0, Math.round(seconds / 60));
   const h = Math.floor(total / 60);
   const m = total % 60;
-  return h > 0 ? `${h} hr ${pad2(m)} min` : `${m} min`;
+  return h > 0 ? `${h} ${units.hr} ${pad2(m)} ${units.min}` : `${m} ${units.min}`;
 }
 
 /** "02:47:18" — live timer clock. */
@@ -91,13 +91,39 @@ export function fmtMoney(n: number): string {
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function fmtDateLong(d: Date): string {
-  return d.toLocaleDateString("en-US", {
+export function fmtDateLong(d: Date, locale = "en-US"): string {
+  return d.toLocaleDateString(locale, {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
 }
 
-const PERIOD_WORD: Record<Period, string> = { Day: "Today", Week: "This week", Month: "This month", All: "In total" };
+/** Resolves an i18n key. Provided by the app; defaults to English below. */
+type TR = (key: string) => string;
+
+/** English fallbacks so computeMetrics stays English when no translator is
+ *  passed (keeps the pure formatters and their tests stable). A real `t` from
+ *  the app overrides every one of these. */
+const EN_METRIC: Record<string, string> = {
+  "unit.hr": "hr",
+  "unit.min": "min",
+  "unit.perHr": "/hr",
+  "metric.earned": "earned",
+  "metric.ofTrackedTime": "of tracked time",
+  "metric.noClient": "No client",
+  "metric.internal": "Internal",
+  "metric.leadToday": "Today",
+  "metric.leadWeek": "This week",
+  "metric.leadMonth": "This month",
+  "metric.leadAll": "In total",
+  "metric.noActivity": "No activity",
+  "metric.of": "of",
+  "metric.allTime": "All time",
+  "metric.heatmapTotal": "{h} hours tracked over the last {w} weeks",
+};
+
+const PERIOD_LEAD: Record<Period, string> = {
+  Day: "metric.leadToday", Week: "metric.leadWeek", Month: "metric.leadMonth", All: "metric.leadAll",
+};
 
 // ── Input bundle ──
 
@@ -111,6 +137,8 @@ export interface MetricsInput {
   now: Date;   // reference date (movable via date-nav)
   today: Date; // real current date (anchors the "now" marker)
   period: Period;
+  t?: (key: string) => string; // app translator; omitted → English
+  lang?: string;               // BCP-47 locale for dates/numbers; omitted → en-US
 }
 
 // ── View models ──
@@ -279,7 +307,8 @@ function projectsView(sessions: Session[], projects: Project[]): ProjectsView {
   return { rows, empty: false };
 }
 
-function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date): BillableView {
+function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date, tr: TR): BillableView {
+  const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const billable = sessions.filter(isBillable);
   const nonBillable = sessions.filter((s) => !isBillable(s));
   const billSec = sumBy(billable, (s) => s.duration_seconds);
@@ -300,9 +329,9 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
       const rate = group.find((s) => s.rate)?.rate ?? 0;
       const client = clients.find((c) => c.id === id);
       return {
-        name: client?.name ?? "No client",
-        rateLabel: rate ? `$${rate}/hr` : undefined,
-        timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds)),
+        name: client?.name ?? tr("metric.noClient"),
+        rateLabel: rate ? `$${rate}${tr("unit.perHr")}` : undefined,
+        timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds), units),
         amountLabel: fmtMoney(amount),
         dot: "#2f7a5b",
         internal: false,
@@ -311,8 +340,8 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
 
   if (nonSec > 0) {
     clientRows.push({
-      name: "Internal",
-      timeLabel: fmtDuration(nonSec),
+      name: tr("metric.internal"),
+      timeLabel: fmtDuration(nonSec, units),
       amountLabel: "—",
       dot: "#a1a1aa",
       internal: true,
@@ -327,19 +356,20 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
   );
 
   return {
-    billableTimeLabel: fmtDuration(billSec),
-    billableEarnedLabel: `${fmtMoney(sumBy(billable, earned))} earned`,
-    nonBillableTimeLabel: fmtDuration(nonSec),
+    billableTimeLabel: fmtDuration(billSec, units),
+    billableEarnedLabel: `${fmtMoney(sumBy(billable, earned))} ${tr("metric.earned")}`,
+    nonBillableTimeLabel: fmtDuration(nonSec, units),
     billablePct: billPct,
     nonBillablePct: 100 - billPct,
-    pctLabel: `${billPct}% of tracked time`,
+    pctLabel: `${billPct}% ${tr("metric.ofTrackedTime")}`,
     nonBillablePctLabel: `${100 - billPct}%`,
     clients: clientRows,
     invoicedLabel: fmtMoney(invoiced),
   };
 }
 
-function dailyView(sessions: Session[], activities: Activity[], period: Period): DailyView {
+function dailyView(sessions: Session[], activities: Activity[], period: Period, tr: TR): DailyView {
+  const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const totalSec = sumBy(sessions, (s) => s.duration_seconds);
   // "All" has no fixed window — measure against an 8h day for each tracked day.
   const trackedDays = new Set(sessions.map((s) => dayKey(new Date(s.started_at)))).size;
@@ -361,19 +391,20 @@ function dailyView(sessions: Session[], activities: Activity[], period: Period):
 
   return {
     sentence: {
-      lead: PERIOD_WORD[period],
-      time: fmtDuration(totalSec),
+      lead: tr(PERIOD_LEAD[period]),
+      time: fmtDuration(totalSec, units),
       tasks: String(sessions.length),
       projects: String(projectCount),
     },
-    totalTimeLabel: fmtDuration(totalSec),
+    totalTimeLabel: fmtDuration(totalSec, units),
     percentOfDay,
-    dayBaseLabel: `${baseHours} hr`,
+    dayBaseLabel: `${baseHours} ${tr("unit.hr")}`,
     donuts: { focus, meetings, breaks, other },
   };
 }
 
-function heatmapView(sessions: Session[], now: Date): HeatmapView {
+function heatmapView(sessions: Session[], now: Date, tr: TR, locale: string): HeatmapView {
+  const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const WEEKS = 30;
   const perDay = new Map<string, number>();
   for (const s of sessions) perDay.set(
@@ -400,17 +431,17 @@ function heatmapView(sessions: Session[], now: Date): HeatmapView {
 
   for (let w = 0; w < WEEKS; w++) {
     const colStart = addDays(firstMonday, w * 7);
-    const label = colStart.toLocaleDateString("en-US", { month: "short" });
+    const label = colStart.toLocaleDateString(locale, { month: "short" });
     if (label !== lastMonthLabel) { months.push(label); lastMonthLabel = label; }
     const days: HeatmapDay[] = [];
     for (let d = 0; d < 7; d++) {
       const cellDate = addDays(colStart, d);
       const sec = perDay.get(dayKey(cellDate)) ?? 0;
       totalSec += sec;
-      const dateLabel = cellDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const dateLabel = cellDate.toLocaleDateString(locale, { month: "short", day: "numeric" });
       days.push({
         level: lvl(sec),
-        title: `${dateLabel} · ${sec > 0 ? fmtDuration(sec) : "No activity"}`,
+        title: `${dateLabel} · ${sec > 0 ? fmtDuration(sec, units) : tr("metric.noActivity")}`,
       });
     }
     weeks.push(days);
@@ -419,11 +450,14 @@ function heatmapView(sessions: Session[], now: Date): HeatmapView {
   return {
     weeks,
     months,
-    totalHoursLabel: `${Math.round(totalSec / 3600).toLocaleString("en-US")} hours tracked over the last ${WEEKS} weeks`,
+    totalHoursLabel: tr("metric.heatmapTotal")
+      .replace("{h}", Math.round(totalSec / 3600).toLocaleString(locale))
+      .replace("{w}", String(WEEKS)),
   };
 }
 
-function goalsView(sessions: Session[], now: Date): GoalsView {
+function goalsView(sessions: Session[], now: Date, tr: TR): GoalsView {
+  const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const week = rangeFor("Week", now);
   const weekSec = sumBy(sessions.filter((s) => inRange(s.started_at, week)), (s) => s.duration_seconds);
   const targetSec = 40 * 3600;
@@ -452,7 +486,7 @@ function goalsView(sessions: Session[], now: Date): GoalsView {
 
   return {
     weeklyPct,
-    weeklyLabel: `${fmtDuration(weekSec)} of 40 hr`,
+    weeklyLabel: `${fmtDuration(weekSec, units)} ${tr("metric.of")} 40 ${tr("unit.hr")}`,
     currentStreak: current,
     longestStreak: longest,
   };
@@ -517,20 +551,22 @@ function timelineView(scoped: Session[], now: Date, period: Period, today: Date)
 /** Header date label, adapted to the active period:
  *  Day → "Tuesday, June 16, 2026", Week → "Jun 16 – Jun 22, 2026",
  *  Month → "June 2026", All → "All time". */
-function headerLabel(period: Period, now: Date): string {
-  if (period === "All") return "All time";
-  if (period === "Month") return now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+function headerLabel(period: Period, now: Date, tr: TR, locale: string): string {
+  if (period === "All") return tr("metric.allTime");
+  if (period === "Month") return now.toLocaleDateString(locale, { month: "long", year: "numeric" });
   if (period === "Week") {
     const r = rangeFor("Week", now);
     const end = addDays(r.end, -1);
     const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
-    return `${r.start.toLocaleDateString("en-US", opts)} – ${end.toLocaleDateString("en-US", opts)}, ${end.getFullYear()}`;
+    return `${r.start.toLocaleDateString(locale, opts)} – ${end.toLocaleDateString(locale, opts)}, ${end.getFullYear()}`;
   }
-  return fmtDateLong(now);
+  return fmtDateLong(now, locale);
 }
 
 export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
+  const tr: TR = (k) => input.t?.(k) ?? EN_METRIC[k] ?? k;
+  const locale = input.lang ?? "en-US";
   const r = rangeFor(period, now);
   const scoped = sessions.filter((s) => inRange(s.started_at, r));
   const scopedActs = activities.filter((a) => inRange(a.created_at, r));
@@ -538,17 +574,17 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const rate = settings?.default_rate ?? 0;
 
   return {
-    header: { dateLabel: headerLabel(period, now) },
+    header: { dateLabel: headerLabel(period, now, tr, locale) },
     tracking: {
       rate,
-      rateLabel: `$${rate}/hr`,
+      rateLabel: `$${rate}${tr("unit.perHr")}`,
       earnedLabel: fmtMoney(0),
     },
     projects: projectsView(scoped, projects),
-    billable: billableView(scoped, clients, invoices, now),
-    daily: dailyView(scoped, scopedActs, period),
-    heatmap: heatmapView(sessions, now),
-    goals: goalsView(sessions, now),
+    billable: billableView(scoped, clients, invoices, now, tr),
+    daily: dailyView(scoped, scopedActs, period, tr),
+    heatmap: heatmapView(sessions, now, tr, locale),
+    goals: goalsView(sessions, now, tr),
     timeline: timelineView(scoped, now, period, today),
   };
 }

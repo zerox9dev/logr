@@ -5,7 +5,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { useAppData } from "@/lib/data-context";
-import { useT } from "@/lib/i18n";
+import { useT, useLang } from "@/lib/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/dashboard-metrics";
 import type { Session } from "@/types/database";
 
@@ -85,6 +85,7 @@ export function SessionsDialog({
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const t = useT();
+  const { lang } = useLang();
   const [editing, setEditing] = useState<null | "new" | Session>(null);
 
   const rows = sessions.filter((s) => {
@@ -215,13 +216,13 @@ export function SessionsDialog({
           return (
             <div key={s.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
               <span className="w-[88px] shrink-0 text-md-minus text-muted tnum">
-                {new Date(s.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-md font-medium text-heading">{s.name}</span>
                 <span className="truncate text-md-minus text-muted">{project?.name ?? t("sessions.noProject")}</span>
               </div>
-              <span className="w-[88px] shrink-0 text-right text-md text-tertiary tnum">{fmtDuration(s.duration_seconds)}</span>
+              <span className="w-[88px] shrink-0 text-right text-md text-tertiary tnum">{fmtDuration(s.duration_seconds, { hr: t("unit.hr"), min: t("unit.min") })}</span>
               <span className={`w-[72px] shrink-0 text-right text-md font-semibold tnum ${amount > 0 ? "text-money" : "text-muted"}`}>
                 {amount > 0 ? fmtMoney(amount) : "—"}
               </span>
