@@ -192,7 +192,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
         const clientName = (row["Client"] ?? "").trim();
         const projectName = (row["Project"] ?? "").trim();
         const billable = (row["Billable"] ?? "").trim() === "Yes";
-        const tags = (row["Tags"] ?? "").trim() || null;
+        const tagArr = (row["Tags"] ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
         const rate = billable ? (defaultRate ?? 0) : 0;
 
@@ -246,7 +246,8 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
           client_id: clientId,
           project_id: projectId,
           name,
-          notes: tags,
+          notes: null,
+          tags: tagArr,
           started_at: startedAt,
           duration_seconds: durationSeconds,
           rate,

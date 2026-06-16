@@ -59,6 +59,7 @@ export interface Session {
   project_id: string | null;
   name: string;
   notes: string | null;
+  tags: string[];
   started_at: string;
   duration_seconds: number;
   rate: number;

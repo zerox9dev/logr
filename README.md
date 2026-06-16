@@ -4,6 +4,8 @@ Time tracking & invoicing for freelancers — a single-screen dashboard built wi
 
 ![Logr](https://img.shields.io/badge/status-beta-orange) ![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
+![Logr dashboard](docs/dashboard.png)
+
 ## Features
 
 - ⏱️ **Timer** — Start/stop tracking with one click. Manual entries supported, with pause/resume.

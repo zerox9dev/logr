@@ -23,6 +23,7 @@ function buildSession(
     project_id: project?.id ?? null,
     name: name.trim() || "Untitled",
     notes: null,
+    tags: [],
     started_at: new Date(startedAtMs).toISOString(),
     duration_seconds: durationSeconds,
     rate: project?.rate ?? defaultRate,

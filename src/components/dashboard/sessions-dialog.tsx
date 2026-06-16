@@ -118,6 +118,7 @@ export function SessionsDialog({
       project_id: project?.id ?? null,
       name: name.trim() || "Untitled",
       notes: null,
+      tags: [],
       started_at: new Date(`${dateDay}T${startTime}:00`).toISOString(),
       duration_seconds: seconds,
       rate: project?.rate ?? settings?.default_rate ?? 0,
@@ -255,7 +256,12 @@ export function SessionsDialog({
                 {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-md font-medium text-heading">{s.name}</span>
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <span className="truncate text-md font-medium text-heading">{s.name}</span>
+                  {(s.tags ?? []).map((tag) => (
+                    <span key={tag} className="shrink-0 border border-line px-1.5 py-px text-xs text-muted">{tag}</span>
+                  ))}
+                </div>
                 <span className="truncate text-md-minus text-muted">{project?.name ?? t("sessions.noProject")}</span>
               </div>
               <span className="w-[88px] shrink-0 text-right text-md text-tertiary tnum">{fmtDuration(s.duration_seconds, { hr: t("unit.hr"), min: t("unit.min") })}</span>

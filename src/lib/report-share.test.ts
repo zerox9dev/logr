@@ -21,6 +21,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     project_id: null,
     name: "Work",
     notes: null,
+    tags: [],
     started_at: "2026-06-10T10:00:00.000Z",
     duration_seconds: 3600,
     rate: 0,

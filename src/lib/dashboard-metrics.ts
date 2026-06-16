@@ -387,9 +387,11 @@ function dailyView(sessions: Session[], activities: Activity[], period: Period, 
 
   const projectCount = new Set(sessions.map((s) => s.project_id).filter(Boolean)).size;
 
-  // Donuts: Focus = sessions, the rest split by activity type counts.
-  const nFocus = sessions.length;
-  const nMeet = activities.filter((a) => a.type === "meeting" || a.type === "call").length;
+  // Donuts: sessions tagged "Meeting" count as meetings, not focus.
+  const isMeetingSession = (s: Session) => (s.tags ?? []).some((t) => t.toLowerCase() === "meeting");
+  const meetingSessions = sessions.filter(isMeetingSession).length;
+  const nFocus = sessions.length - meetingSessions;
+  const nMeet = meetingSessions + activities.filter((a) => a.type === "meeting" || a.type === "call").length;
   const nOther = activities.filter((a) => a.type === "email" || a.type === "note" || a.type === "payment").length;
   const denom = nFocus + nMeet + nOther || 1;
   const focus = Math.round((nFocus / denom) * 100);
