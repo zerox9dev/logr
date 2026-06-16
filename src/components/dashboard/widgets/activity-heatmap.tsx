@@ -19,34 +19,38 @@ export function ActivityHeatmap() {
         <span className="text-sm text-tertiary tnum">{totalHoursLabel}</span>
       </div>
 
-      {/* Month labels */}
-      <div className="flex w-full justify-between pl-[26px] text-xs text-tertiary">
-        {months.map((m, i) => <span key={`${m}-${i}`}>{m}</span>)}
-      </div>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "320px" }}>
+          {/* Month labels */}
+          <div className="flex w-full justify-between pl-[26px] text-xs text-tertiary">
+            {months.map((m, i) => <span key={`${m}-${i}`}>{m}</span>)}
+          </div>
 
-      {/* Weekday column + week columns */}
-      <div className="flex items-start gap-1.5">
-        <div className="flex flex-col gap-0.5">
-          {WEEKDAYS.map((d, i) => (
-            <div key={i} className="flex h-[9px] w-5 items-center text-[9px] text-tertiary">{d}</div>
-          ))}
-        </div>
-        <div className="flex flex-1 justify-between">
-          {weeks.map((days, w) => (
-            <div key={w} className="flex flex-col gap-0.5">
-              {days.map((day, d) => (
-                <span key={d} title={day.title} className="size-[9px]" style={{ background: LEVELS[day.level] }} />
+          {/* Weekday column + week columns */}
+          <div className="flex items-start gap-1.5">
+            <div className="flex flex-col gap-0.5">
+              {WEEKDAYS.map((d, i) => (
+                <div key={i} className="flex h-[9px] w-5 items-center text-[9px] text-tertiary">{d}</div>
               ))}
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="flex flex-1 justify-between">
+              {weeks.map((days, w) => (
+                <div key={w} className="flex flex-col gap-0.5">
+                  {days.map((day, d) => (
+                    <span key={d} title={day.title} className="size-[9px]" style={{ background: LEVELS[day.level] }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* Legend */}
-      <div className="flex w-full items-center justify-end gap-[5px]">
-        <span className="text-xs text-tertiary">{t("activity.less")}</span>
-        {LEVELS.map((c) => <span key={c} className="size-[9px]" style={{ background: c }} />)}
-        <span className="text-xs text-tertiary">{t("activity.more")}</span>
+          {/* Legend */}
+          <div className="flex w-full items-center justify-end gap-[5px]">
+            <span className="text-xs text-tertiary">{t("activity.less")}</span>
+            {LEVELS.map((c) => <span key={c} className="size-[9px]" style={{ background: c }} />)}
+            <span className="text-xs text-tertiary">{t("activity.more")}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

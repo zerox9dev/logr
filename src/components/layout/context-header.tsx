@@ -150,9 +150,9 @@ export function ContextHeader() {
   const t = useT();
 
   return (
-    <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-4 bg-card px-6 py-6">
+    <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 bg-card px-3 py-4 sm:gap-4 sm:px-6 sm:py-6">
       <div className="flex items-center gap-[18px]">
-        <h1 className="whitespace-nowrap text-3xl font-semibold text-heading tnum lg:text-5xl">
+        <h1 className="text-xl font-semibold text-heading tnum sm:text-3xl lg:text-5xl">
           {metrics.header.dateLabel}
         </h1>
         <div className="flex items-center gap-3.5">
@@ -182,7 +182,7 @@ export function ContextHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3.5">
+      <div className="flex min-w-0 items-center gap-3.5 overflow-x-auto">
         {/* Segmented Today / Week / Month / All tabs */}
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
           <Tabs.List className="flex items-start bg-wash p-1">

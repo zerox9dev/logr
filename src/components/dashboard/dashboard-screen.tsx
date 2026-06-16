@@ -50,7 +50,7 @@ export function DashboardScreen() {
 
   return (
     <DashboardProvider>
-    <div className="min-h-screen bg-page">
+    <div className="min-h-screen overflow-x-hidden bg-page">
       <TopBar />
 
       {/* 1440 frame: white header подложка + widget grid share the same edges */}

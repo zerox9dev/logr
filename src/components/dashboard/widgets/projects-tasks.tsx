@@ -15,14 +15,14 @@ function ProjectRow({
 }) {
   return (
     <div className="flex w-full items-center gap-3.5">
-      <span className="w-[42px] text-base text-tertiary tnum">{pct}</span>
+      <span className="w-[36px] shrink-0 text-base text-tertiary tnum">{pct}</span>
       <Button
         variant="unstyled"
         size="unstyled"
         onClick={onToggle}
         disabled={!hasTasks}
         aria-expanded={hasTasks ? open : undefined}
-        className={`flex max-w-[200px] items-center gap-2 py-1.5 pl-2.5 pr-3 ${active ? "bg-purple-soft" : "bg-wash"}`}
+        className={`flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-2.5 pr-3 ${active ? "bg-purple-soft" : "bg-wash"}`}
       >
         <Folder className={`size-4 shrink-0 ${active ? "text-black" : "text-dark-2"}`} />
         <span className="line-clamp-1 min-w-0 text-base font-semibold text-heading">{name}</span>
@@ -30,8 +30,7 @@ function ProjectRow({
           <ChevronDown className={`size-4 shrink-0 text-dark-2 transition-transform ${open ? "" : "-rotate-90"}`} />
         )}
       </Button>
-      <div className="h-[5px] min-w-px flex-1" />
-      <span className="line-clamp-1 w-[96px] text-right text-base font-semibold text-ink tnum">{time}</span>
+      <span className="line-clamp-1 w-[80px] shrink-0 text-right text-base font-semibold text-ink tnum">{time}</span>
     </div>
   );
 }
@@ -42,7 +41,7 @@ function TaskRow({ name, time, onClick }: { name: string; time: string; onClick:
       variant="unstyled"
       size="unstyled"
       onClick={onClick}
-      className="flex w-full items-center gap-3 pl-[56px] text-left hover:opacity-70"
+      className="flex w-full items-center gap-3 pl-[40px] text-left hover:opacity-70 sm:pl-[56px]"
     >
       <CircleDot className="size-[18px] shrink-0 text-dark-2" />
       <span className="line-clamp-1 min-w-0 flex-1 text-base text-heading">{name}</span>

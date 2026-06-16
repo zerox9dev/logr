@@ -25,7 +25,8 @@ export function Timeline() {
     <div className="flex flex-col gap-[18px] border border-line bg-card px-[28px] pb-[20px] pt-[24px]">
       <span className="text-widget font-semibold text-heading">{t("timeline.title")}</span>
 
-      <div className="relative h-[230px] w-full overflow-hidden">
+      <div className="overflow-x-auto">
+      <div className="relative h-[230px] overflow-hidden" style={{ minWidth: `${W}px` }}>
         {/* Hour gridlines + labels */}
         {HOURS.map((h, i) => {
           const x = 10 + i * 81.034;
@@ -79,6 +80,7 @@ export function Timeline() {
             <span className="text-md font-semibold text-heading tnum">{nowLabel}</span>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

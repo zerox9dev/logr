@@ -65,7 +65,7 @@ export function DailySummary() {
         </div>
       </div>
 
-      <div className="flex w-full items-start justify-between">
+      <div className="flex w-full flex-wrap items-start justify-between gap-y-3">
         <Donut pct={d.donuts.focus} label={t("daily.focus")} ring="var(--color-hm-4)" />
         <Donut pct={d.donuts.meetings} label={t("daily.meetings")} ring="var(--color-hm-3)" />
         <Donut pct={d.donuts.breaks} label={t("daily.breaks")} ring="var(--color-hm-2)" />

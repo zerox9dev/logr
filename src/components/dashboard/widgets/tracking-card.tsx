@@ -293,7 +293,7 @@ export function TrackingCard() {
   return (
     <div className="flex flex-col gap-4 border border-line bg-card p-6">
       {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span
             aria-hidden="true"
@@ -311,7 +311,7 @@ export function TrackingCard() {
           <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="unstyled"
             size="unstyled"
@@ -350,7 +350,7 @@ export function TrackingCard() {
           value={timerDescription}
           onChange={(e) => setTimerDescription(e.target.value)}
           placeholder={t("track.workingPlaceholder")}
-          className="min-w-[180px] bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted focus:outline-none"
+          className="min-w-[120px] flex-1 bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted focus:outline-none"
         />
       </div>
 

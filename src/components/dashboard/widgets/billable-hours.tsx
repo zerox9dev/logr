@@ -12,13 +12,13 @@ function ClientRow({
   return (
     <div className="flex w-full items-center gap-2.5">
       <span className="size-2 shrink-0 rounded-full" style={{ background: dot }} />
-      <span className="line-clamp-1 max-w-[150px] text-base font-medium text-heading">{name}</span>
+      <span className="line-clamp-1 min-w-0 flex-1 text-base font-medium text-heading">{name}</span>
       {rate && (
         <span className="shrink-0 bg-brand-soft px-2 py-0.5 text-sm-minus font-semibold text-money tnum">{rate}</span>
       )}
       <div className="h-[5px] min-w-px flex-1" />
-      <span className="line-clamp-1 w-[90px] text-right text-base text-tertiary tnum">{time}</span>
-      <span className={`line-clamp-1 w-[74px] text-right text-base font-semibold tnum ${internal ? "text-heading" : "text-money"}`}>
+      <span className="line-clamp-1 w-[72px] shrink-0 text-right text-base text-tertiary tnum">{time}</span>
+      <span className={`line-clamp-1 w-[64px] shrink-0 text-right text-base font-semibold tnum ${internal ? "text-heading" : "text-money"}`}>
         {amount}
       </span>
     </div>
