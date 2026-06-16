@@ -152,7 +152,7 @@ export function ContextHeader() {
   return (
     <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 bg-card px-3 py-4 sm:gap-4 sm:px-6 sm:py-6">
       <div className="flex items-center gap-[18px]">
-        <h1 className="text-xl font-semibold text-heading tnum sm:text-3xl lg:text-5xl">
+        <h1 className="text-2xl font-semibold text-heading tnum sm:text-3xl lg:text-4xl">
           {metrics.header.dateLabel}
         </h1>
         <div className="flex items-center gap-3.5">

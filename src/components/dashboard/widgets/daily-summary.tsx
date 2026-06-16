@@ -12,8 +12,8 @@ function Donut({ pct, label, ring }: { pct: number; label: string; ring: string 
   const dash = (pct / 100) * c;
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="relative size-[50px]">
-        <svg viewBox="0 0 50 50" className="size-full -rotate-90">
+      <div className="relative size-[50px]" aria-label={`${label}: ${pct}%`}>
+        <svg viewBox="0 0 50 50" className="size-full -rotate-90" aria-hidden="true">
           <circle cx="25" cy="25" r={r} fill="none" stroke="var(--color-track)" strokeWidth="6" />
           <circle
             cx="25" cy="25" r={r} fill="none" stroke={ring} strokeWidth="6"

@@ -16,9 +16,9 @@ const pct = (v: number) => `${(v / W) * 100}%`;
 const HOURS = ["9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "0:00"];
 
 export function Timeline() {
-  const { metrics } = useDashboard();
+  const { metrics, period } = useDashboard();
   const t = useT();
-  const { mode, blocks, hours, nowLeft, nowLabel, showNow } = metrics.timeline;
+  const { mode, blocks, hours, nowLeft, nowLabel, showNow, outsideRangeCount } = metrics.timeline;
   const nowVisible = showNow && nowLeft >= 10 && nowLeft <= W;
 
   return (
@@ -82,6 +82,13 @@ export function Timeline() {
         )}
       </div>
       </div>
+
+      {/* Outside-range indicator — Day mode only */}
+      {period === "Day" && outsideRangeCount > 0 && (
+        <p className="mt-1 text-md-minus text-muted">
+          {t("timeline.outsideRange").replace("{n}", String(outsideRangeCount))}
+        </p>
+      )}
     </div>
   );
 }

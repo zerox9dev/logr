@@ -1,6 +1,7 @@
 import { Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   children: ReactNode;
@@ -9,6 +10,26 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+}
+
+/** Functional sub-component so we can call useT() inside a class ErrorBoundary. */
+// eslint-disable-next-line react-refresh/only-export-components -- colocated fallback for the class boundary by design
+function ErrorFallback({ message, onReset }: { message: string | null; onReset: () => void }) {
+  const t = useT();
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-card px-4 text-center">
+      <h1 className="text-xl font-semibold text-heading">{t("screen.errorTitle")}</h1>
+      <p className="max-w-md text-md text-tertiary">
+        {message || t("screen.errorBody")}
+      </p>
+      <Button
+        variant="outline"
+        onClick={onReset}
+      >
+        {t("screen.backToDashboard")}
+      </Button>
+    </div>
+  );
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -28,22 +49,13 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-card px-4 text-center">
-          <span className="text-4xl">💥</span>
-          <h1 className="text-xl font-semibold text-heading">Something went wrong</h1>
-          <p className="max-w-md text-md text-tertiary">
-            {this.state.error?.message || "An unexpected error occurred."}
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-              window.location.href = "/";
-            }}
-          >
-            Back to Dashboard
-          </Button>
-        </div>
+        <ErrorFallback
+          message={this.state.error?.message ?? null}
+          onReset={() => {
+            this.setState({ hasError: false, error: null });
+            window.location.href = "/";
+          }}
+        />
       );
     }
 

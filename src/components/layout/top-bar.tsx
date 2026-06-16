@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Check } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
@@ -25,6 +25,12 @@ export function TopBar() {
 
   const label = settings?.full_name || user?.email || "";
   const email = user?.email ?? "";
+
+  // Detect macOS to show ⌘K vs Ctrl K.
+  const isMac = /Mac/i.test(
+    typeof navigator !== "undefined" ? (navigator.platform || navigator.userAgent) : "",
+  );
+  const shortcutHint = isMac ? "⌘K" : "Ctrl K";
 
   // Global ⌘K / Ctrl-K opens the command palette.
   useEffect(() => {
@@ -58,8 +64,10 @@ export function TopBar() {
           onClick={() => setPaletteOpen(true)}
           className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash"
         >
+          {/* Mobile (<sm): show a Search icon instead of the shortcut hint */}
+          <Search className="size-4 sm:hidden" aria-hidden="true" />
           <span className="hidden text-md-minus sm:inline">{t("nav.search")}</span>
-          <span className="text-sm font-medium tnum">⌘K</span>
+          <span className="hidden text-sm font-medium sm:inline tnum">{shortcutHint}</span>
         </Button>
 
         <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />

@@ -86,9 +86,10 @@ export function fmtClock(seconds: number): string {
   return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
 }
 
-/** "$222.50", "$1,890.00". */
-export function fmtMoney(n: number): string {
-  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/** "$222.50", "$1,890.00". Accepts an optional currency code (ISO 4217).
+ *  Falls back to "USD" when omitted so existing call sites stay stable. */
+export function fmtMoney(n: number, currency = "USD"): string {
+  return n.toLocaleString(undefined, { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export function fmtDateLong(d: Date, locale = "en-US"): string {
@@ -249,6 +250,8 @@ export interface TimelineView {
   nowLeft: number;
   nowLabel: string;
   showNow: boolean;
+  /** Number of Day-view sessions that fell outside the 9:00–20:00 axis. */
+  outsideRangeCount: number;
 }
 
 export interface DashboardMetrics {
@@ -309,7 +312,7 @@ function projectsView(sessions: Session[], projects: Project[]): ProjectsView {
   return { rows, empty: false };
 }
 
-function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date, tr: TR, period: Period): BillableView {
+function billableView(sessions: Session[], clients: Client[], invoices: Invoice[], now: Date, tr: TR, period: Period, currency: string): BillableView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const billable = sessions.filter(isBillable);
   const nonBillable = sessions.filter((s) => !isBillable(s));
@@ -335,7 +338,7 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
         name: client?.name ?? tr("metric.noClient"),
         rateLabel: rate ? `$${rate}${tr("unit.perHr")}` : undefined,
         timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds), units),
-        amountLabel: fmtMoney(amount),
+        amountLabel: fmtMoney(amount, currency),
         dot: "#2f7a5b",
         internal: false,
       };
@@ -360,24 +363,26 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
 
   return {
     billableTimeLabel: fmtDuration(billSec, units),
-    billableEarnedLabel: `${fmtMoney(sumBy(billable, earned))} ${tr("metric.earned")}`,
+    billableEarnedLabel: `${fmtMoney(sumBy(billable, earned), currency)} ${tr("metric.earned")}`,
     nonBillableTimeLabel: fmtDuration(nonSec, units),
     billablePct: billPct,
     nonBillablePct: 100 - billPct,
     pctLabel: `${billPct}% ${tr("metric.ofTrackedTime")}`,
     nonBillablePctLabel: `${100 - billPct}%`,
     clients: clientRows,
-    invoicedLabel: fmtMoney(invoiced),
+    invoicedLabel: fmtMoney(invoiced, currency),
   };
 }
 
-function dailyView(sessions: Session[], activities: Activity[], period: Period, tr: TR): DailyView {
+function dailyView(sessions: Session[], activities: Activity[], period: Period, tr: TR, settings?: UserSettings | null): DailyView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   const totalSec = sumBy(sessions, (s) => s.duration_seconds);
-  // "All" has no fixed window — measure against an 8h day for each tracked day.
+  // "All" has no fixed window — measure against a per-day target for each tracked day.
   const trackedDays = new Set(sessions.map((s) => dayKey(new Date(s.started_at)))).size;
+  const weeklyGoal = (settings?.weekly_goal_hours && settings.weekly_goal_hours > 0) ? settings.weekly_goal_hours : 40;
+  const perDay = weeklyGoal / 5;
   const baseHours =
-    period === "Day" ? 8 : period === "Week" ? 40 : period === "Month" ? 160 : Math.max(8, trackedDays * 8);
+    period === "Day" ? perDay : period === "Week" ? weeklyGoal : period === "Month" ? weeklyGoal * 4 : Math.max(perDay, trackedDays * perDay);
   const percentOfDay = Math.min(100, Math.round((totalSec / (baseHours * 3600)) * 100));
 
   const projectCount = new Set(sessions.map((s) => s.project_id).filter(Boolean)).size;
@@ -459,15 +464,17 @@ function heatmapView(sessions: Session[], now: Date, tr: TR, locale: string): He
   };
 }
 
-function goalsView(sessions: Session[], now: Date, tr: TR, period: Period): GoalsView {
+function goalsView(sessions: Session[], now: Date, tr: TR, period: Period, settings?: UserSettings | null): GoalsView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   // Goal scales with the active period; streaks below stay all-time.
   const range = rangeFor(period, now);
   const scoped = sessions.filter((s) => inRange(s.started_at, range));
   const scopedSec = sumBy(scoped, (s) => s.duration_seconds);
   const trackedDays = new Set(scoped.map((s) => dayKey(new Date(s.started_at)))).size;
+  const weeklyGoal = (settings?.weekly_goal_hours && settings.weekly_goal_hours > 0) ? settings.weekly_goal_hours : 40;
+  const perDay = weeklyGoal / 5;
   const targetHours =
-    period === "Day" ? 8 : period === "Week" ? 40 : period === "Month" ? 160 : Math.max(8, trackedDays * 8);
+    period === "Day" ? perDay : period === "Week" ? weeklyGoal : period === "Month" ? weeklyGoal * 4 : Math.max(perDay, trackedDays * perDay);
   const targetSec = targetHours * 3600;
   const weeklyPct = Math.min(100, Math.round((scopedSec / targetSec) * 100));
 
@@ -520,11 +527,12 @@ function timelineView(scoped: Session[], now: Date, period: Period, today: Date)
   // ── Day: each session as a positioned block, colored by billable. ──
   if (period === "Day") {
     const blocks: TimelineBlock[] = [];
+    let outsideRangeCount = 0;
     for (const s of scoped) {
       const start = new Date(s.started_at);
       const h = start.getHours() + start.getMinutes() / 60;
       const left = tlX(h);
-      if (left < TL_ORIGIN || left > TL_W) continue;
+      if (left < TL_ORIGIN || left > TL_W) { outsideRangeCount++; continue; }
       const width = Math.min(Math.max(2, (s.duration_seconds / 3600) * TL_HOUR_PX), TL_W - left);
       blocks.push({
         left,
@@ -532,7 +540,7 @@ function timelineView(scoped: Session[], now: Date, period: Period, today: Date)
         color: isBillable(s) ? "var(--color-brand)" : "var(--color-error-soft)",
       });
     }
-    return { mode: "sessions", blocks, hours: [], ...base };
+    return { mode: "sessions", blocks, hours: [], outsideRangeCount, ...base };
   }
 
   // ── Week/Month/All: aggregate total time per hour-of-day across the range. ──
@@ -551,7 +559,7 @@ function timelineView(scoped: Session[], now: Date, period: Period, today: Date)
     heightPct: sec / maxSec,
   })).filter((b) => b.heightPct > 0);
 
-  return { mode: "hourly", blocks: [], hours, ...base };
+  return { mode: "hourly", blocks: [], hours, outsideRangeCount: 0, ...base };
 }
 
 // ── Entry point ──
@@ -575,6 +583,7 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
   const tr: TR = (k) => input.t?.(k) ?? EN_METRIC[k] ?? k;
   const locale = input.lang ?? "en-US";
+  const currency = settings?.default_currency ?? "USD";
   const r = rangeFor(period, now);
   const scoped = sessions.filter((s) => inRange(s.started_at, r));
   const scopedActs = activities.filter((a) => inRange(a.created_at, r));
@@ -586,13 +595,13 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
     tracking: {
       rate,
       rateLabel: `$${rate}${tr("unit.perHr")}`,
-      earnedLabel: fmtMoney(0),
+      earnedLabel: fmtMoney(0, currency),
     },
     projects: projectsView(scoped, projects),
-    billable: billableView(scoped, clients, invoices, now, tr, period),
-    daily: dailyView(scoped, scopedActs, period, tr),
+    billable: billableView(scoped, clients, invoices, now, tr, period, currency),
+    daily: dailyView(scoped, scopedActs, period, tr, settings),
     heatmap: heatmapView(sessions, now, tr, locale),
-    goals: goalsView(sessions, now, tr, period),
+    goals: goalsView(sessions, now, tr, period, settings),
     timeline: timelineView(scoped, now, period, today),
   };
 }

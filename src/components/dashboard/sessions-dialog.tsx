@@ -9,12 +9,19 @@ import { useT, useLang } from "@/lib/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/dashboard-metrics";
 import type { Session } from "@/types/database";
 
-interface EntryValues { name: string; date: string; hours: string; minutes: string }
+interface EntryValues { name: string; date: string; startTime: string; hours: string; minutes: string }
+
+function nowTimeStr(): string {
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`;
+}
 
 function valuesOf(s: Session): EntryValues {
+  const d = new Date(s.started_at);
   return {
     name: s.name,
     date: s.started_at.slice(0, 10),
+    startTime: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
     hours: String(Math.floor(s.duration_seconds / 3600)),
     minutes: String(Math.floor((s.duration_seconds % 3600) / 60)),
   };
@@ -25,13 +32,14 @@ function EntryForm({
   initial, onSave, onCancel, saveLabel,
 }: {
   initial: EntryValues;
-  onSave: (name: string, dateDay: string, seconds: number) => void;
+  onSave: (name: string, dateDay: string, startTime: string, seconds: number) => void;
   onCancel: () => void;
   saveLabel?: string;
 }) {
   const t = useT();
   const [name, setName] = useState(initial.name);
   const [date, setDate] = useState(initial.date);
+  const [startTime, setStartTime] = useState(initial.startTime);
   const [hours, setHours] = useState(initial.hours);
   const [minutes, setMinutes] = useState(initial.minutes);
   const seconds = (Number(hours) || 0) * 3600 + (Number(minutes) || 0) * 60;
@@ -39,7 +47,7 @@ function EntryForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (seconds <= 0) return;
-    onSave(name, date, seconds);
+    onSave(name, date, startTime, seconds);
   };
 
   return (
@@ -53,6 +61,12 @@ function EntryForm({
           <span className="text-md-minus text-muted">{t("sessions.date")}</span>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </label>
+        <label className="flex w-28 flex-col gap-1.5">
+          <span className="text-md-minus text-muted">{t("sessions.startTime")}</span>
+          <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+        </label>
+      </div>
+      <div className="flex gap-3">
         <label className="flex w-24 flex-col gap-1.5">
           <span className="text-md-minus text-muted">{t("sessions.hours")}</span>
           <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
@@ -87,6 +101,7 @@ export function SessionsDialog({
   const t = useT();
   const { lang } = useLang();
   const [editing, setEditing] = useState<null | "new" | Session>(null);
+  const [search, setSearch] = useState("");
 
   const rows = sessions.filter((s) => {
     if (match?.projectId !== undefined && (s.project_id ?? "none") !== match.projectId) return false;
@@ -96,14 +111,14 @@ export function SessionsDialog({
   const taskMode = match?.name !== undefined;
 
   // ── live ops ──
-  const saveNew = async (name: string, dateDay: string, seconds: number) => {
+  const saveNew = async (name: string, dateDay: string, startTime: string, seconds: number) => {
     const project = getProjectById(match?.projectId ?? null);
     await addSession({
       client_id: project?.client_id ?? null,
       project_id: project?.id ?? null,
       name: name.trim() || "Untitled",
       notes: null,
-      started_at: new Date(`${dateDay}T09:00:00`).toISOString(),
+      started_at: new Date(`${dateDay}T${startTime}:00`).toISOString(),
       duration_seconds: seconds,
       rate: project?.rate ?? settings?.default_rate ?? 0,
       billing_type: project?.billing_type ?? "hourly",
@@ -111,16 +126,20 @@ export function SessionsDialog({
     });
   };
 
-  const saveEdit = async (s: Session, name: string, dateDay: string, seconds: number) => {
-    // Keep original time-of-day; only the calendar day can change.
-    const orig = new Date(s.started_at);
-    const d = new Date(`${dateDay}T00:00:00`);
-    d.setHours(orig.getHours(), orig.getMinutes(), orig.getSeconds());
-    await updateSession(s.id, { name: name.trim() || "Untitled", started_at: d.toISOString(), duration_seconds: seconds });
+  const saveEdit = async (s: Session, name: string, dateDay: string, startTime: string, seconds: number) => {
+    // Use the provided start time for the new started_at.
+    const started_at = new Date(`${dateDay}T${startTime}:00`).toISOString();
+    await updateSession(s.id, { name: name.trim() || "Untitled", started_at, duration_seconds: seconds });
   };
 
-  const togglePaid = (id: string, paid: boolean) =>
-    updateSession(id, { payment_status: paid ? "unpaid" : "paid" }).catch(() => toast(t("sessions.updateFailed"), "error"));
+  const togglePaid = async (id: string, paid: boolean) => {
+    try {
+      await updateSession(id, { payment_status: paid ? "unpaid" : "paid" });
+      toast(paid ? t("sessions.markedUnpaid") : t("sessions.markedPaid"), "success");
+    } catch {
+      toast(t("sessions.updateFailed"), "error");
+    }
+  };
 
   const remove = async (id: string, name: string, closeAfter = false) => {
     const ok = await confirm({ title: t("sessions.deleteTitle"), message: `${t("sessions.deletePrefix")}“${name}”${t("sessions.deleteSuffix")}`, confirmLabel: t("sessions.delete"), destructive: true });
@@ -142,12 +161,12 @@ export function SessionsDialog({
       <Dialog open={open} onClose={onClose} title={match?.name || t("sessions.task")}>
         <EntryForm
           key={target?.id ?? "new"}
-          initial={target ? valuesOf(target) : { name: match?.name ?? "", date: new Date().toISOString().slice(0, 10), hours: "", minutes: "" }}
+          initial={target ? valuesOf(target) : { name: match?.name ?? "", date: new Date().toISOString().slice(0, 10), startTime: nowTimeStr(), hours: "", minutes: "" }}
           saveLabel={target ? t("sessions.saveChanges") : t("sessions.addEntry")}
-          onSave={async (n, d, sec) => {
+          onSave={async (n, d, st, sec) => {
             try {
-              if (target) await saveEdit(target, n, d, sec);
-              else await saveNew(n, d, sec);
+              if (target) await saveEdit(target, n, d, st, sec);
+              else await saveNew(n, d, st, sec);
               toast(t("sessions.saved"), "success");
               onClose();
             } catch {
@@ -179,23 +198,40 @@ export function SessionsDialog({
   }
 
   // ── List mode (••• menu): full CRUD ──
+  const q = search.trim().toLowerCase();
+  const filteredRows = q
+    ? rows.filter((s) => {
+        const project = getProjectById(s.project_id);
+        return s.name.toLowerCase().includes(q) || (project?.name ?? "").toLowerCase().includes(q);
+      })
+    : rows;
+
   return (
     <Dialog open={open} onClose={onClose} title={t("sessions.recentSessions")} wide>
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-md-minus text-muted">{rows.length} {rows.length === 1 ? t("sessions.entryOne") : t("sessions.entryMany")}</span>
+      <div className="mb-3 flex items-center gap-2">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("sessions.searchPlaceholder")}
+          className="min-w-0 flex-1 border border-line bg-card px-3 py-1.5 text-md text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-line"
+        />
         <Button size="sm" onClick={() => setEditing("new")} disabled={editing !== null}>{t("sessions.addEntryButton")}</Button>
+      </div>
+      <div className="mb-3">
+        <span className="text-md-minus text-muted">{filteredRows.length} {filteredRows.length === 1 ? t("sessions.entryOne") : t("sessions.entryMany")}</span>
       </div>
 
       {editing !== null && (
         <div className="mb-3 border border-line bg-wash p-3">
           <EntryForm
             key={editing === "new" ? "new" : editing.id}
-            initial={editing === "new" ? { name: "", date: new Date().toISOString().slice(0, 10), hours: "", minutes: "" } : valuesOf(editing)}
+            initial={editing === "new" ? { name: "", date: new Date().toISOString().slice(0, 10), startTime: nowTimeStr(), hours: "", minutes: "" } : valuesOf(editing)}
             saveLabel={editing === "new" ? t("sessions.add") : t("sessions.save")}
-            onSave={async (n, d, sec) => {
+            onSave={async (n, d, st, sec) => {
               try {
-                if (editing === "new") await saveNew(n, d, sec);
-                else await saveEdit(editing, n, d, sec);
+                if (editing === "new") await saveNew(n, d, st, sec);
+                else await saveEdit(editing, n, d, st, sec);
                 toast(editing === "new" ? t("sessions.entryAdded") : t("sessions.entryUpdated"), "success");
                 setEditing(null);
               } catch {
@@ -208,8 +244,8 @@ export function SessionsDialog({
       )}
 
       <div className="flex max-h-[50vh] flex-col gap-px overflow-auto">
-        {rows.length === 0 && <span className="py-6 text-center text-base text-muted">{t("sessions.noEntries")}</span>}
-        {rows.slice(0, 50).map((s) => {
+        {filteredRows.length === 0 && <span className="py-6 text-center text-base text-muted">{t("sessions.noEntries")}</span>}
+        {filteredRows.slice(0, 50).map((s) => {
           const project = getProjectById(s.project_id);
           const paid = s.payment_status === "paid";
           const amount = (s.duration_seconds / 3600) * (s.rate || 0);
@@ -239,9 +275,9 @@ export function SessionsDialog({
             </div>
           );
         })}
-        {rows.length > 50 && (
+        {filteredRows.length > 50 && (
           <span className="py-6 text-center text-md text-muted">
-            {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(rows.length))}
+            {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(filteredRows.length))}
           </span>
         )}
       </div>

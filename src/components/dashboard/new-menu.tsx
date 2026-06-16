@@ -8,7 +8,7 @@ import { useAppData } from "@/lib/data-context";
 import { useT } from "@/lib/i18n";
 import type { BillingType, Client } from "@/types/database";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-md-minus text-muted">{label}</span>
@@ -171,7 +171,14 @@ function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onCl
         <Field label={t("new.name")}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Finwall app" autoFocus />
         </Field>
-        <Field label={t("new.client")}>
+        <Field
+          label={
+            <span className="flex items-center gap-1">
+              {t("new.client")}
+              <span aria-label={t("new.required")} className="text-muted">*</span>
+            </span>
+          }
+        >
           <ClientPicker
             clients={clients}
             onChange={setClientId}

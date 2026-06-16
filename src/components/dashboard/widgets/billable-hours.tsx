@@ -36,7 +36,7 @@ async function copyToClipboard(text: string): Promise<void> {
 }
 
 function ClientRow({
-  id, name, rate, time, amount, dot, internal, onShare,
+  id, name, rate, time, amount, dot, internal, onShare, shareLabel,
 }: {
   id?: string;
   name: string;
@@ -46,6 +46,7 @@ function ClientRow({
   dot: string;
   internal?: boolean;
   onShare?: () => void;
+  shareLabel?: string;
 }) {
   return (
     <div className="group flex w-full items-center gap-2.5">
@@ -54,13 +55,13 @@ function ClientRow({
       {rate && (
         <span className="shrink-0 bg-brand-soft px-2 py-0.5 text-sm-minus font-semibold text-money tnum">{rate}</span>
       )}
-      {!internal && id && onShare && (
+      {!internal && id && onShare && shareLabel && (
         <button
           type="button"
           onClick={onShare}
-          title={undefined}
-          aria-label={name}
-          className="shrink-0 border border-line p-0.5 text-muted opacity-0 transition-opacity hover:border-ink hover:text-ink group-hover:opacity-100"
+          title={shareLabel}
+          aria-label={shareLabel}
+          className="shrink-0 border border-line p-0.5 text-muted opacity-40 transition-opacity hover:border-ink hover:text-ink hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
         >
           <Share2 className="size-3" />
         </button>
@@ -141,10 +142,16 @@ export function BillableHours() {
         </div>
       </div>
 
-      {/* Split bar */}
+      {/* Split bar — show neutral empty bar when there is no data at all */}
       <div className="flex w-full items-start gap-[3px]">
-        <div className="h-2.5 bg-brand" style={{ flexGrow: b.billablePct || 1 }} />
-        <div className="h-2.5 bg-track" style={{ flexGrow: b.nonBillablePct || 1 }} />
+        {b.billablePct === 0 && b.nonBillablePct === 0 ? (
+          <div className="h-2.5 w-full bg-track" />
+        ) : (
+          <>
+            <div className="h-2.5 bg-brand" style={{ flexGrow: b.billablePct || 1 }} />
+            <div className="h-2.5 bg-track" style={{ flexGrow: b.nonBillablePct || 1 }} />
+          </>
+        )}
       </div>
       <div className="flex w-full items-start justify-between text-sm text-muted">
         <span className="tnum">{b.pctLabel}</span>
@@ -166,6 +173,7 @@ export function BillableHours() {
           amount={c.amountLabel}
           internal={c.internal}
           onShare={c.id ? () => handleShareClient(c.id!, c.name) : undefined}
+          shareLabel={c.id ? t("billable.shareReport").replace("{name}", c.name) : undefined}
         />
       ))}
 

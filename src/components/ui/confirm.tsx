@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 interface ConfirmOptions {
   title: string;
@@ -23,6 +24,7 @@ export function useConfirm() {
 }
 
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
+  const t = useT();
   const [state, setState] = useState<{
     open: boolean;
     options: ConfirmOptions;
@@ -52,7 +54,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             <div className="mt-6 flex justify-end gap-2">
               <AlertDialog.Cancel asChild>
                 <button className="h-9 border border-line bg-card px-4 text-md font-medium text-ink transition-colors hover:bg-wash">
-                  Cancel
+                  {t("confirm.cancel")}
                 </button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
@@ -63,7 +65,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                     state.options.destructive ? "bg-red-600 hover:bg-red-700" : "bg-black hover:bg-ink",
                   )}
                 >
-                  {state.options.confirmLabel || "Confirm"}
+                  {state.options.confirmLabel || t("confirm.confirm")}
                 </button>
               </AlertDialog.Action>
             </div>

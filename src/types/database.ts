@@ -19,6 +19,7 @@ export interface UserSettings {
   default_currency: string;
   default_rate: number | null;
   logo_url: string | null;
+  weekly_goal_hours: number | null;
   created_at: string;
   updated_at: string;
 }

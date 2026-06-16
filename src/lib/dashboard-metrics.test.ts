@@ -138,6 +138,7 @@ describe("computeMetrics", () => {
     default_currency: "USD",
     default_rate: 75,
     logo_url: null,
+    weekly_goal_hours: null,
     created_at: "2026-01-01T00:00:00.000Z",
     updated_at: "2026-01-01T00:00:00.000Z",
   };

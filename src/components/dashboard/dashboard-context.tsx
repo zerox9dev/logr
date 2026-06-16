@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState, useCallback, type ReactNo
 import { useAppData } from "@/lib/data-context";
 import { useT, useLang } from "@/lib/i18n";
 import {
-  computeMetrics, shiftDate, isAtCurrentPeriod,
+  computeMetrics, shiftDate, isAtCurrentPeriod, rangeFor,
   type DashboardMetrics, type Period,
 } from "@/lib/dashboard-metrics";
 
@@ -42,7 +42,18 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   );
 
   const canPageForward = period !== "All" && !isAtCurrentPeriod(period, refDate, today);
-  const canPageBack = period !== "All";
+
+  // Lower bound: the period that contains the earliest session (or no sessions → can't go back).
+  const canPageBack = useMemo(() => {
+    if (period === "All") return false;
+    if (sessions.length === 0) return false;
+    const earliestMs = Math.min(...sessions.map((s) => new Date(s.started_at).getTime()));
+    const earliest = new Date(earliestMs);
+    const currentStart = rangeFor(period, refDate).start.getTime();
+    const earliestStart = rangeFor(period, earliest).start.getTime();
+    // Can go back if the current period's start is strictly after the earliest period's start.
+    return currentStart > earliestStart;
+  }, [period, refDate, sessions]);
 
   const value = useMemo(
     () => ({ period, setPeriod, metrics, pageDate, goToToday, refDate, goToDate, canPageBack, canPageForward }),

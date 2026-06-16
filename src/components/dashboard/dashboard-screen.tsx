@@ -26,7 +26,9 @@ export function DashboardScreen() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-page">
-        <div className="size-6 animate-spin border-2 border-line border-t-ink" />
+        <div role="status" className="size-6 animate-spin border-2 border-line border-t-ink">
+          <span className="sr-only">{t("screen.loading")}</span>
+        </div>
       </div>
     );
   }

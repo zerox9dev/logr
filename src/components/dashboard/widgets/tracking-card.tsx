@@ -59,12 +59,21 @@ function ProjectPicker({
             </DropdownMenu.Item>
           ))}
           {projects.length === 0 && (
-            <span className="block px-3 py-2 text-md text-muted">{t("track.noProjectsYet")}</span>
+            <div className="px-3 py-2">
+              <span className="block text-md text-muted">{t("track.noProjectsYet")}</span>
+              <span className="block text-md-minus text-muted/70">{t("track.noProjectsHint")}</span>
+            </div>
           )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
+}
+
+/** Returns current local time as "HH:MM" string. */
+function nowTimeStr(): string {
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`;
 }
 
 /** Manual time-entry dialog — log a past session without the live timer. */
@@ -81,6 +90,7 @@ function ManualDialog({
   const [projectId, setProjectId] = useState<string | null>(defaultProjectId);
   const [name, setName] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [startTime, setStartTime] = useState(() => nowTimeStr());
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
 
@@ -90,8 +100,8 @@ function ManualDialog({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (seconds <= 0) return;
-    onSave(projectId, name, `${date}T09:00:00`, seconds);
-    setName(""); setHours(""); setMinutes("");
+    onSave(projectId, name, `${date}T${startTime}:00`, seconds);
+    setName(""); setHours(""); setMinutes(""); setStartTime(nowTimeStr());
     onClose();
   };
 
@@ -122,6 +132,12 @@ function ManualDialog({
             <span className="text-md-minus text-muted">{t("manual.date")}</span>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </label>
+          <label className="flex w-28 flex-col gap-1.5">
+            <span className="text-md-minus text-muted">{t("manual.startTime")}</span>
+            <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+          </label>
+        </div>
+        <div className="flex gap-3">
           <label className="flex w-20 flex-col gap-1.5">
             <span className="text-md-minus text-muted">{t("manual.hours")}</span>
             <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
@@ -267,17 +283,19 @@ export function TrackingCard() {
     setTimerRunning(false);
     const duration = timerSeconds;
     const startedAt = timerStartedAt ?? Date.now() - duration * 1000;
+    const savedDescription = timerDescription;
     setTimerStartedAt(null);
     setTimerSeconds(0);
+    setTimerDescription("");
     if (duration >= 1) {
       try {
-        await addSession(buildSession(project, timerDescription, startedAt, duration, rate));
+        await addSession(buildSession(project, savedDescription, startedAt, duration, rate));
         toast(`${t("track.saved")} ${fmtClock(duration)} ${t("track.savedTo")} ${projectName}`, "success");
       } catch {
+        setTimerDescription(savedDescription);
         toast(t("track.saveFailed"), "error");
       }
     }
-    setTimerDescription("");
   };
 
   const saveManual = async (pid: string | null, name: string, dateISO: string, seconds: number) => {
@@ -299,14 +317,22 @@ export function TrackingCard() {
             aria-hidden="true"
             className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money" : "bg-track"}`}
           />
-          <span className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero">{fmtClock(timerSeconds)}</span>
+          <span
+            role="timer"
+            aria-label={t("track.timerAriaLabel").replace("{time}", fmtClock(timerSeconds))}
+            className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero"
+          >
+            {fmtClock(timerSeconds)}
+          </span>
+          <span className="sr-only">{timerRunning ? t("track.timerRunning") : t("track.timerStopped")}</span>
           <button
             type="button"
             onClick={() => setRatesOpen(true)}
             aria-label={t("rates.editAria")}
+            title={t("rates.editAria")}
             className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
           >
-            ${rate}{t("unit.perHr")}
+            ${rate}{t("unit.perHr")}{rate === 0 && <span aria-hidden="true" className="ml-1 text-xs font-normal text-muted">✎</span>}
           </button>
           <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
         </div>
