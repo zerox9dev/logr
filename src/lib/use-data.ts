@@ -141,6 +141,15 @@ export function useData() {
     return created;
   }, [userId]);
 
+  const addSessionsBulk = useCallback(async (rows: Omit<SessionInsert, "user_id">[]) => {
+    const withUser = rows.map((r) => ({ ...r, user_id: userId }));
+    const created = await sessionsApi.createMany(withUser);
+    // Prepend the created rows to local state so widgets update immediately
+    // without requiring a full reload (which would re-fetch all tables).
+    setSessions((prev) => [...created, ...prev]);
+    return created;
+  }, [userId]);
+
   const updateSession = useCallback(async (id: string, data: SessionUpdate) => {
     const updated = await sessionsApi.update(id, data);
     setSessions((prev) => prev.map((s) => (s.id === id ? updated : s)));
@@ -249,7 +258,7 @@ export function useData() {
     settings, updateSettings,
     clients, addClient, updateClient, deleteClient, getClientById,
     projects, addProject, updateProject, deleteProject, getProjectById,
-    sessions, addSession, updateSession, deleteSession,
+    sessions, addSession, addSessionsBulk, updateSession, deleteSession,
     invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems,
     activities, addActivity,
     timerRunning, setTimerRunning, timerSeconds, setTimerSeconds,

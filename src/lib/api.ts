@@ -80,11 +80,23 @@ export const projectsApi = {
 
 // ── Sessions (time entries) ──
 
+const SESSION_BULK_CHUNK = 100;
+
 export const sessionsApi = {
   list: async () =>
     unwrap(await supabase.from("sessions").select().order("started_at", { ascending: false })) as Session[],
   create: async (data: SessionInsert) =>
     unwrap(await supabase.from("sessions").insert(data).select().single()) as Session,
+  /** Bulk-insert sessions in chunks of up to 100 rows. Returns all created rows. */
+  createMany: async (rows: SessionInsert[]): Promise<Session[]> => {
+    const results: Session[] = [];
+    for (let i = 0; i < rows.length; i += SESSION_BULK_CHUNK) {
+      const chunk = rows.slice(i, i + SESSION_BULK_CHUNK);
+      const created = unwrap(await supabase.from("sessions").insert(chunk).select()) as Session[];
+      results.push(...created);
+    }
+    return results;
+  },
   update: async (id: string, data: SessionUpdate) =>
     unwrap(await supabase.from("sessions").update(data).eq("id", id).select().single()) as Session,
   delete: async (id: string) => {

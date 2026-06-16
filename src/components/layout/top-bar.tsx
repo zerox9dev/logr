@@ -4,6 +4,7 @@ import { Check, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { ImportDialog } from "@/components/dashboard/import-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { useAppData } from "@/lib/data-context";
 import { useLang, useT, LANGS, LANG_LABELS } from "@/lib/i18n";
@@ -22,6 +23,7 @@ export function TopBar() {
   const { lang, setLang } = useLang();
   const t = useT();
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const label = settings?.full_name || user?.email || "";
   const email = user?.email ?? "";
@@ -45,6 +47,7 @@ export function TopBar() {
   }, []);
 
   return (
+    <>
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-3 sm:px-8 lg:px-35">
       {/* Left: logo + wordmark */}
       <div className="flex items-center gap-2.5">
@@ -109,6 +112,13 @@ export function TopBar() {
               <DropdownMenu.Separator className="my-1 h-px bg-line" />
               <DropdownMenu.Item
                 className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
+                onSelect={() => setImportOpen(true)}
+              >
+                {t("import.menuItem")}
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator className="my-1 h-px bg-line" />
+              <DropdownMenu.Item
+                className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
                 onSelect={() => signOut()}
               >
                 {t("nav.signOut")}
@@ -118,5 +128,7 @@ export function TopBar() {
         </DropdownMenu.Root>
       </div>
     </header>
+    <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+    </>
   );
 }
