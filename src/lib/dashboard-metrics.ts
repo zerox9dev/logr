@@ -174,6 +174,8 @@ export interface ProjectsView {
 }
 
 export interface ClientStat {
+  /** Real client id from the DB; undefined for the pseudo "internal" row. */
+  id?: string;
   name: string;
   rateLabel?: string;
   timeLabel: string;
@@ -329,6 +331,7 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
       const rate = group.find((s) => s.rate)?.rate ?? 0;
       const client = clients.find((c) => c.id === id);
       return {
+        id: client?.id,
         name: client?.name ?? tr("metric.noClient"),
         rateLabel: rate ? `$${rate}${tr("unit.perHr")}` : undefined,
         timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds), units),

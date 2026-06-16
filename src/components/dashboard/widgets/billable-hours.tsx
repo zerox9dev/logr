@@ -1,20 +1,69 @@
 /** Billable hours — Figma 1:160. Accent = MONEY (bold green $ amounts).
  *  Left-column card: border #ececec, px-26 pt-22 pb-26, gap-16. */
 import { useState } from "react";
+import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useAppData } from "@/lib/data-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
 import { useT } from "@/lib/i18n";
+import { useToast } from "@/components/ui/toast";
+import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/lib/report-share";
+import type { Period } from "@/lib/dashboard-metrics";
+
+function periodToRange(period: Period): ReportsRange {
+  if (period === "Month") return "month";
+  if (period === "All") return "all";
+  return "week"; // Day and Week both map to "week"
+}
+
+/** Copy text to clipboard with a fallback for non-secure contexts (http/IP),
+ *  where navigator.clipboard is undefined. Throws if both paths fail. */
+async function copyToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  const ok = document.execCommand("copy");
+  document.body.removeChild(ta);
+  if (!ok) throw new Error("execCommand copy failed");
+}
 
 function ClientRow({
-  name, rate, time, amount, dot, internal,
-}: { name: string; rate?: string; time: string; amount: string; dot: string; internal?: boolean }) {
+  id, name, rate, time, amount, dot, internal, onShare,
+}: {
+  id?: string;
+  name: string;
+  rate?: string;
+  time: string;
+  amount: string;
+  dot: string;
+  internal?: boolean;
+  onShare?: () => void;
+}) {
   return (
-    <div className="flex w-full items-center gap-2.5">
+    <div className="group flex w-full items-center gap-2.5">
       <span className="size-2 shrink-0 rounded-full" style={{ background: dot }} />
       <span className="line-clamp-1 min-w-0 flex-1 text-base font-medium text-heading">{name}</span>
       {rate && (
         <span className="shrink-0 bg-brand-soft px-2 py-0.5 text-sm-minus font-semibold text-money tnum">{rate}</span>
+      )}
+      {!internal && id && onShare && (
+        <button
+          type="button"
+          onClick={onShare}
+          title={undefined}
+          aria-label={name}
+          className="shrink-0 border border-line p-0.5 text-muted opacity-0 transition-opacity hover:border-ink hover:text-ink group-hover:opacity-100"
+        >
+          <Share2 className="size-3" />
+        </button>
       )}
       <div className="h-[5px] min-w-px flex-1" />
       <span className="line-clamp-1 w-[72px] shrink-0 text-right text-base text-tertiary tnum">{time}</span>
@@ -34,9 +83,35 @@ const INVOICED_LABEL_KEYS: Record<string, string> = {
 
 export function BillableHours() {
   const { metrics, period } = useDashboard();
+  const { sessions, clients, settings, getProjectById } = useAppData();
   const t = useT();
+  const { toast } = useToast();
   const b = metrics.billable;
   const [manageOpen, setManageOpen] = useState(false);
+
+  async function handleShareClient(clientId: string, clientName: string) {
+    try {
+      const range = periodToRange(period);
+      const payload = createReportSummary({
+        sessions,
+        clients,
+        range,
+        defaultCurrency: settings?.default_currency ?? null,
+        defaultRate: settings?.default_rate ?? null,
+        clientId,
+        clientName,
+        getProjectById,
+        noProjectLabel: t("sessions.noProject"),
+        noClientLabel: t("metric.noClient"),
+      });
+      const url = `${window.location.origin}/share/report?data=${encodeSharedReport(payload)}`;
+      await copyToClipboard(url);
+      toast(t("reports.shareLinkCopied"), "success");
+    } catch (e) {
+      console.error("[share] failed to build/copy report link:", e);
+      toast(t("reports.copyLinkFailed"), "error");
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
@@ -83,12 +158,14 @@ export function BillableHours() {
       {b.clients.map((c) => (
         <ClientRow
           key={c.name}
+          id={c.id}
           dot={c.dot}
           name={c.name}
           rate={c.rateLabel}
           time={c.timeLabel}
           amount={c.amountLabel}
           internal={c.internal}
+          onShare={c.id ? () => handleShareClient(c.id!, c.name) : undefined}
         />
       ))}
 

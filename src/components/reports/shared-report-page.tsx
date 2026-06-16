@@ -9,6 +9,7 @@ import {
   getCurrencySymbol,
   type ReportBreakdownItem,
 } from "@/lib/report-share";
+import { useT } from "@/lib/i18n";
 
 function formatReportDate(iso: string): string {
   return new Date(iso).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
@@ -55,6 +56,7 @@ function BreakdownList({
 export function SharedReportPage() {
   const [searchParams] = useSearchParams();
   const payload = useMemo(() => decodeSharedReport(searchParams.get("data") || ""), [searchParams]);
+  const t = useT();
 
   if (!payload) {
     return (
@@ -63,15 +65,13 @@ export function SharedReportPage() {
           <Card>
             <CardContent className="flex min-h-[60vh] flex-col items-center justify-center gap-3.5 p-8 text-center">
               <BarChart3 className="h-[42px] w-[42px] text-tertiary" />
-              <h1 className="text-5xl font-extrabold tracking-tight text-heading">This report link is invalid</h1>
-              <p className="text-base text-muted">
-                Ask the freelancer to generate a new share link from the Reports page.
-              </p>
+              <h1 className="text-5xl font-extrabold tracking-tight text-heading">{t("reports.invalidLink")}</h1>
+              <p className="text-base text-muted">{t("reports.invalidLinkHint")}</p>
               <Link
                 to="/"
                 className="inline-flex h-9 items-center justify-center gap-2 bg-ink px-4 text-md font-medium text-white transition-opacity hover:opacity-85"
               >
-                Open Logr
+                {t("reports.openLogr")}
               </Link>
             </CardContent>
           </Card>
@@ -82,7 +82,9 @@ export function SharedReportPage() {
 
   const currencySymbol = getCurrencySymbol(payload.currency);
   const generatedAt = new Date(payload.generatedAt);
-  const reportTitle = payload.clientName ? `Hours and earnings for ${payload.clientName}` : "Hours and earnings at a glance";
+  const reportTitle = payload.clientName
+    ? t("reports.hoursAndEarningsForClient").replace("{client}", payload.clientName)
+    : t("reports.hoursAndEarningsGeneric");
 
   return (
     <div className="min-h-screen bg-page px-5 pb-16 pt-8">
@@ -90,14 +92,15 @@ export function SharedReportPage() {
         <Card>
           <CardContent className="flex flex-col gap-6 p-7">
             <div className="w-fit border border-line bg-brand-soft px-2.5 py-1.5 text-sm font-bold uppercase tracking-wide text-brand">
-              Shared work report
+              {t("reports.sharedWorkReport")}
             </div>
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
               <div>
                 <h1 className="text-5xl font-extrabold leading-none tracking-tight text-heading">{reportTitle}</h1>
                 <p className="mt-2.5 max-w-[720px] text-base text-muted">
-                  Reporting period: <strong className="text-ink">{payload.range}</strong>.
-                  {payload.clientName ? <> Client: <strong className="text-ink">{payload.clientName}</strong>.</> : null} Generated on{" "}
+                  {t("reports.reportingPeriod")} <strong className="text-ink">{payload.range}</strong>.
+                  {payload.clientName ? <> {t("reports.clientLabel")} <strong className="text-ink">{payload.clientName}</strong>.</> : null}{" "}
+                  {t("reports.generatedOn")}{" "}
                   <strong className="text-ink">{generatedAt.toLocaleDateString()}</strong>.
                 </p>
               </div>
@@ -105,26 +108,26 @@ export function SharedReportPage() {
                 to="/"
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-2 border border-line bg-card px-4 text-md font-medium text-ink transition-colors hover:bg-wash"
               >
-                Open Logr
+                {t("reports.openLogr")}
                 <ExternalLink className="h-3.5 w-3.5" />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Clock3 className="h-3.5 w-3.5" /> Total time</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Clock3 className="h-3.5 w-3.5" /> {t("reports.totalTime")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-ink tnum">{formatDuration(payload.totalSeconds)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><BarChart3 className="h-3.5 w-3.5" /> Billable time</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><BarChart3 className="h-3.5 w-3.5" /> {t("reports.billable")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-ink tnum">{formatDuration(payload.billableSeconds)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><DollarSign className="h-3.5 w-3.5" /> Earnings</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><DollarSign className="h-3.5 w-3.5" /> {t("reports.earnings")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-brand tnum">{currencySymbol}{payload.billableAmount.toFixed(2)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Wallet className="h-3.5 w-3.5" /> Paid</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Wallet className="h-3.5 w-3.5" /> {t("reports.paid")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-brand tnum">{currencySymbol}{payload.paidAmount.toFixed(2)}</strong>
               </div>
             </div>
@@ -132,17 +135,17 @@ export function SharedReportPage() {
         </Card>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <BreakdownList title="By project" items={payload.topProjects} />
-          <BreakdownList title="By client" items={payload.topClients} />
+          <BreakdownList title={t("reports.byProject")} items={payload.topProjects} />
+          <BreakdownList title={t("reports.byClient")} items={payload.topClients} />
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Work log</CardTitle>
+            <CardTitle className="text-lg">{t("reports.workLog")}</CardTitle>
           </CardHeader>
           <CardContent>
             {payload.sessions.length === 0 ? (
-              <p className="text-md text-muted">No tracked work in this report.</p>
+              <p className="text-md text-muted">{t("reports.noTrackedWork")}</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {payload.sessions.map((session) => (
@@ -160,11 +163,11 @@ export function SharedReportPage() {
                     </div>
                     <div className="mt-3.5 grid grid-cols-1 gap-3 md:grid-cols-3">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">Duration</span>
+                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionDuration")}</span>
                         <strong className="text-ink tnum">{formatDuration(session.durationSeconds)}</strong>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">Rate</span>
+                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionRate")}</span>
                         <strong className="text-brand tnum">
                           {session.billingType === "hourly" && session.rate > 0
                             ? `${currencySymbol}${session.rate.toFixed(2)}/hr`
@@ -172,7 +175,7 @@ export function SharedReportPage() {
                         </strong>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">Amount</span>
+                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionAmount")}</span>
                         <strong className="text-brand tnum">{session.amount > 0 ? `${currencySymbol}${session.amount.toFixed(2)}` : "—"}</strong>
                       </div>
                     </div>
