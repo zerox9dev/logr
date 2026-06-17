@@ -1,0 +1,21 @@
+# Logr
+
+> Open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Track time, manage clients and projects, turn unbilled work into invoices, and share report and invoice links — all from one fast single-screen dashboard.
+
+Logr is free and open source (AGPL-3.0), built with React 19, Vite, and Supabase. Use the hosted app at https://logr.work or self-host your own instance. It positions as an open, self-hostable alternative to Toggl and Harvest, with invoicing included rather than a paid add-on.
+
+## Core features
+- [Time tracking](https://logr.work): one-click start/stop timer, manual entries, pause and resume
+- [Clients & projects](https://logr.work): organize work by client; hourly or fixed-budget billing
+- [Invoicing](https://logr.work): build invoices from a client's unbilled sessions, track draft/sent/paid status, share a public invoice link
+- [Reports](https://logr.work): self-contained shareable report links and CSV export
+- [Dashboard](https://logr.work): daily summary, billable hours, goals, activity heatmap, timeline
+
+## Source & docs
+- [GitHub repository](https://github.com/zerox9dev/logr): source code, self-hosting instructions, issues
+- [README](https://github.com/zerox9dev/logr/blob/main/README.md): features, tech stack, setup, comparison vs Toggl/Harvest/Clockify
+- [Contributing guide](https://github.com/zerox9dev/logr/blob/main/CONTRIBUTING.md)
+- [License (AGPL-3.0)](https://github.com/zerox9dev/logr/blob/main/LICENSE)
+
+## Optional
+- [Live demo](https://logr.work): try it without signup
