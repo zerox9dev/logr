@@ -9,30 +9,13 @@ import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
 import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/domain/report-share";
+import { copyToClipboard } from "@/lib/clipboard";
 import type { Period } from "@/domain/dashboard-metrics";
 
 function periodToRange(period: Period): ReportsRange {
   if (period === "Month") return "month";
   if (period === "All") return "all";
   return "week"; // Day and Week both map to "week"
-}
-
-/** Copy text to clipboard with a fallback for non-secure contexts (http/IP),
- *  where navigator.clipboard is undefined. Throws if both paths fail. */
-async function copyToClipboard(text: string): Promise<void> {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.style.position = "fixed";
-  ta.style.opacity = "0";
-  document.body.appendChild(ta);
-  ta.select();
-  const ok = document.execCommand("copy");
-  document.body.removeChild(ta);
-  if (!ok) throw new Error("execCommand copy failed");
 }
 
 function ClientRow({

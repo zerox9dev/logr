@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { ImportDialog } from "@/components/dashboard/import-dialog";
+import { InvoicesDialog } from "@/components/dashboard/invoices-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppData } from "@/contexts/data-context";
 import { useLang, useT, LANGS, LANG_LABELS } from "@/i18n";
@@ -24,6 +25,7 @@ export function TopBar() {
   const t = useT();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [invoicesOpen, setInvoicesOpen] = useState(false);
 
   const label = settings?.full_name || user?.email || "";
   const email = user?.email ?? "";
@@ -112,6 +114,12 @@ export function TopBar() {
               <DropdownMenu.Separator className="my-1 h-px bg-line" />
               <DropdownMenu.Item
                 className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
+                onSelect={() => setInvoicesOpen(true)}
+              >
+                {t("invoice.manage")}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
                 onSelect={() => setImportOpen(true)}
               >
                 {t("import.menuItem")}
@@ -129,6 +137,7 @@ export function TopBar() {
       </div>
     </header>
     <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+    <InvoicesDialog open={invoicesOpen} onClose={() => setInvoicesOpen(false)} />
     </>
   );
 }
