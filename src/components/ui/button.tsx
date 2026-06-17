@@ -1,48 +1,53 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+
 import { cn } from "@/lib/utils";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "unstyled";
-  size?: "default" | "sm" | "lg" | "icon" | "unstyled";
+// shadcn/ui Button, skinned to logr tokens. Same variant/size API as the
+// previous bespoke button (incl. "unstyled") so call sites are unchanged.
+// With cn = tailwind-merge, className overrides win over the base — so
+// "unstyled" callers that bring their own layout classes still win.
+const buttonVariants = cva(
+  "inline-flex shrink-0 items-center justify-center gap-2 text-md font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:opacity-90",
+        destructive: "bg-destructive text-white hover:opacity-90",
+        outline: "border border-line bg-card text-ink hover:bg-wash",
+        secondary: "bg-wash text-ink hover:bg-wash",
+        ghost: "bg-transparent text-ink hover:bg-wash",
+        link: "bg-transparent text-ink underline-offset-4 hover:underline",
+        unstyled: "",
+      },
+      size: {
+        default: "h-9 px-4",
+        sm: "h-8 px-3 text-md-minus",
+        lg: "h-12 px-6 text-base",
+        icon: "size-9",
+        unstyled: "",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & { asChild?: boolean }) {
+  const Comp = asChild ? Slot : "button";
+  return (
+    <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />
+  );
 }
 
-// `cn` is a plain joiner (no tailwind-merge), so variant/size classes can't be
-// safely overridden via className. For bespoke Figma styling use the "unstyled"
-// variant + size and pass exact classes — the base only adds focus/disabled a11y.
-const styled = "inline-flex items-center justify-center gap-2 font-medium";
-const variantMap: Record<string, string> = {
-  // Primary action = pure black (design rule).
-  default: `${styled} bg-black text-card hover:bg-ink disabled:opacity-50`,
-  destructive: `${styled} bg-red-600 text-card hover:bg-red-700 disabled:opacity-50`,
-  outline: `${styled} border border-line bg-card text-ink hover:bg-wash disabled:opacity-50`,
-  secondary: `${styled} bg-wash text-ink hover:bg-wash disabled:opacity-50`,
-  ghost: `${styled} bg-transparent text-ink hover:bg-wash disabled:opacity-50`,
-  link: `${styled} bg-transparent text-ink underline-offset-4 hover:underline`,
-  unstyled: "",
-};
-
-const sizeMap: Record<string, string> = {
-  default: "h-9 px-4 text-md",
-  sm: "h-8 px-3 text-md-minus",
-  lg: "h-12 px-6 text-base",
-  icon: "size-9",
-  unstyled: "",
-};
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", ...props }, ref) => (
-    <button
-      ref={ref}
-      className={cn(
-        "transition-colors disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-1",
-        variantMap[variant],
-        sizeMap[size],
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
-Button.displayName = "Button";
-
-export { Button };
+export { Button, buttonVariants };

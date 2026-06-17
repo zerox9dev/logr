@@ -1,7 +1,37 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "//": "Phase 1 scope — Vite-coupled files (supabase/import.meta, contexts, hooks, api, router pages, old entry) are added back as they're ported.",
+  "include": [
+    "next-env.d.ts",
+    "src/app/**/*",
+    "src/components/ui/**/*",
+    "src/domain/**/*",
+    "src/i18n/**/*",
+    "src/types/**/*",
+    "src/lib/utils.ts",
+    "src/lib/format.ts",
+    "src/lib/date.ts",
+    "src/lib/base64.ts",
+    "src/lib/clipboard.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }
