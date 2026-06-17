@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SharedReportPage } from "@/components/reports/shared-report-page";
+import { SharedInvoicePage } from "@/components/reports/shared-invoice-page";
 import { LangProvider } from "@/i18n";
 
 function Loading() {
@@ -38,8 +39,9 @@ function App() {
           <ErrorBoundary>
             <AuthProvider>
               <Routes>
-                {/* Public shared report link — kept (not an app page). */}
+                {/* Public shared links — kept (not app pages). */}
                 <Route path="/share/report" element={<SharedReportPage />} />
+                <Route path="/share/invoice" element={<SharedInvoicePage />} />
                 {/* Everything else is the single dashboard screen. */}
                 <Route path="/" element={<Root />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
