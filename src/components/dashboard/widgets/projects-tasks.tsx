@@ -2,7 +2,6 @@
  *  Left-column card: border #ececec, px-26 pt-22 pb-26, gap-16. */
 import { Fragment, useState } from "react";
 import { Folder, CircleDot, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useT } from "@/i18n";
@@ -16,20 +15,18 @@ function ProjectRow({
   return (
     <div className="flex w-full items-center gap-3.5">
       <span className="w-[36px] shrink-0 text-base text-tertiary tnum">{pct}</span>
-      <Button
-        variant="unstyled"
-        size="unstyled"
+      <button
         onClick={onToggle}
         disabled={!hasTasks}
         aria-expanded={hasTasks ? open : undefined}
-        className={`flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-2.5 pr-3 ${active ? "bg-purple-soft" : "bg-wash"}`}
+        className={`flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-2.5 pr-3 transition-colors ${active ? "bg-purple-soft" : "bg-wash"}`}
       >
         <Folder className={`size-4 shrink-0 ${active ? "text-black" : "text-dark-2"}`} />
         <span className="line-clamp-1 min-w-0 text-base font-semibold text-heading">{name}</span>
         {hasTasks && (
           <ChevronDown className={`size-4 shrink-0 text-dark-2 transition-transform ${open ? "" : "-rotate-90"}`} />
         )}
-      </Button>
+      </button>
       <span className="line-clamp-1 w-[80px] shrink-0 text-right text-base font-semibold text-ink tnum">{time}</span>
     </div>
   );
@@ -37,16 +34,14 @@ function ProjectRow({
 
 function TaskRow({ name, time, onClick }: { name: string; time: string; onClick: () => void }) {
   return (
-    <Button
-      variant="unstyled"
-      size="unstyled"
+    <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 pl-[40px] text-left hover:opacity-70 sm:pl-[56px]"
+      className="flex w-full items-center gap-3 pl-[40px] text-left transition-colors hover:opacity-70 sm:pl-[56px]"
     >
       <CircleDot className="size-[18px] shrink-0 text-dark-2" />
       <span className="line-clamp-1 min-w-0 flex-1 text-base text-heading">{name}</span>
       <span className="shrink-0 text-md font-semibold text-ink tnum">{time}</span>
-    </Button>
+    </button>
   );
 }
 
@@ -70,11 +65,11 @@ export function ProjectsTasks() {
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setDialog({})} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted">•••</Button>
+        <button onClick={() => setDialog({})} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted-foreground transition-colors">•••</button>
       </div>
       <SessionsDialog open={dialog !== null} onClose={() => setDialog(null)} match={dialog ?? undefined} />
 
-      {empty && <span className="text-base text-muted">{t("projects.empty")}</span>}
+      {empty && <span className="text-base text-muted-foreground">{t("projects.empty")}</span>}
 
       {rows.map((p, i) => {
         const open = expanded.has(p.id);

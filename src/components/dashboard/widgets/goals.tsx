@@ -46,7 +46,7 @@ function GoalForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1.5">
-        <span className="text-md-minus text-muted">{t("goals.weeklyGoalHours")}</span>
+        <span className="text-md-minus text-muted-foreground">{t("goals.weeklyGoalHours")}</span>
         <Input
           type="number"
           min="1"

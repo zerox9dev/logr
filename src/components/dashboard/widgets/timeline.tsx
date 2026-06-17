@@ -33,7 +33,7 @@ export function Timeline() {
           return (
             <div key={h} className="absolute top-0" style={{ left: pct(x) }}>
               <div className="h-[170px] w-px bg-grid" />
-              <span className="absolute left-[-12px] top-[200px] text-md text-muted tnum">{h}</span>
+              <span className="absolute left-[-12px] top-[200px] text-md text-muted-foreground tnum">{h}</span>
             </div>
           );
         })}
@@ -85,7 +85,7 @@ export function Timeline() {
 
       {/* Outside-range indicator — Day mode only */}
       {period === "Day" && outsideRangeCount > 0 && (
-        <p className="mt-1 text-md-minus text-muted">
+        <p className="mt-1 text-md-minus text-muted-foreground">
           {t("timeline.outsideRange").replace("{n}", String(outsideRangeCount))}
         </p>
       )}

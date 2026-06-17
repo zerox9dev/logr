@@ -95,14 +95,14 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
     <Dialog open={open} onClose={close} title={t("invoice.title")} wide>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("invoice.client")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("invoice.client")}</span>
           <ClientPicker
             clients={clients}
             onChange={pickClient}
             trigger={
               <Button type="button" variant="outline" size="default" className="w-full justify-between">
-                <span className={`line-clamp-1 min-w-0 ${clientId ? "text-ink" : "text-muted"}`}>{clientName}</span>
-                <span aria-hidden="true" className="shrink-0 text-muted">▾</span>
+                <span className={`line-clamp-1 min-w-0 ${clientId ? "text-ink" : "text-muted-foreground"}`}>{clientName}</span>
+                <span aria-hidden="true" className="shrink-0 text-muted-foreground">▾</span>
               </Button>
             }
           />
@@ -112,13 +112,13 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
           <>
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-md-minus text-muted">{t("invoice.unbilled")}</span>
+                <span className="text-md-minus text-muted-foreground">{t("invoice.unbilled")}</span>
                 {unbilled.length > 0 && (
-                  <span className="text-md-minus text-muted">{t("invoice.selected").replace("{n}", String(selected.size))}</span>
+                  <span className="text-md-minus text-muted-foreground">{t("invoice.selected").replace("{n}", String(selected.size))}</span>
                 )}
               </div>
               {unbilled.length === 0 ? (
-                <p className="py-3 text-center text-md text-muted">{t("invoice.noUnbilled")}</p>
+                <p className="py-3 text-center text-md text-muted-foreground">{t("invoice.noUnbilled")}</p>
               ) : (
                 <div className="flex max-h-[40vh] flex-col gap-px overflow-auto border border-line">
                   {unbilled.map((s) => {
@@ -126,7 +126,7 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
                     return (
                       <label key={s.id} className="flex cursor-pointer items-center gap-3 border-b border-line bg-card px-3 py-2.5 last:border-0 hover:bg-wash">
                         <input type="checkbox" checked={selected.has(s.id)} onChange={() => toggle(s.id)} className="size-4 shrink-0 accent-brand" />
-                        <span className="w-[64px] shrink-0 text-md-minus text-muted tnum">
+                        <span className="w-[64px] shrink-0 text-md-minus text-muted-foreground tnum">
                           {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-md text-heading">{s.name}</span>
@@ -141,11 +141,11 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
 
             <div className="flex gap-3">
               <label className="flex w-28 flex-col gap-1.5">
-                <span className="text-md-minus text-muted">{t("invoice.tax")}</span>
+                <span className="text-md-minus text-muted-foreground">{t("invoice.tax")}</span>
                 <Input type="number" min="0" max="100" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} placeholder="0" />
               </label>
               <label className="flex flex-1 flex-col gap-1.5">
-                <span className="text-md-minus text-muted">{t("invoice.dueDate")}</span>
+                <span className="text-md-minus text-muted-foreground">{t("invoice.dueDate")}</span>
                 <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
               </label>
             </div>

@@ -2,7 +2,6 @@
  *  Left-column card: border #ececec, px-26 pt-22 pb-26, gap-16. */
 import { useState } from "react";
 import { Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
 import { SessionsDialog } from "@/components/shared/sessions-dialog";
@@ -44,7 +43,7 @@ function ClientRow({
           onClick={onShare}
           title={shareLabel}
           aria-label={shareLabel}
-          className="shrink-0 border border-line p-0.5 text-muted opacity-40 transition-opacity hover:border-ink hover:text-ink hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
+          className="shrink-0 border border-line p-0.5 text-muted-foreground opacity-40 transition-opacity hover:border-ink hover:text-ink hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
         >
           <Share2 className="size-3" />
         </button>
@@ -101,7 +100,7 @@ export function BillableHours() {
     <div className="flex flex-col gap-4 border border-line bg-card px-[26px] pb-[26px] pt-[22px]">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
-        <Button variant="unstyled" size="unstyled" onClick={() => setManageOpen(true)} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted">•••</Button>
+        <button onClick={() => setManageOpen(true)} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted-foreground transition-colors">•••</button>
       </div>
       <SessionsDialog open={manageOpen} onClose={() => setManageOpen(false)} />
 
@@ -110,7 +109,7 @@ export function BillableHours() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-[7px]">
             <span className="size-[9px] rounded-full bg-money" />
-            <span className="text-md text-muted">{t("billable.billable")}</span>
+            <span className="text-md text-muted-foreground">{t("billable.billable")}</span>
           </div>
           <span className="text-4xl text-tertiary tnum">{b.billableTimeLabel}</span>
           <span className="text-md font-semibold text-money tnum">{b.billableEarnedLabel}</span>
@@ -118,10 +117,10 @@ export function BillableHours() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-[7px]">
             <span className="size-[9px] rounded-full bg-track" />
-            <span className="text-md text-muted">{t("billable.nonBillable")}</span>
+            <span className="text-md text-muted-foreground">{t("billable.nonBillable")}</span>
           </div>
           <span className="text-4xl text-tertiary tnum">{b.nonBillableTimeLabel}</span>
-          <span className="text-md text-muted">{t("billable.internalWork")}</span>
+          <span className="text-md text-muted-foreground">{t("billable.internalWork")}</span>
         </div>
       </div>
 
@@ -136,15 +135,15 @@ export function BillableHours() {
           </>
         )}
       </div>
-      <div className="flex w-full items-start justify-between text-sm text-muted">
+      <div className="flex w-full items-start justify-between text-sm text-muted-foreground">
         <span className="tnum">{b.pctLabel}</span>
         <span className="tnum">{b.nonBillablePctLabel}</span>
       </div>
 
       <div className="h-px w-full bg-line" />
 
-      <span className="text-md text-muted">{t("billable.byClient")}</span>
-      {b.clients.length === 0 && <span className="text-base text-muted">{t("billable.empty")}</span>}
+      <span className="text-md text-muted-foreground">{t("billable.byClient")}</span>
+      {b.clients.length === 0 && <span className="text-base text-muted-foreground">{t("billable.empty")}</span>}
       {b.clients.map((c) => (
         <ClientRow
           key={c.name}

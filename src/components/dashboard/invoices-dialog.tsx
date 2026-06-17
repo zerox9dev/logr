@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
@@ -18,7 +17,7 @@ const STATUS_LABEL_KEYS: Record<InvoiceStatus, string> = {
 };
 
 const STATUS_CLASS: Record<InvoiceStatus, string> = {
-  draft: "border-line text-muted",
+  draft: "border-line text-muted-foreground",
   sent: "border-brand/30 bg-brand-soft text-brand",
   paid: "border-money/30 bg-brand-faint text-money",
   overdue: "border-red-300 bg-red-50 text-red-600",
@@ -94,7 +93,7 @@ export function InvoicesDialog({ open, onClose }: { open: boolean; onClose: () =
   return (
     <Dialog open={open} onClose={onClose} title={t("invoice.manage")} wide>
       {invoices.length === 0 ? (
-        <p className="py-8 text-center text-base text-muted">{t("invoice.empty")}</p>
+        <p className="py-8 text-center text-base text-muted-foreground">{t("invoice.empty")}</p>
       ) : (
         <div className="flex max-h-[60vh] flex-col gap-px overflow-auto">
           {invoices.map((inv) => {
@@ -107,21 +106,21 @@ export function InvoicesDialog({ open, onClose }: { open: boolean; onClose: () =
                     <span className="text-md font-semibold text-heading tnum">{inv.invoice_number}</span>
                     <span className={`shrink-0 border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[inv.status]}`}>{t(STATUS_LABEL_KEYS[inv.status])}</span>
                   </div>
-                  <span className="truncate text-md-minus text-muted">
+                  <span className="truncate text-md-minus text-muted-foreground">
                     {client?.name ?? "—"} · {new Date(inv.created_at).toLocaleDateString(lang, { month: "short", day: "numeric", year: "numeric" })}
                     {inv.due_date ? ` · ${t("invoice.due").replace("{date}", new Date(inv.due_date).toLocaleDateString(lang, { month: "short", day: "numeric" }))}` : ""}
                   </span>
                 </div>
                 <span className="w-[96px] shrink-0 text-right text-md font-semibold text-money tnum">{fmtMoney(inv.total, inv.currency)}</span>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <Button variant="unstyled" size="unstyled" disabled={disabled} onClick={() => share(inv)} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50">{t("invoice.share")}</Button>
+                  <button disabled={disabled} onClick={() => share(inv)} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.share")}</button>
                   {inv.status === "draft" && (
-                    <Button variant="unstyled" size="unstyled" disabled={disabled} onClick={() => setStatus(inv, "sent")} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50">{t("invoice.markSent")}</Button>
+                    <button disabled={disabled} onClick={() => setStatus(inv, "sent")} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.markSent")}</button>
                   )}
                   {inv.status !== "paid" && (
-                    <Button variant="unstyled" size="unstyled" disabled={disabled} onClick={() => setStatus(inv, "paid")} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50">{t("invoice.markPaid")}</Button>
+                    <button disabled={disabled} onClick={() => setStatus(inv, "paid")} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
                   )}
-                  <Button variant="unstyled" size="unstyled" disabled={disabled} onClick={() => remove(inv)} className="px-2 py-1 text-md-minus font-medium text-muted hover:text-red-600 disabled:opacity-50">{t("invoice.delete")}</Button>
+                  <button disabled={disabled} onClick={() => remove(inv)} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
                 </div>
               </div>
             );

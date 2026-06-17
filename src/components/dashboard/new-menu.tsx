@@ -13,7 +13,7 @@ import type { BillingType } from "@/types/database";
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-md-minus text-muted">{label}</span>
+      <span className="text-md-minus text-muted-foreground">{label}</span>
       {children}
     </label>
   );
@@ -144,7 +144,7 @@ function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onCl
           label={
             <span className="flex items-center gap-1">
               {t("new.client")}
-              <span aria-label={t("new.required")} className="text-muted">*</span>
+              <span aria-label={t("new.required")} className="text-muted-foreground">*</span>
             </span>
           }
         >
@@ -153,8 +153,8 @@ function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onCl
             onChange={setClientId}
             trigger={
               <Button type="button" variant="outline" size="default" className="w-full justify-between">
-                <span className={`line-clamp-1 min-w-0 ${clientId ? "text-ink" : "text-muted"}`}>{clientName}</span>
-                <span aria-hidden="true" className="shrink-0 text-muted">▾</span>
+                <span className={`line-clamp-1 min-w-0 ${clientId ? "text-ink" : "text-muted-foreground"}`}>{clientName}</span>
+                <span aria-hidden="true" className="shrink-0 text-muted-foreground">▾</span>
               </Button>
             }
           />
@@ -189,10 +189,10 @@ export function NewMenu() {
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <Button variant="unstyled" size="unstyled" className="flex items-center gap-1.5 bg-black px-4 py-[9px] font-medium text-card">
+          <button className="flex items-center gap-1.5 bg-black px-4 py-[9px] font-medium text-card transition-colors">
             <span aria-hidden="true" className="text-base leading-none">+</span>
             <span className="text-md">{t("new.new")}</span>
-          </Button>
+          </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content

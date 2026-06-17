@@ -27,7 +27,7 @@ export function ClientPicker({
             </DropdownMenu.Item>
           ))}
           {clients.length === 0 && (
-            <span className="block px-3 py-2 text-md text-muted">{t("new.noClientsYet")}</span>
+            <span className="block px-3 py-2 text-md text-muted-foreground">{t("new.noClientsYet")}</span>
           )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

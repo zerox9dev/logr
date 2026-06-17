@@ -51,9 +51,9 @@ function InvoiceView() {
               <div>
                 <div className="flex items-center gap-2.5">
                   <h1 className="text-5xl font-extrabold leading-none tracking-tight text-heading">{t("invoice.invoiceLabel")}</h1>
-                  <span className="border border-line px-2 py-0.5 text-sm font-medium uppercase tracking-wide text-muted">{t(statusKey)}</span>
+                  <span className="border border-line px-2 py-0.5 text-sm font-medium uppercase tracking-wide text-muted-foreground">{t(statusKey)}</span>
                 </div>
-                <p className="mt-2 text-base text-muted tnum">{inv.invoiceNumber}</p>
+                <p className="mt-2 text-base text-muted-foreground tnum">{inv.invoiceNumber}</p>
               </div>
               <Link
                 href="/"
@@ -67,16 +67,16 @@ function InvoiceView() {
             {/* Meta */}
             <div className="grid grid-cols-2 gap-4 border-y border-line py-4 md:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.billedTo")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.billedTo")}</span>
                 <span className="text-md font-medium text-heading">{inv.clientName || "—"}</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.issued")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.issued")}</span>
                 <span className="text-md text-ink tnum">{formatDate(inv.issuedAt)}</span>
               </div>
               {inv.dueDate && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.dueDate")}</span>
+                  <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.dueDate")}</span>
                   <span className="text-md text-ink tnum">{formatDate(inv.dueDate)}</span>
                 </div>
               )}
@@ -84,7 +84,7 @@ function InvoiceView() {
 
             {/* Line items */}
             <div className="flex flex-col">
-              <div className="flex items-center gap-3 border-b border-line pb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+              <div className="flex items-center gap-3 border-b border-line pb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 <span className="min-w-0 flex-1">{t("invoice.description")}</span>
                 <span className="w-[88px] shrink-0 text-right">{t("invoice.qty")}</span>
                 <span className="w-[88px] shrink-0 text-right">{t("invoice.rate")}</span>
@@ -116,7 +116,7 @@ function InvoiceView() {
 
             {inv.notes && (
               <div className="flex flex-col gap-1 border-t border-line pt-4">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.notes")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.notes")}</span>
                 <p className="whitespace-pre-wrap text-md text-ink">{inv.notes}</p>
               </div>
             )}

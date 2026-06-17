@@ -31,8 +31,8 @@ export function ProjectPicker({
           ))}
           {projects.length === 0 && (
             <div className="px-3 py-2">
-              <span className="block text-md text-muted">{t("track.noProjectsYet")}</span>
-              <span className="block text-md-minus text-muted/70">{t("track.noProjectsHint")}</span>
+              <span className="block text-md text-muted-foreground">{t("track.noProjectsYet")}</span>
+              <span className="block text-md-minus text-muted-foreground/70">{t("track.noProjectsHint")}</span>
             </div>
           )}
         </DropdownMenu.Content>

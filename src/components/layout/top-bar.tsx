@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Check, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { ImportDialog } from "@/components/dashboard/import-dialog";
@@ -62,18 +61,16 @@ export function TopBar() {
 
       {/* Right cluster: search · + New · avatar */}
       <div className="flex items-center gap-3.5">
-        <Button
-          variant="unstyled"
-          size="unstyled"
+        <button
           aria-label={t("nav.search")}
           onClick={() => setPaletteOpen(true)}
-          className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash"
+          className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash transition-colors"
         >
           {/* Mobile (<sm): show a Search icon instead of the shortcut hint */}
           <Search className="size-4 sm:hidden" aria-hidden="true" />
           <span className="hidden text-md-minus sm:inline">{t("nav.search")}</span>
           <span className="hidden text-sm font-medium sm:inline tnum">{shortcutHint}</span>
-        </Button>
+        </button>
 
         <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
@@ -81,14 +78,12 @@ export function TopBar() {
 
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
-            <Button
-              variant="unstyled"
-              size="unstyled"
+            <button
               aria-label={t("nav.accountMenu")}
-              className="flex size-[30px] items-center justify-center bg-ink text-sm-minus font-semibold text-card"
+              className="flex size-[30px] items-center justify-center bg-ink text-sm-minus font-semibold text-card transition-colors"
             >
               {initials(label)}
-            </Button>
+            </button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content
@@ -98,7 +93,7 @@ export function TopBar() {
             >
               <div className="flex flex-col gap-0.5 px-3 py-2">
                 {settings?.full_name && <span className="text-md font-medium text-heading">{settings.full_name}</span>}
-                <span className="text-md-minus text-muted">{email}</span>
+                <span className="text-md-minus text-muted-foreground">{email}</span>
               </div>
               <DropdownMenu.Separator className="my-1 h-px bg-line" />
               {LANGS.map((l) => (

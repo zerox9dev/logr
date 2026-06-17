@@ -31,14 +31,14 @@ function BreakdownList({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-md text-muted">No tracked work in this report.</p>
+          <p className="text-md text-muted-foreground">No tracked work in this report.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {items.map((item, index) => (
               <div key={`${item.name}-${index}`} className="flex flex-col gap-1">
                 <div className="flex items-center justify-between text-md">
                   <span className="font-medium text-ink">{item.name}</span>
-                  <span className="text-md-minus text-muted tnum">{formatDuration(item.durationSeconds)}</span>
+                  <span className="text-md-minus text-muted-foreground tnum">{formatDuration(item.durationSeconds)}</span>
                 </div>
                 <div className="h-1.5 w-full bg-track">
                   <div
@@ -68,7 +68,7 @@ function ReportView() {
             <CardContent className="flex min-h-[60vh] flex-col items-center justify-center gap-3.5 p-8 text-center">
               <BarChart3 className="h-[42px] w-[42px] text-tertiary" />
               <h1 className="text-5xl font-extrabold tracking-tight text-heading">{t("reports.invalidLink")}</h1>
-              <p className="text-base text-muted">{t("reports.invalidLinkHint")}</p>
+              <p className="text-base text-muted-foreground">{t("reports.invalidLinkHint")}</p>
               <Link
                 href="/"
                 className="inline-flex h-9 items-center justify-center gap-2 bg-ink px-4 text-md font-medium text-white transition-opacity hover:opacity-85"
@@ -99,7 +99,7 @@ function ReportView() {
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
               <div>
                 <h1 className="text-5xl font-extrabold leading-none tracking-tight text-heading">{reportTitle}</h1>
-                <p className="mt-2.5 max-w-[720px] text-base text-muted">
+                <p className="mt-2.5 max-w-[720px] text-base text-muted-foreground">
                   {t("reports.reportingPeriod")} <strong className="text-ink">{payload.range}</strong>.
                   {payload.clientName ? <> {t("reports.clientLabel")} <strong className="text-ink">{payload.clientName}</strong>.</> : null}{" "}
                   {t("reports.generatedOn")}{" "}
@@ -117,19 +117,19 @@ function ReportView() {
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Clock3 className="h-3.5 w-3.5" /> {t("reports.totalTime")}</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted-foreground"><Clock3 className="h-3.5 w-3.5" /> {t("reports.totalTime")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-ink tnum">{formatDuration(payload.totalSeconds)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><BarChart3 className="h-3.5 w-3.5" /> {t("reports.billable")}</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted-foreground"><BarChart3 className="h-3.5 w-3.5" /> {t("reports.billable")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-ink tnum">{formatDuration(payload.billableSeconds)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><DollarSign className="h-3.5 w-3.5" /> {t("reports.earnings")}</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted-foreground"><DollarSign className="h-3.5 w-3.5" /> {t("reports.earnings")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-brand tnum">{currencySymbol}{payload.billableAmount.toFixed(2)}</strong>
               </div>
               <div className="flex flex-col gap-2.5 border border-line bg-card p-[18px]">
-                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted"><Wallet className="h-3.5 w-3.5" /> {t("reports.paid")}</span>
+                <span className="inline-flex items-center gap-2 text-md-minus font-semibold text-muted-foreground"><Wallet className="h-3.5 w-3.5" /> {t("reports.paid")}</span>
                 <strong className="text-5xl leading-none tracking-tight text-brand tnum">{currencySymbol}{payload.paidAmount.toFixed(2)}</strong>
               </div>
             </div>
@@ -147,7 +147,7 @@ function ReportView() {
           </CardHeader>
           <CardContent>
             {payload.sessions.length === 0 ? (
-              <p className="text-md text-muted">{t("reports.noTrackedWork")}</p>
+              <p className="text-md text-muted-foreground">{t("reports.noTrackedWork")}</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {payload.sessions.map((session) => (
@@ -155,7 +155,7 @@ function ReportView() {
                     <div className="flex flex-col items-start justify-between gap-3 md:flex-row">
                       <div>
                         <h3 className="text-lg font-bold text-heading">{session.name}</h3>
-                        <p className="mt-1 text-md-minus text-muted">
+                        <p className="mt-1 text-md-minus text-muted-foreground">
                           {session.projectName} • {formatReportDate(session.startedAt)}
                         </p>
                       </div>
@@ -165,11 +165,11 @@ function ReportView() {
                     </div>
                     <div className="mt-3.5 grid grid-cols-1 gap-3 md:grid-cols-3">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionDuration")}</span>
+                        <span className="text-sm uppercase tracking-wide text-muted-foreground">{t("reports.sessionDuration")}</span>
                         <strong className="text-ink tnum">{formatDuration(session.durationSeconds)}</strong>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionRate")}</span>
+                        <span className="text-sm uppercase tracking-wide text-muted-foreground">{t("reports.sessionRate")}</span>
                         <strong className="text-brand tnum">
                           {session.billingType === "hourly" && session.rate > 0
                             ? `${currencySymbol}${session.rate.toFixed(2)}/hr`
@@ -177,7 +177,7 @@ function ReportView() {
                         </strong>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm uppercase tracking-wide text-muted">{t("reports.sessionAmount")}</span>
+                        <span className="text-sm uppercase tracking-wide text-muted-foreground">{t("reports.sessionAmount")}</span>
                         <strong className="text-brand tnum">{session.amount > 0 ? `${currencySymbol}${session.amount.toFixed(2)}` : "—"}</strong>
                       </div>
                     </div>

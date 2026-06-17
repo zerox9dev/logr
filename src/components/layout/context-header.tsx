@@ -2,7 +2,6 @@ import { useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Popover from "@radix-ui/react-popover";
 import { Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT, useLang } from "@/i18n";
 import type { Period } from "@/domain/dashboard-metrics";
@@ -105,7 +104,7 @@ function DatePicker({ disabled = false }: { disabled?: boolean }) {
 
           <div className="grid grid-cols-7 gap-0.5">
             {weekdays.map((w, i) => (
-              <div key={i} className="flex h-7 items-center justify-center text-xs font-medium text-muted">
+              <div key={i} className="flex h-7 items-center justify-center text-xs font-medium text-muted-foreground">
                 {w}
               </div>
             ))}
@@ -127,7 +126,7 @@ function DatePicker({ disabled = false }: { disabled?: boolean }) {
                       ? "bg-ink text-card"
                       : inMonth
                         ? "text-heading hover:bg-wash"
-                        : "text-muted hover:bg-wash",
+                        : "text-muted-foreground hover:bg-wash",
                     !selected && isToday ? "border border-line" : "",
                   ].join(" ")}
                 >
@@ -156,29 +155,25 @@ export function ContextHeader() {
           {metrics.header.dateLabel}
         </h1>
         <div className="flex items-center gap-3.5">
-          <Button
-            variant="unstyled"
-            size="unstyled"
+          <button
             onClick={() => pageDate(-1)}
             disabled={!canPageBack}
             aria-label={t("ctx.prevPeriod")}
-            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
+            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300 transition-colors"
           >
             ‹
-          </Button>
+          </button>
 
           <DatePicker disabled={period === "All"} />
 
-          <Button
-            variant="unstyled"
-            size="unstyled"
+          <button
             onClick={() => pageDate(1)}
             disabled={!canPageForward}
             aria-label={t("ctx.nextPeriod")}
-            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300"
+            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300 transition-colors"
           >
             ›
-          </Button>
+          </button>
         </div>
       </div>
 

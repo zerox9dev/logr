@@ -74,7 +74,7 @@ export function LoginGate() {
               {googleLoading ? t("login.redirecting") : t("login.google")}
             </Button>
 
-            <div className="my-4 flex items-center gap-3 text-sm text-muted">
+            <div className="my-4 flex items-center gap-3 text-sm text-muted-foreground">
               <span className="h-px flex-1 bg-line" />
               {t("login.or")}
               <span className="h-px flex-1 bg-line" />
@@ -97,7 +97,7 @@ export function LoginGate() {
         )}
 
         {error && <p className="mt-3 text-md-minus text-red-600">{error}</p>}
-        <p className="mt-6 text-sm text-muted">{t("login.free")}</p>
+        <p className="mt-6 text-sm text-muted-foreground">{t("login.free")}</p>
       </div>
     </div>
   );

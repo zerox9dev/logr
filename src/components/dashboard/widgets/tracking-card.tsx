@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -123,30 +122,26 @@ export function TrackingCard() {
             title={t("rates.editAria")}
             className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
           >
-            ${rate}{t("unit.perHr")}{rate === 0 && <span aria-hidden="true" className="ml-1 text-xs font-normal text-muted">✎</span>}
+            ${rate}{t("unit.perHr")}{rate === 0 && <span aria-hidden="true" className="ml-1 text-xs font-normal text-muted-foreground">✎</span>}
           </button>
           <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button
-            variant="unstyled"
-            size="unstyled"
+          <button
             onClick={timerRunning ? stop : start}
             className={`px-[30px] py-[11px] text-base font-semibold text-card transition-colors ${
               timerRunning ? "bg-red-600 hover:bg-red-700" : "bg-money hover:opacity-90"
             }`}
           >
             {timerRunning ? t("track.stop") : t("track.start")}
-          </Button>
-          <Button
-            variant="unstyled"
-            size="unstyled"
+          </button>
+          <button
             onClick={() => setManualOpen(true)}
-            className="flex h-[40px] items-center justify-center border border-gray-300 bg-card px-[22px] text-md font-medium text-ink"
+            className="flex h-[40px] items-center justify-center border border-gray-300 bg-card px-[22px] text-md font-medium text-ink transition-colors"
           >
             {t("track.manual")}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -156,18 +151,18 @@ export function TrackingCard() {
           onChange={setProjectId}
           projects={projects}
           trigger={
-            <Button variant="unstyled" size="unstyled" className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3">
+            <button className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3 transition-colors">
               <span aria-hidden="true" className="h-3 w-4 shrink-0 bg-black" />
               <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
-            </Button>
+            </button>
           }
         />
-        <span aria-hidden="true" className="text-base text-muted">›</span>
+        <span aria-hidden="true" className="text-base text-muted-foreground">›</span>
         <input
           value={timerDescription}
           onChange={(e) => setTimerDescription(e.target.value)}
           placeholder={t("track.workingPlaceholder")}
-          className="min-w-[120px] flex-1 bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted focus:outline-none"
+          className="min-w-[120px] flex-1 bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted-foreground focus:outline-none"
         />
       </div>
 
