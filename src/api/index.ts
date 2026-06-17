@@ -123,6 +123,11 @@ export const invoicesApi = {
 export const invoiceItemsApi = {
   listByInvoice: async (invoiceId: string) =>
     unwrap(await supabase.from("invoice_items").select().eq("invoice_id", invoiceId)) as InvoiceItem[],
+  /** Session ids already attached to any invoice — used to find unbilled sessions. */
+  listBilledSessionIds: async () => {
+    const rows = unwrap(await supabase.from("invoice_items").select("session_id").not("session_id", "is", null)) as { session_id: string | null }[];
+    return rows.map((r) => r.session_id).filter((id): id is string => id != null);
+  },
   create: async (data: InvoiceItemInsert) =>
     unwrap(await supabase.from("invoice_items").insert(data).select().single()) as InvoiceItem,
   createMany: async (items: InvoiceItemInsert[]) =>
