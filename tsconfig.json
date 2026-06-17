@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -11,14 +11,14 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "//": "Phase 1 scope — Vite-coupled files (supabase/import.meta, contexts, hooks, api, router pages, old entry) are added back as they're ported.",
+  "//": "include scoped during migration — Vite-coupled files (supabase/import.meta, contexts, hooks, api, router pages, old entry) widen to all of src in Phase 6.",
   "include": [
     "next-env.d.ts",
     "src/app/**/*",
@@ -31,7 +31,8 @@
     "src/lib/date.ts",
     "src/lib/base64.ts",
     "src/lib/clipboard.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

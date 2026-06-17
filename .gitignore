@@ -30,3 +30,7 @@ dist-ssr
 .next/
 next-env.d.ts
 *.tsbuildinfo
+
+# Playwright MCP
+.playwright-mcp/
+phase1-landing.png

@@ -1,21 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────
-   Theme — logr design tokens (1:1 from Figma) PLUS shadcn/ui
-   semantic tokens mapped onto logr's palette ("skin shadcn with
-   our design"). Radius 0 everywhere, monochrome, money = green.
+   logr design tokens (1:1 from Figma) + shadcn/ui semantic tokens
+   skinned to logr's palette. Square (radius 0), monochrome,
+   money = green, active project = purple. Light-only.
    ───────────────────────────────────────────────────────────── */
 @theme {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* ── logr tokens ── */
+  /* logr extra tokens (non-semantic — used directly as text-ink, bg-wash…) */
   --color-ink: #18181b;
   --color-heading: #141414;
-  /* NOTE: shadcn uses `muted` for a SURFACE; logr used `text-muted` (#8a8a8e)
-     for muted TEXT. During component port, migrate logr `text-muted` ->
-     `text-muted-foreground`. Here `muted` = surface per shadcn. */
   --color-tertiary: #71717a;
   --color-dark-1: #3f3f42;
   --color-dark-2: #4a4a4e;
@@ -47,26 +47,6 @@
   --color-hm-3: #52525b;
   --color-hm-4: #18181b;
 
-  /* ── shadcn/ui semantic tokens (skinned to logr) ── */
-  --color-background: #f4f4f5;          /* page */
-  --color-foreground: #18181b;          /* ink */
-  --color-card: #ffffff;
-  --color-card-foreground: #18181b;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #18181b;
-  --color-primary: #18181b;             /* logr buttons are black/ink */
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #f2f2f3;           /* wash */
-  --color-secondary-foreground: #18181b;
-  --color-muted: #f2f2f3;               /* surface (wash) */
-  --color-muted-foreground: #8a8a8e;    /* logr's old text-muted */
-  --color-accent: #f2f2f3;
-  --color-accent-foreground: #18181b;
-  --color-destructive: #dc2626;         /* red-600 */
-  --color-border: #ececec;              /* line */
-  --color-input: #ececec;
-  --color-ring: #d4d4d8;
-
   /* Font sizes — exact Figma scale */
   --text-xs: 10px;
   --text-sm-minus: 11px;
@@ -83,14 +63,6 @@
   --text-5xl: 26px;
   --text-hero: 52px;
 
-  /* Radius — square everywhere */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-full: 0px;
-
   --animate-slide-in-right: slide-in-right 0.2s ease-out;
   @keyframes slide-in-right {
     from { transform: translateX(100%); opacity: 0; }
@@ -100,17 +72,93 @@
 
 @layer base {
   *, *::before, *::after {
-    border-radius: 0 !important;
-    border-color: var(--color-line);
+    border-radius: 0 !important;   /* square everywhere — logr design rule */
+  }
+  * {
+    @apply border-border outline-ring/50;
   }
   body {
     font-family: var(--font-sans);
-    color: var(--color-ink);
-    background: var(--color-page);
     -webkit-font-smoothing: antialiased;
+    @apply bg-background text-foreground;
   }
 }
 
 @utility tnum {
   font-variant-numeric: tabular-nums;
+}
+
+/* shadcn semantic token → CSS variable mapping (canonical) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+/* Semantic values skinned to logr's palette */
+:root {
+  --radius: 0rem;
+  --background: #f4f4f5;          /* page */
+  --foreground: #18181b;          /* ink */
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;            /* logr buttons are black/ink */
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f3;          /* wash */
+  --secondary-foreground: #18181b;
+  --muted: #f2f2f3;              /* surface (wash) */
+  --muted-foreground: #8a8a8e;   /* logr's muted text */
+  --accent: #f2f2f3;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;        /* red-600 */
+  --border: #ececec;             /* line */
+  --input: #ececec;
+  --ring: #d4d4d8;
+  --chart-1: #d4d4d8;
+  --chart-2: #a1a1aa;
+  --chart-3: #71717a;
+  --chart-4: #52525b;
+  --chart-5: #18181b;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f2f3;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #ececec;
+  --sidebar-ring: #d4d4d8;
 }
