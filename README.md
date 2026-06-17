@@ -11,9 +11,10 @@ Time tracking & invoicing for freelancers — a single-screen dashboard built wi
 - ⏱️ **Timer** — Start/stop tracking with one click. Manual entries supported, with pause/resume.
 - 📁 **Projects & Clients** — Organize work by client; hourly or fixed-budget billing.
 - 💸 **Billing** — Per-session and per-project rates, paid/unpaid status, billable vs total time.
+- 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid status, and share a public invoice link.
 - 📊 **Dashboard widgets** — Daily summary, billable hours, tracking card, goals, projects & tasks, timeline.
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
-- 🔗 **Shareable reports** — Generate a self-contained report link (encoded in the URL) and export to CSV.
+- 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL); reports also export to CSV.
 - 🔐 **Auth** — Google OAuth **and** passwordless email magic links, via Supabase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
@@ -23,7 +24,7 @@ Time tracking & invoicing for freelancers — a single-screen dashboard built wi
 - [Tailwind CSS 4](https://tailwindcss.com) — utility-first styling (no CSS Modules)
 - [Radix UI](https://www.radix-ui.com) primitives + [lucide-react](https://lucide.dev) icons
 - [Supabase](https://supabase.com) — Auth, Postgres, Row-Level Security
-- [React Router 7](https://reactrouter.com) — minimal routing (`/` dashboard + `/share/report`)
+- [React Router 7](https://reactrouter.com) — minimal routing (`/` dashboard + `/share/report` + `/share/invoice`)
 - [Vitest](https://vitest.dev) + Testing Library — unit tests
 - Deployed on [Vercel](https://vercel.com)
 
@@ -66,30 +67,29 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ```
 src/
+├── api/            # Supabase CRUD for all tables + auth helpers
 ├── components/
-│   ├── auth/          # login-gate (Google OAuth + magic link)
-│   ├── dashboard/     # single-screen dashboard, context, dialogs
-│   │   └── widgets/   # daily-summary, billable-hours, tracking-card,
-│   │                  # goals, projects-tasks, timeline, activity-heatmap
-│   ├── layout/        # top-bar, context-header
-│   ├── reports/       # shared-report-page (public report link)
-│   └── ui/            # button, input, card, dialog, badge, toast, confirm…
-├── lib/
-│   ├── api.ts             # Supabase CRUD for all tables + auth helpers
-│   ├── supabase.ts        # typed Supabase client
-│   ├── auth-context.tsx   # auth provider + useAuth
-│   ├── data-context.tsx   # app data provider + useAppData
-│   ├── use-data.ts        # loads & manages all entities
-│   ├── dashboard-metrics.ts  # pure metric calculations (tested)
-│   ├── report-share.ts       # report summary, encode/decode, CSV (tested)
-│   ├── i18n.ts / i18n-app.ts # translations (en / uk / ru)
-│   └── utils.ts
+│   ├── auth/       # login-gate (Google OAuth + magic link)
+│   ├── dashboard/  # single-screen dashboard + dialogs (sessions, import,
+│   │   │           # new-menu, create-invoice, invoices, rates, manual-entry)
+│   │   └── widgets/# daily-summary, billable-hours, tracking-card, goals,
+│   │               # projects-tasks, timeline, activity-heatmap
+│   ├── layout/     # top-bar, context-header, command-palette
+│   ├── reports/    # shared-report-page, shared-invoice-page (public links)
+│   ├── shared/     # cross-feature: sessions-dialog, client/project pickers
+│   └── ui/         # button, input, card, dialog, badge, toast, confirm…
+├── contexts/       # auth, data, and dashboard providers
+├── hooks/          # use-data (loads & manages all entities), use-timer
+├── domain/         # pure logic + tests: dashboard-metrics, report-share,
+│                   # invoicing, invoice-share
+├── i18n/           # provider + en/uk/ru dictionaries (app, dashboard)
+├── lib/            # infra & utils: supabase, format, date, base64, clipboard, utils
 └── types/
-    └── database.ts    # types generated from the Supabase schema
+    └── database.ts # types mirroring the Supabase schema
 ```
 
 The app renders a single route `/`: an auth gate, then one dashboard screen.
-`/share/report` is a public, read-only report page that decodes its data from the URL.
+`/share/report` and `/share/invoice` are public, read-only pages that decode their data from the URL.
 
 ## Supabase Setup
 
