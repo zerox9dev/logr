@@ -2,9 +2,13 @@
 
 import type { ReactNode } from "react";
 import { LangProvider } from "@/i18n";
+import { AuthProvider } from "@/contexts/auth-context";
 
-// Client provider tree. Auth/Data/Toast/Confirm providers join here in later
-// phases; for now LangProvider so server-rendered routes can use useT().
+// Client provider tree. Data/Toast/Confirm providers join here in Phase 5.
 export function Providers({ children }: { children: ReactNode }) {
-  return <LangProvider>{children}</LangProvider>;
+  return (
+    <LangProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </LangProvider>
+  );
 }

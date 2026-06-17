@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
 import { auth } from "@/api";

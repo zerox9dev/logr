@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import type {
   UserSettings, UserSettingsInsert, UserSettingsUpdate,
   Client, ClientInsert, ClientUpdate,
@@ -9,13 +9,13 @@ import type {
   Activity, ActivityInsert,
 } from "@/types/database";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
-    "Add them to .env.local (dev) or Vercel Environment Variables (prod)."
+    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
+    "Add them to .env.local (dev) and Vercel Environment Variables (prod)."
   );
 }
 
@@ -31,12 +31,9 @@ type TableDef<Row, Insert, Update> = {
   Relationships: [];
 };
 
-// Database schema composed from the project's generated row/insert/update aliases,
-// so the supabase-js client is typed and api.ts needs no payload casts.
 export interface Database {
   public: {
     Tables: {
-      // Insert is upsert-shaped: user_id is required; other columns are nullable/DB-defaulted.
       user_settings: TableDef<UserSettings, Partial<UserSettingsInsert> & { user_id: string }, UserSettingsUpdate>;
       clients: TableDef<Client, ClientInsert, ClientUpdate>;
       projects: TableDef<Project, ProjectInsert, ProjectUpdate>;
@@ -52,4 +49,5 @@ export interface Database {
   };
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+/** Browser Supabase client (cookie-based session via @supabase/ssr). */
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);

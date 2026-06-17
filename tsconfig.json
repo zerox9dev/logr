@@ -21,8 +21,12 @@
   "//": "include scoped during migration — Vite-coupled files (supabase/import.meta, contexts, hooks, api, router pages, old entry) widen to all of src in Phase 6.",
   "include": [
     "next-env.d.ts",
+    "src/middleware.ts",
     "src/app/**/*",
+    "src/api/**/*",
     "src/components/ui/**/*",
+    "src/components/auth/**/*",
+    "src/contexts/auth-context.tsx",
     "src/domain/**/*",
     "src/i18n/**/*",
     "src/types/**/*",
@@ -31,6 +35,8 @@
     "src/lib/date.ts",
     "src/lib/base64.ts",
     "src/lib/clipboard.ts",
+    "src/lib/supabase.ts",
+    "src/lib/supabase-server.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
