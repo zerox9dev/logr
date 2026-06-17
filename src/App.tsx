@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginGate } from "@/components/auth/login-gate";
 import { DashboardScreen } from "@/components/dashboard/dashboard-screen";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { DataProvider } from "@/lib/data-context";
+import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import { DataProvider } from "@/contexts/data-context";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SharedReportPage } from "@/components/reports/shared-report-page";
-import { LangProvider } from "@/lib/i18n";
+import { LangProvider } from "@/i18n";
 
 function Loading() {
   return (

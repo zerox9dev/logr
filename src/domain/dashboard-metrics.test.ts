@@ -4,12 +4,10 @@ import {
   rangeFor,
   shiftDate,
   isAtCurrentPeriod,
-  fmtDuration,
-  fmtClock,
-  fmtMoney,
   computeMetrics,
   type MetricsInput,
 } from "./dashboard-metrics";
+import { fmtDuration, fmtClock, fmtMoney } from "@/lib/format";
 
 // ── Fixtures ──
 

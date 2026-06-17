@@ -5,8 +5,8 @@
  *   • Week/Month/All → an hour-of-day histogram (bar height = total time
  *     tracked in that hour across the range), so it stays readable.
  *  Left-column card: border #ececec, px-28 pt-24 pb-20, gap-18. */
-import { useDashboard } from "@/components/dashboard/dashboard-context";
-import { useT } from "@/lib/i18n";
+import { useDashboard } from "@/contexts/dashboard-context";
+import { useT } from "@/i18n";
 
 const W = 955;
 const PLOT_TOP = 8;

@@ -4,17 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
-import { useAppData } from "@/lib/data-context";
-import { useT, useLang } from "@/lib/i18n";
-import { fmtDuration, fmtMoney } from "@/lib/dashboard-metrics";
+import { useAppData } from "@/contexts/data-context";
+import { useT, useLang } from "@/i18n";
+import { fmtDuration, fmtMoney } from "@/lib/format";
+import { nowTimeStr } from "@/lib/date";
 import type { Session } from "@/types/database";
 
 interface EntryValues { name: string; date: string; startTime: string; hours: string; minutes: string }
-
-function nowTimeStr(): string {
-  const n = new Date();
-  return `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`;
-}
 
 function valuesOf(s: Session): EntryValues {
   const d = new Date(s.started_at);

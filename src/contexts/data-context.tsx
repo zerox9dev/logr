@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { useData } from "./use-data";
+import { useData } from "@/hooks/use-data";
 
 type DataContextType = ReturnType<typeof useData>;
 

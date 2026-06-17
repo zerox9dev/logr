@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useDashboard } from "@/components/dashboard/dashboard-context";
-import { useAppData } from "@/lib/data-context";
-import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
-import { useT } from "@/lib/i18n";
+import { useDashboard } from "@/contexts/dashboard-context";
+import { useAppData } from "@/contexts/data-context";
+import { SessionsDialog } from "@/components/shared/sessions-dialog";
+import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
-import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/lib/report-share";
-import type { Period } from "@/lib/dashboard-metrics";
+import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/domain/report-share";
+import type { Period } from "@/domain/dashboard-metrics";
 
 function periodToRange(period: Period): ReportsRange {
   if (period === "Month") return "month";

@@ -1,4 +1,5 @@
 import type { Client, Session } from "@/types/database";
+import { startOfWeek, startOfMonth } from "@/lib/date";
 
 export type ReportsRange = "week" | "month" | "all";
 
@@ -57,16 +58,8 @@ interface CreateReportSummaryInput {
 
 export function getRangeStart(range: ReportsRange, now = new Date()): Date | null {
   if (range === "all") return null;
-
-  if (range === "month") {
-    return new Date(now.getFullYear(), now.getMonth(), 1);
-  }
-
-  const startDate = new Date(now);
-  const day = startDate.getDay();
-  startDate.setDate(startDate.getDate() - day + (day === 0 ? -6 : 1));
-  startDate.setHours(0, 0, 0, 0);
-  return startDate;
+  if (range === "month") return startOfMonth(now);
+  return startOfWeek(now);
 }
 
 export function createReportSummary({
@@ -204,17 +197,6 @@ export function createReportSummary({
       (key) => (key === "__none__" ? noClientLabel : clients.find((client) => client.id === key)?.name || noClientLabel),
     ),
   };
-}
-
-export function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
-
-export function getCurrencySymbol(currency: string): string {
-  return { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[currency] || "$";
 }
 
 function bytesToBase64(bytes: Uint8Array): string {

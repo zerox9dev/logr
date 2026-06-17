@@ -1,40 +1,15 @@
 import type {
   Session, Project, Client, Invoice, Activity, UserSettings,
 } from "@/types/database";
+import {
+  type Range, startOfDay, startOfWeek, startOfMonth, addDays, sameDay, inRange,
+} from "@/lib/date";
+import { fmtDuration, fmtMoney, fmtDateLong, pad2 } from "@/lib/format";
+import { dashboard } from "@/i18n/dashboard";
 
 // ── Period ──
 
 export type Period = "Day" | "Week" | "Month" | "All";
-
-export interface Range {
-  start: Date;
-  end: Date;
-}
-
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function startOfWeek(d: Date): Date {
-  const x = startOfDay(d);
-  const day = (x.getDay() + 6) % 7; // Monday = 0
-  x.setDate(x.getDate() - day);
-  return x;
-}
-
-function startOfMonth(d: Date): Date {
-  const x = startOfDay(d);
-  x.setDate(1);
-  return x;
-}
-
-function addDays(d: Date, n: number): Date {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
 
 /** Inclusive-start, exclusive-end range for the period containing `now`. */
 export function rangeFor(period: Period, now: Date): Range {
@@ -42,15 +17,6 @@ export function rangeFor(period: Period, now: Date): Range {
   if (period === "Week") return { start: startOfWeek(now), end: addDays(startOfWeek(now), 7) };
   if (period === "Month") return { start: startOfMonth(now), end: new Date(now.getFullYear(), now.getMonth() + 1, 1) };
   return { start: new Date(0), end: addDays(startOfDay(now), 1) }; // All time → everything up to end of today
-}
-
-function inRange(iso: string, r: Range): boolean {
-  const t = new Date(iso).getTime();
-  return t >= r.start.getTime() && t < r.end.getTime();
-}
-
-function sameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 /** Move a reference date by one period step. "All" is not movable. */
@@ -68,59 +34,8 @@ export function isAtCurrentPeriod(period: Period, ref: Date, today: Date): boole
   return rangeFor(period, ref).start.getTime() >= rangeFor(period, today).start.getTime();
 }
 
-// ── Formatters ──
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
-
-/** "3 hr 26 min", "2 hr 06 min", "55 min". Units default to English. */
-export function fmtDuration(seconds: number, units: { hr: string; min: string } = { hr: "hr", min: "min" }): string {
-  const total = Math.max(0, Math.round(seconds / 60));
-  const h = Math.floor(total / 60);
-  const m = total % 60;
-  return h > 0 ? `${h} ${units.hr} ${pad2(m)} ${units.min}` : `${m} ${units.min}`;
-}
-
-/** "02:47:18" — live timer clock. */
-export function fmtClock(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds));
-  return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
-}
-
-/** "$222.50", "$1,890.00". Accepts an optional currency code (ISO 4217).
- *  Falls back to "USD" when omitted so existing call sites stay stable. */
-export function fmtMoney(n: number, currency = "USD"): string {
-  return n.toLocaleString(undefined, { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-export function fmtDateLong(d: Date, locale = "en-US"): string {
-  return d.toLocaleDateString(locale, {
-    weekday: "long", month: "long", day: "numeric", year: "numeric",
-  });
-}
-
 /** Resolves an i18n key. Provided by the app; defaults to English below. */
 type TR = (key: string) => string;
-
-/** English fallbacks so computeMetrics stays English when no translator is
- *  passed (keeps the pure formatters and their tests stable). A real `t` from
- *  the app overrides every one of these. */
-const EN_METRIC: Record<string, string> = {
-  "unit.hr": "hr",
-  "unit.min": "min",
-  "unit.perHr": "/hr",
-  "metric.earned": "earned",
-  "metric.ofTrackedTime": "of tracked time",
-  "metric.noClient": "No client",
-  "metric.internal": "Internal",
-  "metric.leadToday": "Today",
-  "metric.leadWeek": "This week",
-  "metric.leadMonth": "This month",
-  "metric.leadAll": "In total",
-  "metric.noActivity": "No activity",
-  "metric.of": "of",
-  "metric.allTime": "All time",
-  "metric.heatmapTotal": "{h} hours tracked over the last {w} weeks",
-};
 
 const PERIOD_LEAD: Record<Period, string> = {
   Day: "metric.leadToday", Week: "metric.leadWeek", Month: "metric.leadMonth", All: "metric.leadAll",
@@ -583,7 +498,7 @@ function headerLabel(period: Period, now: Date, tr: TR, locale: string): string 
 
 export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
-  const tr: TR = (k) => input.t?.(k) ?? EN_METRIC[k] ?? k;
+  const tr: TR = (k) => input.t?.(k) ?? dashboard.en[k] ?? k;
   const locale = input.lang ?? "en-US";
   const currency = settings?.default_currency ?? "USD";
   const r = rangeFor(period, now);

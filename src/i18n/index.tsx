@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import { getAppTranslations } from "./i18n-app";
+import { getAppTranslations } from "./app";
 
 export const LANGS = ["en", "uk", "ru"] as const;
 export type Lang = (typeof LANGS)[number];

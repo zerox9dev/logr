@@ -1,7 +1,7 @@
-import { useAppData } from "@/lib/data-context";
-import { useT } from "@/lib/i18n";
+import { useAppData } from "@/contexts/data-context";
+import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
-import { DashboardProvider } from "@/components/dashboard/dashboard-context";
+import { DashboardProvider } from "@/contexts/dashboard-context";
 import { TopBar } from "@/components/layout/top-bar";
 import { ContextHeader } from "@/components/layout/context-header";
 import { TrackingCard } from "@/components/dashboard/widgets/tracking-card";

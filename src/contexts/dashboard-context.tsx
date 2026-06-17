@@ -1,10 +1,10 @@
 import { createContext, useContext, useMemo, useState, useCallback, type ReactNode } from "react";
-import { useAppData } from "@/lib/data-context";
-import { useT, useLang } from "@/lib/i18n";
+import { useAppData } from "@/contexts/data-context";
+import { useT, useLang } from "@/i18n";
 import {
   computeMetrics, shiftDate, isAtCurrentPeriod, rangeFor,
   type DashboardMetrics, type Period,
-} from "@/lib/dashboard-metrics";
+} from "@/domain/dashboard-metrics";
 
 interface DashboardContextType {
   period: Period;

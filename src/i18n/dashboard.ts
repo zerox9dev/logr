@@ -1,4 +1,4 @@
-import type { Lang } from "./i18n";
+import type { Lang } from "./index";
 
 /** Dashboard UI strings (EN / UK / RU). Merged into getAppTranslations. */
 export const dashboard: Record<Lang, Record<string, string>> = {

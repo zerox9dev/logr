@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "@/lib/supabase";
 import type {
   UserSettings, UserSettingsUpdate,
   Client, ClientInsert, ClientUpdate,
