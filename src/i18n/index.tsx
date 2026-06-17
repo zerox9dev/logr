@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { getAppTranslations } from "./app";
 
 export const LANGS = ["en", "uk", "ru"] as const;
@@ -39,7 +39,13 @@ interface LangState {
 const LangContext = createContext<LangState | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(detectLang);
+  // Start at "en" so the server and the first client render agree (no hydration
+  // mismatch); switch to the saved/browser language right after mount.
+  const [lang, setLangState] = useState<Lang>("en");
+
+  useEffect(() => {
+    setLangState(detectLang());
+  }, []);
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
