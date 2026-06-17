@@ -32,6 +32,12 @@ export function addDays(d: Date, n: number): Date {
   return x;
 }
 
+/** Current local time as an "HH:MM" string (for <input type="time"> defaults). */
+export function nowTimeStr(): string {
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`;
+}
+
 export function sameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
