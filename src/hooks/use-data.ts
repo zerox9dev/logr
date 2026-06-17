@@ -23,6 +23,7 @@ export function useData() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [invoiceItems, setInvoiceItems] = useState<Map<string, InvoiceItem[]>>(new Map());
+  const [billedSessionIds, setBilledSessionIds] = useState<Set<string>>(new Set());
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -33,12 +34,13 @@ export function useData() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [s, cl, pr, se, inv, act] = await Promise.all([
+      const [s, cl, pr, se, inv, billed, act] = await Promise.all([
         settingsApi.get(),
         clientsApi.list(),
         projectsApi.list(),
         sessionsApi.list(),
         invoicesApi.list(),
+        invoiceItemsApi.listBilledSessionIds(),
         activitiesApi.list(),
       ]);
       setSettings(s);
@@ -46,6 +48,7 @@ export function useData() {
       setProjects(pr);
       setSessions(se);
       setInvoices(inv);
+      setBilledSessionIds(new Set(billed));
       setActivities(act);
     } catch (err) {
       console.error("Failed to load data:", err);
@@ -142,6 +145,12 @@ export function useData() {
         items.map((i) => ({ ...i, invoice_id: created.id }))
       );
       setInvoiceItems((prev) => new Map(prev).set(created.id, createdItems));
+      // Mark the just-billed sessions so they drop out of "unbilled" lists.
+      setBilledSessionIds((prev) => {
+        const next = new Set(prev);
+        for (const i of createdItems) if (i.session_id) next.add(i.session_id);
+        return next;
+      });
     }
     setInvoices((prev) => [created, ...prev]);
     return created;
@@ -165,10 +174,19 @@ export function useData() {
   }, []);
 
   const deleteInvoice = useCallback(async (id: string) => {
+    const items = invoiceItems.get(id);
     await invoicesApi.delete(id);
     setInvoices((prev) => prev.filter((i) => i.id !== id));
     setInvoiceItems((prev) => { const m = new Map(prev); m.delete(id); return m; });
-  }, []);
+    // Release the invoice's sessions back into "unbilled" (when we have the items cached).
+    if (items?.length) {
+      setBilledSessionIds((prev) => {
+        const next = new Set(prev);
+        for (const i of items) if (i.session_id) next.delete(i.session_id);
+        return next;
+      });
+    }
+  }, [invoiceItems]);
 
   const getInvoiceItems = useCallback(async (invoiceId: string) => {
     const cached = invoiceItems.get(invoiceId);
@@ -198,7 +216,7 @@ export function useData() {
     clients, addClient, updateClient, deleteClient, getClientById,
     projects, addProject, updateProject, deleteProject, getProjectById,
     sessions, addSession, addSessionsBulk, updateSession, deleteSession,
-    invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems,
+    invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems, billedSessionIds,
     activities, addActivity,
     ...timer,
   };

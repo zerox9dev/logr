@@ -1,5 +1,6 @@
 import type { Client, Session } from "@/types/database";
 import { startOfWeek, startOfMonth } from "@/lib/date";
+import { encodeShareData, decodeShareData } from "@/lib/base64";
 
 export type ReportsRange = "week" | "month" | "all";
 
@@ -199,36 +200,13 @@ export function createReportSummary({
   };
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-  return btoa(binary);
-}
-
-function base64ToBytes(value: string): Uint8Array {
-  const binary = atob(value);
-  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
-}
-
 export function encodeSharedReport(payload: SharedReportPayload): string {
-  const json = JSON.stringify(payload);
-  const bytes = new TextEncoder().encode(json);
-  return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return encodeShareData(payload);
 }
 
 export function decodeSharedReport(value: string): SharedReportPayload | null {
-  try {
-    const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
-    const bytes = base64ToBytes(padded);
-    const parsed = JSON.parse(new TextDecoder().decode(bytes)) as SharedReportPayload;
-    if (parsed?.version !== 1) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
+  const parsed = decodeShareData<SharedReportPayload>(value);
+  return parsed?.version === 1 ? parsed : null;
 }
 
 function escapeCSVField(value: string): string {
