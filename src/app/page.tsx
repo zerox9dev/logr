@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Clock, Users, FileText, BarChart2, Github, Star } from "lucide-react";
+import { Clock, Users, FileText, BarChart2, Github } from "lucide-react";
 
 const structuredData = [
   {
@@ -69,14 +68,20 @@ const features = [
 
 type ComparisonCell = "✓" | "✗" | "–";
 
-const comparisonRows: { label: string; logr: ComparisonCell; toggl: ComparisonCell; harvest: ComparisonCell; clockify: ComparisonCell }[] = [
-  { label: "Open source",           logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
-  { label: "Self-hostable",         logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
-  { label: "Time tracking",         logr: "✓", toggl: "✓", harvest: "✓", clockify: "✓" },
-  { label: "Invoicing built-in",    logr: "✓", toggl: "✗", harvest: "✓", clockify: "–" },
-  { label: "Shareable invoice link",logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
-  { label: "Single-screen dashboard",logr:"✓", toggl: "✗", harvest: "✗", clockify: "✗" },
-  { label: "Free (self-host)",      logr: "✓", toggl: "–", harvest: "✗", clockify: "✓" },
+const comparisonRows: {
+  label: string;
+  logr: ComparisonCell;
+  toggl: ComparisonCell;
+  harvest: ComparisonCell;
+  clockify: ComparisonCell;
+}[] = [
+  { label: "Open source",             logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
+  { label: "Self-hostable",           logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
+  { label: "Time tracking",           logr: "✓", toggl: "✓", harvest: "✓", clockify: "✓" },
+  { label: "Invoicing built-in",      logr: "✓", toggl: "✗", harvest: "✓", clockify: "–" },
+  { label: "Shareable invoice link",  logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
+  { label: "Single-screen dashboard", logr: "✓", toggl: "✗", harvest: "✗", clockify: "✗" },
+  { label: "Free (self-host)",        logr: "✓", toggl: "–", harvest: "✗", clockify: "✓" },
 ];
 
 const faqs = [
@@ -107,63 +112,85 @@ export default function Home() {
       />
 
       <div className="min-h-screen bg-page">
-        {/* ── Nav ── */}
-        <header className="border-b border-line bg-card">
-          <div className="mx-auto flex max-w-[1080px] items-center justify-between px-6 py-4">
-            <span className="text-lg font-bold text-heading tracking-tight">
-              logr
-            </span>
-            <nav className="flex items-center gap-3">
-              <Button variant="outline" size="default" asChild>
-                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                  <Github className="size-4" />
-                  GitHub
-                </a>
-              </Button>
-              <Button size="default" asChild>
-                <Link href="/app">Get started</Link>
-              </Button>
-            </nav>
+        {/* ── Header — mirrors app TopBar exactly ── */}
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-5 sm:px-8 lg:px-35">
+          {/* Left: logo + wordmark — verbatim from TopBar */}
+          <div className="flex items-center gap-2.5">
+            <div className="relative size-6 bg-black">
+              <span className="absolute left-2 top-[5px] h-2.5 w-[2px] bg-card" />
+              <span className="absolute left-[12.5px] top-[5px] h-2.5 w-[2px] bg-card" />
+            </div>
+            <span className="text-lg font-semibold tracking-[-0.16px] text-ink">logr.work</span>
+          </div>
+
+          {/* Right: GitHub subtle link + primary CTA */}
+          <div className="flex items-center gap-2">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-wash px-3 py-2 text-tertiary hover:bg-wash transition-colors text-md-minus"
+            >
+              <Github className="size-3.5" aria-hidden="true" />
+              GitHub
+            </a>
+            <Button asChild>
+              <Link href="/app">Get started</Link>
+            </Button>
           </div>
         </header>
 
         <main>
-          {/* ── Section 1: Hero ── */}
+          {/* ── Hero ── */}
           <section className="border-b border-line bg-card">
-            <div className="mx-auto max-w-[1080px] px-6 py-24 text-center">
-              <h1 className="text-hero font-extrabold leading-none tracking-tight text-heading">
-                Logr
-              </h1>
-              <p className="mx-auto mt-4 max-w-[560px] text-5xl font-semibold leading-tight text-heading">
-                Open-source, self-hostable time tracking with built-in invoicing
-              </p>
-              <p className="mx-auto mt-6 max-w-[500px] text-lg text-tertiary">
-                Track time, manage clients and projects, build invoices from
-                unbilled sessions, and share public payment links — all in one
-                place. The Toggl alternative you can actually own.
-              </p>
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" asChild>
-                  <Link href="/app">Get started free</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <a
-                    href={GITHUB_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Star className="size-4" />
-                    View on GitHub
-                  </a>
-                </Button>
+            <div className="mx-auto max-w-[1080px] px-5 py-16 sm:px-8 lg:px-35">
+              <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-center">
+                {/* Left column */}
+                <div>
+                  <p className="text-md-minus font-medium uppercase tracking-widest text-tertiary">
+                    Open-source · Self-hostable · AGPL-3.0
+                  </p>
+                  <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight text-heading sm:text-5xl">
+                    Time tracking&nbsp;&amp; invoicing in one screen
+                  </h1>
+                  <p className="mt-4 text-base leading-relaxed text-tertiary">
+                    Track time, manage clients and projects, build invoices from
+                    unbilled sessions, and share public payment links — without
+                    leaving the dashboard. The Toggl alternative you can actually own.
+                  </p>
+                  <div className="mt-8 flex flex-wrap items-center gap-3">
+                    <Button asChild>
+                      <Link href="/app">Get started free</Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <a
+                        href={GITHUB_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Github className="size-4" />
+                        View on GitHub
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right column — product screenshot */}
+                <div className="border border-line overflow-hidden">
+                  <img
+                    src="/dashboard.png"
+                    alt="Logr dashboard — time tracker with built-in invoicing"
+                    className="block w-full"
+                  />
+                </div>
               </div>
             </div>
           </section>
 
-          {/* ── Section 2: Definition block (GEO-critical) ── */}
+          {/* ── Definition block (GEO-critical) ── */}
           <section className="border-b border-line bg-wash">
-            <div className="mx-auto max-w-[1080px] px-6 py-16">
-              <p className="mx-auto max-w-[680px] text-base leading-relaxed text-ink">
+            <div className="mx-auto max-w-[1080px] px-5 py-10 sm:px-8 lg:px-35">
+              <p className="max-w-[680px] text-base leading-relaxed text-ink">
                 <strong>
                   Logr is an open-source, self-hostable time tracker with
                   built-in invoicing for freelancers and agencies.
@@ -179,85 +206,78 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── Section 3: Features grid ── */}
+          {/* ── Features grid ── */}
           <section className="border-b border-line bg-card">
-            <div className="mx-auto max-w-[1080px] px-6 py-20">
-              <h2 className="text-4xl font-bold text-heading">
+            <div className="mx-auto max-w-[1080px] px-5 py-14 sm:px-8 lg:px-35">
+              <h2 className="text-2xl font-bold text-heading">
                 Everything in one screen
               </h2>
-              <p className="mt-2 text-base text-tertiary">
+              <p className="mt-1.5 text-base text-tertiary">
                 Track time, manage clients, build invoices, and share reports —
                 without leaving the dashboard.
               </p>
 
-              <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
                 {features.map(({ icon: Icon, title, description }) => (
-                  <Card key={title}>
-                    <CardContent className="pt-6">
-                      <div className="mb-4 inline-flex bg-wash p-3">
-                        <Icon className="size-5 text-ink" />
-                      </div>
-                      <h3 className="text-base font-semibold text-heading">
-                        {title}
-                      </h3>
-                      <p className="mt-2 text-md text-tertiary">{description}</p>
-                    </CardContent>
-                  </Card>
+                  <div key={title} className="bg-card p-5">
+                    <div className="mb-4 inline-flex bg-wash p-2.5">
+                      <Icon className="size-4 text-ink" aria-hidden="true" />
+                    </div>
+                    <h3 className="text-base font-semibold text-heading">{title}</h3>
+                    <p className="mt-2 text-md leading-relaxed text-tertiary">
+                      {description}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
           </section>
 
-          {/* ── Section 4: Comparison table ── */}
+          {/* ── Comparison table ── */}
           <section className="border-b border-line bg-wash">
-            <div className="mx-auto max-w-[1080px] px-6 py-20">
-              <h2 className="text-4xl font-bold text-heading">
+            <div className="mx-auto max-w-[1080px] px-5 py-14 sm:px-8 lg:px-35">
+              <h2 className="text-2xl font-bold text-heading">
                 How does Logr compare?
               </h2>
-              <p className="mt-2 text-base text-tertiary">
+              <p className="mt-1.5 text-base text-tertiary">
                 Logr vs the most popular time-tracking tools on the market.
               </p>
 
-              <div className="mt-10 overflow-x-auto">
-                <table className="w-full border-collapse border border-line bg-card text-base">
+              <div className="mt-8 overflow-x-auto border border-line bg-card">
+                <table className="w-full border-collapse text-base">
                   <thead>
                     <tr className="border-b border-line">
-                      <th className="px-5 py-4 text-left text-md font-semibold text-heading">
+                      <th className="px-5 py-3 text-left text-md font-semibold text-heading">
                         Feature
                       </th>
-                      <th className="border-l border-line bg-ink px-5 py-4 text-center text-md font-semibold text-white">
+                      <th className="border-l border-line bg-wash px-5 py-3 text-center text-md font-semibold text-heading">
                         Logr
                       </th>
-                      <th className="border-l border-line px-5 py-4 text-center text-md font-semibold text-heading">
+                      <th className="border-l border-line px-5 py-3 text-center text-md font-medium text-tertiary">
                         Toggl
                       </th>
-                      <th className="border-l border-line px-5 py-4 text-center text-md font-semibold text-heading">
+                      <th className="border-l border-line px-5 py-3 text-center text-md font-medium text-tertiary">
                         Harvest
                       </th>
-                      <th className="border-l border-line px-5 py-4 text-center text-md font-semibold text-heading">
+                      <th className="border-l border-line px-5 py-3 text-center text-md font-medium text-tertiary">
                         Clockify
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {comparisonRows.map((row, i) => (
-                      <tr
-                        key={row.label}
-                        className={`border-b border-line ${i % 2 === 1 ? "bg-wash" : "bg-card"}`}
-                      >
-                        <td className="px-5 py-3 text-md text-ink">
-                          {row.label}
-                        </td>
-                        <td className="border-l border-line bg-ink/5 px-5 py-3 text-center font-semibold text-money">
+                    {comparisonRows.map((row) => (
+                      <tr key={row.label} className="border-b border-line last:border-0">
+                        <td className="px-5 py-3 text-md text-ink">{row.label}</td>
+                        <td className="border-l border-line bg-wash px-5 py-3 text-center font-semibold text-money">
                           {row.logr}
                         </td>
-                        <td className="border-l border-line px-5 py-3 text-center text-tertiary">
+                        <td className="border-l border-line px-5 py-3 text-center text-muted-foreground">
                           {row.toggl}
                         </td>
-                        <td className="border-l border-line px-5 py-3 text-center text-tertiary">
+                        <td className="border-l border-line px-5 py-3 text-center text-muted-foreground">
                           {row.harvest}
                         </td>
-                        <td className="border-l border-line px-5 py-3 text-center text-tertiary">
+                        <td className="border-l border-line px-5 py-3 text-center text-muted-foreground">
                           {row.clockify}
                         </td>
                       </tr>
@@ -268,50 +288,50 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── Section 5: FAQ ── */}
+          {/* ── FAQ ── */}
           <section className="border-b border-line bg-card">
-            <div className="mx-auto max-w-[1080px] px-6 py-20">
-              <h2 className="text-4xl font-bold text-heading">
+            <div className="mx-auto max-w-[1080px] px-5 py-14 sm:px-8 lg:px-35">
+              <h2 className="text-2xl font-bold text-heading">
                 Frequently asked questions
               </h2>
 
-              <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="mt-8 grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-2">
                 {faqs.map(({ q, a }) => (
-                  <div key={q} className="border border-line bg-wash p-6">
+                  <div key={q} className="bg-card p-6">
                     <h3 className="text-base font-semibold text-heading">{q}</h3>
-                    <p className="mt-3 text-md leading-relaxed text-tertiary">
-                      {a}
-                    </p>
+                    <p className="mt-3 text-md leading-relaxed text-tertiary">{a}</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          {/* ── CTA band ── */}
-          <section className="border-b border-line bg-ink">
-            <div className="mx-auto max-w-[1080px] px-6 py-20 text-center">
-              <h2 className="text-4xl font-bold text-white">
-                Own your time data. Ship faster.
-              </h2>
-              <p className="mx-auto mt-4 max-w-[480px] text-base text-gray-400">
-                Logr is free to self-host. Get started in minutes — no credit
-                card, no vendor lock-in.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" className="bg-white text-ink hover:bg-gray-100" asChild>
-                  <Link href="/app">Launch dashboard</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                  <a
-                    href={GITHUB_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Star className="size-4" />
-                    Star on GitHub
-                  </a>
-                </Button>
+          {/* ── CTA — light card, no dark band ── */}
+          <section className="border-b border-line bg-wash">
+            <div className="mx-auto max-w-[1080px] px-5 py-14 sm:px-8 lg:px-35">
+              <div className="border border-line bg-card p-8">
+                <h2 className="text-2xl font-bold text-heading">
+                  Own your time data. Ship faster.
+                </h2>
+                <p className="mt-2 max-w-[480px] text-base text-tertiary">
+                  Logr is free to self-host. Get started in minutes — no credit
+                  card, no vendor lock-in.
+                </p>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <Button asChild>
+                    <Link href="/app">Get started free</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <a
+                      href={GITHUB_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Github className="size-4" />
+                      View on GitHub
+                    </a>
+                  </Button>
+                </div>
               </div>
             </div>
           </section>
@@ -319,14 +339,23 @@ export default function Home() {
 
         {/* ── Footer ── */}
         <footer className="border-t border-line bg-card">
-          <div className="mx-auto flex max-w-[1080px] flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row">
-            <span className="text-md font-bold text-heading">logr</span>
-            <nav className="flex flex-wrap items-center gap-6 text-md text-tertiary">
+          <div className="mx-auto flex max-w-[1080px] flex-col items-start justify-between gap-4 px-5 py-8 sm:flex-row sm:items-center sm:px-8 lg:px-35">
+            {/* Logo + wordmark */}
+            <div className="flex items-center gap-2.5">
+              <div className="relative size-6 bg-black">
+                <span className="absolute left-2 top-[5px] h-2.5 w-[2px] bg-card" />
+                <span className="absolute left-[12.5px] top-[5px] h-2.5 w-[2px] bg-card" />
+              </div>
+              <span className="text-base font-semibold tracking-[-0.16px] text-ink">logr.work</span>
+            </div>
+
+            {/* Links */}
+            <nav className="flex flex-wrap items-center gap-5 text-md text-tertiary">
               <a
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-ink"
+                className="hover:text-ink transition-colors"
               >
                 GitHub
               </a>
@@ -334,20 +363,12 @@ export default function Home() {
                 href="https://github.com/zerox9dev/logr/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-ink"
+                className="hover:text-ink transition-colors"
               >
                 License (AGPL-3.0)
               </a>
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 hover:text-ink"
-              >
-                <Star className="size-3.5" />
-                Star on GitHub
-              </a>
             </nav>
+
             <p className="text-md text-muted-foreground">
               © {new Date().getFullYear()} Logr. AGPL-3.0.
             </p>
