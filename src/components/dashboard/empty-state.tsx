@@ -1,4 +1,4 @@
-import { useAppData } from "@/lib/data-context";
+import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 

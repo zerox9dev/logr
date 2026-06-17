@@ -1,5 +1,5 @@
 import { Zap } from "lucide-react";
-import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useDashboard } from "@/contexts/dashboard-context";
 import { useT } from "@/i18n";
 
 /** Daily Summary — Figma 57:2. Title 20px + summary sentence with bold figures

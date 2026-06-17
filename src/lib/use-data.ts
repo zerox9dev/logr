@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "./auth-context";
+import { useAuth } from "@/contexts/auth-context";
 import {
   settingsApi, clientsApi, projectsApi, sessionsApi,
   invoicesApi, invoiceItemsApi, activitiesApi,
-} from "./api";
+} from "@/lib/api";
 import type {
   UserSettings, Client, Project, Session, Invoice, InvoiceItem,
   Activity,

@@ -1,12 +1,12 @@
 /** Goals — Figma 57:317. Weekly goal progress + current/longest streak.
  *  Right-column card: border #e4e4e7, px-24 py-18, gap-14. */
 import { useState, type FormEvent } from "react";
-import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useDashboard } from "@/contexts/dashboard-context";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { useAppData } from "@/lib/data-context";
+import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 
 const GOAL_LABEL_KEYS: Record<string, string> = {

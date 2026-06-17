@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
-import { useAppData } from "@/lib/data-context";
+import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import type { BillingType, Client } from "@/types/database";
 

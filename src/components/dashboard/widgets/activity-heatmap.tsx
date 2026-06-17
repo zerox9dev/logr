@@ -1,7 +1,7 @@
 /** Activity — Figma 57:44. GitHub-style heatmap, 30 weeks × 7 days, 5-level
  *  grayscale, month labels, weekday labels (Mon/Wed/Fri), Less…More legend.
  *  Right-column card: border #e4e4e7, px-24 py-18, gap-8. */
-import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { useDashboard } from "@/contexts/dashboard-context";
 import { useT } from "@/i18n";
 
 const LEVELS = ["var(--color-hm-0)", "var(--color-hm-1)", "var(--color-hm-2)", "var(--color-hm-3)", "var(--color-hm-4)"];

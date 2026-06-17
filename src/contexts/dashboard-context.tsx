@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState, useCallback, type ReactNode } from "react";
-import { useAppData } from "@/lib/data-context";
+import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import {
   computeMetrics, shiftDate, isAtCurrentPeriod, rangeFor,

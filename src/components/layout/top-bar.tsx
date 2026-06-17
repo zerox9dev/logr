@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { NewMenu } from "@/components/dashboard/new-menu";
 import { CommandPalette } from "@/components/layout/command-palette";
 import { ImportDialog } from "@/components/dashboard/import-dialog";
-import { useAuth } from "@/lib/auth-context";
-import { useAppData } from "@/lib/data-context";
+import { useAuth } from "@/contexts/auth-context";
+import { useAppData } from "@/contexts/data-context";
 import { useLang, useT, LANGS, LANG_LABELS } from "@/i18n";
 
 /** Initials from a name ("Vitaly Mirvald" → "VM") or email ("v@x" → "V"). */
