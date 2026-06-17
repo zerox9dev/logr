@@ -8,7 +8,7 @@ import {
   type ReportBreakdownItem,
 } from "@/lib/report-share";
 import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "@/lib/format";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 function formatReportDate(iso: string): string {
   return new Date(iso).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });

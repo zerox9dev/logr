@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { useAppData } from "@/lib/data-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
 import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/lib/report-share";
 import type { Period } from "@/lib/dashboard-metrics";

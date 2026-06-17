@@ -5,7 +5,7 @@ import { Folder, CircleDot, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 function ProjectRow({
   pct, name, time, active, open, hasTasks, onToggle,

@@ -5,7 +5,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { useAppData } from "@/lib/data-context";
-import { useT, useLang } from "@/lib/i18n";
+import { useT, useLang } from "@/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/format";
 import type { Session } from "@/types/database";
 

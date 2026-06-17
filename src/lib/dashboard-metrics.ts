@@ -5,6 +5,7 @@ import {
   type Range, startOfDay, startOfWeek, startOfMonth, addDays, sameDay, inRange,
 } from "@/lib/date";
 import { fmtDuration, fmtMoney, fmtDateLong, pad2 } from "@/lib/format";
+import { dashboard } from "@/i18n/dashboard";
 
 // ── Period ──
 
@@ -35,27 +36,6 @@ export function isAtCurrentPeriod(period: Period, ref: Date, today: Date): boole
 
 /** Resolves an i18n key. Provided by the app; defaults to English below. */
 type TR = (key: string) => string;
-
-/** English fallbacks so computeMetrics stays English when no translator is
- *  passed (keeps the pure formatters and their tests stable). A real `t` from
- *  the app overrides every one of these. */
-const EN_METRIC: Record<string, string> = {
-  "unit.hr": "hr",
-  "unit.min": "min",
-  "unit.perHr": "/hr",
-  "metric.earned": "earned",
-  "metric.ofTrackedTime": "of tracked time",
-  "metric.noClient": "No client",
-  "metric.internal": "Internal",
-  "metric.leadToday": "Today",
-  "metric.leadWeek": "This week",
-  "metric.leadMonth": "This month",
-  "metric.leadAll": "In total",
-  "metric.noActivity": "No activity",
-  "metric.of": "of",
-  "metric.allTime": "All time",
-  "metric.heatmapTotal": "{h} hours tracked over the last {w} weeks",
-};
 
 const PERIOD_LEAD: Record<Period, string> = {
   Day: "metric.leadToday", Week: "metric.leadWeek", Month: "metric.leadMonth", All: "metric.leadAll",
@@ -518,7 +498,7 @@ function headerLabel(period: Period, now: Date, tr: TR, locale: string): string 
 
 export function computeMetrics(input: MetricsInput): DashboardMetrics {
   const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
-  const tr: TR = (k) => input.t?.(k) ?? EN_METRIC[k] ?? k;
+  const tr: TR = (k) => input.t?.(k) ?? dashboard.en[k] ?? k;
   const locale = input.lang ?? "en-US";
   const currency = settings?.default_currency ?? "USD";
   const r = rangeFor(period, now);

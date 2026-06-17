@@ -1,5 +1,5 @@
-import type { Lang } from "./i18n";
-import { dashboard } from "./i18n-dashboard";
+import type { Lang } from "./index";
+import { dashboard } from "./dashboard";
 
 // App UI translations — only EN / UK / RU inside the cabinet
 const app: Record<string, Record<string, string>> = {

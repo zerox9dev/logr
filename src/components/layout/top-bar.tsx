@@ -7,7 +7,7 @@ import { CommandPalette } from "@/components/layout/command-palette";
 import { ImportDialog } from "@/components/dashboard/import-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { useAppData } from "@/lib/data-context";
-import { useLang, useT, LANGS, LANG_LABELS } from "@/lib/i18n";
+import { useLang, useT, LANGS, LANG_LABELS } from "@/i18n";
 
 /** Initials from a name ("Vitaly Mirvald" → "VM") or email ("v@x" → "V"). */
 function initials(name: string): string {

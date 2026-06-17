@@ -1,5 +1,5 @@
 import { useAppData } from "@/lib/data-context";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 
 /** Onboarding panel for a brand-new user with zero data. Presentational

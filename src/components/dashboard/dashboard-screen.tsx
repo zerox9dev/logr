@@ -1,5 +1,5 @@
 import { useAppData } from "@/lib/data-context";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { DashboardProvider } from "@/components/dashboard/dashboard-context";
 import { TopBar } from "@/components/layout/top-bar";

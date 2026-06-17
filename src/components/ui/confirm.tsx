@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 interface ConfirmOptions {
   title: string;

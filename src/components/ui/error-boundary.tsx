@@ -1,7 +1,7 @@
 import { Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
 import { Button } from "@/components/ui/button";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 interface Props {
   children: ReactNode;

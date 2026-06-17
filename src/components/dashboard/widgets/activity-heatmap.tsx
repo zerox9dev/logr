@@ -2,7 +2,7 @@
  *  grayscale, month labels, weekday labels (Mon/Wed/Fri), Less…More legend.
  *  Right-column card: border #e4e4e7, px-24 py-18, gap-8. */
 import { useDashboard } from "@/components/dashboard/dashboard-context";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 const LEVELS = ["var(--color-hm-0)", "var(--color-hm-1)", "var(--color-hm-2)", "var(--color-hm-3)", "var(--color-hm-4)"];
 

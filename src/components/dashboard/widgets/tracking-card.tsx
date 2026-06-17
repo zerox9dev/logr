@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/lib/data-context";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 import { fmtClock, fmtMoney } from "@/lib/format";
 import type { BillingType, Project, SessionInsert } from "@/types/database";
 

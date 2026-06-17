@@ -6,7 +6,7 @@
  *     tracked in that hour across the range), so it stays readable.
  *  Left-column card: border #ececec, px-28 pt-24 pb-20, gap-18. */
 import { useDashboard } from "@/components/dashboard/dashboard-context";
-import { useT } from "@/lib/i18n";
+import { useT } from "@/i18n";
 
 const W = 955;
 const PLOT_TOP = 8;

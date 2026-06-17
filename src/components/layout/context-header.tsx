@@ -4,7 +4,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/components/dashboard/dashboard-context";
-import { useT, useLang } from "@/lib/i18n";
+import { useT, useLang } from "@/i18n";
 import type { Period } from "@/lib/dashboard-metrics";
 
 const VIEWS: Period[] = ["Day", "Week", "Month", "All"];
