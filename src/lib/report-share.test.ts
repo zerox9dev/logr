@@ -2,14 +2,13 @@ import { describe, it, expect } from "vitest";
 import type { Client, Session } from "@/types/database";
 import {
   getRangeStart,
-  formatDuration,
-  getCurrencySymbol,
   encodeSharedReport,
   decodeSharedReport,
   generateCSV,
   createReportSummary,
   type SharedReportPayload,
 } from "./report-share";
+import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "./format";
 
 // ── Fixtures ──
 

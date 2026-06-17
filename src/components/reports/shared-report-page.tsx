@@ -5,10 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   decodeSharedReport,
-  formatDuration,
-  getCurrencySymbol,
   type ReportBreakdownItem,
 } from "@/lib/report-share";
+import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 
 function formatReportDate(iso: string): string {

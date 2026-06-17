@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/lib/data-context";
 import { useT } from "@/lib/i18n";
-import { fmtClock, fmtMoney } from "@/lib/dashboard-metrics";
+import { fmtClock, fmtMoney } from "@/lib/format";
 import type { BillingType, Project, SessionInsert } from "@/types/database";
 
 /** Build a SessionInsert from a project + task + timing, applying the

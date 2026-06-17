@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { useAppData } from "@/lib/data-context";
 import { useT, useLang } from "@/lib/i18n";
-import { fmtDuration, fmtMoney } from "@/lib/dashboard-metrics";
+import { fmtDuration, fmtMoney } from "@/lib/format";
 import type { Session } from "@/types/database";
 
 interface EntryValues { name: string; date: string; startTime: string; hours: string; minutes: string }
