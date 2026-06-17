@@ -5,7 +5,7 @@ import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
-import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
+import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
 import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/domain/report-share";

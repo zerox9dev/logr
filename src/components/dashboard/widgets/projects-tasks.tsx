@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import { Folder, CircleDot, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
-import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
+import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useT } from "@/i18n";
 
 function ProjectRow({

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
-import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
+import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 
