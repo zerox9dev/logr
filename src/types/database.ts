@@ -96,14 +96,6 @@ export interface InvoiceItem {
   amount: number;
 }
 
-export interface ShareLink {
-  id: string;
-  invoice_id: string;
-  token: string;
-  expires_at: string | null;
-  created_at: string;
-}
-
 export interface Activity {
   id: string;
   user_id: string;
