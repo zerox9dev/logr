@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
+import { ClientPicker } from "@/components/shared/client-picker";
+import { CreateInvoiceDialog } from "@/components/dashboard/create-invoice-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
-import type { BillingType, Client } from "@/types/database";
+import type { BillingType } from "@/types/database";
 
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -73,39 +75,6 @@ function NewClientDialog({ open, onClose }: { open: boolean; onClose: () => void
         </div>
       </form>
     </Dialog>
-  );
-}
-
-/** Client picker — Radix DropdownMenu over existing clients. */
-function ClientPicker({
-  clients, onChange, trigger,
-}: {
-  clients: Client[];
-  onChange: (id: string) => void;
-  trigger: React.ReactNode;
-}) {
-  const t = useT();
-  const item = "cursor-pointer truncate px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
-  return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align="start"
-          sideOffset={6}
-          className="z-[60] max-h-[240px] min-w-[220px] max-w-[320px] overflow-auto border border-line bg-card py-1 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)]"
-        >
-          {clients.map((c) => (
-            <DropdownMenu.Item key={c.id} className={item} onSelect={() => onChange(c.id)}>
-              {c.name}
-            </DropdownMenu.Item>
-          ))}
-          {clients.length === 0 && (
-            <span className="block px-3 py-2 text-md text-muted">{t("new.noClientsYet")}</span>
-          )}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
   );
 }
 
@@ -212,7 +181,7 @@ function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onCl
 
 /** `+ New` button (TopBar) — dropdown to create a project or client. */
 export function NewMenu() {
-  const [dialog, setDialog] = useState<null | "project" | "client">(null);
+  const [dialog, setDialog] = useState<null | "project" | "client" | "invoice">(null);
   const t = useT();
   const item = "cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
 
@@ -233,12 +202,14 @@ export function NewMenu() {
           >
             <DropdownMenu.Item className={item} onSelect={() => setDialog("project")}>{t("new.newProject")}</DropdownMenu.Item>
             <DropdownMenu.Item className={item} onSelect={() => setDialog("client")}>{t("new.newClient")}</DropdownMenu.Item>
+            <DropdownMenu.Item className={item} onSelect={() => setDialog("invoice")}>{t("invoice.new")}</DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
       <NewProjectDialog open={dialog === "project"} onClose={() => setDialog(null)} onNeedClient={() => setDialog("client")} />
       <NewClientDialog open={dialog === "client"} onClose={() => setDialog(null)} />
+      <CreateInvoiceDialog open={dialog === "invoice"} onClose={() => setDialog(null)} />
     </>
   );
 }
