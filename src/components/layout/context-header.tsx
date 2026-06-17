@@ -5,7 +5,7 @@ import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT, useLang } from "@/i18n";
-import type { Period } from "@/lib/dashboard-metrics";
+import type { Period } from "@/domain/dashboard-metrics";
 
 const VIEWS: Period[] = ["Day", "Week", "Month", "All"];
 // "Day" period is surfaced as "Today" — selecting it also jumps to the current day.

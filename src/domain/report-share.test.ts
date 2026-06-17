@@ -8,7 +8,7 @@ import {
   createReportSummary,
   type SharedReportPayload,
 } from "./report-share";
-import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "./format";
+import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "@/lib/format";
 
 // ── Fixtures ──
 

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   decodeSharedReport,
   type ReportBreakdownItem,
-} from "@/lib/report-share";
+} from "@/domain/report-share";
 import { fmtDurationCompact as formatDuration, getCurrencySymbol } from "@/lib/format";
 import { useT } from "@/i18n";
 

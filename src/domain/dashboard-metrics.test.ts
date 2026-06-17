@@ -7,7 +7,7 @@ import {
   computeMetrics,
   type MetricsInput,
 } from "./dashboard-metrics";
-import { fmtDuration, fmtClock, fmtMoney } from "./format";
+import { fmtDuration, fmtClock, fmtMoney } from "@/lib/format";
 
 // ── Fixtures ──
 

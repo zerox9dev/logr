@@ -4,7 +4,7 @@ import { useTimer } from "@/hooks/use-timer";
 import {
   settingsApi, clientsApi, projectsApi, sessionsApi,
   invoicesApi, invoiceItemsApi, activitiesApi,
-} from "@/lib/api";
+} from "@/api";
 import type {
   UserSettings, Client, Project, Session, Invoice, InvoiceItem,
   Activity,

@@ -8,8 +8,8 @@ import { useAppData } from "@/contexts/data-context";
 import { SessionsDialog } from "@/components/dashboard/sessions-dialog";
 import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
-import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/lib/report-share";
-import type { Period } from "@/lib/dashboard-metrics";
+import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/domain/report-share";
+import type { Period } from "@/domain/dashboard-metrics";
 
 function periodToRange(period: Period): ReportsRange {
   if (period === "Month") return "month";
