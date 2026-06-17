@@ -62,7 +62,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   return <DashboardContext.Provider value={value}>{children}</DashboardContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useDashboard() {
   const ctx = useContext(DashboardContext);
   if (!ctx) throw new Error("useDashboard must be inside DashboardProvider");

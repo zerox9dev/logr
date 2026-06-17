@@ -18,19 +18,10 @@
       "@/*": ["./src/*"]
     }
   },
-  "//": "include scoped during migration — Vite-coupled files (supabase/import.meta, contexts, hooks, api, router pages, old entry) widen to all of src in Phase 6.",
   "include": [
     "next-env.d.ts",
-    "src/middleware.ts",
-    "src/app/**/*",
-    "src/api/**/*",
-    "src/components/**/*",
-    "src/contexts/**/*",
-    "src/hooks/**/*",
-    "src/lib/**/*",
-    "src/domain/**/*",
-    "src/i18n/**/*",
-    "src/types/**/*",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
