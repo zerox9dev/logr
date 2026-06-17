@@ -12,6 +12,13 @@ export const metadata: Metadata = {
     description: "Track time, manage clients, send invoices. Free & open source.",
     url: "https://logr.work",
     type: "website",
+    images: ["/logr.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Logr — open-source time tracking & invoicing",
+    description: "Track time, manage clients, send invoices. Free & open source.",
+    images: ["/logr.png"],
   },
 };
 
