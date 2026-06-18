@@ -813,7 +813,19 @@ const mcpHandler = createMcpHandler(
   { basePath: "/", sessionIdGenerator: undefined }
 );
 
-// Wrap with bearer token auth
-const handler = withMcpAuth(mcpHandler, verifyToken, { required: true });
+/**
+ * Wrap with Bearer token auth.
+ *
+ * - required: true        → unauthenticated requests get a 401
+ * - resourceMetadataPath  → the WWW-Authenticate challenge on 401 includes
+ *     resource_metadata="<origin>/.well-known/oauth-protected-resource"
+ *     so MCP clients supporting RFC 9728 can auto-discover the AS.
+ *     mcp-handler derives the origin from the incoming request's host, which
+ *     is correct on Vercel (the host header is logr.work in production).
+ */
+const handler = withMcpAuth(mcpHandler, verifyToken, {
+  required: true,
+  resourceMetadataPath: "/.well-known/oauth-protected-resource",
+});
 
 export { handler as GET, handler as POST };

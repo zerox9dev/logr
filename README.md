@@ -132,26 +132,23 @@ All tables use Row-Level Security with `user_id = auth.uid()`.
 
 Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) server at `https://logr.work/mcp` (Streamable HTTP; SSE variant at `/sse`).
 
-**Auth:** pass your Supabase access token in the `Authorization` header: `Bearer <token>`. All tools run scoped to your account via Row-Level Security — no extra setup needed.
+**Auth:** standard MCP OAuth 2.1 via Supabase — modern clients auto-discover the flow and prompt you to log in; no token copy-pasting needed. All tools run scoped to your account via Row-Level Security.
 
 **What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary` and `list_unbilled` insight tools.
 
-**Claude Desktop config example:**
+**Claude Desktop config example (OAuth auto-discovery):**
 
 ```json
 {
   "mcpServers": {
     "logr": {
-      "url": "https://logr.work/mcp",
-      "headers": {
-        "Authorization": "Bearer <your-supabase-access-token>"
-      }
+      "url": "https://logr.work/mcp"
     }
   }
 }
 ```
 
-See [docs/MCP.md](docs/MCP.md) for the full tool list and setup.
+See [docs/MCP.md](docs/MCP.md) for the full tool list, OAuth setup steps, and manual token instructions.
 
 ## Contributing
 
