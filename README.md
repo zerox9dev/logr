@@ -4,7 +4,7 @@
 
 [![Live demo](https://img.shields.io/badge/live-demo-000?style=flat)](https://logr.work) ![Status](https://img.shields.io/badge/status-beta-orange) [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE) ![Stars](https://img.shields.io/github/stars/zerox9dev/logr?style=flat)
 
-**[▶ Try the live demo](https://logr.work)** &nbsp;·&nbsp; [Deploy your own](#getting-started) &nbsp;·&nbsp; [Self-host](#self-hosting-docker)
+**[▶ Try the live demo](https://logr.work)** &nbsp;·&nbsp; [Deploy your own](#getting-started) &nbsp;·&nbsp; [Self-host](#self-host--deploy-docker)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/zerox9dev/logr)
 
@@ -73,57 +73,45 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Self-hosting (Docker)
+## Self-host / deploy (Docker)
 
-Run the full logr stack locally (or on your own server) with a single command. The compose file includes a minimal Supabase backend (Postgres, GoTrue auth, PostgREST, Kong API gateway) — no Supabase Cloud account needed.
+logr is a Next.js app backed by Supabase. Run the app anywhere with Docker and point it at **your own Supabase** — either [Supabase Cloud](https://supabase.com) (free tier is plenty) or a [self-hosted Supabase](https://supabase.com/docs/guides/self-hosting/docker). Keeping Supabase separate means you get its battle-tested auth, Postgres, and RLS without bundling a fragile ten-container stack.
 
-> For the production-grade full stack (Storage, Realtime, Studio, Analytics) follow the [official Supabase self-host guide](https://supabase.com/docs/guides/self-hosting/docker).
+### 1 — Create a Supabase project and apply the schema
 
-### Prerequisites
+Create a project (Cloud or self-hosted), then run the schema migration to create the tables, enums, and RLS policies:
 
-- Docker + Docker Compose v2
-- Node.js (only to run the one-shot key generator below)
+- **SQL editor:** paste the contents of [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) and run it, **or**
+- **Supabase CLI:** `supabase link --project-ref <ref> && supabase db push`
 
-### 1 — Clone and generate secrets
+Then enable auth providers under *Authentication → Providers* (Email for magic links; Google optional) and add your redirect URLs — see [Supabase setup](#supabase-setup) below.
+
+### 2 — Configure and run the app
 
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
-cp .env.example .env
-node scripts/gen-env-keys.mjs >> .env   # appends a matched POSTGRES_PASSWORD + JWT_SECRET + ANON/SERVICE keys
-```
-
-The keys must be a matched set — `ANON_KEY` and `SERVICE_ROLE_KEY` are JWTs signed with `JWT_SECRET`. The script generates all of them together so they line up. (Appended values override the placeholders since the last definition wins.)
-
-### 2 — Start the stack
-
-```bash
+cp .env.example .env       # fill in the 3 values from Project Settings → API
 docker compose up -d --build
 ```
 
-First boot takes ~1–2 minutes as Docker pulls images and Postgres initialises. The logr schema (`supabase/migrations/0001_init.sql`) is applied automatically on first boot.
+`.env` needs just three values from your Supabase dashboard (*Project Settings → API*):
 
-| Service | URL |
-|---------|-----|
-| logr app | http://localhost:3000 |
-| Supabase API (Kong) | http://localhost:8000 |
-| Postgres | localhost:5432 |
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...          # anon public key
+SUPABASE_SERVICE_ROLE_KEY=eyJ...              # service_role key (server-only)
+```
 
-### Browser vs. internal origin
+The app comes up at **http://localhost:3000** (set `APP_PORT` in `.env` to use another port).
 
-`NEXT_PUBLIC_SUPABASE_URL` is the URL your **browser** uses (e.g. `http://localhost:8000`) and is baked into the client bundle. Server-side code inside the app container can't use `localhost` (that's the container itself), so it talks to Supabase over the internal Docker network via `SUPABASE_INTERNAL_URL=http://kong:8000` — already wired in `docker-compose.yml`, no action needed.
+> `NEXT_PUBLIC_*` are baked into the client bundle at build time — if you change them, rebuild with `docker compose up -d --build`.
 
-On a remote server, set `NEXT_PUBLIC_SUPABASE_URL` to your server's IP or domain (port `8000`) in `.env` before building — it's a build-time value, so rebuild (`docker compose up -d --build`) after changing it.
-
-### Auth providers
-
-- **Email / magic links** — work out of the box with `MAILER_AUTOCONFIRM=true`. For real email delivery, configure SMTP in `.env` and set `MAILER_AUTOCONFIRM=false`.
-- **Google OAuth** — create an OAuth 2.0 client at [console.cloud.google.com](https://console.cloud.google.com), then set `GOTRUE_EXTERNAL_GOOGLE_ENABLED=true`, `GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID`, and `GOTRUE_EXTERNAL_GOOGLE_SECRET` in `.env` (and add the env vars to the `auth` service in `docker-compose.yml`). Redirect URI: `http://<your-domain>:8000/auth/v1/callback`.
+Prefer a one-click deploy? Use the **[Deploy with Vercel](#)** button at the top — same three env vars.
 
 ### Stop / clean up
 
 ```bash
-docker compose down          # stop containers, keep db volume
-docker compose down -v       # stop + remove the db volume (destroys data)
+docker compose down     # stop the app container
 ```
 
 ---
