@@ -49,26 +49,26 @@ function EntryForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-md-minus text-muted">{t("sessions.task")}</span>
+        <span className="text-md-minus text-muted-foreground">{t("sessions.task")}</span>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("sessions.taskPlaceholder")} autoFocus />
       </label>
       <div className="flex gap-3">
         <label className="flex flex-1 flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("sessions.date")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("sessions.date")}</span>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </label>
         <label className="flex w-28 flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("sessions.startTime")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("sessions.startTime")}</span>
           <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
         </label>
       </div>
       <div className="flex gap-3">
         <label className="flex w-24 flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("sessions.hours")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("sessions.hours")}</span>
           <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
         </label>
         <label className="flex w-24 flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("sessions.min")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("sessions.min")}</span>
           <Input type="number" min="0" max="59" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="0" />
         </label>
       </div>
@@ -174,21 +174,19 @@ export function SessionsDialog({
         />
         {target && (
           <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
-            <Button
-              variant="unstyled"
-              size="unstyled"
+            <button
               onClick={() => togglePaid(target.id, paid)}
-              className={`border px-3 py-1.5 text-sm font-medium ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
+              className={`border px-3 py-1.5 text-sm font-medium transition-colors ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
             >
               {paid ? t("sessions.paid") : t("sessions.markPaid")}
-            </Button>
-            <Button variant="unstyled" size="unstyled" onClick={() => remove(target.id, target.name, true)} className="px-2 py-1 text-md font-medium text-muted hover:text-red-600">
+            </button>
+            <button onClick={() => remove(target.id, target.name, true)} className="px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">
               {t("sessions.delete")}
-            </Button>
+            </button>
           </div>
         )}
         {rows.length > 1 && (
-          <p className="mt-3 text-md-minus text-muted">{t("sessions.editingNotePrefix")}{rows.length}{t("sessions.editingNoteSuffix")}</p>
+          <p className="mt-3 text-md-minus text-muted-foreground">{t("sessions.editingNotePrefix")}{rows.length}{t("sessions.editingNoteSuffix")}</p>
         )}
       </Dialog>
     );
@@ -211,12 +209,12 @@ export function SessionsDialog({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t("sessions.searchPlaceholder")}
-          className="min-w-0 flex-1 border border-line bg-card px-3 py-1.5 text-md text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-line"
+          className="min-w-0 flex-1 border border-line bg-card px-3 py-1.5 text-md text-ink placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-line"
         />
         <Button size="sm" onClick={() => setEditing("new")} disabled={editing !== null}>{t("sessions.addEntryButton")}</Button>
       </div>
       <div className="mb-3">
-        <span className="text-md-minus text-muted">{filteredRows.length} {filteredRows.length === 1 ? t("sessions.entryOne") : t("sessions.entryMany")}</span>
+        <span className="text-md-minus text-muted-foreground">{filteredRows.length} {filteredRows.length === 1 ? t("sessions.entryOne") : t("sessions.entryMany")}</span>
       </div>
 
       {editing !== null && (
@@ -241,44 +239,42 @@ export function SessionsDialog({
       )}
 
       <div className="flex max-h-[50vh] flex-col gap-px overflow-auto">
-        {filteredRows.length === 0 && <span className="py-6 text-center text-base text-muted">{t("sessions.noEntries")}</span>}
+        {filteredRows.length === 0 && <span className="py-6 text-center text-base text-muted-foreground">{t("sessions.noEntries")}</span>}
         {filteredRows.slice(0, 50).map((s) => {
           const project = getProjectById(s.project_id);
           const paid = s.payment_status === "paid";
           const amount = (s.duration_seconds / 3600) * (s.rate || 0);
           return (
             <div key={s.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
-              <span className="w-[88px] shrink-0 text-md-minus text-muted tnum">
+              <span className="w-[88px] shrink-0 text-md-minus text-muted-foreground tnum">
                 {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex min-w-0 items-center gap-1.5">
                   <span className="truncate text-md font-medium text-heading">{s.name}</span>
                   {(s.tags ?? []).map((tag) => (
-                    <span key={tag} className="shrink-0 border border-line px-1.5 py-px text-xs text-muted">{tag}</span>
+                    <span key={tag} className="shrink-0 border border-line px-1.5 py-px text-xs text-muted-foreground">{tag}</span>
                   ))}
                 </div>
-                <span className="truncate text-md-minus text-muted">{project?.name ?? t("sessions.noProject")}</span>
+                <span className="truncate text-md-minus text-muted-foreground">{project?.name ?? t("sessions.noProject")}</span>
               </div>
               <span className="w-[88px] shrink-0 text-right text-md text-tertiary tnum">{fmtDuration(s.duration_seconds, { hr: t("unit.hr"), min: t("unit.min") })}</span>
-              <span className={`w-[72px] shrink-0 text-right text-md font-semibold tnum ${amount > 0 ? "text-money" : "text-muted"}`}>
+              <span className={`w-[72px] shrink-0 text-right text-md font-semibold tnum ${amount > 0 ? "text-money" : "text-muted-foreground"}`}>
                 {amount > 0 ? fmtMoney(amount) : "—"}
               </span>
-              <Button
-                variant="unstyled"
-                size="unstyled"
+              <button
                 onClick={() => togglePaid(s.id, paid)}
-                className={`w-[84px] shrink-0 border px-2 py-1 text-sm font-medium ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
+                className={`w-[84px] shrink-0 border px-2 py-1 text-sm font-medium transition-colors ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
               >
                 {paid ? t("sessions.paid") : t("sessions.markPaid")}
-              </Button>
-              <Button variant="unstyled" size="unstyled" onClick={() => setEditing(s)} className="shrink-0 px-2 py-1 text-md font-medium text-tertiary hover:text-ink">{t("sessions.edit")}</Button>
-              <Button variant="unstyled" size="unstyled" onClick={() => remove(s.id, s.name)} className="shrink-0 px-2 py-1 text-md font-medium text-muted hover:text-red-600">{t("sessions.delete")}</Button>
+              </button>
+              <button onClick={() => setEditing(s)} className="shrink-0 px-2 py-1 text-md font-medium text-tertiary hover:text-ink transition-colors">{t("sessions.edit")}</button>
+              <button onClick={() => remove(s.id, s.name)} className="shrink-0 px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">{t("sessions.delete")}</button>
             </div>
           );
         })}
         {filteredRows.length > 50 && (
-          <span className="py-6 text-center text-md text-muted">
+          <span className="py-6 text-center text-md text-muted-foreground">
             {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(filteredRows.length))}
           </span>
         )}

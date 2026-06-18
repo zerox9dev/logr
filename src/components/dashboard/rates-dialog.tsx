@@ -55,22 +55,22 @@ function RatesForm({ project, onClose }: { project: Project | undefined; onClose
       {project ? (
         <>
           <div className="flex flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{t("rates.billing")}</span>
+            <span className="text-md-minus text-muted-foreground">{t("rates.billing")}</span>
             <div className="flex w-fit items-start bg-wash p-1">
               <button type="button" className={seg(!fixed)} onClick={() => setBilling("hourly")}>{t("rates.hourly")}</button>
               <button type="button" className={seg(fixed)} onClick={() => setBilling("fixed")}>{t("rates.fixed")}</button>
             </div>
           </div>
           <label className="flex flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{fixed ? t("rates.budget") : t("rates.rate")}</span>
+            <span className="text-md-minus text-muted-foreground">{fixed ? t("rates.budget") : t("rates.rate")}</span>
             <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
           </label>
         </>
       ) : (
         <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("rates.defaultRateField")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("rates.defaultRateField")}</span>
           <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
-          <span className="text-sm text-muted">{t("rates.noProjectHint")}</span>
+          <span className="text-sm text-muted-foreground">{t("rates.noProjectHint")}</span>
         </label>
       )}
 

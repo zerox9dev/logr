@@ -25,3 +25,12 @@ dist-ssr
 
 # Toggl / data exports (never commit personal data)
 *.csv
+
+# Next.js
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# Playwright MCP
+.playwright-mcp/
+phase1-landing.png

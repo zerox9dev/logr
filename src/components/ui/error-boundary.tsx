@@ -13,7 +13,6 @@ interface State {
 }
 
 /** Functional sub-component so we can call useT() inside a class ErrorBoundary. */
-// eslint-disable-next-line react-refresh/only-export-components -- colocated fallback for the class boundary by design
 function ErrorFallback({ message, onReset }: { message: string | null; onReset: () => void }) {
   const t = useT();
   return (

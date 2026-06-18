@@ -1,10 +1,11 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+"use client";
+
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { getAppTranslations } from "./app";
 
 export const LANGS = ["en", "uk", "ru"] as const;
 export type Lang = (typeof LANGS)[number];
 
-// eslint-disable-next-line react-refresh/only-export-components -- shared constant colocated with the provider
 export const LANG_LABELS: Record<Lang, string> = {
   en: "English",
   uk: "Українська",
@@ -37,7 +38,14 @@ interface LangState {
 const LangContext = createContext<LangState | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(detectLang);
+  // Start at "en" so the server and the first client render agree (no hydration
+  // mismatch); switch to the saved/browser language right after mount.
+  const [lang, setLangState] = useState<Lang>("en");
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: server/first-client render uses "en" to avoid SSR mismatch; detectLang() is client-only and runs after mount
+    setLangState(detectLang());
+  }, []);
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
@@ -57,14 +65,12 @@ export function LangProvider({ children }: { children: ReactNode }) {
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useLang(): LangState {
   const ctx = useContext(LangContext);
   if (!ctx) throw new Error("useLang must be inside LangProvider");
   return ctx;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useT(): (key: string) => string {
   return useLang().t;
 }

@@ -10,7 +10,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useAppData() {
   const ctx = useContext(DataContext);
   if (!ctx) throw new Error("useAppData must be inside DataProvider");

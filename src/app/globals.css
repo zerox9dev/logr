@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────
+   logr design tokens (1:1 from Figma) + shadcn/ui semantic tokens
+   skinned to logr's palette. Square (radius 0), monochrome,
+   money = green, active project = purple. Light-only.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Calistoga", Georgia, "Times New Roman", serif;
+
+  /* logr extra tokens (non-semantic — used directly as text-ink, bg-wash…) */
+  --color-ink: #18181b;
+  --color-heading: #141414;
+  --color-tertiary: #71717a;
+  --color-dark-1: #3f3f42;
+  --color-dark-2: #4a4a4e;
+  --color-dark-3: #5a5a5e;
+  --color-gray-400: #a1a1aa;
+  --color-gray-300: #d4d4d8;
+
+  --color-page: #f4f4f5;
+  --color-wash: #f2f2f3;
+  --color-icon-tile: #f4f4f5;
+  --color-line: #ececec;
+  --color-line-2: #e4e4e7;
+  --color-track: #e7e7e9;
+  --color-grid: #f0f0f1;
+  --color-timeline: #0b0b0b;
+  --color-timeline-track: #efeff0;
+
+  --color-money: #16a34a;
+  --color-brand: #2f7a5b;
+  --color-brand-soft: #e3f0ea;
+  --color-brand-faint: #f3f8f5;
+  --color-purple-soft: #ede6fb;
+  --color-error-soft: #e98e8e;
+  --color-placeholder: #a1a1aa;
+
+  --color-hm-0: #f4f4f5;
+  --color-hm-1: #d4d4d8;
+  --color-hm-2: #a1a1aa;
+  --color-hm-3: #52525b;
+  --color-hm-4: #18181b;
+
+  /* Font sizes — exact Figma scale */
+  --text-xs: 10px;
+  --text-sm-minus: 11px;
+  --text-sm: 12px;
+  --text-md-minus: 13px;
+  --text-md: 14px;
+  --text-base: 15px;
+  --text-lg: 16px;
+  --text-xl: 17px;
+  --text-widget: 18px;
+  --text-summary: 20px;
+  --text-3xl: 22px;
+  --text-4xl: 24px;
+  --text-5xl: 26px;
+  --text-hero: 52px;
+
+  --animate-slide-in-right: slide-in-right 0.2s ease-out;
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+}
+
+@layer base {
+  *, *::before, *::after {
+    border-radius: 0 !important;   /* square everywhere — logr design rule */
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    @apply bg-background text-foreground;
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* shadcn semantic token → CSS variable mapping (canonical) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+/* Semantic values skinned to logr's palette */
+:root {
+  --radius: 0rem;
+  --background: #f4f4f5;          /* page */
+  --foreground: #18181b;          /* ink */
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;            /* logr buttons are black/ink */
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f3;          /* wash */
+  --secondary-foreground: #18181b;
+  --muted: #f2f2f3;              /* surface (wash) */
+  --muted-foreground: #8a8a8e;   /* logr's muted text */
+  --accent: #f2f2f3;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;        /* red-600 */
+  --border: #ececec;             /* line */
+  --input: #ececec;
+  --ring: #d4d4d8;
+  --chart-1: #d4d4d8;
+  --chart-2: #a1a1aa;
+  --chart-3: #71717a;
+  --chart-4: #52525b;
+  --chart-5: #18181b;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f2f3;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #ececec;
+  --sidebar-ring: #d4d4d8;
+}

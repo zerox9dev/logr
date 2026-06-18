@@ -116,7 +116,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
             <div ref={listRef} className="flex max-h-[50vh] flex-col overflow-auto p-1.5">
               {results.length === 0 && (
-                <span className="px-3 py-6 text-center text-md text-muted">{t("cmd.noResults")}</span>
+                <span className="px-3 py-6 text-center text-md text-muted-foreground">{t("cmd.noResults")}</span>
               )}
               {results.map((r, i) => {
                 const header = r.group !== lastGroup ? r.group : null;
@@ -124,7 +124,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 return (
                   <div key={`${r.kind}-${r.id}`}>
                     {header && (
-                      <div className="px-3 pb-1 pt-2 text-sm-minus font-medium uppercase tracking-wide text-muted">
+                      <div className="px-3 pb-1 pt-2 text-sm-minus font-medium uppercase tracking-wide text-muted-foreground">
                         {header === "Projects" ? t("cmd.groupProjects") : t("cmd.groupSessions")}
                       </div>
                     )}
@@ -137,7 +137,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                     >
                       <span className="truncate text-md font-medium text-heading">{r.label}</span>
                       {r.kind === "session" && (
-                        <span className="truncate text-md-minus text-muted">{r.sub}</span>
+                        <span className="truncate text-md-minus text-muted-foreground">{r.sub}</span>
                       )}
                     </button>
                   </div>

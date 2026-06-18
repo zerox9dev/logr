@@ -18,7 +18,6 @@ const ConfirmContext = createContext<ConfirmContextType>({
   confirm: () => Promise.resolve(false),
 });
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useConfirm() {
   return useContext(ConfirmContext);
 }

@@ -24,12 +24,12 @@ export const auth = {
   signInWithGoogle: () =>
     supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     }),
   signInWithMagicLink: (email: string) =>
     supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     }),
   signOut: () => supabase.auth.signOut(),
   onAuthStateChange: (cb: Parameters<typeof supabase.auth.onAuthStateChange>[0]) =>

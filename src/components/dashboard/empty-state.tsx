@@ -29,7 +29,7 @@ export function EmptyState() {
           <Button onClick={startTimer} className="w-full">
             {t("empty.cta")}
           </Button>
-          <p className="text-md-minus text-muted">
+          <p className="text-md-minus text-muted-foreground">
             {t("empty.hintBefore")}{" "}
             <span className="font-semibold text-ink">{t("empty.hintNew")}</span>{" "}
             {t("empty.hintAfter")}

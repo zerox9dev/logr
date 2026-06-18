@@ -40,41 +40,41 @@ export function ManualDialog({
     <Dialog open={open} onClose={onClose} title={t("manual.title")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("manual.project")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("manual.project")}</span>
           <ProjectPicker
             onChange={setProjectId}
             projects={projects}
             trigger={
               <Button type="button" variant="outline" size="default" className="w-full justify-between">
                 <span className="line-clamp-1 min-w-0">{projectName}</span>
-                <span aria-hidden="true" className="shrink-0 text-muted">▾</span>
+                <span aria-hidden="true" className="shrink-0 text-muted-foreground">▾</span>
               </Button>
             }
           />
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("manual.task")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("manual.task")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("manual.taskPlaceholder")} />
         </label>
 
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{t("manual.date")}</span>
+            <span className="text-md-minus text-muted-foreground">{t("manual.date")}</span>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </label>
           <label className="flex w-28 flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{t("manual.startTime")}</span>
+            <span className="text-md-minus text-muted-foreground">{t("manual.startTime")}</span>
             <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
           </label>
         </div>
         <div className="flex gap-3">
           <label className="flex w-20 flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{t("manual.hours")}</span>
+            <span className="text-md-minus text-muted-foreground">{t("manual.hours")}</span>
             <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
           </label>
           <label className="flex w-20 flex-col gap-1.5">
-            <span className="text-md-minus text-muted">{t("manual.min")}</span>
+            <span className="text-md-minus text-muted-foreground">{t("manual.min")}</span>
             <Input type="number" min="0" max="59" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="0" />
           </label>
         </div>

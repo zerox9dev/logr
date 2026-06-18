@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useT } from "@/i18n";
@@ -58,11 +60,10 @@ export function LoginGate() {
         ) : (
           <>
             <Button
-              variant="unstyled"
-              size="unstyled"
+              variant="outline"
               onClick={handleGoogle}
               disabled={googleLoading}
-              className="flex w-full items-center justify-center gap-2.5 border border-line bg-card px-4 py-3 text-md font-medium text-ink hover:bg-wash disabled:opacity-60"
+              className="flex h-auto w-full items-center justify-center gap-2.5 px-4 py-3 text-md font-medium disabled:opacity-60"
             >
               <svg className="size-[18px]" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -73,7 +74,7 @@ export function LoginGate() {
               {googleLoading ? t("login.redirecting") : t("login.google")}
             </Button>
 
-            <div className="my-4 flex items-center gap-3 text-sm text-muted">
+            <div className="my-4 flex items-center gap-3 text-sm text-muted-foreground">
               <span className="h-px flex-1 bg-line" />
               {t("login.or")}
               <span className="h-px flex-1 bg-line" />
@@ -96,7 +97,7 @@ export function LoginGate() {
         )}
 
         {error && <p className="mt-3 text-md-minus text-red-600">{error}</p>}
-        <p className="mt-6 text-sm text-muted">{t("login.free")}</p>
+        <p className="mt-6 text-sm text-muted-foreground">{t("login.free")}</p>
       </div>
     </div>
   );

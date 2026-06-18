@@ -15,7 +15,6 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType>({ toast: () => {} });
 
-// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider by design
 export function useToast() {
   return useContext(ToastContext);
 }

@@ -1,5 +1,8 @@
-import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+"use client";
+
+import { Suspense, useMemo } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FileText, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { decodeSharedInvoice } from "@/domain/invoice-share";
@@ -10,8 +13,8 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
 }
 
-export function SharedInvoicePage() {
-  const [searchParams] = useSearchParams();
+function InvoiceView() {
+  const searchParams = useSearchParams();
   const inv = useMemo(() => decodeSharedInvoice(searchParams.get("data") || ""), [searchParams]);
   const t = useT();
 
@@ -24,7 +27,7 @@ export function SharedInvoicePage() {
               <FileText className="h-[42px] w-[42px] text-tertiary" />
               <h1 className="text-5xl font-extrabold tracking-tight text-heading">{t("invoice.invalidLink")}</h1>
               <Link
-                to="/"
+                href="/"
                 className="inline-flex h-9 items-center justify-center gap-2 bg-ink px-4 text-md font-medium text-white transition-opacity hover:opacity-85"
               >
                 {t("reports.openLogr")}
@@ -48,12 +51,12 @@ export function SharedInvoicePage() {
               <div>
                 <div className="flex items-center gap-2.5">
                   <h1 className="text-5xl font-extrabold leading-none tracking-tight text-heading">{t("invoice.invoiceLabel")}</h1>
-                  <span className="border border-line px-2 py-0.5 text-sm font-medium uppercase tracking-wide text-muted">{t(statusKey)}</span>
+                  <span className="border border-line px-2 py-0.5 text-sm font-medium uppercase tracking-wide text-muted-foreground">{t(statusKey)}</span>
                 </div>
-                <p className="mt-2 text-base text-muted tnum">{inv.invoiceNumber}</p>
+                <p className="mt-2 text-base text-muted-foreground tnum">{inv.invoiceNumber}</p>
               </div>
               <Link
-                to="/"
+                href="/"
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-2 border border-line bg-card px-4 text-md font-medium text-ink transition-colors hover:bg-wash"
               >
                 {t("reports.openLogr")}
@@ -64,16 +67,16 @@ export function SharedInvoicePage() {
             {/* Meta */}
             <div className="grid grid-cols-2 gap-4 border-y border-line py-4 md:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.billedTo")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.billedTo")}</span>
                 <span className="text-md font-medium text-heading">{inv.clientName || "—"}</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.issued")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.issued")}</span>
                 <span className="text-md text-ink tnum">{formatDate(inv.issuedAt)}</span>
               </div>
               {inv.dueDate && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.dueDate")}</span>
+                  <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.dueDate")}</span>
                   <span className="text-md text-ink tnum">{formatDate(inv.dueDate)}</span>
                 </div>
               )}
@@ -81,7 +84,7 @@ export function SharedInvoicePage() {
 
             {/* Line items */}
             <div className="flex flex-col">
-              <div className="flex items-center gap-3 border-b border-line pb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+              <div className="flex items-center gap-3 border-b border-line pb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 <span className="min-w-0 flex-1">{t("invoice.description")}</span>
                 <span className="w-[88px] shrink-0 text-right">{t("invoice.qty")}</span>
                 <span className="w-[88px] shrink-0 text-right">{t("invoice.rate")}</span>
@@ -113,7 +116,7 @@ export function SharedInvoicePage() {
 
             {inv.notes && (
               <div className="flex flex-col gap-1 border-t border-line pt-4">
-                <span className="text-sm font-semibold uppercase tracking-wide text-muted">{t("invoice.notes")}</span>
+                <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("invoice.notes")}</span>
                 <p className="whitespace-pre-wrap text-md text-ink">{inv.notes}</p>
               </div>
             )}
@@ -121,5 +124,13 @@ export function SharedInvoicePage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <InvoiceView />
+    </Suspense>
   );
 }

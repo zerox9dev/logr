@@ -291,14 +291,14 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
       <div className="flex flex-col gap-4">
         {/* Hint lines */}
         <div className="flex flex-col gap-1">
-          <p className="text-md-minus text-muted">{t("import.hint")}</p>
-          <p className="text-md-minus text-muted">{t("import.hintDuplicate")}</p>
-          <p className="text-md-minus text-muted">{t("import.hintRate")}</p>
+          <p className="text-md-minus text-muted-foreground">{t("import.hint")}</p>
+          <p className="text-md-minus text-muted-foreground">{t("import.hintDuplicate")}</p>
+          <p className="text-md-minus text-muted-foreground">{t("import.hintRate")}</p>
         </div>
 
         {/* File picker */}
         <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted">{t("import.chooseFile")}</span>
+          <span className="text-md-minus text-muted-foreground">{t("import.chooseFile")}</span>
           <input
             ref={fileRef}
             type="file"
@@ -307,7 +307,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
             className="border border-line bg-card px-3 py-2 text-md text-ink file:mr-3 file:border-0 file:bg-wash file:px-2 file:py-1 file:text-sm file:font-medium file:text-ink focus:outline-none focus:ring-1 focus:ring-line"
           />
           {fileName && (
-            <span className="text-md-minus text-muted tnum">{fileName}</span>
+            <span className="text-md-minus text-muted-foreground tnum">{fileName}</span>
           )}
         </label>
 
@@ -316,10 +316,10 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
           <div className="border border-line bg-wash px-3 py-2.5">
             <p className="text-md font-medium text-heading">
               {t("import.successSessions").replace("{n}", String(result.sessions))}
-              {result.clients > 0 && <span className="font-normal text-muted">{", "}{t("import.successClients").replace("{k}", String(result.clients))}</span>}
-              {result.projects > 0 && <span className="font-normal text-muted">{", "}{t("import.successProjects").replace("{m}", String(result.projects))}</span>}
-              {result.skipped > 0 && <span className="font-normal text-muted">{", "}{t("import.successSkipped").replace("{s}", String(result.skipped))}</span>}
-              {result.duplicates > 0 && <span className="font-normal text-muted">{", "}{t("import.successDuplicates").replace("{d}", String(result.duplicates))}</span>}
+              {result.clients > 0 && <span className="font-normal text-muted-foreground">{", "}{t("import.successClients").replace("{k}", String(result.clients))}</span>}
+              {result.projects > 0 && <span className="font-normal text-muted-foreground">{", "}{t("import.successProjects").replace("{m}", String(result.projects))}</span>}
+              {result.skipped > 0 && <span className="font-normal text-muted-foreground">{", "}{t("import.successSkipped").replace("{s}", String(result.skipped))}</span>}
+              {result.duplicates > 0 && <span className="font-normal text-muted-foreground">{", "}{t("import.successDuplicates").replace("{d}", String(result.duplicates))}</span>}
             </p>
           </div>
         )}
