@@ -2,7 +2,7 @@ import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { z } from "zod";
-import { getAdminClient, getUserClient } from "@/lib/supabase-mcp";
+import { getUserClient, verifyAccessToken } from "@/lib/supabase-mcp";
 import {
   unbilledSessions,
   sessionToInvoiceItem,
@@ -23,21 +23,20 @@ import type {
 export const runtime = "nodejs";
 
 // ---------------------------------------------------------------------------
-// Auth verification — validates Supabase access token via admin API
+// Auth verification — validates Supabase OAuth token via JWKS (ES256)
 // ---------------------------------------------------------------------------
 async function verifyToken(
   _req: Request,
   bearerToken?: string
 ): Promise<AuthInfo | undefined> {
   if (!bearerToken) return undefined;
-  const admin = getAdminClient();
-  const { data, error } = await admin.auth.getUser(bearerToken);
-  if (error || !data.user) return undefined;
+  const result = await verifyAccessToken(bearerToken);
+  if (!result) return undefined;
   return {
     token: bearerToken,
-    clientId: data.user.id,
+    clientId: result.userId,
     scopes: [],
-    extra: { userId: data.user.id, accessToken: bearerToken },
+    extra: { userId: result.userId, accessToken: bearerToken },
   };
 }
 
