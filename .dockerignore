@@ -1,0 +1,44 @@
+# Dependencies (reinstalled inside the image)
+node_modules
+npm-debug.log*
+
+# Build output (rebuilt inside the image)
+.next
+dist
+out
+
+# Version control
+.git
+.gitignore
+
+# Local env files — never bake secrets into the image
+.env
+.env.*
+!.env.example
+
+# Docs and non-essential project files
+README.md
+CONTRIBUTING.md
+ACTION-PLAN.md
+FULL-AUDIT-REPORT.md
+GEO-ANALYSIS.md
+docs/
+*.md
+
+# Editor / IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Test / lint caches
+.eslintcache
+coverage/
+vitest.config.ts
+
+# TypeScript build info
+tsconfig.tsbuildinfo
