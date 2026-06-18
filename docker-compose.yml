@@ -158,7 +158,8 @@ services:
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
     ports:
-      - "3000:3000"
+      # Override the host port if 3000 is taken: APP_PORT=3001 in .env
+      - "${APP_PORT:-3000}:3000"
 
 volumes:
   db-data:
