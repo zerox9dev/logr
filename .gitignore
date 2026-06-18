@@ -34,3 +34,6 @@ next-env.d.ts
 # Playwright MCP
 .playwright-mcp/
 phase1-landing.png
+
+# Claude Code agent state / worktrees
+.claude/

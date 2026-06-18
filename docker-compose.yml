@@ -21,15 +21,11 @@
 #   open http://localhost:3000    # logr app
 #
 # DUAL-ORIGIN NOTE
-#   The Next.js app container talks to Kong at http://kong:8000 (internal
-#   Docker network). Your *browser* reaches Kong at http://localhost:8000.
-#   Both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_PUBLIC_URL below must be set
-#   to the value the BROWSER will use (http://localhost:8000), because the
-#   Supabase JS client is also used client-side and follows redirects to
-#   that URL. Server-side Supabase calls (SSR) will use the internal name
-#   when running inside Docker only if you set a separate
-#   SUPABASE_INTERNAL_URL — logr does not do this yet, so both paths use
-#   the public URL (fine for single-machine self-hosting).
+#   The browser reaches Kong at http://localhost:8000, so NEXT_PUBLIC_SUPABASE_URL
+#   (baked into the client bundle) is set to that. Server-side code inside the
+#   app container cannot use localhost:8000 (that's the app container itself), so
+#   it uses SUPABASE_INTERNAL_URL=http://kong:8000 — wired on the `app` service
+#   below and read by src/lib/supabase-url.ts. Both origins resolve correctly.
 # =============================================================================
 
 services:
@@ -154,6 +150,10 @@ services:
     environment:
       # Runtime-only server-side env vars (not baked at build time)
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      # Server-side code (SSR auth gate, session refresh, MCP) reaches Supabase
+      # via the internal Docker network — `localhost` here is the app container,
+      # not Kong. The browser still uses the public NEXT_PUBLIC_SUPABASE_URL.
+      SUPABASE_INTERNAL_URL: http://kong:8000
       # These duplicate the build ARGs so server-side code can also read them
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}

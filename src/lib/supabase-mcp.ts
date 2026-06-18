@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import { serverSupabaseUrl } from "@/lib/supabase-url";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// Public origin — used as the expected token issuer (Supabase signs tokens with
+// the public auth URL, even on self-host).
+const SUPABASE_PUBLIC_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// Server-side network base — internal service URL inside Docker, public elsewhere.
+const SUPABASE_URL = serverSupabaseUrl;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
@@ -29,7 +34,7 @@ export async function verifyAccessToken(
 ): Promise<{ userId: string } | null> {
   try {
     const { payload } = await jwtVerify(bearer, JWKS, {
-      issuer: `${SUPABASE_URL}/auth/v1`,
+      issuer: `${SUPABASE_PUBLIC_URL}/auth/v1`,
     });
     if (!payload.sub) return null;
     return { userId: payload.sub };
