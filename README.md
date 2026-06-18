@@ -82,31 +82,22 @@ Run the full logr stack locally (or on your own server) with a single command. T
 ### Prerequisites
 
 - Docker + Docker Compose v2
-- `openssl` (to generate secrets)
+- Node.js (only to run the one-shot key generator below)
 
-### 1 — Clone and prepare secrets
+### 1 — Clone and generate secrets
 
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
 cp .env.example .env
+node scripts/gen-env-keys.mjs >> .env   # appends a matched POSTGRES_PASSWORD + JWT_SECRET + ANON/SERVICE keys
 ```
 
-Edit `.env` and fill in the three secrets:
-
-```bash
-# Generate a strong JWT secret (32+ chars)
-openssl rand -base64 40
-
-# Generate ANON_KEY and SERVICE_ROLE_KEY (JWTs signed with JWT_SECRET)
-# Use the official tool: https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
-```
-
-Paste the generated values into `.env` as `JWT_SECRET`, `ANON_KEY`, and `SERVICE_ROLE_KEY`.
+The keys must be a matched set — `ANON_KEY` and `SERVICE_ROLE_KEY` are JWTs signed with `JWT_SECRET`. The script generates all of them together so they line up. (Appended values override the placeholders since the last definition wins.)
 
 ### 2 — Start the stack
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 First boot takes ~1–2 minutes as Docker pulls images and Postgres initialises. The logr schema (`supabase/migrations/0001_init.sql`) is applied automatically on first boot.
@@ -117,9 +108,11 @@ First boot takes ~1–2 minutes as Docker pulls images and Postgres initialises.
 | Supabase API (Kong) | http://localhost:8000 |
 | Postgres | localhost:5432 |
 
-### Dual-origin caveat
+### Browser vs. internal origin
 
-`NEXT_PUBLIC_SUPABASE_URL` must be the URL your **browser** can reach (e.g. `http://localhost:8000`). The Next.js app container uses the same value. On a remote server, replace `localhost` with your server's IP or domain in `.env` before building.
+`NEXT_PUBLIC_SUPABASE_URL` is the URL your **browser** uses (e.g. `http://localhost:8000`) and is baked into the client bundle. Server-side code inside the app container can't use `localhost` (that's the container itself), so it talks to Supabase over the internal Docker network via `SUPABASE_INTERNAL_URL=http://kong:8000` — already wired in `docker-compose.yml`, no action needed.
+
+On a remote server, set `NEXT_PUBLIC_SUPABASE_URL` to your server's IP or domain (port `8000`) in `.env` before building — it's a build-time value, so rebuild (`docker compose up -d --build`) after changing it.
 
 ### Auth providers
 
