@@ -5,8 +5,6 @@ const TIMER_KEY = "logr.timer";
 interface PersistedTimer {
   running: boolean;
   startedAt: number | null;
-  paused: boolean;
-  pausedElapsed: number;
   description: string;
 }
 
@@ -19,8 +17,6 @@ function readPersistedTimer(): PersistedTimer | null {
     return {
       running: Boolean(parsed.running),
       startedAt: typeof parsed.startedAt === "number" ? parsed.startedAt : null,
-      paused: Boolean(parsed.paused),
-      pausedElapsed: typeof parsed.pausedElapsed === "number" ? parsed.pausedElapsed : 0,
       description: typeof parsed.description === "string" ? parsed.description : "",
     };
   } catch {
@@ -35,13 +31,11 @@ export function useTimer() {
     const t = readPersistedTimer();
     // timerSeconds is derived from startedAt; restore an estimate if running.
     if (t?.running && t.startedAt != null) {
-      return t.pausedElapsed + Math.floor((Date.now() - t.startedAt) / 1000);
+      return Math.floor((Date.now() - t.startedAt) / 1000);
     }
     return 0;
   });
-  const [timerPaused, setTimerPaused] = useState(() => readPersistedTimer()?.paused ?? false);
   const [timerStartedAt, setTimerStartedAt] = useState<number | null>(() => readPersistedTimer()?.startedAt ?? null);
-  const [timerPausedElapsed, setTimerPausedElapsed] = useState(() => readPersistedTimer()?.pausedElapsed ?? 0);
   const [timerDescription, setTimerDescription] = useState(() => readPersistedTimer()?.description ?? "");
 
   // Sync the persisted timer blob whenever any persisted field changes.
@@ -56,20 +50,17 @@ export function useTimer() {
       const blob: PersistedTimer = {
         running: timerRunning,
         startedAt: timerStartedAt,
-        paused: timerPaused,
-        pausedElapsed: timerPausedElapsed,
         description: timerDescription,
       };
       window.localStorage.setItem(TIMER_KEY, JSON.stringify(blob));
     } catch {
       // localStorage may throw (private mode / quota) — ignore.
     }
-  }, [timerRunning, timerStartedAt, timerPaused, timerPausedElapsed, timerDescription]);
+  }, [timerRunning, timerStartedAt, timerDescription]);
 
   return {
     timerRunning, setTimerRunning, timerSeconds, setTimerSeconds,
-    timerPaused, setTimerPaused, timerStartedAt, setTimerStartedAt,
-    timerPausedElapsed, setTimerPausedElapsed,
+    timerStartedAt, setTimerStartedAt,
     timerDescription, setTimerDescription,
   };
 }
