@@ -8,8 +8,13 @@ import { Input } from "@/components/ui/input";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Sign-in gate shown at `/` when not authenticated. Monochrome, square. */
-export function LoginGate() {
+interface LoginGateProps {
+  /** After login, redirect here instead of /app (used e.g. by /oauth/consent). */
+  next?: string;
+}
+
+/** Sign-in gate shown at `/login` when not authenticated. Monochrome, square. */
+export function LoginGate({ next }: LoginGateProps = {}) {
   const { signInWithGoogle, signInWithMagicLink } = useAuth();
   const t = useT();
   const [error, setError] = useState("");
@@ -21,7 +26,7 @@ export function LoginGate() {
   const handleGoogle = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle(next);
     setGoogleLoading(false);
     if (error) setError(error.message);
   };
@@ -34,7 +39,7 @@ export function LoginGate() {
       return;
     }
     setMagicLoading(true);
-    const { error } = await signInWithMagicLink(email.trim());
+    const { error } = await signInWithMagicLink(email.trim(), next);
     setMagicLoading(false);
     if (error) setError(error.message);
     else setSent(true);

@@ -21,16 +21,22 @@ function unwrap<T>(result: { data: T | null; error: unknown }): T {
 export const auth = {
   getUser: () => supabase.auth.getUser(),
   getSession: () => supabase.auth.getSession(),
-  signInWithGoogle: () =>
-    supabase.auth.signInWithOAuth({
+  signInWithGoogle: (next?: string) => {
+    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (next) callbackUrl.searchParams.set("next", next);
+    return supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    }),
-  signInWithMagicLink: (email: string) =>
-    supabase.auth.signInWithOtp({
+      options: { redirectTo: callbackUrl.toString() },
+    });
+  },
+  signInWithMagicLink: (email: string, next?: string) => {
+    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (next) callbackUrl.searchParams.set("next", next);
+    return supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    }),
+      options: { emailRedirectTo: callbackUrl.toString() },
+    });
+  },
   signOut: () => supabase.auth.signOut(),
   onAuthStateChange: (cb: Parameters<typeof supabase.auth.onAuthStateChange>[0]) =>
     supabase.auth.onAuthStateChange(cb),

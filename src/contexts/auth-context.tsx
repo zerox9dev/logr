@@ -7,8 +7,8 @@ import { auth } from "@/api";
 interface AuthState {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
-  signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
+  signInWithGoogle: (next?: string) => Promise<{ error: AuthError | null }>;
+  signInWithMagicLink: (email: string, next?: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -32,13 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    const { error } = await auth.signInWithGoogle();
+  const signInWithGoogle = async (next?: string) => {
+    const { error } = await auth.signInWithGoogle(next);
     return { error };
   };
 
-  const signInWithMagicLink = async (email: string) => {
-    const { error } = await auth.signInWithMagicLink(email);
+  const signInWithMagicLink = async (email: string, next?: string) => {
+    const { error } = await auth.signInWithMagicLink(email, next);
     return { error };
   };
 
