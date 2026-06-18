@@ -1,0 +1,164 @@
+# =============================================================================
+# logr — Self-host Docker Compose stack
+#
+# This compose file brings up a minimal Supabase backend (Postgres + GoTrue
+# auth + PostgREST + Kong API gateway) plus the logr Next.js app.
+#
+# It is intentionally MINIMAL. The following official Supabase services are
+# omitted because logr does not use them:
+#   - Supabase Storage (storage-api / imgproxy)
+#   - Realtime (realtime)
+#   - Supabase Studio (studio)
+#   - Supabase Analytics / Logflare (analytics)
+#   - Supabase Vector / pg_embeddings (vector)
+#
+# For the full production-grade self-host stack, follow the official guide:
+# https://supabase.com/docs/guides/self-hosting/docker
+#
+# USAGE
+#   cp .env.example .env          # fill in secrets (see .env.example)
+#   docker compose up -d
+#   open http://localhost:3000    # logr app
+#
+# DUAL-ORIGIN NOTE
+#   The Next.js app container talks to Kong at http://kong:8000 (internal
+#   Docker network). Your *browser* reaches Kong at http://localhost:8000.
+#   Both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_PUBLIC_URL below must be set
+#   to the value the BROWSER will use (http://localhost:8000), because the
+#   Supabase JS client is also used client-side and follows redirects to
+#   that URL. Server-side Supabase calls (SSR) will use the internal name
+#   when running inside Docker only if you set a separate
+#   SUPABASE_INTERNAL_URL — logr does not do this yet, so both paths use
+#   the public URL (fine for single-machine self-hosting).
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Postgres — Supabase-flavoured Postgres image with built-in GoTrue schema
+  # ---------------------------------------------------------------------------
+  db:
+    image: supabase/postgres:15.8.1.060
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP: 3600
+    volumes:
+      # Persist data across restarts
+      - db-data:/var/lib/postgresql/data
+      # Auto-apply the logr schema on first boot
+      - ./supabase/migrations/0001_init.sql:/docker-entrypoint-initdb.d/99_logr_init.sql:ro
+    ports:
+      - "5432:5432"
+
+  # ---------------------------------------------------------------------------
+  # GoTrue — Supabase Auth service
+  # ---------------------------------------------------------------------------
+  auth:
+    image: supabase/gotrue:v2.174.0
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      # GoTrue connects directly to Postgres
+      DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:3000}
+      GOTRUE_URI_ALLOW_LIST: ${GOTRUE_URI_ALLOW_LIST:-http://localhost:3000/**}
+      GOTRUE_DISABLE_SIGNUP: "false"
+      # JWT
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      # Email / SMTP — set these for real email delivery; omit for link-only testing
+      GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
+      GOTRUE_SMTP_USER: ${SMTP_USER:-}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS:-}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL:-noreply@localhost}
+      GOTRUE_MAILER_AUTOCONFIRM: ${MAILER_AUTOCONFIRM:-true}
+      GOTRUE_LOG_LEVEL: DEBUG
+      GOTRUE_OPERATOR_TOKEN: ${OPERATOR_TOKEN:-}
+
+  # ---------------------------------------------------------------------------
+  # PostgREST — auto-generated REST API from the Postgres schema
+  # ---------------------------------------------------------------------------
+  rest:
+    image: postgrest/postgrest:v12.2.8
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
+      PGRST_APP_SETTINGS_JWT_EXP: 3600
+
+  # ---------------------------------------------------------------------------
+  # Kong — API gateway (exposes /auth/v1 + /rest/v1 on a single origin)
+  # This is NEXT_PUBLIC_SUPABASE_URL for the self-host stack.
+  # ---------------------------------------------------------------------------
+  kong:
+    image: kong:2.8.1
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    volumes:
+      - ./docker/kong.yml:/var/lib/kong/kong.yml:ro
+    ports:
+      - "8000:8000"
+
+  # ---------------------------------------------------------------------------
+  # logr — Next.js app
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # These are baked into the client-side JS bundle at build time.
+        # They point to Kong (the Supabase API gateway) on the public port.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
+    restart: unless-stopped
+    depends_on:
+      - kong
+      - auth
+    environment:
+      # Runtime-only server-side env vars (not baked at build time)
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      # These duplicate the build ARGs so server-side code can also read them
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:

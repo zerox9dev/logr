@@ -1,0 +1,110 @@
+# =============================================================================
+# Kong declarative config for logr self-host
+#
+# Exposes two upstream services on a single origin (http://localhost:8000):
+#   /auth/v1/*  → GoTrue  (port 9999)
+#   /rest/v1/*  → PostgREST (port 3000)
+#
+# Authentication: key-auth plugin checks for apikey header or query param.
+# The anon key and service_role key are injected from docker-compose.yml env.
+#
+# Reference: https://docs.konghq.com/gateway/latest/production/deployment-topologies/db-less-and-declarative-config/
+# =============================================================================
+
+_format_version: "1.1"
+
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: $(SUPABASE_ANON_KEY)
+  - username: service_role
+    keyauth_credentials:
+      - key: $(SUPABASE_SERVICE_KEY)
+
+acls:
+  - consumer: anon
+    group: anon
+  - consumer: service_role
+    group: admin
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # GoTrue — Auth service
+  # ---------------------------------------------------------------------------
+  - name: auth-v1-open
+    url: http://auth:9999/verify
+    routes:
+      - name: auth-v1-open
+        strip_path: true
+        paths:
+          - /auth/v1/verify
+    plugins:
+      - name: cors
+
+  - name: auth-v1-open-callback
+    url: http://auth:9999/callback
+    routes:
+      - name: auth-v1-open-callback
+        strip_path: true
+        paths:
+          - /auth/v1/callback
+    plugins:
+      - name: cors
+
+  - name: auth-v1-open-authorize
+    url: http://auth:9999/authorize
+    routes:
+      - name: auth-v1-open-authorize
+        strip_path: true
+        paths:
+          - /auth/v1/authorize
+    plugins:
+      - name: cors
+
+  - name: auth-v1
+    url: http://auth:9999
+    routes:
+      - name: auth-v1
+        strip_path: true
+        paths:
+          - /auth/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+          key_names:
+            - apikey
+            - Authorization
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+
+  # ---------------------------------------------------------------------------
+  # PostgREST — REST API
+  # ---------------------------------------------------------------------------
+  - name: rest-v1-open
+    url: http://rest:3000/
+    routes:
+      - name: rest-v1-open
+        strip_path: true
+        paths:
+          - /rest/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+          key_names:
+            - apikey
+            - Authorization
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
