@@ -10,8 +10,6 @@
 
 ![Logr dashboard](docs/dashboard.png)
 
-> 💡 A short demo GIF (start timer → log work → create & share an invoice) converts far better than a static screenshot here — worth recording and dropping in.
-
 ## Features
 
 - ⏱️ **Timer** — Start/stop tracking with one click. Manual entries, plus bulk import of time entries from CSV.
