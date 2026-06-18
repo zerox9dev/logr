@@ -14,13 +14,13 @@
 
 ## Features
 
-- ⏱️ **Timer** — Start/stop tracking with one click. Manual entries supported, with pause/resume.
+- ⏱️ **Timer** — Start/stop tracking with one click. Manual entries, plus bulk import of time entries from CSV.
 - 📁 **Projects & Clients** — Organize work by client; hourly or fixed-budget billing.
 - 💸 **Billing** — Per-session and per-project rates, paid/unpaid status, billable vs total time.
-- 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid status, and share a public invoice link.
+- 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid/overdue status, and share a public invoice link.
 - 📊 **Dashboard widgets** — Daily summary, billable hours, tracking card, goals, projects & tasks, timeline.
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
-- 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL); reports also export to CSV.
+- 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
 - 🔌 **MCP server** — manage Logr from any MCP-compatible AI assistant (Claude, etc.): list/create/update/delete clients, projects, time entries, and invoices, plus dashboard summaries — all over a remote MCP endpoint, scoped to your account.
 - 🔐 **Auth** — Google OAuth **and** passwordless email magic links, via Supabase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
@@ -102,11 +102,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...          # anon public key
 SUPABASE_SERVICE_ROLE_KEY=eyJ...              # service_role key (server-only)
 ```
 
-The app comes up at **http://localhost:3000** (set `APP_PORT` in `.env` to use another port).
+The app comes up at **http://localhost:3000**. Optional `.env` knobs: `APP_PORT` (change the host port) and `SUPABASE_INTERNAL_URL` (only if the container reaches Supabase at a different address than the browser — e.g. a self-hosted Supabase on the same Docker network). See [`.env.example`](.env.example).
 
 > `NEXT_PUBLIC_*` are baked into the client bundle at build time — if you change them, rebuild with `docker compose up -d --build`.
 
-Prefer a one-click deploy? Use the **[Deploy with Vercel](#)** button at the top — same three env vars.
+Prefer a one-click deploy? Use the [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/zerox9dev/logr) button at the top — same three env vars.
 
 ### Stop / clean up
 
@@ -151,8 +151,9 @@ src/
 ├── domain/         # pure logic + tests: dashboard-metrics, report-share, invoicing, invoice-share
 ├── i18n/           # provider + en/uk/ru dictionaries
 ├── lib/            # supabase (browser) + supabase-server + supabase-mcp (server client +
-│                   # token verification for MCP), format, date, base64, clipboard, utils
-├── proxy.ts        # Next middleware: session refresh + /app auth gate
+│                   # token verification for MCP) + supabase-url (server URL resolver),
+│                   # format, date, base64, clipboard, utils
+├── proxy.ts        # Next.js proxy (the v16 rename of middleware): session refresh + /app auth gate
 └── types/          # database types
 ```
 
@@ -162,7 +163,7 @@ src/
 |-------|-------------|
 | `/` | Public SSR marketing landing |
 | `/login` | Auth — Google OAuth + email magic link |
-| `/app` | Dashboard (auth-gated via middleware + server session check) |
+| `/app` | Dashboard (auth-gated via proxy + server session check) |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/auth/callback` | OAuth / magic-link code exchange |
 | `/mcp` (+ `/sse`) | Hosted MCP server endpoint (OAuth-protected) |
@@ -193,7 +194,7 @@ Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) 
 
 **Auth:** standard MCP OAuth 2.1 via Supabase — modern clients auto-discover the flow and prompt you to log in; no token copy-pasting needed. All tools run scoped to your account via Row-Level Security.
 
-**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary` and `list_unbilled` insight tools — 18 tools total. See [docs/MCP.md](docs/MCP.md) for the complete list.
+**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary`, `recent_sessions`, and `list_unbilled` insight tools — 18 tools total. See [docs/MCP.md](docs/MCP.md) for the complete list.
 
 **Claude Desktop config example (OAuth auto-discovery):**
 
