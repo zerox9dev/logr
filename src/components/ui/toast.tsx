@@ -1,64 +1,65 @@
-import { useState, createContext, useContext, useCallback } from "react";
-import * as RadixToast from "@radix-ui/react-toast";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+"use client";
 
-interface Toast {
-  id: string;
-  message: string;
-  type: "success" | "error" | "info";
+import { toast as sonnerToast, Toaster } from "sonner";
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+// Call sites do:  const { toast } = useToast(); toast("Saved", "success")
+// Type must stay identical to the old implementation.
+
+type ToastType = "success" | "error" | "info";
+
+function toast(message: string, type?: ToastType) {
+  switch (type) {
+    case "error":
+      sonnerToast.error(message);
+      break;
+    case "success":
+      sonnerToast.success(message);
+      break;
+    default:
+      sonnerToast(message);
+  }
 }
 
-interface ToastContextType {
-  toast: (message: string, type?: Toast["type"]) => void;
-}
-
-const ToastContext = createContext<ToastContextType>({ toast: () => {} });
+const toastApi = { toast } as const;
 
 export function useToast() {
-  return useContext(ToastContext);
+  return toastApi;
 }
 
-// Monochrome toasts; a thin left accent bar marks error (red) / success (green).
-const accentMap: Record<Toast["type"], string> = {
-  success: "border-l-accent",
-  error: "border-l-red-600",
-  info: "border-l-ink",
-};
+// ─── Provider ────────────────────────────────────────────────────────────────
+// Monochrome logr look: white card, hairline border, soft shadow.
+// A thin left accent bar marks type: green = success, red = error, muted = info/default.
+
+const baseToast =
+  "!rounded-none !bg-card !border !border-line !shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)] !text-ink !font-[inherit] !text-sm";
+
+const successToast = `${baseToast} !border-l-2 !border-l-[color:var(--color-money,#22c55e)]`;
+const errorToast   = `${baseToast} !border-l-2 !border-l-red-600`;
+const infoToast    = `${baseToast} !border-l-2 !border-l-ink`;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = useCallback((message: string, type: Toast["type"] = "success") => {
-    const id = crypto.randomUUID();
-    setToasts((prev) => [...prev, { id, message, type }]);
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
   return (
-    <ToastContext.Provider value={{ toast: addToast }}>
-      <RadixToast.Provider swipeDirection="right" duration={3000}>
-        {children}
-        {toasts.map((t) => (
-          <RadixToast.Root
-            key={t.id}
-            onOpenChange={(open) => { if (!open) removeToast(t.id); }}
-            className={cn(
-              "flex items-center justify-between gap-4 border border-line border-l-2 bg-card px-4 py-3 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)] data-[state=open]:animate-slide-in-right",
-              accentMap[t.type],
-            )}
-          >
-            <RadixToast.Description className="text-md text-ink">{t.message}</RadixToast.Description>
-            <RadixToast.Close aria-label="Dismiss" className="text-tertiary transition-colors hover:text-ink">
-              <X className="size-3.5" />
-            </RadixToast.Close>
-          </RadixToast.Root>
-        ))}
-        <RadixToast.Viewport className="fixed bottom-4 right-4 z-50 flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-2 outline-none" />
-      </RadixToast.Provider>
-    </ToastContext.Provider>
+    <>
+      {children}
+      <Toaster
+        position="bottom-right"
+        duration={3000}
+        closeButton
+        toastOptions={{
+          unstyled: true,
+          classNames: {
+            toast: baseToast,
+            title: "text-ink text-sm",
+            description: "text-tertiary text-xs",
+            closeButton:
+              "!bg-transparent !border-none !text-tertiary hover:!text-ink",
+            success: successToast,
+            error:   errorToast,
+            info:    infoToast,
+          },
+        }}
+      />
+    </>
   );
 }
