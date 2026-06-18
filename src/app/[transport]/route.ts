@@ -211,6 +211,7 @@ function initServer(server: McpServer) {
       const { data: created, error } = await supabase
         .from("sessions")
         .insert({
+          user_id: (extra.authInfo as AuthInfo).extra?.userId as string,
           name,
           duration_seconds: durationSeconds,
           project_id: projectId ?? null,
@@ -378,7 +379,327 @@ function initServer(server: McpServer) {
     }
   );
 
-  // ------------------------------------------------------------------ 7
+  // ------------------------------------------------------------------ 8 (Clients — CRUD)
+  server.tool(
+    "create_client",
+    "Create a new client record for the authenticated user",
+    {
+      name: z.string().min(1),
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      company: z.string().optional(),
+      notes: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+    },
+    async ({ name, email, phone, company, notes, tags }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const userId = (extra.authInfo as AuthInfo).extra?.userId as string;
+      const { data, error } = await supabase
+        .from("clients")
+        .insert({
+          user_id: userId,
+          name,
+          email: email ?? null,
+          phone: phone ?? null,
+          company: company ?? null,
+          notes: notes ?? null,
+          tags: tags ?? [],
+        })
+        .select("id, name, company, email")
+        .single();
+      if (error) throw new Error(error.message);
+      const c = data as Pick<Client, "id" | "name" | "company" | "email">;
+      const text = `Client created: "${c.name}"${c.company ? ` (${c.company})` : ""} | id: ${c.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "update_client",
+    "Update an existing client by id (pass only the fields to change)",
+    {
+      id: z.string().uuid(),
+      name: z.string().min(1).optional(),
+      email: z.string().email().nullable().optional(),
+      phone: z.string().nullable().optional(),
+      company: z.string().nullable().optional(),
+      notes: z.string().nullable().optional(),
+      tags: z.array(z.string()).optional(),
+    },
+    async ({ id, ...fields }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      // Build update payload (only provided keys)
+      const payload: Record<string, unknown> = {};
+      if (fields.name !== undefined) payload.name = fields.name;
+      if (fields.email !== undefined) payload.email = fields.email;
+      if (fields.phone !== undefined) payload.phone = fields.phone;
+      if (fields.company !== undefined) payload.company = fields.company;
+      if (fields.notes !== undefined) payload.notes = fields.notes;
+      if (fields.tags !== undefined) payload.tags = fields.tags;
+      const { data, error } = await supabase
+        .from("clients")
+        .update(payload)
+        .eq("id", id)
+        .select("id, name, company, email")
+        .single();
+      if (error) throw new Error(error.message);
+      const c = data as Pick<Client, "id" | "name" | "company" | "email">;
+      const text = `Client updated: "${c.name}"${c.company ? ` (${c.company})` : ""} | id: ${c.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "delete_client",
+    "Delete a client by id (cascades to projects and sessions via DB constraints)",
+    { id: z.string().uuid() },
+    async ({ id }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const { error } = await supabase.from("clients").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+      return { content: [{ type: "text" as const, text: `Client ${id} deleted.` }] };
+    }
+  );
+
+  // ------------------------------------------------------------------ 9 (Projects — CRUD)
+  server.tool(
+    "create_project",
+    "Create a new project linked to a client",
+    {
+      name: z.string().min(1),
+      clientId: z.string().uuid(),
+      billingType: z.enum(["hourly", "fixed"]).optional().default("hourly"),
+      rate: z.number().nonnegative().optional(),
+      status: z.string().optional().default("active"),
+    },
+    async ({ name, clientId, billingType, rate, status }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const userId = (extra.authInfo as AuthInfo).extra?.userId as string;
+      const billing = billingType ?? "hourly";
+      const { data, error } = await supabase
+        .from("projects")
+        .insert({
+          user_id: userId,
+          client_id: clientId,
+          name,
+          billing_type: billing,
+          rate: billing === "hourly" ? (rate ?? null) : null,
+          fixed_budget: billing === "fixed" ? (rate ?? null) : null,
+          status: (status ?? "active") as Project["status"],
+        })
+        .select("id, name, billing_type, rate, fixed_budget, status")
+        .single();
+      if (error) throw new Error(error.message);
+      type ProjRow = Pick<Project, "id" | "name" | "billing_type" | "rate" | "fixed_budget" | "status">;
+      const p = data as ProjRow;
+      const rateLabel =
+        p.billing_type === "hourly"
+          ? `$${p.rate ?? 0}/hr`
+          : `$${p.fixed_budget ?? 0} fixed`;
+      const text = `Project created: "${p.name}" | ${p.billing_type} ${rateLabel} | status: ${p.status} | id: ${p.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "update_project",
+    "Update an existing project by id (pass only the fields to change)",
+    {
+      id: z.string().uuid(),
+      name: z.string().min(1).optional(),
+      billingType: z.enum(["hourly", "fixed"]).optional(),
+      rate: z.number().nonnegative().nullable().optional(),
+      fixedBudget: z.number().nonnegative().nullable().optional(),
+      status: z.string().optional(),
+    },
+    async ({ id, name, billingType, rate, fixedBudget, status }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const payload: Record<string, unknown> = {};
+      if (name !== undefined) payload.name = name;
+      if (billingType !== undefined) payload.billing_type = billingType;
+      if (rate !== undefined) payload.rate = rate;
+      if (fixedBudget !== undefined) payload.fixed_budget = fixedBudget;
+      if (status !== undefined) payload.status = status;
+      const { data, error } = await supabase
+        .from("projects")
+        .update(payload)
+        .eq("id", id)
+        .select("id, name, billing_type, rate, fixed_budget, status")
+        .single();
+      if (error) throw new Error(error.message);
+      type ProjRow = Pick<Project, "id" | "name" | "billing_type" | "rate" | "fixed_budget" | "status">;
+      const p = data as ProjRow;
+      const rateLabel =
+        p.billing_type === "hourly"
+          ? `$${p.rate ?? 0}/hr`
+          : `$${p.fixed_budget ?? 0} fixed`;
+      const text = `Project updated: "${p.name}" | ${p.billing_type} ${rateLabel} | status: ${p.status} | id: ${p.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "delete_project",
+    "Delete a project by id",
+    { id: z.string().uuid() },
+    async ({ id }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const { error } = await supabase.from("projects").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+      return { content: [{ type: "text" as const, text: `Project ${id} deleted.` }] };
+    }
+  );
+
+  // ------------------------------------------------------------------ 10 (Sessions — update + delete)
+  server.tool(
+    "update_session",
+    "Update an existing time-entry session by id (pass only the fields to change)",
+    {
+      id: z.string().uuid(),
+      name: z.string().min(1).optional(),
+      startedAt: z.string().optional(),
+      durationMinutes: z.number().positive().optional(),
+      paymentStatus: z.enum(["paid", "unpaid"]).optional(),
+      projectId: z.string().uuid().nullable().optional(),
+      rate: z.number().nonnegative().nullable().optional(),
+    },
+    async ({ id, name, startedAt, durationMinutes, paymentStatus, projectId, rate }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const payload: Record<string, unknown> = {};
+      if (name !== undefined) payload.name = name;
+      if (startedAt !== undefined) payload.started_at = startedAt;
+      if (durationMinutes !== undefined)
+        payload.duration_seconds = Math.round(durationMinutes * 60);
+      if (paymentStatus !== undefined) payload.payment_status = paymentStatus;
+      if (projectId !== undefined) payload.project_id = projectId;
+      if (rate !== undefined) payload.rate = rate;
+      const { data, error } = await supabase
+        .from("sessions")
+        .update(payload)
+        .eq("id", id)
+        .select("id, name, started_at, duration_seconds, rate, payment_status")
+        .single();
+      if (error) throw new Error(error.message);
+      type SessRow = Pick<Session, "id" | "name" | "started_at" | "duration_seconds" | "rate" | "payment_status">;
+      const s = data as SessRow;
+      const hours = ((s.duration_seconds ?? 0) / 3600).toFixed(2);
+      const date = s.started_at ? new Date(s.started_at).toISOString().slice(0, 10) : "—";
+      const text = `Session updated: "${s.name ?? "Untitled"}" | ${hours}h on ${date} | ${s.payment_status} | id: ${s.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "delete_session",
+    "Delete a time-entry session by id",
+    { id: z.string().uuid() },
+    async ({ id }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const { error } = await supabase.from("sessions").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+      return { content: [{ type: "text" as const, text: `Session ${id} deleted.` }] };
+    }
+  );
+
+  // ------------------------------------------------------------------ 11 (Invoices — list + update + delete)
+  server.tool(
+    "list_invoices",
+    "List invoices with optional status filter, including client name and totals",
+    {
+      status: z
+        .enum(["draft", "sent", "paid", "overdue"])
+        .optional(),
+    },
+    async ({ status }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      let query = supabase
+        .from("invoices")
+        .select(
+          "id, invoice_number, total, currency, status, due_date, created_at, clients(name)"
+        )
+        .order("created_at", { ascending: false });
+      if (status) query = query.eq("status", status);
+      const { data, error } = await query;
+      if (error) throw new Error(error.message);
+      type InvRow = {
+        id: string;
+        invoice_number: string;
+        total: number;
+        currency: string;
+        status: string;
+        due_date: string | null;
+        created_at: string;
+        clients: { name: string }[] | null;
+      };
+      const rows = (data as InvRow[]) ?? [];
+      if (rows.length === 0) {
+        return { content: [{ type: "text" as const, text: "No invoices found." }] };
+      }
+      const text = rows
+        .map((inv) => {
+          const clientName = Array.isArray(inv.clients)
+            ? inv.clients[0]?.name ?? "—"
+            : (inv.clients as { name: string } | null)?.name ?? "—";
+          const due = inv.due_date ? ` due: ${inv.due_date}` : "";
+          return `• ${inv.invoice_number} | ${clientName} | $${inv.total.toFixed(2)} ${inv.currency} | ${inv.status}${due} | id: ${inv.id}`;
+        })
+        .join("\n");
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "update_invoice",
+    "Update an invoice status, due date, or notes. Setting status to 'sent' records sent_at; 'paid' records paid_at.",
+    {
+      id: z.string().uuid(),
+      status: z.enum(["draft", "sent", "paid"]).optional(),
+      dueDate: z.string().nullable().optional(),
+      notes: z.string().nullable().optional(),
+    },
+    async ({ id, status, dueDate, notes }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      const payload: Record<string, unknown> = {};
+      if (status !== undefined) {
+        payload.status = status;
+        if (status === "sent") payload.sent_at = new Date().toISOString();
+        if (status === "paid") payload.paid_at = new Date().toISOString();
+      }
+      if (dueDate !== undefined) payload.due_date = dueDate;
+      if (notes !== undefined) payload.notes = notes;
+      const { data, error } = await supabase
+        .from("invoices")
+        .update(payload)
+        .eq("id", id)
+        .select("id, invoice_number, status, total, currency")
+        .single();
+      if (error) throw new Error(error.message);
+      type InvRow = Pick<Invoice, "id" | "invoice_number" | "status" | "total" | "currency">;
+      const inv = data as InvRow;
+      const text = `Invoice ${inv.invoice_number} updated | status: ${inv.status} | total: $${inv.total.toFixed(2)} ${inv.currency} | id: ${inv.id}`;
+      return { content: [{ type: "text" as const, text }] };
+    }
+  );
+
+  server.tool(
+    "delete_invoice",
+    "Delete an invoice and all its line items by id",
+    { id: z.string().uuid() },
+    async ({ id }, extra) => {
+      const supabase = getUserClient(extra.authInfo as AuthInfo);
+      // Delete line items first to respect FK constraints
+      const { error: itemsErr } = await supabase
+        .from("invoice_items")
+        .delete()
+        .eq("invoice_id", id);
+      if (itemsErr) throw new Error(itemsErr.message);
+      const { error } = await supabase.from("invoices").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+      return { content: [{ type: "text" as const, text: `Invoice ${id} and its line items deleted.` }] };
+    }
+  );
+
+  // ------------------------------------------------------------------ 7 (original — shifted comment, no code change)
   server.tool(
     "create_invoice",
     "Create a draft invoice for a client from their unbilled sessions",
@@ -453,6 +774,7 @@ function initServer(server: McpServer) {
       const { data: invoice, error: invErr } = await supabase
         .from("invoices")
         .insert({
+          user_id: (extra.authInfo as AuthInfo).extra?.userId as string,
           client_id: clientId,
           invoice_number: invoiceNumber,
           subtotal: totals.subtotal,
@@ -479,7 +801,7 @@ function initServer(server: McpServer) {
         .insert(invoiceItems);
       if (itemsErr) throw new Error(itemsErr.message);
 
-      const text = `Invoice ${inv.invoice_number} created (draft)\n  Items: ${items.length}\n  Subtotal: $${totals.subtotal.toFixed(2)}\n  Tax (${tax}%): $${totals.tax_amount.toFixed(2)}\n  Total: $${totals.total.toFixed(2)} ${currency}`;
+      const text = `Invoice ${inv.invoice_number} created (draft) | id: ${inv.id}\n  Items: ${items.length}\n  Subtotal: $${totals.subtotal.toFixed(2)}\n  Tax (${tax}%): $${totals.tax_amount.toFixed(2)}\n  Total: $${totals.total.toFixed(2)} ${currency}`;
       return { content: [{ type: "text" as const, text }] };
     }
   );

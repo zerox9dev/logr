@@ -21,6 +21,7 @@
 - 📊 **Dashboard widgets** — Daily summary, billable hours, tracking card, goals, projects & tasks, timeline.
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL); reports also export to CSV.
+- 🔌 **MCP server** — manage Logr from any MCP-compatible AI assistant (Claude, etc.): list/create/update/delete clients, projects, time entries, and invoices, plus dashboard summaries — all over a remote MCP endpoint, scoped to your account.
 - 🔐 **Auth** — Google OAuth **and** passwordless email magic links, via Supabase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
@@ -44,6 +45,7 @@ Most time trackers stop at "track" and make you bolt on a separate invoicing too
 - [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) (Radix primitives, CVA) + [lucide-react](https://lucide.dev) icons
 - [Supabase](https://supabase.com) — Postgres, Auth, Row-Level Security — via `@supabase/ssr` (cookie-based SSR sessions)
 - [Vitest](https://vitest.dev) + Testing Library — unit tests
+- `mcp-handler` (MCP server adapter) — hosted MCP endpoint at `/mcp`
 - Deployed on [Vercel](https://vercel.com)
 
 ## Getting Started
@@ -125,6 +127,31 @@ src/
    - `https://<your-domain>/auth/callback` (production)
 
 All tables use Row-Level Security with `user_id = auth.uid()`.
+
+## MCP (AI assistant access)
+
+Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) server at `https://logr.work/mcp` (Streamable HTTP; SSE variant at `/sse`).
+
+**Auth:** pass your Supabase access token in the `Authorization` header: `Bearer <token>`. All tools run scoped to your account via Row-Level Security — no extra setup needed.
+
+**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary` and `list_unbilled` insight tools.
+
+**Claude Desktop config example:**
+
+```json
+{
+  "mcpServers": {
+    "logr": {
+      "url": "https://logr.work/mcp",
+      "headers": {
+        "Authorization": "Bearer <your-supabase-access-token>"
+      }
+    }
+  }
+}
+```
+
+See [docs/MCP.md](docs/MCP.md) for the full tool list and setup.
 
 ## Contributing
 
