@@ -4,34 +4,54 @@ const structuredData = [
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": "https://logr.work/#software",
     name: "Logr",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     url: "https://logr.work",
     description:
       "Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Track time, manage clients and projects, build invoices from unbilled sessions, and share public invoice links — all in one single-screen dashboard.",
+    screenshot: "https://logr.work/logr.png",
+    featureList: [
+      "Time tracking",
+      "Clients & projects",
+      "Invoicing",
+      "Shareable reports",
+      "Daily AI recap",
+      "Self-hostable",
+    ],
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
+      availability: "https://schema.org/OnlineOnly",
     },
     license: "https://www.gnu.org/licenses/agpl-3.0.html",
     softwareVersion: "1.0",
     softwareRequirements: "Web browser",
     author: {
       "@type": "Organization",
-      name: "Logr",
-      url: "https://logr.work",
+      "@id": "https://logr.work/#organization",
     },
   },
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://logr.work/#organization",
     name: "Logr",
     url: "https://logr.work",
+    logo: "https://logr.work/logr.png",
     sameAs: ["https://github.com/zerox9dev/logr"],
     description:
       "Open-source time tracking and invoicing for freelancers and agencies.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://logr.work/#website",
+    name: "Logr",
+    url: "https://logr.work",
+    publisher: { "@id": "https://logr.work/#organization" },
   },
 ];
 
@@ -222,14 +242,176 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── What is Logr ── */}
+        <section className="bg-page px-6 sm:px-10 py-20 flex justify-center">
+          <div className="w-full max-w-[1080px] bg-card border border-line p-10 sm:p-14 flex flex-col gap-5">
+            <h2 className="font-display text-[28px] leading-[1.1] text-heading">What is Logr?</h2>
+            <p className="text-base leading-[1.7] text-tertiary max-w-[680px]">
+              Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Hit start on the one-click timer and every second is captured against the client and project you choose — each with its own hourly rate. When you are ready to bill, Logr collects every unbilled session into a draft invoice in seconds. Send your client a shareable invoice link they can open in any browser, no account required. The entire product lives on a single screen: timer, timeline, clients, projects, and invoices in one place, with nothing hidden behind nested menus. Logr is licensed under AGPL-3.0 and built on React, Next.js, and Supabase. You can self-host it for free on any infrastructure that runs Node.js, or use the hosted version at logr.work.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Comparison ── */}
+        <section className="bg-card px-6 sm:px-10 py-20 flex justify-center">
+          <div className="w-full max-w-[1080px] flex flex-col gap-8">
+            <h2 className="font-display text-[28px] leading-[1.1] text-heading">How does Logr compare?</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-base">
+                <thead>
+                  <tr className="border-b border-line">
+                    <th className="text-left py-3 pr-6 font-semibold text-heading w-[220px]">Feature</th>
+                    <th className="py-3 px-4 font-semibold text-heading bg-wash text-center">Logr</th>
+                    <th className="py-3 px-4 font-medium text-tertiary text-center">Toggl</th>
+                    <th className="py-3 px-4 font-medium text-tertiary text-center">Harvest</th>
+                    <th className="py-3 px-4 font-medium text-tertiary text-center">Clockify</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["Open source", true, false, false, false],
+                    ["Self-hostable", true, false, false, false],
+                    ["Time tracking", true, true, true, true],
+                    ["Invoicing built-in", true, false, true, false],
+                    ["Shareable invoice links", true, false, false, false],
+                    ["Single-screen", true, false, false, false],
+                    ["Free (self-host)", true, "Partial", "Partial", "Partial"],
+                  ].map(([label, logr, toggl, harvest, clockify]) => (
+                    <tr key={String(label)} className="border-b border-line last:border-0">
+                      <td className="py-3 pr-6 text-tertiary">{label}</td>
+                      <td className="py-3 px-4 text-center bg-wash font-semibold text-money">
+                        {logr === true ? "✓" : logr === false ? <span className="text-muted-foreground">✗</span> : <span className="text-muted-foreground">{logr}</span>}
+                      </td>
+                      <td className="py-3 px-4 text-center text-muted-foreground">
+                        {toggl === true ? "✓" : toggl === false ? "✗" : toggl}
+                      </td>
+                      <td className="py-3 px-4 text-center text-muted-foreground">
+                        {harvest === true ? "✓" : harvest === false ? "✗" : harvest}
+                      </td>
+                      <td className="py-3 px-4 text-center text-muted-foreground">
+                        {clockify === true ? "✓" : clockify === false ? "✗" : clockify}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Self-host in minutes ── */}
+        <section className="bg-page px-6 sm:px-10 py-20 flex justify-center">
+          <div className="w-full max-w-[1080px] bg-card border border-line p-10 sm:p-14 flex flex-col gap-8">
+            <div className="flex flex-col gap-2">
+              <h2 className="font-display text-[28px] leading-[1.1] text-heading">Self-host in minutes</h2>
+              <p className="text-base text-tertiary">Logr is licensed under{" "}
+                <a
+                  href="https://www.gnu.org/licenses/agpl-3.0.html"
+                  className="underline text-ink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  AGPL-3.0
+                </a>
+                {" "}— free to run on your own infrastructure.
+              </p>
+            </div>
+            <ol className="flex flex-col gap-6">
+              <li className="flex gap-5 items-start">
+                <span className="shrink-0 w-7 h-7 bg-ink text-white text-sm font-semibold flex items-center justify-center">1</span>
+                <div className="flex flex-col gap-1">
+                  <p className="text-base font-semibold text-heading">Deploy to Vercel</p>
+                  <p className="text-base text-tertiary leading-relaxed">Click &ldquo;Deploy&rdquo; in the GitHub repo and Vercel will build and host Logr for you in under two minutes.</p>
+                </div>
+              </li>
+              <li className="flex gap-5 items-start">
+                <span className="shrink-0 w-7 h-7 bg-ink text-white text-sm font-semibold flex items-center justify-center">2</span>
+                <div className="flex flex-col gap-1">
+                  <p className="text-base font-semibold text-heading">Connect a Supabase project</p>
+                  <p className="text-base text-tertiary leading-relaxed">Create a free Supabase project, paste the URL and anon key into Vercel environment variables, and run the included migrations.</p>
+                </div>
+              </li>
+              <li className="flex gap-5 items-start">
+                <span className="shrink-0 w-7 h-7 bg-ink text-white text-sm font-semibold flex items-center justify-center">3</span>
+                <div className="flex flex-col gap-1">
+                  <p className="text-base font-semibold text-heading">Sign in and track</p>
+                  <p className="text-base text-tertiary leading-relaxed">Open your deployment, create your account, add a client, and start your first timer. Everything is ready to go.</p>
+                </div>
+              </li>
+            </ol>
+            <div className="pt-2">
+              <a
+                href="https://github.com/zerox9dev/logr"
+                className="inline-flex items-center gap-2 bg-heading text-white px-5 py-2.5 text-base font-semibold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View on GitHub
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ── */}
+        <section className="bg-card px-6 sm:px-10 py-20 flex justify-center">
+          <div className="w-full max-w-[1080px] flex flex-col gap-10">
+            <h2 className="font-display text-[28px] leading-[1.1] text-heading">Frequently asked questions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Is Logr free?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  Yes. Logr is open source under AGPL-3.0, which means you can self-host it at zero cost on any infrastructure you choose. The hosted version at logr.work is also free to use. There is no paid tier, no feature gating, and no hidden seats pricing. Your data stays in the Supabase project you control.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Is Logr a good open-source Toggl alternative?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  If you need time tracking with invoicing that you can fully control, yes. Toggl Track is a solid product but it is closed source, cloud-only, and invoicing requires a paid plan. Logr covers the same core workflow — timer, projects, clients, reports — and adds invoice generation and shareable invoice links out of the box, with no subscription required.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Can I self-host Logr?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  Absolutely. Logr is designed to be self-hosted. The stack is Next.js for the frontend and API routes, and Supabase (Postgres + Auth + Storage) for the database. Deploy the Next.js app anywhere that supports Node.js — Vercel, Fly.io, a VPS — point it at your own Supabase project, run the migrations, and you have a fully private instance. Instructions are in the GitHub repo.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Does Logr handle invoicing?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  Yes. Invoicing is built into Logr, not bolted on. Every time entry is tagged as billable or non-billable. When you are ready to invoice a client, Logr collects all unbilled sessions into a draft invoice automatically. You can adjust line items, add a note, and send the client a public link — they can view and download the invoice without creating an account.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Can I import from Toggl?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  Yes. Logr supports importing time entries from a Toggl CSV export. Go to Settings, choose Import, upload your Toggl CSV, and Logr will map the entries to your existing clients and projects. It is a one-time migration path, so you do not lose historical data when you switch.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-heading">Does Logr work for agencies?</h3>
+                <p className="text-base text-tertiary leading-relaxed">
+                  Yes. Logr is built around a clients-and-projects model that suits agencies well. Each client can have multiple projects, each project carries its own hourly rate, and reports can be filtered and shared per client. You can generate separate invoices for each client from a single account, making it straightforward to manage billing across a portfolio of ongoing engagements.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── Footer ── */}
         <footer className="bg-card border-t border-line-2 px-5 sm:px-8 lg:px-35 py-5 flex flex-col sm:flex-row gap-3 items-center justify-between text-md-minus text-tertiary">
           <span>© 2026 logr.work. All rights reserved.</span>
           <div className="flex gap-6">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Cookies</a>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy#cookies">Cookies</Link>
             <a href="#">Status</a>
+            <a
+              href="https://github.com/zerox9dev/logr"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
           </div>
         </footer>
       </div>
