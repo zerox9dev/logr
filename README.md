@@ -46,6 +46,7 @@ Most time trackers stop at "track" and make you bolt on a separate invoicing too
 - [Supabase](https://supabase.com) — Postgres, Auth, Row-Level Security — via `@supabase/ssr` (cookie-based SSR sessions)
 - [Vitest](https://vitest.dev) + Testing Library — unit tests
 - `mcp-handler` (MCP server adapter) — hosted MCP endpoint at `/mcp`
+- `@vercel/analytics` + `@vercel/speed-insights` — Vercel Analytics & Speed Insights (mounted in root layout)
 - Deployed on [Vercel](https://vercel.com)
 
 ## Getting Started
@@ -88,17 +89,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 src/
-├── app/            # Next App Router: layout.tsx, page.tsx (landing), providers.tsx,
-│   │               # globals.css, login/, app/ (dashboard), share/{report,invoice}/,
-│   │               # auth/callback/
-│   └── ...
+├── app/                    # Next App Router
+│   ├── layout.tsx / page.tsx / providers.tsx / globals.css
+│   ├── login/              # Auth page
+│   ├── app/                # Dashboard (auth-gated)
+│   ├── share/              # Public shared report & invoice links
+│   ├── auth/callback/      # OAuth / magic-link code exchange
+│   ├── [transport]/        # MCP server endpoint (Streamable HTTP + SSE)
+│   ├── oauth/consent/      # OAuth consent screen for MCP authorization
+│   ├── alternatives/toggl/ # Public SEO landing — open-source Toggl alternative
+│   ├── privacy/            # Privacy policy
+│   ├── terms/              # Terms of service
+│   └── .well-known/oauth-protected-resource/  # OAuth 2.1 auto-discovery
 ├── api/            # Supabase CRUD + auth helpers
 ├── components/     # ui/ (shadcn primitives), shared/, dashboard/ (+ widgets/), layout/, auth/
 ├── contexts/       # auth, data, dashboard providers
 ├── hooks/          # use-data, use-timer
 ├── domain/         # pure logic + tests: dashboard-metrics, report-share, invoicing, invoice-share
 ├── i18n/           # provider + en/uk/ru dictionaries
-├── lib/            # supabase (browser) + supabase-server, format, date, base64, clipboard, utils
+├── lib/            # supabase (browser) + supabase-server + supabase-mcp (server client +
+│                   # token verification for MCP), format, date, base64, clipboard, utils
 ├── proxy.ts        # Next middleware: session refresh + /app auth gate
 └── types/          # database types
 ```
@@ -112,6 +122,10 @@ src/
 | `/app` | Dashboard (auth-gated via middleware + server session check) |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/auth/callback` | OAuth / magic-link code exchange |
+| `/mcp` (+ `/sse`) | Hosted MCP server endpoint (OAuth-protected) |
+| `/oauth/consent` | OAuth consent screen for the MCP authorization flow |
+| `/alternatives/toggl` | Public SEO comparison/landing page — open-source Toggl alternative |
+| `/privacy`, `/terms` | Legal pages |
 
 `/` and `/share/*` are server-rendered; `/app` is a client dashboard behind the auth gate.
 
@@ -128,13 +142,15 @@ src/
 
 All tables use Row-Level Security with `user_id = auth.uid()`.
 
+**MCP server:** to use the MCP endpoint, enable the Supabase **OAuth 2.1 Server** with **Dynamic Client Registration** under *Authentication → OAuth Server*, and set the Authorization Path to `/oauth/consent`.
+
 ## MCP (AI assistant access)
 
 Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) server at `https://logr.work/mcp` (Streamable HTTP; SSE variant at `/sse`).
 
 **Auth:** standard MCP OAuth 2.1 via Supabase — modern clients auto-discover the flow and prompt you to log in; no token copy-pasting needed. All tools run scoped to your account via Row-Level Security.
 
-**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary` and `list_unbilled` insight tools.
+**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary` and `list_unbilled` insight tools — 18 tools total. See [docs/MCP.md](docs/MCP.md) for the complete list.
 
 **Claude Desktop config example (OAuth auto-discovery):**
 
@@ -148,7 +164,7 @@ Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) 
 }
 ```
 
-See [docs/MCP.md](docs/MCP.md) for the full tool list, OAuth setup steps, and manual token instructions.
+See [docs/MCP.md](docs/MCP.md) for OAuth setup steps and manual bearer token instructions (useful for testing).
 
 ## Contributing
 
