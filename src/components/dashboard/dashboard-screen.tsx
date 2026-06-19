@@ -56,7 +56,7 @@ export function DashboardScreen() {
       <TopBar />
 
       {/* 1440 frame: white header подложка + widget grid share the same edges */}
-      <div className="mx-auto max-w-[1440px] pb-10">
+      <div className="mx-auto">
         <ContextHeader />
 
         {isEmpty ? (
