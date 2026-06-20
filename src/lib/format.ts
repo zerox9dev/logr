@@ -39,3 +39,19 @@ export function fmtDateLong(d: Date, locale = "en-US"): string {
 export function getCurrencySymbol(currency: string): string {
   return { USD: "$", EUR: "€", GBP: "£", UAH: "₴", PLN: "zł" }[currency] || "$";
 }
+
+/** Compact number: 1234 → "1.2k", 1500000 → "1.5M". Numbers < 1000 returned as plain integers. */
+export function fmtCompactNumber(n: number): string {
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) {
+    const val = Math.round(n / 100_000) / 10;
+    const str = val % 1 === 0 ? String(val) : val.toFixed(1);
+    return `${str}M`;
+  }
+  if (abs >= 1000) {
+    const val = Math.round(n / 100) / 10;
+    const str = val % 1 === 0 ? String(val) : val.toFixed(1);
+    return `${str}k`;
+  }
+  return String(Math.round(n));
+}
