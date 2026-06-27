@@ -13,6 +13,7 @@
 ## Features
 
 - ⏱️ **Timer** — Start/stop tracking with one click. Manual entries, plus bulk import of time entries from CSV.
+- ✨ **Smart project suggestions** — as you describe what you're working on, Logr suggests the matching project (and applies its rate/billing) with one click. Works offline from your own history; optionally sharpened by Claude when you set `ANTHROPIC_API_KEY`.
 - 📁 **Projects & Clients** — Organize work by client; hourly or fixed-budget billing.
 - 💸 **Billing** — Per-session and per-project rates, paid/unpaid status, billable vs total time.
 - 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid/overdue status, and share a public invoice link.
@@ -20,6 +21,7 @@
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
 - 🔌 **MCP server** — manage Logr from any MCP-compatible AI assistant (Claude, etc.): list/create/update/delete clients, projects, time entries, and invoices, plus dashboard summaries — all over a remote MCP endpoint, scoped to your account.
+- 💬 **In-app AI assistant** — a chat panel that drives the **same** tools as the MCP server (one shared registry): "show unbilled for Acme and draft an invoice." Reads and edits run inline; destructive actions (deletes) require an explicit confirm. Needs `ANTHROPIC_API_KEY`.
 - 🔐 **Auth** — Google OAuth **and** passwordless email magic links, via Supabase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
@@ -59,9 +61,11 @@ Create `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
+ANTHROPIC_API_KEY=sk-ant-...   # optional — AI assistant + LLM-backed project suggestions
 ```
 
 > `SUPABASE_SERVICE_ROLE_KEY` is server-only and never exposed to the browser.
+> `ANTHROPIC_API_KEY` is optional and server-only: it powers the in-app AI assistant and sharpens project suggestions. Without it, project suggestions still work from your local history and the assistant is disabled.
 
 Run the dev server:
 
@@ -92,12 +96,13 @@ cp .env.example .env       # fill in the 3 values from Project Settings → API
 docker compose up -d --build
 ```
 
-`.env` needs just three values from your Supabase dashboard (*Project Settings → API*):
+`.env` needs three values from your Supabase dashboard (*Project Settings → API*), plus one optional key:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...          # anon public key
 SUPABASE_SERVICE_ROLE_KEY=eyJ...              # service_role key (server-only)
+ANTHROPIC_API_KEY=sk-ant-...                  # optional — AI assistant + project suggestions
 ```
 
 The app comes up at **http://localhost:3000**. Optional `.env` knobs: `APP_PORT` (change the host port) and `SUPABASE_INTERNAL_URL` (only if the container reaches Supabase at a different address than the browser — e.g. a self-hosted Supabase on the same Docker network). See [`.env.example`](.env.example).
@@ -165,6 +170,8 @@ src/
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/auth/callback` | OAuth / magic-link code exchange |
 | `/mcp` (+ `/sse`) | Hosted MCP server endpoint (OAuth-protected) |
+| `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared MCP tool registry |
+| `/api/suggest` | LLM fallback for project suggestions (history-first; null without an API key) |
 | `/oauth/consent` | OAuth consent screen for the MCP authorization flow |
 | `/alternatives/toggl` | Public SEO comparison/landing page — open-source Toggl alternative |
 | `/privacy`, `/terms` | Legal pages |

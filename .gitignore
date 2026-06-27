@@ -38,3 +38,6 @@ phase1-landing.png
 
 # Claude Code agent state / worktrees
 .claude/
+
+# mission-kit state
+missions/

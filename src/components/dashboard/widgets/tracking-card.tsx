@@ -6,6 +6,7 @@ import { fmtClock, fmtMoney } from "@/lib/format";
 import { ProjectPicker } from "@/components/shared/project-picker";
 import { ManualDialog } from "@/components/dashboard/manual-entry-dialog";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
+import { useSessionSuggestion } from "@/hooks/use-session-suggestion";
 import type { Project, SessionInsert } from "@/types/database";
 
 /** Build a SessionInsert from a project + task + timing, applying the
@@ -48,6 +49,8 @@ export function TrackingCard() {
   const [projectId, setProjectId] = useState<string | null>(recent?.project_id ?? null);
   const [manualOpen, setManualOpen] = useState(false);
   const [ratesOpen, setRatesOpen] = useState(false);
+
+  const { suggestion, dismiss } = useSessionSuggestion(timerDescription, projectId);
 
   const project = getProjectById(projectId);
   const projectName = project?.name ?? t("track.untracked");
@@ -165,6 +168,31 @@ export function TrackingCard() {
           className="min-w-[120px] flex-1 bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted-foreground focus:outline-none"
         />
       </div>
+
+      {/* Inline project suggestion — accept applies the project (and its
+          rate/billing); ✕ dismisses it. Local history match, LLM fallback. */}
+      {suggestion && (
+        <div className="flex flex-wrap items-center gap-2 text-md">
+          <span aria-hidden="true">✨</span>
+          <span className="text-muted-foreground">{t("track.suggestLabel")}:</span>
+          <button
+            type="button"
+            onClick={() => { setProjectId(suggestion.projectId); dismiss(); }}
+            aria-label={t("track.suggestApply")}
+            className="bg-purple-soft px-2.5 py-1 font-semibold text-heading transition-opacity hover:opacity-80"
+          >
+            {suggestion.projectName}
+          </button>
+          <button
+            type="button"
+            onClick={dismiss}
+            aria-label={t("track.suggestDismiss")}
+            className="px-1 text-muted-foreground transition-colors hover:text-ink"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <ManualDialog
         open={manualOpen}
