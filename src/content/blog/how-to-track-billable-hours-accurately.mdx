@@ -1,0 +1,94 @@
+Most freelancers and small teams don't lose money because their rate is too low. They lose it because the hours they bill don't match the hours they worked. A fifteen-minute client call that never becomes an entry, a "quick fix" that took forty minutes, an afternoon reconstructed from memory two weeks later — each one shaves a little off the invoice. Tracking billable hours accurately means the number on the invoice reflects reality, and you can defend it when a client asks.
+
+This guide covers the three ways people actually record time, why one is clearly better, how to handle rounding fairly, how to write entry descriptions that hold up under scrutiny, and the small habits that keep gaps from appearing.
+
+## Three ways to record time, compared
+
+Everyone tracking billable hours does one of three things: they run a live timer while working, they reconstruct the day at the end of it, or they guess at the end of the week. These are not equally good.
+
+| Method | Accuracy | Effort while working | Effort later | Typical failure |
+| --- | --- | --- | --- | --- |
+| Live timer | High — captures real start and stop times | One click per context switch | Almost none | Forgetting to stop the timer |
+| End-of-day reconstruction | Medium — small tasks vanish, durations drift | None | 10–20 minutes of recall | Undercounting fragmented work |
+| Weekly guessing | Low — you're estimating, not tracking | None | Guesswork disguised as review | Round numbers that satisfy nobody |
+
+A live timer wins because it moves the work to the moment when you have the information. At 10:42 you know exactly what you're doing and for whom. At 6 p.m. you remember most of it. On Friday you remember the big blocks and invent the rest.
+
+End-of-day reconstruction feels workable, and for a day of two or three long blocks it roughly is. It breaks down on fragmented days — the ones with six small client interruptions between two project sessions. Memory flattens the day into fewer, tidier blocks than actually happened, and the flattening almost always deletes billable minutes rather than adding them.
+
+Weekly guessing isn't tracking at all. If you write "Client A: 12 hours" on Friday, you have produced an estimate with a decimal point. Any individual week can be off by hours in either direction, and you'll never know which direction.
+
+If you're currently reconstructing or guessing, the fix is not more willpower — it's lowering the cost of the better method. A timer that starts with one click (Logr's timer works this way, as do most tools in this category) removes the main excuse for not using one, and a CSV import keeps your old spreadsheet history in the same reports while you switch.
+
+## Rounding and minimum increments: what's fair
+
+Raw timer data comes out as 23 minutes here, 7 minutes there. Nobody invoices raw seconds, so you need a rounding policy. The important thing is that it's a *policy* — stated up front, applied consistently — not a per-invoice judgment call.
+
+Common conventions:
+
+- **6-minute increments (tenths of an hour).** The legal-industry standard. Precise, easy to sum, slightly fussy for other fields.
+- **15-minute increments.** The most common default for freelancers and agencies. A 7-minute email rounds to 0.25 hours.
+- **30- or 60-minute minimums per engagement.** Reasonable for work with real switching costs — a "five-minute" server check that requires opening the project, loading context, and verifying the fix genuinely costs more than five minutes.
+
+What's fair to the client:
+
+- **Round the total, or round per entry — pick one and disclose it.** Rounding every tiny entry up to 15 minutes and then summing can inflate a fragmented day by an hour or more. Rounding each task's daily total is usually the honest middle ground.
+- **Round consistently, not opportunistically.** If 0.25-hour increments means an 8-minute task becomes 0.25, it also means a 23-minute task becomes 0.25, not 0.5. Clients forgive rounding; they don't forgive rounding that only ever goes one way.
+- **Put the policy in your contract or first invoice.** "Time is billed in 15-minute increments, rounded per task per day" is one sentence and prevents an entire category of dispute.
+- **Minimums are legitimate, silence about them isn't.** A 30-minute minimum for ad-hoc requests is defensible when you explain the context-switching cost. Discovered by the client on an invoice, it looks like padding.
+
+If you're unsure how rounding interacts with your pricing, it helps to work backwards from what you need to earn — the [hourly rate calculator for freelancers](/blog/hourly-rate-calculator-for-freelancers) covers that math.
+
+## Descriptions that survive "what was this?"
+
+Every entry will eventually be read by someone who wasn't there — a client reviewing an invoice, a project manager checking a budget, or you in three months. Write for that reader.
+
+A description survives scrutiny when it answers three things: **what you did, on what, and (if not obvious) why it took time.**
+
+Weak: `Fixed bug`
+Better: `Fixed checkout total miscalculating for discounted items — traced to rounding in tax step, added regression test`
+
+Weak: `Call`
+Better: `Call with Dana re: Q3 scope changes; agreed to defer reporting module`
+
+Practical rules:
+
+- **Write it when you start or stop, not later.** The whole value of the description is the detail you only have in the moment.
+- **Name the deliverable or ticket.** "Homepage hero revision v3" beats "design work."
+- **Never rely on the project name to carry meaning.** The project tells the client where the time went; the description tells them what they got for it.
+- **If a task ballooned, say why in one clause.** "Migration script — extended by malformed legacy records" preempts the question instead of inviting it.
+- **Keep it to one or two lines.** You're writing an audit trail, not a diary.
+
+Good descriptions also make the billable/non-billable split defensible. If you're fuzzy on where that line sits, see [billable vs non-billable hours](/blog/billable-vs-non-billable-hours) — the short version is that a clear description makes the classification obvious, and a vague one makes everything arguable.
+
+## The habit loop
+
+Accurate tracking isn't a system you set up once; it's three small habits that reinforce each other:
+
+1. **Start on context switch.** The trigger for starting a timer is not "beginning billable work" — that's too abstract. The trigger is *switching what you're doing*. Opened a client's repo? Timer. Joined a call? Timer. Answering a client email thread? Timer. If the tool suggests the right project from your recent history, the switch costs two seconds and the habit sticks.
+2. **One entry per task.** Don't run a single "Client A" timer across a whole afternoon that contained three distinct tasks. One entry per task is what makes descriptions writable, rounding fair, and invoices explainable. It also produces data you can actually learn from — you find out that "small CSS tweaks" reliably take 45 minutes, not 15.
+3. **Daily two-minute review.** At the end of the day, scan the entries once. You're checking four things: any obvious gaps between entries, any timer still running, any entry missing a description, any entry on the wrong project. Two minutes today versus twenty minutes of archaeology at invoice time. Something visual helps here — Logr's activity heatmap makes an untracked afternoon show up as an obvious hole rather than a subtle sum error.
+
+The loop matters more than the tool. Steps 1 and 2 create accurate raw data; step 3 catches the day's errors while they're still fixable from memory.
+
+## Common mistakes
+
+- **Batching from memory.** Logging "Tuesday, roughly" on Thursday. Every reconstructed batch is quietly wrong, and almost always wrong against you. If it happens, mark reconstructed entries so you know which numbers to trust less.
+- **Untracked small tasks.** The two-minute Slack reply, the quick invoice question, the "can you just check" request. Individually negligible, collectively they're often 3–5 hours a week of real client work billed at zero. Small tasks get a timer too — that's what rounding policies are for.
+- **Forgetting to stop the timer.** The classic. You'll notice a suspicious 4-hour "email" entry in your daily review; trim it to reality then, not at invoice time when you no longer remember. If your tool shows a running timer prominently, glance at it whenever you stand up.
+- **No project attribution.** Time logged to nothing is time you can't invoice and can't analyze. An entry without a project is a draft, not a record.
+- **Mixing internal and client work.** Your own marketing, admin, and tooling belong in internal projects, tracked but clearly separated. Mixing them either inflates client invoices (bad) or trains you to leave your own business time untracked (also bad, because you lose sight of your real effective rate). This separation matters even more once several people share the same project list — [time tracking for small agencies](/blog/time-tracking-for-small-agencies) goes deeper on that.
+
+## Catching and fixing gaps
+
+Even with good habits, gaps happen. The workflow for handling them:
+
+1. **Find them daily, not monthly.** In your two-minute review, look at the timeline: a 90-minute hole between entries is either a break (fine) or lost billable time (fix it now).
+2. **Reconstruct from artifacts, not memory.** Sent emails, commit timestamps, calendar events, and chat history give you real anchors. "Commit at 14:07, call at 15:00" reconstructs an hour far more reliably than recall does.
+3. **Fill gaps with manual entries, honestly.** A manual entry backed by a commit timestamp is legitimate tracking. A manual entry backed by "it felt like two hours" is a guess — if you must log it, round it *down* and move on.
+4. **Fix overruns the same day.** Runaway timers get trimmed to the last artifact you can verify (last commit, end of the call, last message sent).
+5. **Do a five-minute sweep before invoicing.** Before numbers reach a client, scan the period once for missing days, undescribed entries, and misattributed projects. A shareable report link makes this doubly worthwhile: if the client can see the entries, the entries need to be clean. Then the invoice itself is straightforward — [how to invoice a client as a freelancer](/blog/how-to-invoice-a-client-as-a-freelancer) covers that step.
+
+## The point of all this
+
+Accurate billable hours are about two kinds of trust: the client trusts that the invoice reflects real work, and you trust your own numbers enough to know what your time actually earns. A live timer, one entry per task, a stated rounding policy, and a two-minute daily review will get you both. None of it is complicated — it just has to be cheap enough to do every day, because tracking you do inconsistently is barely better than tracking you don't do at all.

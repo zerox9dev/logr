@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { postsByDate } from "@/data/posts";
 
 const structuredData = [
   {
@@ -79,6 +80,18 @@ export default function Home() {
 
           {/* Nav */}
           <div className="flex items-center gap-1.5">
+            <Link
+              href="/blog"
+              className="hidden sm:block px-3 py-2 text-md font-medium text-tertiary hover:text-ink"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/alternatives"
+              className="hidden sm:block px-3 py-2 text-md font-medium text-tertiary hover:text-ink"
+            >
+              Alternatives
+            </Link>
             <Link href="/login" className="px-4 py-2 text-md font-medium text-ink">
               Log in
             </Link>
@@ -352,6 +365,34 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── From the blog ── */}
+        <section className="bg-page px-6 sm:px-10 py-20 flex justify-center">
+          <div className="w-full max-w-[1080px] flex flex-col gap-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="font-display text-[28px] leading-[1.1] text-heading">From the blog</h2>
+              <Link href="/blog" className="text-md font-medium text-ink underline underline-offset-2">
+                All articles
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {postsByDate.slice(0, 3).map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/blog/${p.slug}`}
+                  className="bg-card border border-line p-6 flex flex-col gap-3 hover:border-line-2 transition-colors"
+                >
+                  <span className="text-md-minus font-medium text-dark-1">{p.category}</span>
+                  <h3 className="text-base font-semibold text-heading leading-snug">{p.title}</h3>
+                  <p className="text-md text-tertiary leading-relaxed">{p.description}</p>
+                  <span className="text-md-minus text-tertiary mt-auto pt-2">
+                    {p.readingMinutes} min read
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── FAQ ── */}
         <section className="bg-card px-6 sm:px-10 py-20 flex justify-center">
           <div className="w-full max-w-[1080px] flex flex-col gap-10">
@@ -400,7 +441,9 @@ export default function Home() {
         {/* ── Footer ── */}
         <footer className="bg-card border-t border-line-2 px-5 sm:px-8 lg:px-35 py-5 flex flex-col sm:flex-row gap-3 items-center justify-between text-md-minus text-tertiary">
           <span>© 2026 logr.work. All rights reserved.</span>
-          <div className="flex gap-6">
+          <div className="flex gap-6 flex-wrap justify-center">
+            <Link href="/blog">Blog</Link>
+            <Link href="/alternatives">Alternatives</Link>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <Link href="/privacy#cookies">Cookies</Link>

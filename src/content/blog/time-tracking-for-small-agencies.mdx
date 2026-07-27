@@ -1,0 +1,124 @@
+Time tracking in a small agency fails for boring reasons. Nobody agrees on how to name projects, so the data becomes unreadable within a quarter. Rates live in someone's head, so nobody knows whether a fixed-fee project made money. And the team stops logging because logging feels like surveillance instead of the thing that gets everyone paid. This guide covers a setup that works for a 2–10 person shop: structure conventions that stay legible a year later, rates and fixed budgets, a weekly review ritual, client-facing reports, per-project profitability, and how to get the team to actually do it.
+
+## Structure: clients → projects → tasks
+
+Most time trackers, Logr included, give you three levels: clients, projects, and the individual sessions or tasks underneath. The structure is simple; the discipline is in naming.
+
+The failure mode is a flat pile of projects called "Website," "Website 2," "Misc," and "Dave's thing." Six months later nobody can tell which "Website" belongs to which engagement, and you can't build an invoice from it without archaeology.
+
+A convention that holds up:
+
+| Level | Convention | Example |
+|---|---|---|
+| Client | Legal or short trading name, one entry per paying entity | Northwind Retail |
+| Project | One engagement or statement of work, with a date or version if repeated | Northwind — Site Redesign 2026 |
+| Task/session | Verb + object, specific enough to reconstruct the day | "Wireframes for checkout flow" |
+| Internal work | A fake client called "Internal" with real projects | Internal — New Business, Internal — Ops |
+
+Three rules that matter more than the exact format:
+
+1. **One project per engagement, not per deliverable.** If the SOW covers design and development, that's one project. If the client signs a second SOW in autumn, that's a second project. Projects should map to the things you invoice.
+2. **Never reuse a project for new scope.** When "Site Redesign" wraps and the client asks for ongoing maintenance, close the first project and open "Northwind — Maintenance Retainer." Otherwise your fixed-budget numbers get polluted by out-of-scope work.
+3. **Track internal time too.** Sales calls, proposals, admin. It's non-billable, but if you don't see it you can't manage it — the split between billable and internal hours is the single most useful number an agency owner gets from a tracker. More on that in [billable vs non-billable hours](/blog/billable-vs-non-billable-hours).
+
+## Rates: per client, per project, hourly vs fixed
+
+Small agencies rarely have one rate. Development bills higher than design, the legacy client from 2022 is grandfathered at an old rate, and half the work is fixed-fee anyway.
+
+Set it up in layers:
+
+- **Hourly projects** get an hourly rate on the project itself. In Logr you can set a rate per project and override it per session, which handles the case where a senior developer's hours on the same project bill differently from routine maintenance.
+- **Fixed-budget projects** get the agreed fee as the project budget. You still track every hour against it — not to bill the hours, but to know what the fee actually cost you.
+
+The second point is where most shops fall down. On fixed-fee work, hours feel free because the invoice doesn't change. They aren't free; they're the difference between a profitable project and one that quietly ate three weeks. Tracking hours against a fixed budget is how you find out which is which, and it's the input for the profitability math below.
+
+If you're not sure what your hourly rate should be in the first place, work backwards from costs and target income — the approach in the [hourly rate calculator](/blog/hourly-rate-calculator-for-freelancers) applies to a small team just as well as a freelancer: sum the costs, divide by realistic billable hours.
+
+## The weekly review ritual
+
+Fifteen to thirty minutes, same time every week, whoever owns the numbers. The agenda:
+
+- [ ] **Fill the gaps.** Scan the week's timeline for days with suspiciously few hours. Chase down or reconstruct missing entries while memory is fresh — after a week, reconstruction is fiction.
+- [ ] **Check fixed-budget projects against budget.** For each active fixed-fee project, compare hours logged so far to hours you planned. A project at 80% of budgeted hours and 40% of deliverables is a problem you want to see now, not at delivery.
+- [ ] **Mark sessions billable or not.** Resolve the ambiguous ones — the scope-question call, the bug that might be your fault — before they pile up.
+- [ ] **Review unbilled work per client.** Anything finished and unbilled is an interest-free loan to the client. If a client has crossed your invoicing threshold, build the invoice now.
+- [ ] **Look at the billable ratio.** Total billable hours over total logged hours, for the team. You don't need a target from a blog post; you need to notice when your own number moves.
+
+The whole ritual works because time entries are fresh. Do it monthly instead and steps one and three become guesswork.
+
+## What a client-facing report should (and shouldn't) show
+
+Clients ask for time reports for two reasons: to check the invoice, and to understand where the money went. A good report serves both without creating new arguments.
+
+**Show:**
+
+- Total hours for the period, grouped by project.
+- Session descriptions — this is why "Wireframes for checkout flow" beats "work."
+- Dates, so the client can map effort to what they saw happening.
+- The amount, if the engagement is hourly.
+
+**Don't show:**
+
+- Which team member did what. It invites rate-shopping ("why did the senior person do this?") and adds nothing the client needs.
+- Internal time, non-billable time, or other clients. Obvious, but a raw export leaks exactly this.
+- Minute-level start/stop timestamps. They read as surveillance data and invite nitpicking over a 12-minute session.
+
+Practically: never send a raw CSV export. Send a report scoped to that client and period. Logr generates shareable, self-contained report links, so the client gets a clean read-only view instead of a spreadsheet with your whole business in it.
+
+One more thing: the report is only as defensible as the entries behind it. Vague or backfilled entries are where invoice disputes start — the habits in [how to track billable hours accurately](/blog/how-to-track-billable-hours-accurately) are what make a report you can send without flinching.
+
+## Per-project profitability: effective hourly rate
+
+For hourly projects, profitability is straightforward: you billed the hours. For fixed-fee projects, you need one number: the **effective hourly rate** — the fixed fee divided by hours actually spent.
+
+Worked example. Your target rate is $100/hour. Two fixed-fee projects wrap in the same month:
+
+| | Fixed fee | Hours logged | Effective rate |
+|---|---|---|---|
+| Northwind — Site Redesign | $12,000 | 96 | $125/hr |
+| Contoso — Brand Refresh | $8,000 | 115 | $69.57/hr |
+
+Northwind came in at $125/hour — above target, a well-scoped project. Contoso came in at roughly $70/hour, 30% below target. Both invoices got paid in full; only the time data tells you one of them lost you money relative to hourly work.
+
+What to do with a low number, in order of usefulness:
+
+1. **Check for scope creep.** Read the session descriptions. If a third of the hours are "revisions round 4," the fix is contractual, not operational.
+2. **Reprice the next one.** 115 hours at your $100 target means the next brand refresh is a $11,500 project, not an $8,000 one. Your own logged hours are the best estimating database you'll ever have.
+3. **Decline the project type.** Some work is structurally underpriced in your market. Better to know.
+
+None of this is possible if fixed-fee hours don't get logged. That's the argument to give the team.
+
+## Getting the team to actually log time
+
+The honest version: people don't log time because it's tedious and because they suspect it will be used against them. Address both.
+
+**Reduce the friction:**
+
+- Keep the project list short and current. Archive finished projects so the picker isn't forty items deep.
+- Agree that entries are logged same-day. Not in real time to the minute — same-day is accurate enough and far more sustainable.
+- Accept 15-minute granularity. Chasing precision beyond that costs more than it returns.
+- If people already track elsewhere (a spreadsheet, another tool), import the history via CSV rather than starting from zero. Zero-history tools feel optional.
+
+**Fix the incentives:**
+
+- Say out loud, once, what time data is used for: invoicing, project pricing, and capacity planning — and what it isn't: individual performance reviews. Then keep that promise.
+- Show the team the outputs. When the Contoso numbers above lead to repricing the next project instead of a lecture about working faster, logging starts to feel like leverage rather than surveillance.
+- The owner logs time too, visibly, including the unbillable sales calls. Nothing kills a tracking habit faster than an exemption at the top.
+
+If data sensitivity itself is the objection — client names and rates sitting in a third-party SaaS — self-hosting removes it. Logr is open source and self-hostable, and the tradeoffs are covered in [self-hosted time tracking](/blog/self-hosted-time-tracking). If you're comparing options more broadly, there's a rundown of [alternatives](/alternatives).
+
+## Retainers and rollover
+
+Retainers are fixed budgets that repeat, so the setup follows from everything above: one project per retainer period, or one long-running project with the monthly hour budget tracked in the weekly review — pick one and be consistent. The per-period version keeps effective-rate math clean; the long-running version keeps the client's history in one place.
+
+The part to settle in writing before the first invoice:
+
+- **Do unused hours roll over?** If yes, cap it (commonly one month) and track the balance explicitly. Uncapped rollover turns into a liability that surfaces at the worst time.
+- **What happens on overage?** Either overage hours bill at your hourly rate, or work stops until next period. Both are fine; ambiguity is not.
+- **When does the report go out?** Send the retainer usage report monthly, whether or not the client asks. A client who sees "34 of 40 hours used" every month never disputes a retainer invoice; a client who sees nothing for six months disputes the seventh.
+
+Mechanically, this is the same loop as everything else: log the hours, review weekly, report the period, invoice from the unbilled sessions.
+
+## Where to start
+
+Don't roll all of this out in a week. Set the client and project structure first — that's a one-hour job and everything else depends on it. Add rates and budgets to active projects. Run the weekly review twice before you change anything else; it will show you where the real gaps are. The reporting polish and profitability reviews follow naturally once the underlying data is trustworthy, and in a 2–10 person shop, trustworthy data is mostly a matter of naming things properly and looking at them once a week.

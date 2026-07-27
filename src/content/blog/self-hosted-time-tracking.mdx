@@ -1,0 +1,104 @@
+Self-hosted time tracking means running the tracker on infrastructure you control, with your time entries, client names, and billing data living in your own database instead of a vendor's. For a lot of teams that is an unnecessary complication — SaaS trackers work fine. But if you sign NDAs, bill clients whose names alone are confidential, or you have been burned by a tool that raised prices or shut down, owning the stack starts to look less like a hobby and more like risk management. This article walks through why you might self-host a time tracker, the honest trade-offs against SaaS, what it actually costs for a small team, how to deploy one, and how to evaluate an open-source option before you commit.
+
+## Why own your time-tracking data
+
+Time entries look boring from the outside. They are not. A time-tracking database is effectively a log of who your clients are, what you are building for them, how much you charge, and how your team spends every working hour. Reasons teams decide that log should not sit in a third-party SaaS:
+
+### NDAs and client confidentiality
+
+Many agency and consulting contracts restrict where client-identifying information may be stored, or require you to list every sub-processor that touches it. Every SaaS tool you pipe client names into is another sub-processor to disclose, another data-processing agreement to negotiate, and another entry in your security questionnaire. When the tracker runs in your own database, the answer to "where is this data?" is one sentence.
+
+### Vendor sunset and price hikes
+
+Hosted tools change. Free tiers shrink, per-seat prices go up, features move behind higher plans, and products occasionally get acquired and wound down. None of this is malicious — it is how SaaS businesses work — but your years of billing history are hostage to those decisions. With a self-hosted tracker, the version you deployed keeps working regardless of what the project does next. If you are currently comparing hosted trackers and their pricing tiers, the [/alternatives](/alternatives) hub covers the trade-offs tool by tool.
+
+### Export freedom
+
+Most SaaS trackers offer CSV export, and that covers the basics. What it usually does not cover is the full relational picture: which entries fed which invoice, per-project rate history, paid/unpaid status. When the data is in your own Postgres instance, export is not a feature someone granted you — it is `pg_dump`, or any SQL query you care to write.
+
+### Auditable code
+
+With open-source software you can read what the application actually does with your data: what it stores, what it sends, what third-party services it calls. You will probably never audit every line, but the option changes the relationship. Security reviews can inspect the code instead of relying on a vendor's compliance page, and if something in the data handling worries you, you can patch it.
+
+## The honest trade-offs
+
+Self-hosting is not free ownership. You are trading a subscription fee for operational responsibility, and it is worth being explicit about what you take on.
+
+**You own uptime.** If the server falls over on invoicing day, there is no status page to point at and no support ticket to open. For a time tracker this is usually tolerable — a few hours of downtime means entering some time manually later — but it is your problem.
+
+**You own backups.** A SaaS vendor almost certainly backs up its database better than you back up yours, because its business depends on it. If you self-host and never test a restore, you have not really got backups; you have a hope. The checklist below is the minimum.
+
+**You own upgrades.** Security patches, dependency updates, and database migrations do not apply themselves. A small app is maybe an hour a month of attention, but it is a recurring hour, and skipping it for a year makes the eventual upgrade harder.
+
+**You own auth and access.** SSO, revoking a departed contractor's access, password resets — all yours now. Tools that delegate auth to a managed provider (Logr uses Supabase Auth, for example) offload most of this, but the configuration is still on you.
+
+The honest summary: self-hosting makes sense when the data-ownership benefits outweigh a small but real ongoing ops cost. For a solo freelancer with no confidentiality constraints, SaaS is often the rational choice. For a five-person agency handling NDA-covered clients, the calculation flips quickly.
+
+## What it costs: a small-team comparison
+
+The table below compares a five-person team over a year. **All figures are illustrative ranges, not quotes** — SaaS pricing changes often and varies by plan, so check current pricing before deciding. The point is the shape of the cost, not the exact numbers.
+
+| Cost item | Per-seat SaaS (illustrative) | Self-hosted (small VPS or Vercel + Postgres) |
+|---|---|---|
+| Software license | ~$5–15 per user/month → **$300–900/yr** for 5 seats | $0 (open source) |
+| Hosting | Included | Small VPS ~$5–10/mo, **or** Vercel free/hobby tier + managed Postgres free tier → **$0–120/yr** |
+| Database & backups | Included | Managed Postgres free tier or ~$0–25/mo depending on size |
+| Setup time | ~0 hours | ~2–4 hours once |
+| Maintenance | ~0 hours | ~0.5–1 hour/month (updates, backup checks) |
+| Cost of growth | Linear per seat | Flat — 5 or 15 users, same server |
+
+Two things to notice. First, self-hosting cost is flat: adding a sixth teammate costs nothing, while per-seat SaaS grows linearly. Second, the real self-hosting cost is the maintenance hours, not the hosting bill — if your time is expensive and the team is tiny, that can erase the savings. For a broader look at where small agencies lose money on tracking overhead, see [/blog/time-tracking-for-small-agencies](/blog/time-tracking-for-small-agencies).
+
+## Deployment options
+
+Using Logr as the concrete example — an AGPL-3.0 tracker built on Next.js and Supabase Postgres — there are three realistic paths, in increasing order of control.
+
+### One-click on Vercel
+
+The lowest-effort path: deploy the app to Vercel from the repository, create a Supabase project (the free tier is enough to start), and set three environment variables — the Supabase URL, the anon key, and the server-only service-role key. The app runs on Vercel's free tier; your data lives in your Supabase Postgres database, which you can dump, query, or migrate away from at any time.
+
+### Docker on any host
+
+For a fully self-managed app layer, run the container anywhere Docker runs and point it at your own Supabase project:
+
+```bash
+git clone https://github.com/zerox9dev/logr.git && cd logr
+cp .env.example .env    # fill in the 3 Supabase values
+docker compose up -d --build
+```
+
+Before first run, apply the schema migration to your Supabase project (via the SQL editor or `supabase db push`) and enable your auth providers. The app comes up on port 3000.
+
+### Own VPS, own everything
+
+The maximum-ownership path: the same Docker setup on a VPS you control, pointed at a [self-hosted Supabase](https://supabase.com/docs/guides/self-hosting/docker) instead of Supabase Cloud. Now the application, the auth layer, and the Postgres database all run on your hardware. This is the right choice when contracts require data to stay in a specific jurisdiction or on specific infrastructure — and it is also the option with the most moving parts to maintain.
+
+A design note that matters for maintenance: Logr deliberately keeps the app and the database separate rather than shipping a bundled multi-container stack. You get Supabase's auth, Postgres, and row-level security as a managed (or separately self-hosted) service, and the app itself stays a single container that is trivial to rebuild or move.
+
+## Backup, restore, and upgrade checklist
+
+The unglamorous part that decides whether self-hosting was a good idea. Run through this once at setup and revisit quarterly:
+
+- [ ] **Automate database dumps.** Nightly `pg_dump` (or your Postgres provider's scheduled backups), retained for at least 30 days.
+- [ ] **Store backups off the server.** A backup on the same VPS as the database protects you from nothing that matters.
+- [ ] **Test a restore.** Actually restore a dump into a scratch database and open the app against it. Do this before you need it, then repeat every few months.
+- [ ] **Back up your environment configuration.** The `.env` values (database URL, keys) belong in a password manager or secrets store — losing them can be as painful as losing data.
+- [ ] **Snapshot before upgrading.** Take a fresh dump immediately before pulling a new version.
+- [ ] **Read migration notes.** Check the release changelog for schema migrations and run them in the documented order.
+- [ ] **Rebuild, don't just restart.** With Docker, changed build-time variables require a rebuild (`docker compose up -d --build`), not just a container restart.
+- [ ] **Verify after upgrade.** Log in, start and stop a timer, open an invoice. Five minutes of smoke testing catches most bad upgrades.
+
+## How to evaluate an open-source tracker
+
+Not every open-source project is worth betting your billing history on. Before committing, check:
+
+- **License.** Permissive (MIT, Apache-2.0) means anyone can build closed products on it; copyleft (GPL, AGPL-3.0 — Logr's license) requires modifications that are distributed or served over a network to stay open. For self-hosting internally, either works; know which you are getting.
+- **Migration path in.** Can you import your existing history? CSV import of time entries is the practical baseline — retyping two years of entries is not happening.
+- **Migration path out.** Standard database (plain Postgres beats a proprietary format), documented schema, export options. The exit should be as easy as the entrance.
+- **Active repository.** Recent commits, issues that get responses, a release within the last few months. A tracker abandoned two years ago will fight you on every dependency update.
+- **Deployment honesty.** Docs that state real requirements and real steps. If the self-hosting guide is a single vague paragraph, expect the same care elsewhere.
+- **The features you actually bill with.** Many open-source trackers stop at tracking and leave invoicing to another tool. Comparisons like [/alternatives/kimai](/alternatives/kimai) and [/alternatives/toggl](/alternatives/toggl) go through this feature-by-feature.
+
+## Closing
+
+Self-hosted time tracking is a trade: a few hours of setup and an hour a month of maintenance, in exchange for flat costs, export freedom, and a straight answer to "where is our client data?" If none of those pressures apply to you, a hosted tracker is the simpler choice, and that is fine. If they do apply, the tooling has become genuinely easy — a container, a Postgres database, three environment variables — and the open-source options, Logr among them, are mature enough to run your billing on. Start with the checklist, test your first restore, and the rest is routine.

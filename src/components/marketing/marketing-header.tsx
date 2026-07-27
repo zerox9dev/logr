@@ -12,9 +12,23 @@ export function MarketingHeader() {
         </div>
         <span className="text-[16px] font-bold tracking-[-0.3px] text-ink">logr.work</span>
       </Link>
-      <Link href="/login" className="bg-ink text-white px-4 py-2 text-md font-medium">
-        Get started
-      </Link>
+      <div className="flex items-center gap-1.5">
+        <Link
+          href="/blog"
+          className="hidden sm:block px-3 py-2 text-md font-medium text-tertiary hover:text-ink"
+        >
+          Blog
+        </Link>
+        <Link
+          href="/alternatives"
+          className="hidden sm:block px-3 py-2 text-md font-medium text-tertiary hover:text-ink"
+        >
+          Alternatives
+        </Link>
+        <Link href="/login" className="bg-ink text-white px-4 py-2 text-md font-medium">
+          Get started
+        </Link>
+      </div>
     </header>
   );
 }

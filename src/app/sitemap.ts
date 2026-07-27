@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { competitors } from "@/data/competitors";
+import { posts } from "@/data/posts";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const alternativeEntries: MetadataRoute.Sitemap = competitors.map((c) => ({
@@ -7,6 +8,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
+  }));
+
+  const postEntries: MetadataRoute.Sitemap = posts.map((p) => ({
+    url: `https://logr.work/blog/${p.slug}`,
+    lastModified: new Date(p.updated ?? p.date),
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
 
   return [
@@ -23,5 +31,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     ...alternativeEntries,
+    {
+      url: "https://logr.work/blog",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...postEntries,
   ];
 }

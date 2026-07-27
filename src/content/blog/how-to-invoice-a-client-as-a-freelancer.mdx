@@ -1,0 +1,106 @@
+Invoicing is the part of freelancing where the work you did turns into money you can actually spend. It is also the part most freelancers improvise: a Word doc copied from an old project, a number picked at random, payment terms nobody wrote down. That improvisation costs real money in late payments, awkward disputes, and hours that never get billed at all. This guide walks through what a proper freelance invoice contains, how to number it, how to handle tax lines, what payment terms to set, and how to turn tracked hours into line items a client will pay without questions.
+
+## What a freelance invoice must contain
+
+There is no single global standard, but most jurisdictions and most clients' accounting departments expect the same core fields. Miss one and your invoice can bounce back for "correction," which resets the payment clock. Check the exact legal requirements with a local accountant, because rules on mandatory fields differ by country. That said, the following list covers what nearly every compliant invoice includes.
+
+### Field-by-field breakdown
+
+**The word "Invoice."** Sounds trivial, but the document should say what it is. Some accounting systems reject documents labeled "bill" or nothing at all.
+
+**Invoice number.** A unique identifier. More on numbering schemes below.
+
+**Issue date.** The date you send the invoice. Payment terms count from this date unless you specify otherwise.
+
+**Your details.** Full legal name (or business name), address, and any tax or business registration number you are required to show locally.
+
+**Client details.** The client's legal entity name and address, not just the name of your contact. If you invoice "Dave" instead of "Dave's company GmbH," accounting may refuse to process it.
+
+**Line items.** A description of the work, the quantity (hours or units), the unit rate, and the line total. Vague lines like "consulting services" invite questions; specific lines like "API integration, 12.5 h @ $90" get approved.
+
+**Subtotal, tax, and total.** Show the subtotal before tax, any tax as its own line, and the final amount due.
+
+**Payment terms and due date.** "Net 30" plus the actual calendar due date. Never make the client do the math.
+
+**Payment details.** Bank account, IBAN, PayPal address, or payment link. One missing digit here delays payment by a week.
+
+Here is the same list as a pre-send checklist:
+
+- Unique invoice number assigned
+- Issue date and due date both stated
+- Your legal name, address, and tax ID
+- Client's legal entity name and address
+- Each line item has description, quantity, rate, and total
+- Subtotal, tax line, and grand total all shown
+- Currency stated explicitly
+- Payment method details complete and correct
+- Payment terms and late-fee policy noted
+- PDF file name is professional (e.g., `invoice-2026-014-yourname.pdf`)
+
+## Invoice numbering schemes
+
+Invoice numbers need to be unique and, in many places, sequential without gaps. Beyond that, the scheme is up to you. Three common approaches:
+
+| Scheme | Example | Good for |
+| --- | --- | --- |
+| Simple sequential | 001, 002, 003 | Solo freelancers with one income stream |
+| Year-prefixed | 2026-001, 2026-002 | Resetting the counter yearly; easy tax-season sorting |
+| Client-coded | ACME-2026-03 | Multiple retainer clients; quick lookup per client |
+
+Two practical warnings. First, do not start at 001 if you would rather not signal "you are my first client ever" — starting at a higher number is common and harmless as long as you stay sequential from there. Second, never reuse or delete a number. If you cancel an invoice, issue a credit note or mark it void and move on. Gaps you can explain are fine; duplicates are not.
+
+## Handling tax and VAT lines
+
+Tax handling is where generic advice gets dangerous, so treat this section as orientation, not instruction. The general patterns:
+
+**If you are registered for VAT/GST/sales tax,** you typically add the tax as a separate line with the rate shown (for example, "VAT 20%: $180") and display your tax registration number on the invoice.
+
+**If you are below a registration threshold or otherwise exempt,** many jurisdictions require a short note stating why no tax is charged, rather than simply omitting the line.
+
+**Cross-border invoices** often shift the tax obligation to the client (a "reverse charge" style mechanism in some regions) or fall outside your local tax scope entirely. The required wording differs by country pair.
+
+The safe rule: pick one tax treatment with your accountant when you set up, template it, and apply it consistently. The expensive mistake is not choosing a slightly suboptimal setup; it is charging tax inconsistently across invoices and having to correct them later.
+
+## Payment terms that actually get you paid
+
+Payment terms are negotiable before the contract is signed and nearly impossible to change after. Set them deliberately.
+
+**Net 14 vs. net 30.** Net 30 is the default expectation at larger companies because it matches their payment runs. For small clients and new relationships, net 14 is reasonable and worth asking for. Anything longer than net 30 mostly benefits the client's cash flow at the expense of yours.
+
+**Deposits.** For new clients or projects over roughly two weeks of work, ask for a deposit — commonly 25 to 50 percent upfront. A client who resists any deposit on a large project is telling you something about how they will treat the final invoice.
+
+**Milestone billing.** On long projects, invoice at defined checkpoints instead of one big bill at the end. Smaller invoices get approved faster and cap your exposure if the relationship sours.
+
+**Late fees.** State a late-fee policy on the invoice (a flat monthly percentage is typical) even if you rarely enforce it. Its main job is to move your invoice up the pile when a client is deciding whom to pay first. Some jurisdictions set statutory late-payment interest you can claim by default — again, check locally.
+
+Whatever terms you choose, make sure the rate behind them holds up. If net 30 plus a two-week gap before the invoice means you wait six weeks for money, your effective hourly rate needs to account for that; the [hourly rate calculator guide](/blog/hourly-rate-calculator-for-freelancers) walks through pricing in that overhead.
+
+## Turning tracked hours into line items
+
+The quality of an invoice is decided weeks before you write it, when the hours are (or are not) recorded. If your time log is a guess, your line items will be vague, and vague line items get challenged.
+
+The workflow that holds up:
+
+1. **Track as you work, per client and per task.** Reconstructing a week from memory reliably drops billable time — the details are in [how to track billable hours accurately](/blog/how-to-track-billable-hours-accurately).
+2. **Separate billable from non-billable.** Admin, proposals, and your own bookkeeping do not belong on the invoice. If you are unsure where the line sits, see [billable vs. non-billable hours](/blog/billable-vs-non-billable-hours).
+3. **Group sessions into meaningful lines.** Clients do not want forty rows of 25-minute entries. Roll sessions up by task or deliverable: "Landing page revisions — 6.75 h" reads better than a raw timestamp dump, and you keep the detailed log in case anyone asks.
+4. **Round consistently.** Pick a rounding rule (to the nearest 15 minutes is common), state it once, and apply it everywhere. Inconsistent rounding looks like padding.
+5. **Mark the sessions as billed.** Otherwise the same hours drift onto next month's invoice, and nothing burns trust faster than double billing.
+
+This is the loop Logr was built around: it collects a client's unbilled sessions, turns them into grouped invoice line items, and gives you a public link to share instead of a PDF attachment, so the "which hours went on which invoice" bookkeeping happens automatically. If you are comparing time trackers on exactly this invoicing workflow, the [alternatives overview](/alternatives) breaks down how the common tools differ.
+
+## Sending the invoice and following up
+
+**Send it immediately.** The day the work or milestone is done, not "sometime this month." Every day of delay on your side is added to the client's net terms on the other side.
+
+**Send it to the right place.** Ask early whether invoices go to your contact, to an accounts-payable address, or into a supplier portal. Invoices sent to the wrong inbox are the most common cause of "we never received it."
+
+**One short email.** Amount, due date, invoice number in the subject line, invoice attached or linked. No essay.
+
+**Follow-up cadence.** A polite structure that works: a reminder a few days before the due date ("just flagging invoice 2026-014 is due Friday"), a firmer note the day after it is missed, then a follow-up every 5–7 business days. Stay factual and unemotional; reference the invoice number and the agreed terms every time. If an invoice goes badly overdue, pausing new work is a legitimate and often effective step — say so plainly rather than threatening.
+
+**Keep records.** Save sent invoices, payment confirmations, and the follow-up thread. If you ever need formal collection steps, that paper trail is what makes them possible.
+
+## Next steps
+
+Start with the smallest version of this that you will actually maintain: a template containing every field from the checklist above, one numbering scheme, one rounding rule, and one set of payment terms you quote to every new client. Then fix the upstream problem — consistent time tracking — because no template can rescue an invoice built on guessed hours. Confirm the tax treatment with a local accountant once, bake it into the template, and from then on invoicing becomes a fifteen-minute task at the end of each project instead of a monthly source of dread.

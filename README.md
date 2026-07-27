@@ -44,6 +44,7 @@ Most time trackers stop at "track" and make you bolt on a separate invoicing too
 - [Next.js 16](https://nextjs.org) (App Router) + [React 19](https://react.dev) + TypeScript
 - [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) (Radix primitives, CVA) + [lucide-react](https://lucide.dev) icons
 - [Supabase](https://supabase.com) — Postgres, Auth, Row-Level Security — via `@supabase/ssr` (cookie-based SSR sessions)
+- [MDX](https://mdxjs.com) via `@next/mdx` — blog articles, styled with the app's Tailwind tokens (no prose plugin)
 - [Vitest](https://vitest.dev) + Testing Library — unit tests
 - `mcp-handler` (MCP server adapter) — hosted MCP endpoint at `/mcp`
 - `@vercel/analytics` + `@vercel/speed-insights` — Vercel Analytics & Speed Insights (mounted in root layout)
@@ -143,11 +144,15 @@ src/
 │   ├── auth/callback/      # OAuth / magic-link code exchange
 │   ├── [transport]/        # MCP server endpoint (Streamable HTTP + SSE)
 │   ├── oauth/consent/      # OAuth consent screen for MCP authorization
-│   ├── alternatives/toggl/ # Public SEO landing — open-source Toggl alternative
+│   ├── alternatives/       # SEO hub + /[competitor] comparison pages (data-driven)
+│   ├── blog/               # Blog index + /[slug] MDX articles + /rss.xml
 │   ├── privacy/            # Privacy policy
 │   ├── terms/              # Terms of service
 │   └── .well-known/oauth-protected-resource/  # OAuth 2.1 auto-discovery
 ├── api/            # Supabase CRUD + auth helpers
+├── content/blog/   # Blog articles as MDX (body only; metadata lives in data/posts.ts)
+├── data/           # Static content sources: competitors.ts, posts.ts
+├── mdx-components.tsx  # MDX element → Tailwind token mapping for blog articles
 ├── components/     # ui/ (shadcn primitives), shared/, dashboard/ (+ widgets/), layout/, auth/
 ├── contexts/       # auth, data, dashboard providers
 ├── hooks/          # use-data, use-timer
@@ -173,7 +178,9 @@ src/
 | `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared MCP tool registry |
 | `/api/suggest` | LLM fallback for project suggestions (history-first; null without an API key) |
 | `/oauth/consent` | OAuth consent screen for the MCP authorization flow |
-| `/alternatives/toggl` | Public SEO comparison/landing page — open-source Toggl alternative |
+| `/alternatives`, `/alternatives/[competitor]` | SEO hub + per-competitor comparison pages, generated from `src/data/competitors.ts` |
+| `/blog`, `/blog/[slug]` | Blog index + MDX articles, generated from `src/data/posts.ts` |
+| `/blog/rss.xml` | RSS 2.0 feed for the blog |
 | `/privacy`, `/terms` | Legal pages |
 
 `/` and `/share/*` are server-rendered; `/app` is a client dashboard behind the auth gate.
