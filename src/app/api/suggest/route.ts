@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/pocketbase-server";
 import type { ProjectSuggestion } from "@/domain/suggest-session";
 
 // LLM fallback for project suggestion. The client tries a local history match
@@ -27,8 +27,7 @@ const Suggestion = z.object({
 
 export async function POST(request: NextRequest) {
   // Gate on an authenticated session so this isn't an open LLM proxy.
-  const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

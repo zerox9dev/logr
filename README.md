@@ -1,6 +1,6 @@
 # Logr
 
-**Open-source, self-hostable Toggl alternative — with built-in invoicing.** Track time, bill clients, and get paid from one fast single-screen dashboard. Built with Next.js, React 19, and Supabase.
+**Open-source, self-hostable Toggl alternative — with built-in invoicing.** Track time, bill clients, and get paid from one fast single-screen dashboard. Built with Next.js, React 19, and PocketBase.
 
 [![Live demo](https://img.shields.io/badge/live-demo-000?style=flat)](https://logr.work) ![Status](https://img.shields.io/badge/status-beta-orange) [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE) ![Stars](https://img.shields.io/github/stars/zerox9dev/logr?style=flat)
 
@@ -20,9 +20,8 @@
 - 📊 **Dashboard widgets** — Daily summary, billable hours, tracking card, goals, projects & tasks, timeline.
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
-- 🔌 **MCP server** — manage Logr from any MCP-compatible AI assistant (Claude, etc.): list/create/update/delete clients, projects, time entries, and invoices, plus dashboard summaries — all over a remote MCP endpoint, scoped to your account.
-- 💬 **In-app AI assistant** — a chat panel that drives the **same** tools as the MCP server (one shared registry): "show unbilled for Acme and draft an invoice." Reads and edits run inline; destructive actions (deletes) require an explicit confirm. Needs `ANTHROPIC_API_KEY`.
-- 🔐 **Auth** — Google OAuth **and** passwordless email magic links, via Supabase.
+- 💬 **In-app AI assistant** — a chat panel over the shared tool registry: "show unbilled for Acme and draft an invoice." Reads and edits run inline; destructive actions (deletes) require an explicit confirm. Needs `ANTHROPIC_API_KEY`.
+- 🔐 **Auth** — email + password sign-in with a password-reset flow, via PocketBase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
 ## Why Logr?
@@ -43,10 +42,9 @@ Most time trackers stop at "track" and make you bolt on a separate invoicing too
 
 - [Next.js 16](https://nextjs.org) (App Router) + [React 19](https://react.dev) + TypeScript
 - [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) (Radix primitives, CVA) + [lucide-react](https://lucide.dev) icons
-- [Supabase](https://supabase.com) — Postgres, Auth, Row-Level Security — via `@supabase/ssr` (cookie-based SSR sessions)
+- [PocketBase](https://pocketbase.io) — database, auth, and API Rules — reached server-side only, via Server Actions and the `pocketbase` JS SDK
 - [MDX](https://mdxjs.com) via `@next/mdx` — blog articles, styled with the app's Tailwind tokens (no prose plugin)
 - [Vitest](https://vitest.dev) + Testing Library — unit tests
-- `mcp-handler` (MCP server adapter) — hosted MCP endpoint at `/mcp`
 - `@vercel/analytics` + `@vercel/speed-insights` — Vercel Analytics & Speed Insights (mounted in root layout)
 - Deployed on [Vercel](https://vercel.com)
 
@@ -59,13 +57,11 @@ git clone https://github.com/zerox9dev/logr.git && cd logr && npm install
 Create `.env.local`:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+POCKETBASE_URL=http://127.0.0.1:8090
 ANTHROPIC_API_KEY=sk-ant-...   # optional — AI assistant + LLM-backed project suggestions
 ```
 
-> `SUPABASE_SERVICE_ROLE_KEY` is server-only and never exposed to the browser.
+> `POCKETBASE_URL` is server-only and never exposed to the browser — the app talks to PocketBase exclusively from Server Actions and route handlers, so PocketBase can live on a private network.
 > `ANTHROPIC_API_KEY` is optional and server-only: it powers the in-app AI assistant and sharpens project suggestions. Without it, project suggestions still work from your local history and the assistant is disabled.
 
 Run the dev server:
@@ -78,39 +74,32 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Self-host / deploy (Docker)
 
-logr is a Next.js app backed by Supabase. Run the app anywhere with Docker and point it at **your own Supabase** — either [Supabase Cloud](https://supabase.com) (free tier is plenty) or a [self-hosted Supabase](https://supabase.com/docs/guides/self-hosting/docker). Keeping Supabase separate means you get its battle-tested auth, Postgres, and RLS without bundling a fragile ten-container stack.
+logr is a Next.js app backed by PocketBase. Run the app anywhere with Docker and point it at **your own PocketBase** instance. Because only the server talks to PocketBase, it never needs a public hostname — an internal Docker alias is enough.
 
-### 1 — Create a Supabase project and apply the schema
+### 1 — Run PocketBase and create the collections
 
-Create a project (Cloud or self-hosted), then run the schema migration to create the tables, enums, and RLS policies:
-
-- **SQL editor:** paste the contents of [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) and run it, **or**
-- **Supabase CLI:** `supabase link --project-ref <ref> && supabase db push`
-
-Then enable auth providers under *Authentication → Providers* (Email for magic links; Google optional) and add your redirect URLs — see [Supabase setup](#supabase-setup) below.
+Start PocketBase (its own container or binary), open the admin UI, and create the collections described in [PocketBase setup](#pocketbase-setup) below.
 
 ### 2 — Configure and run the app
 
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
-cp .env.example .env       # fill in the 3 values from Project Settings → API
+cp .env.example .env       # set POCKETBASE_URL
 docker compose up -d --build
 ```
 
-`.env` needs three values from your Supabase dashboard (*Project Settings → API*), plus one optional key:
+`.env` needs one value, plus one optional key:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...          # anon public key
-SUPABASE_SERVICE_ROLE_KEY=eyJ...              # service_role key (server-only)
+POCKETBASE_URL=http://pocketbase:8090         # server-only
 ANTHROPIC_API_KEY=sk-ant-...                  # optional — AI assistant + project suggestions
 ```
 
-The app comes up at **http://localhost:3000**. Optional `.env` knobs: `APP_PORT` (change the host port) and `SUPABASE_INTERNAL_URL` (only if the container reaches Supabase at a different address than the browser — e.g. a self-hosted Supabase on the same Docker network). See [`.env.example`](.env.example).
+The app comes up at **http://localhost:3000**. Optional `.env` knob: `APP_PORT` (change the host port). See [`.env.example`](.env.example).
 
-> `NEXT_PUBLIC_*` are baked into the client bundle at build time — if you change them, rebuild with `docker compose up -d --build`.
+> `POCKETBASE_URL` is read at runtime, so changing it needs a container restart — never a rebuild.
 
-Prefer a one-click deploy? Use the [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/zerox9dev/logr) button at the top — same three env vars.
+Prefer a one-click deploy? Use the [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/zerox9dev/logr) button at the top — with a PocketBase instance Vercel can reach.
 
 ### Stop / clean up
 
@@ -141,15 +130,13 @@ src/
 │   ├── login/              # Auth page
 │   ├── app/                # Dashboard (auth-gated)
 │   ├── share/              # Public shared report & invoice links
-│   ├── auth/callback/      # OAuth / magic-link code exchange
-│   ├── [transport]/        # MCP server endpoint (Streamable HTTP + SSE)
-│   ├── oauth/consent/      # OAuth consent screen for MCP authorization
+│   ├── reset-password/     # Password-reset confirmation (PocketBase token link)
 │   ├── alternatives/       # SEO hub + /[competitor] comparison pages (data-driven)
 │   ├── blog/               # Blog index + /[slug] MDX articles + /rss.xml
 │   ├── privacy/            # Privacy policy
-│   ├── terms/              # Terms of service
-│   └── .well-known/oauth-protected-resource/  # OAuth 2.1 auto-discovery
-├── api/            # Supabase CRUD + auth helpers
+│   └── terms/              # Terms of service
+├── actions/        # Server Actions: auth + per-resource CRUD (the whole data layer)
+├── api/            # agent-tools: shared tool registry for the in-app assistant
 ├── content/blog/   # Blog articles as MDX (body only; metadata lives in data/posts.ts)
 ├── data/           # Static content sources: competitors.ts, posts.ts
 ├── mdx-components.tsx  # MDX element → Tailwind token mapping for blog articles
@@ -158,10 +145,10 @@ src/
 ├── hooks/          # use-data, use-timer
 ├── domain/         # pure logic + tests: dashboard-metrics, report-share, invoicing, invoice-share
 ├── i18n/           # provider + en/uk/ru dictionaries
-├── lib/            # supabase (browser) + supabase-server + supabase-mcp (server client +
-│                   # token verification for MCP) + supabase-url (server URL resolver),
+├── lib/            # pocketbase (client factory + helpers), pocketbase-server (session from
+│                   # cookies), pocketbase-mappers (records ↔ row types),
 │                   # format, date, base64, clipboard, utils
-├── proxy.ts        # Next.js proxy (the v16 rename of middleware): session refresh + /app auth gate
+├── proxy.ts        # Next.js proxy (the v16 rename of middleware): /app auth gate
 └── types/          # database types
 ```
 
@@ -170,14 +157,12 @@ src/
 | Route | Description |
 |-------|-------------|
 | `/` | Public SSR marketing landing |
-| `/login` | Auth — Google OAuth + email magic link |
+| `/login` | Auth — email + password, with a forgot-password flow |
 | `/app` | Dashboard (auth-gated via proxy + server session check) |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
-| `/auth/callback` | OAuth / magic-link code exchange |
-| `/mcp` (+ `/sse`) | Hosted MCP server endpoint (OAuth-protected) |
-| `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared MCP tool registry |
+| `/reset-password` | Sets a new password from the emailed PocketBase reset token |
+| `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared tool registry |
 | `/api/suggest` | LLM fallback for project suggestions (history-first; null without an API key) |
-| `/oauth/consent` | OAuth consent screen for the MCP authorization flow |
 | `/alternatives`, `/alternatives/[competitor]` | SEO hub + per-competitor comparison pages, generated from `src/data/competitors.ts` |
 | `/blog`, `/blog/[slug]` | Blog index + MDX articles, generated from `src/data/posts.ts` |
 | `/blog/rss.xml` | RSS 2.0 feed for the blog |
@@ -185,42 +170,34 @@ src/
 
 `/` and `/share/*` are server-rendered; `/app` is a client dashboard behind the auth gate.
 
-## Supabase Setup
+## PocketBase Setup
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Run the SQL migrations to create the tables (clients, projects, sessions, invoices, invoice_items, activities, user_settings) and enums.
-3. **Enable auth providers** under *Authentication → Providers*:
-   - **Email** — turn on email sign-ups to allow magic links (no SMTP setup needed for development; configure a custom SMTP for production).
-   - **Google** — add your Google OAuth Client ID & Secret, and set the redirect URI in the Google Console to `https://<project>.supabase.co/auth/v1/callback`.
-4. Under *Authentication → URL Configuration*, add the following to the **Redirect URLs** allow-list:
-   - `http://localhost:3000/auth/callback` (local dev)
-   - `https://<your-domain>/auth/callback` (production)
+1. Run PocketBase and create an admin account.
+2. Create the collections:
+   - **users** — the built-in auth collection (email + password).
+   - **clients**, **projects**, **sessions**, **invoices**, **activities**, **user_settings** — each with a `user` relation to `users`.
+   - **invoice_items** — relations `invoice` → invoices and `session` → sessions (no `user` field; ownership runs through the invoice).
+   - **share_links** — ownership likewise runs through its parent relation.
+3. Set API Rules so every record is reachable only by its owner. For the collections with a `user` relation, list/view/create/update/delete all use:
 
-All tables use Row-Level Security with `user_id = auth.uid()`.
+   ```
+   @request.auth.id != "" && user = @request.auth.id
+   ```
 
-**MCP server:** to use the MCP endpoint, enable the Supabase **OAuth 2.1 Server** with **Dynamic Client Registration** under *Authentication → OAuth Server*, and set the Authorization Path to `/oauth/consent`.
+   For `invoice_items` (and `share_links`), go through the relation instead:
+
+   ```
+   @request.auth.id != "" && invoice.user = @request.auth.id
+   ```
+4. Configure SMTP under *Settings → Mail settings* so password-reset emails go out, and point the password-reset link at `https://<your-domain>/reset-password?token={TOKEN}`.
+
+The app sends the same ownership filter on every query, so it behaves correctly both before and after the rules are in place — but the rules are what actually enforces them.
+
+> The legacy Supabase SQL under `supabase/` is kept only as a historical reference for the old schema. It is not used by the running app.
 
 ## MCP (AI assistant access)
 
-Logr exposes a hosted [Model Context Protocol](https://modelcontextprotocol.io) server at `https://logr.work/mcp` (Streamable HTTP; SSE variant at `/sse`).
-
-**Auth:** standard MCP OAuth 2.1 via Supabase — modern clients auto-discover the flow and prompt you to log in; no token copy-pasting needed. All tools run scoped to your account via Row-Level Security.
-
-**What you can do:** full CRUD over clients, projects, time entries (sessions), and invoices, plus `dashboard_summary`, `recent_sessions`, and `list_unbilled` insight tools — 18 tools total. See [docs/MCP.md](docs/MCP.md) for the complete list.
-
-**Claude Desktop config example (OAuth auto-discovery):**
-
-```json
-{
-  "mcpServers": {
-    "logr": {
-      "url": "https://logr.work/mcp"
-    }
-  }
-}
-```
-
-See [docs/MCP.md](docs/MCP.md) for OAuth setup steps and manual bearer token instructions (useful for testing).
+The hosted MCP server and its OAuth 2.1 authorization flow were built on Supabase Auth and were removed with it. The in-app AI assistant (`/api/chat`) still runs the full tool registry. A PocketBase-native MCP endpoint is an open follow-up.
 
 ## Contributing
 

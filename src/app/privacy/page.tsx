@@ -71,10 +71,10 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-semibold text-heading">2. Data we store</h2>
               <p>
                 On the hosted instance, your data — time entries, clients, projects, and invoices —
-                is stored in a Supabase Postgres database under your account. Every table is
-                protected by <strong>Row-Level Security (RLS)</strong> policies so that only your
-                authenticated user can read or write your records. We do not have access to the
-                contents of your time entries or invoices in the normal course of operations.
+                is stored in a PocketBase database under your account. Every collection is
+                protected by <strong>API Rules</strong> so that only your authenticated user can
+                read or write your records. We do not have access to the contents of your time
+                entries or invoices in the normal course of operations.
               </p>
             </section>
 
@@ -82,11 +82,10 @@ export default function PrivacyPage() {
             <section className="flex flex-col gap-3">
               <h2 className="text-lg font-semibold text-heading">3. Authentication</h2>
               <p>
-                Logr supports authentication via <strong>Google OAuth</strong> and
-                <strong> email magic links</strong>, both handled by Supabase Auth. We store your
-                email address and a hashed session token. We do not store passwords. OAuth tokens
-                from Google are used only to confirm your identity and are not persisted beyond
-                the session.
+                Logr authenticates you with your <strong>email and password</strong>, handled by
+                PocketBase. We store your email address and a salted password hash — never the
+                password itself. Your session is kept in an HTTP-only cookie that the browser
+                cannot read.
               </p>
             </section>
 

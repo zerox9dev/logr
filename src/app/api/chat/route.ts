@@ -1,14 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getAuthedPb } from "@/lib/pocketbase-server";
 import { agentTools, agentToolByName, type ToolContext } from "@/api/agent-tools";
 
 // In-app conversational layer over the shared tool registry.
 //
 // Runs an Anthropic tool-use loop server-side, dispatching tool calls to the
-// SAME handlers the MCP server exposes (src/api/agent-tools.ts), scoped to the
-// signed-in user's RLS Supabase client. Destructive tools (deletes) pause the
+// shared tool registry (src/api/agent-tools.ts), scoped to the signed-in
+// user's PocketBase client. Destructive tools (deletes) pause the
 // loop: the route returns `type: "confirm"` and the client must re-POST with
 // the tool-use id in `approvedToolIds` (or `declinedToolIds` to cancel).
 
@@ -48,9 +48,8 @@ function errorResult(id: string, text: string): Anthropic.ToolResultBlockParam {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const authed = await getAuthedPb().catch(() => null);
+  if (!authed) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return NextResponse.json({ type: "disabled" });
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
   const messages = parsed.data.messages as Anthropic.MessageParam[];
   const approved = new Set(parsed.data.approvedToolIds ?? []);
   const declined = new Set(parsed.data.declinedToolIds ?? []);
-  const ctx: ToolContext = { supabase, userId: user.id };
+  const ctx: ToolContext = { pb: authed.pb, userId: authed.userId };
   const client = new Anthropic({ apiKey });
 
   try {

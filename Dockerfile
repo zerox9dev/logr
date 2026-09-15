@@ -23,15 +23,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# NEXT_PUBLIC_* vars are baked into the JS bundle at build time.
-# Provide placeholder defaults so a bare `docker build .` succeeds even
-# without real values; override with actual secrets at build time via
-# --build-arg (or via docker-compose build args).
-ARG NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder_anon_key
-
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+# The backend URL (POCKETBASE_URL) is read at runtime only — nothing about the
+# backend is baked into the bundle, so `docker build .` needs no build args and
+# changing the URL never requires a rebuild.
 
 # Disable Next.js telemetry inside Docker
 ENV NEXT_TELEMETRY_DISABLED=1

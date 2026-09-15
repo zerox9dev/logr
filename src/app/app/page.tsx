@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/pocketbase-server";
 import { DashboardApp } from "./dashboard-app";
 
 export default async function AppPage() {
-  const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
 
   return <DashboardApp />;

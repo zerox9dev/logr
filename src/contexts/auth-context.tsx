@@ -1,55 +1,41 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { AuthError, User } from "@supabase/supabase-js";
-import { auth } from "@/api";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { getCurrentUserAction, signOutAction } from "@/actions/auth";
+import type { PbUser } from "@/lib/pocketbase";
 
 interface AuthState {
-  user: User | null;
+  user: PbUser | null;
   loading: boolean;
-  signInWithGoogle: (next?: string) => Promise<{ error: AuthError | null }>;
-  signInWithMagicLink: (email: string, next?: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const [user, setUser] = useState<PbUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+    let active = true;
+    void getCurrentUserAction().then((current) => {
+      if (!active) return;
+      setUser(current);
       setLoading(false);
     });
-
-    const { data: { subscription } } = auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => { active = false; };
   }, []);
 
-  const signInWithGoogle = async (next?: string) => {
-    const { error } = await auth.signInWithGoogle(next);
-    return { error };
-  };
-
-  const signInWithMagicLink = async (email: string, next?: string) => {
-    const { error } = await auth.signInWithMagicLink(email, next);
-    return { error };
-  };
-
-  const signOut = async () => {
-    const { error } = await auth.signOut();
-    if (error) console.error(error);
+  const signOut = useCallback(async () => {
+    await signOutAction();
     setUser(null);
-  };
+    router.refresh();
+  }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithMagicLink, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

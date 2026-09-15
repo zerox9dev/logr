@@ -1,5 +1,12 @@
 # logr MCP Server
 
+> **Status: not currently available.** The MCP endpoint and its OAuth 2.1
+> authorization flow were built on Supabase Auth acting as an Authorization
+> Server. With the move to PocketBase — which has no equivalent — both were
+> removed. This document describes the previous design and is kept as the
+> starting point for a PocketBase-native replacement. The in-app AI assistant
+> (`/api/chat`) is unaffected and still exposes the same tools.
+
 logr exposes a hosted Model Context Protocol (MCP) server at:
 
 ```

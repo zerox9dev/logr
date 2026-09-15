@@ -41,3 +41,7 @@ phase1-landing.png
 
 # mission-kit state
 missions/
+
+# Claude Code (локально, не коммитим)
+.claude/settings.local.json
+.claude/memory/

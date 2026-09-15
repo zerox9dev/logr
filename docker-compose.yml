@@ -1,12 +1,13 @@
 # =============================================================================
-# logr — app container (bring-your-own Supabase)
+# logr — app container (bring-your-own PocketBase)
 #
-# This runs the logr Next.js app in Docker. The backend is your own Supabase
-# project — either Supabase Cloud (free tier works) or a self-hosted Supabase.
-# See the "Self-host / deploy" section of the README for the 3 env values and
-# how to apply the schema (supabase/migrations/0001_init.sql).
+# This runs the logr Next.js app in Docker. The backend is your own PocketBase
+# instance, reachable from this container over the network — e.g. a
+# `pocketbase` service on the same Docker network. Only the server talks to it,
+# so it needs no public hostname. See the "Self-host / deploy" section of the
+# README for the collections to create and the API Rules to set.
 #
-#   cp .env.example .env     # fill in your Supabase URL + keys
+#   cp .env.example .env     # set POCKETBASE_URL
 #   docker compose up -d --build
 #   open http://localhost:3000
 # =============================================================================
@@ -16,22 +17,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        # NEXT_PUBLIC_* are baked into the client bundle at build time, so they
-        # must be present here (not just at runtime). Rebuild if you change them.
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
     restart: unless-stopped
     environment:
-      # Server-side runtime env. NEXT_PUBLIC_* are repeated so SSR/route handlers
-      # can read them; SERVICE_ROLE_KEY is server-only (powers the MCP endpoint).
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      # Optional: only if your Supabase is reachable at a different URL from
-      # inside this container's network than from the browser. Leave unset for
-      # Supabase Cloud (same public URL works everywhere).
-      SUPABASE_INTERNAL_URL: ${SUPABASE_INTERNAL_URL:-}
+      # Server-only: read at runtime, never baked into the client bundle.
+      POCKETBASE_URL: ${POCKETBASE_URL:-http://pocketbase:8090}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       # Override the host port if 3000 is taken: APP_PORT=3001 in .env
       - "${APP_PORT:-3000}:3000"
