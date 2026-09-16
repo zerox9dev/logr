@@ -52,6 +52,20 @@ export function worklogStartToIso(started: string): string {
   return Number.isNaN(parsed.getTime()) ? new Date(0).toISOString() : parsed.toISOString();
 }
 
+/** Looks up the project a Jira project's worklogs fall back to when the mapping
+ *  names no project: one named after the Jira project, under the mapped client.
+ *  Name matching is what keeps a repeated sync from creating a second copy. */
+export function findProjectByName(
+  projects: Project[],
+  clientId: string,
+  name: string,
+): Project | undefined {
+  const wanted = name.trim().toLocaleLowerCase();
+  return projects.find(
+    (p) => p.client_id === clientId && p.name.trim().toLocaleLowerCase() === wanted,
+  );
+}
+
 /** Turns Jira worklogs into session inserts, dropping the ones whose Jira
  *  project has no mapping and the ones already imported. `jira_worklog_id` is
  *  the dedup key both here and, as a unique index, in the database. */

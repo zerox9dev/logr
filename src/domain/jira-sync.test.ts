@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { Client, JiraProjectMapping, Project } from "@/types/database";
-import { planWorklogImport, worklogStartToIso, type JiraWorklogEntry } from "./jira-sync";
+import {
+  findProjectByName,
+  planWorklogImport,
+  worklogStartToIso,
+  type JiraWorklogEntry,
+} from "./jira-sync";
 
 function client(over: Partial<Client> = {}): Client {
   return {
@@ -59,6 +64,22 @@ describe("worklogStartToIso", () => {
 
   it("parses a non-zero offset", () => {
     expect(worklogStartToIso("2026-02-01T12:00:00.000+0200")).toBe("2026-02-01T10:00:00.000Z");
+  });
+});
+
+describe("findProjectByName", () => {
+  const existing = project({ id: "p9", name: "Crypto Attention (old EVAI)" });
+
+  it("reuses the project already created for that Jira project", () => {
+    expect(findProjectByName([existing], "c1", "Crypto Attention (old EVAI)")?.id).toBe("p9");
+  });
+
+  it("ignores surrounding whitespace and case", () => {
+    expect(findProjectByName([existing], "c1", "  crypto attention (OLD EVAI) ")?.id).toBe("p9");
+  });
+
+  it("does not reuse a same-named project of another client", () => {
+    expect(findProjectByName([existing], "c2", "Crypto Attention (old EVAI)")).toBeUndefined();
   });
 });
 

@@ -11,6 +11,7 @@ import {
 } from "@/lib/atlassian-oauth";
 import {
   fromJiraProjectMapping,
+  fromProject,
   fromSession,
   toClientRow,
   toJiraConnectionRow,
@@ -19,6 +20,7 @@ import {
   toUserSettingsRow,
 } from "@/lib/pocketbase-mappers";
 import {
+  findProjectByName,
   planWorklogImport,
   worklogStartToIso,
   type JiraProjectOption,
@@ -30,6 +32,7 @@ import type {
   JiraConnectionSummary,
   JiraProjectMapping,
   JiraProjectMappingInput,
+  Project,
 } from "@/types/database";
 
 /** How far back a first-ever sync reaches. Unbounded history would turn one
@@ -292,6 +295,48 @@ async function fetchIssues(
   return byId;
 }
 
+/** Fills in the project for mappings that name only a client: worklogs land in a
+ *  logr project named after the Jira project instead of no project at all. The
+ *  project is looked up by name under the client first, so only the first sync
+ *  after such a mapping is saved actually creates one. `projects` is extended in
+ *  place with anything created, so the planner can resolve rates from it. */
+async function resolveMappingProjects(
+  pb: PocketBase,
+  userId: string,
+  mappings: JiraProjectMapping[],
+  projects: Project[],
+): Promise<JiraProjectMapping[]> {
+  const resolved: JiraProjectMapping[] = [];
+
+  for (const mapping of mappings) {
+    if (mapping.project_id || !mapping.client_id) {
+      resolved.push(mapping);
+      continue;
+    }
+    const name = mapping.jira_project_name?.trim() || mapping.jira_project_key;
+    let project = findProjectByName(projects, mapping.client_id, name);
+    if (!project) {
+      const record = await pb.collection("projects").create({
+        ...fromProject({
+          user_id: userId,
+          client_id: mapping.client_id,
+          name,
+          billing_type: "hourly",
+          rate: null,
+          fixed_budget: null,
+          status: "active",
+        }),
+        user: userId,
+      });
+      project = toProjectRow(record);
+      projects.push(project);
+    }
+    resolved.push({ ...mapping, project_id: project.id });
+  }
+
+  return resolved;
+}
+
 /** Pulls worklogs changed since the last sync (or the last 30 days on a first
  *  run) and turns the mapped ones into sessions. Insert-only: a worklog edited
  *  in Jira after import is not re-applied. */
@@ -342,13 +387,16 @@ export async function triggerSync(): Promise<JiraSyncSummary> {
     }),
   ]);
 
+  const projects = projectRecords.map(toProjectRow);
+  const resolvedMappings = await resolveMappingProjects(pb, userId, mappings, projects);
+
   const plan = planWorklogImport(entries, {
-    mappings,
+    mappings: resolvedMappings,
     existingWorklogIds: importedRecords
       .map((r) => (typeof r.jira_worklog_id === "string" ? r.jira_worklog_id : ""))
       .filter(Boolean),
     clients: clientRecords.map(toClientRow),
-    projects: projectRecords.map(toProjectRow),
+    projects,
     settings: settingsRecord ? toUserSettingsRow(settingsRecord) : null,
   });
 

@@ -19,9 +19,9 @@ const ERROR_KEYS: Record<string, string> = {
   jira_unavailable: "integrations.errorUnavailable",
 };
 
-/** One Jira project and where its worklogs land. Both targets are optional:
- *  a client alone books the time against that client, a project implies its
- *  own client, and clearing both drops the mapping. */
+/** One Jira project and where its worklogs land. A client alone books the time
+ *  against a project named after the Jira one, a project implies its own
+ *  client, and clearing both drops the mapping. */
 function MappingRow({
   option,
   mapping,
@@ -37,7 +37,11 @@ function MappingRow({
   const clientId = mapping?.client_id ?? null;
   const projectId = mapping?.project_id ?? null;
   const clientName = getClientById(clientId)?.name ?? t("integrations.noClient");
-  const projectName = getProjectById(projectId)?.name ?? t("integrations.noProject");
+  // With a client but no project, the sync books time against a project named
+  // after the Jira one, so promising that is only honest once a client is set.
+  const projectName =
+    getProjectById(projectId)?.name ??
+    t(clientId ? "integrations.autoProject" : "integrations.noProject");
 
   return (
     <div className="grid grid-cols-1 items-center gap-2 border-b border-line py-3 last:border-b-0 sm:grid-cols-3">
