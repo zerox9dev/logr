@@ -9,3 +9,4 @@ export * as sessionsApi from "./sessions";
 export * as invoicesApi from "./invoices";
 export * as invoiceItemsApi from "./invoice-items";
 export * as activitiesApi from "./activities";
+export * as jiraApi from "./jira";

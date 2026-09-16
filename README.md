@@ -24,6 +24,7 @@
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
 - 💬 **In-app AI assistant** — a chat panel over the shared tool registry: "show unbilled for Acme and draft an invoice." Reads and edits run inline; destructive actions (deletes) require an explicit confirm. Needs `ANTHROPIC_API_KEY`.
 - 🔐 **Auth** — email + password sign-up and sign-in with a password-reset flow, via PocketBase.
+- 🧩 **Jira Cloud sync** — connect an Atlassian account, map Jira projects to clients and projects, and pull your logged worklogs in as sessions on demand. Needs `ATLASSIAN_CLIENT_ID` / `ATLASSIAN_CLIENT_SECRET`.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
 ## Why Logr?
@@ -190,6 +191,8 @@ src/
 | `/app/invoices/[id]` | Invoice detail: line items, totals and the share / status / delete actions |
 | `/app/reports` | Per-client report ranges with a copyable public `/share/report` link |
 | `/app/settings` | Account profile, default rate, currency and goal settings |
+| `/app/settings/integrations` | Jira Cloud connection and per-project mapping for the worklog sync |
+| `/auth/jira`, `/auth/callback/jira` | Atlassian OAuth 2.0 (3LO) start + callback for the Jira Cloud integration |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/reset-password` | Sets a new password from the emailed PocketBase reset token |
 | `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared tool registry |
@@ -209,6 +212,7 @@ Collections:
 
 - **users** — the built-in auth collection (email + password), extended with `legacy_id`. Its default auth rules are left untouched.
 - **clients**, **projects**, **sessions**, **invoices**, **activities**, **user_settings** — each with a `user` relation to `users`.
+- **jira_connections** (one per user, holding the Atlassian tokens the server refreshes) and **jira_project_mappings** (Jira project key → client and/or project) — both with a `user` relation. Imported sessions carry the Jira worklog id in `sessions.jira_worklog_id`, uniquely indexed per user so a worklog is never imported twice.
 - **invoice_items** — relations `invoice` → invoices and `session` → sessions (no `user` field; ownership runs through the invoice).
 - **share_links** — ownership likewise runs through its parent relation.
 
@@ -238,6 +242,20 @@ To enable it:
 3. Set `APP_URL` to the app's public origin if a proxy in front of it rewrites `Host`; otherwise the origin is derived from the request.
 
 Accounts are matched by email, so a user who signed up with a password can also sign in with Google on the same address.
+
+## Jira Cloud sync (optional)
+
+*Settings → Integrations* connects an Atlassian account and imports the worklogs you already log in Jira as logr sessions. Each Jira project is mapped to a client and/or a project; unmapped projects are skipped, and every imported session stores its Jira worklog id, so re-syncing never duplicates anything. A first sync reaches 30 days back, later ones only cover what changed since. Import is one-way and one-time per worklog: editing a worklog in Jira afterwards does not update the session.
+
+Unlike Google sign-in, this is not a login — it is a stored credential for an already-signed-in user, so the OAuth 2.0 (3LO) handshake is driven by the app itself (`/auth/jira` → Atlassian consent → `/auth/callback/jira`). The access and refresh tokens live in `jira_connections` and never leave the server; the refresh token is rotated on every use, as Atlassian requires.
+
+To enable it:
+
+1. **[Atlassian Developer Console](https://developer.atlassian.com/console/myapps/)** → create an app → *Authorization → OAuth 2.0 (3LO)* → set the callback URL to `https://<your-domain>/auth/callback/jira` (and `http://localhost:3000/auth/callback/jira` for local work).
+2. Under *Permissions*, add the **Jira API** with the `read:jira-work` and `read:jira-user` scopes. The app also requests `offline_access`, which is what makes Atlassian issue a refresh token.
+3. Put the app's Client ID and Secret in `ATLASSIAN_CLIENT_ID` / `ATLASSIAN_CLIENT_SECRET`, and set `APP_URL` to the origin the callback URL was registered under.
+
+Without those two variables the Integrations page simply reports that Jira is not set up; nothing else changes.
 
 The app sends the same ownership filter on every query, so it behaves correctly either way — but the rules are what actually enforces them.
 

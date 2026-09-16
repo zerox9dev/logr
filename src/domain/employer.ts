@@ -1,4 +1,4 @@
-import type { Client } from "@/types/database";
+import type { Client, Project, UserSettings } from "@/types/database";
 
 /** Hourly rate implied by an employer client's salary, or null for regular
  *  clients (and employers with no salary set). `weeklyGoalHours` doubles as the
@@ -18,4 +18,20 @@ export function impliedHourlyRate(
     default:
       return client.salary_amount;
   }
+}
+
+/** The rate a new session gets baked with, in the one order every creation
+ *  path uses: an employer client's salary-implied hourly rate first, then the
+ *  project's own rate, then the user's default, then zero. */
+export function resolveSessionRate(
+  client: Client | undefined,
+  project: Pick<Project, "rate"> | undefined,
+  settings: Pick<UserSettings, "weekly_goal_hours" | "default_rate"> | null,
+): number {
+  return (
+    impliedHourlyRate(client, settings?.weekly_goal_hours ?? null) ??
+    project?.rate ??
+    settings?.default_rate ??
+    0
+  );
 }

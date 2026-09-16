@@ -31,6 +31,8 @@ services:
       POCKETBASE_URL: ${POCKETBASE_URL:-http://pocketbase:8090}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       APP_URL: ${APP_URL:-}
+      ATLASSIAN_CLIENT_ID: ${ATLASSIAN_CLIENT_ID:-}
+      ATLASSIAN_CLIENT_SECRET: ${ATLASSIAN_CLIENT_SECRET:-}
     ports:
       # Override the host port if 3000 is taken: APP_PORT=3001 in .env
       - "${APP_PORT:-3000}:3000"

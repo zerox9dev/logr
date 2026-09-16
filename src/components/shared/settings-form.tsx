@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/shared/field";
@@ -98,6 +99,16 @@ function SettingsFields({ settings }: { settings: UserSettings | null }) {
           <Field label={t("goals.weeklyGoalHours")}>
             <Input type="number" min="0" value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="40" />
           </Field>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-md font-semibold text-heading">{t("integrations.title")}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-md text-muted-foreground">{t("settings.integrationsHint")}</p>
+          <Button asChild type="button" variant="outline">
+            <Link href="/app/settings/integrations">{t("settings.manageIntegrations")}</Link>
+          </Button>
         </div>
       </section>
 

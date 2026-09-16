@@ -70,6 +70,7 @@ export interface Session {
   rate: number;
   billing_type: BillingType;
   payment_status: PaymentStatus;
+  jira_worklog_id: string | null;
   created_at: string;
 }
 
@@ -101,6 +102,42 @@ export interface InvoiceItem {
   amount: number;
 }
 
+/** Stored Atlassian credential for an already-signed-in logr user. The two
+ *  token fields never leave the server — Server Actions hand client code the
+ *  `JiraConnectionSummary` shape instead. */
+export interface JiraConnection {
+  id: string;
+  user_id: string;
+  cloud_id: string;
+  site_name: string | null;
+  site_url: string | null;
+  atlassian_email: string | null;
+  atlassian_account_id: string | null;
+  access_token: string;
+  refresh_token: string;
+  token_expires_at: string | null;
+  last_synced_at: string | null;
+}
+
+export interface JiraConnectionSummary {
+  connected: boolean;
+  siteName: string | null;
+  siteUrl: string | null;
+  atlassianEmail: string | null;
+  lastSyncedAt: string | null;
+}
+
+export interface JiraProjectMapping {
+  id: string;
+  user_id: string;
+  jira_project_key: string;
+  jira_project_name: string | null;
+  client_id: string | null;
+  project_id: string | null;
+}
+
+export type JiraProjectMappingInput = Omit<JiraProjectMapping, "id" | "user_id">;
+
 export interface Activity {
   id: string;
   user_id: string;
@@ -127,7 +164,9 @@ export type ClientUpdate = Partial<Omit<Client, "id" | "user_id" | "created_at" 
 export type ProjectInsert = Omit<Project, "id" | "created_at">;
 export type ProjectUpdate = Partial<Omit<Project, "id" | "user_id" | "created_at">>;
 
-export type SessionInsert = Omit<Session, "id" | "created_at">;
+export type SessionInsert = Omit<Session, "id" | "created_at" | "jira_worklog_id"> & {
+  jira_worklog_id?: string | null;
+};
 export type SessionUpdate = Partial<Omit<Session, "id" | "user_id" | "created_at">>;
 
 export type InvoiceInsert = Omit<Invoice, "id" | "created_at">;

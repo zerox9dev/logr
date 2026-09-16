@@ -13,7 +13,7 @@ import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/format";
 import { nowTimeStr } from "@/lib/date";
-import { impliedHourlyRate } from "@/domain/employer";
+import { resolveSessionRate } from "@/domain/employer";
 import type { Session } from "@/types/database";
 
 /** Full sessions CRUD: search, add, inline edit, paid toggle, delete.
@@ -60,8 +60,7 @@ export function SessionsList() {
       tags: [],
       started_at: new Date(`${dateDay}T${startTime}:00`).toISOString(),
       duration_seconds: seconds,
-      rate: impliedHourlyRate(getClientById(project?.client_id ?? null), settings?.weekly_goal_hours ?? null)
-        ?? project?.rate ?? settings?.default_rate ?? 0,
+      rate: resolveSessionRate(getClientById(project?.client_id ?? null), project, settings),
       billing_type: project?.billing_type ?? "hourly",
       payment_status: "unpaid",
     });

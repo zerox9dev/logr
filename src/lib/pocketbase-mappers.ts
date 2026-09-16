@@ -7,6 +7,7 @@ import type {
   Invoice, InvoiceInsert, InvoiceUpdate,
   InvoiceItem, InvoiceItemInsert, InvoiceItemUpdate,
   Activity, ActivityInsert,
+  JiraConnection, JiraProjectMapping, JiraProjectMappingInput,
   BillingType, PaymentStatus, InvoiceStatus, ProjectStatus, ActivityType,
   ClientType, SalaryPeriod,
 } from "@/types/database";
@@ -178,6 +179,7 @@ export function toSessionRow(r: RecordModel): Session {
     rate: num(r.rate) ?? 0,
     billing_type: (str(r.billing_type) ?? "hourly") as BillingType,
     payment_status: (str(r.payment_status) ?? "unpaid") as PaymentStatus,
+    jira_worklog_id: str(r.jira_worklog_id),
     created_at: createdAt(r),
   };
 }
@@ -196,6 +198,45 @@ export function fromSession(data: SessionInsert | SessionUpdate): Record<string,
     rate: data.rate,
     billing_type: data.billing_type,
     payment_status: data.payment_status,
+    jira_worklog_id: data.jira_worklog_id === undefined ? undefined : data.jira_worklog_id ?? "",
+  });
+}
+
+// ── Jira ──
+
+export function toJiraConnectionRow(r: RecordModel): JiraConnection {
+  return {
+    id: r.id,
+    user_id: r.user as string,
+    cloud_id: (str(r.cloud_id) ?? ""),
+    site_name: str(r.site_name),
+    site_url: str(r.site_url),
+    atlassian_email: str(r.atlassian_email),
+    atlassian_account_id: str(r.atlassian_account_id),
+    access_token: (str(r.access_token) ?? ""),
+    refresh_token: (str(r.refresh_token) ?? ""),
+    token_expires_at: toIsoOrNull(r.token_expires_at),
+    last_synced_at: toIsoOrNull(r.last_synced_at),
+  };
+}
+
+export function toJiraProjectMappingRow(r: RecordModel): JiraProjectMapping {
+  return {
+    id: r.id,
+    user_id: r.user as string,
+    jira_project_key: (str(r.jira_project_key) ?? ""),
+    jira_project_name: str(r.jira_project_name),
+    client_id: str(r.client),
+    project_id: str(r.project),
+  };
+}
+
+export function fromJiraProjectMapping(data: JiraProjectMappingInput): Record<string, unknown> {
+  return defined({
+    jira_project_key: data.jira_project_key,
+    jira_project_name: data.jira_project_name ?? "",
+    client: data.client_id ?? "",
+    project: data.project_id ?? "",
   });
 }
 

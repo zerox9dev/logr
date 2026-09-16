@@ -7,7 +7,7 @@ import { ProjectPicker } from "@/components/shared/project-picker";
 import { ManualDialog } from "@/components/dashboard/manual-entry-dialog";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
 import { useSessionSuggestion } from "@/hooks/use-session-suggestion";
-import { impliedHourlyRate } from "@/domain/employer";
+import { resolveSessionRate } from "@/domain/employer";
 import type { Project, SessionInsert } from "@/types/database";
 
 /** Build a SessionInsert from a project + task + timing, baking in the rate
@@ -58,8 +58,7 @@ export function TrackingCard() {
 
   /** Rate a session under this project would be logged at, salary first. */
   const rateFor = (p: Project | undefined) =>
-    impliedHourlyRate(getClientById(p?.client_id ?? null), settings?.weekly_goal_hours ?? null)
-      ?? p?.rate ?? settings?.default_rate ?? 0;
+    resolveSessionRate(getClientById(p?.client_id ?? null), p, settings);
 
   const project = getProjectById(projectId);
   const projectName = project?.name ?? t("track.selectProject");
