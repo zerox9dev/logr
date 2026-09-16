@@ -24,11 +24,11 @@ const avatarVariants = cva(
       },
     },
     compoundVariants: [
-      { shape: "square", size: "xs", class: "rounded-xs" },
-      { shape: "square", size: "sm", class: "rounded-xs" },
+      { shape: "square", size: "xs", class: "rounded-sm" },
+      { shape: "square", size: "sm", class: "rounded-sm" },
       { shape: "square", size: "md", class: "rounded-md" },
-      { shape: "square", size: "lg", class: "rounded-md" },
-      { shape: "square", size: "xl", class: "rounded-md" },
+      { shape: "square", size: "lg", class: "rounded-[10px]" },
+      { shape: "square", size: "xl", class: "rounded-[10px]" },
     ],
     defaultVariants: {
       size: "md",

@@ -35,7 +35,7 @@ export function useToast() {
 // it at the body, outside the .app-shell subtree, and the reset's !important
 // would otherwise beat any rounding utility from a later cascade layer.
 const baseToast =
-  "app-portal !rounded-md !bg-card !border !border-line !shadow-md !text-ink !font-[inherit] !text-sm";
+  "app-portal !rounded-md !bg-card !border !border-line !shadow-dropdown !text-ink !font-[inherit] !text-sm";
 
 const successToast = `${baseToast} !border-l-2 !border-l-[color:var(--color-money,#22c55e)]`;
 const errorToast   = `${baseToast} !border-l-2 !border-l-red-600`;

@@ -304,7 +304,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
             type="file"
             accept=".csv,text/csv"
             onChange={handleFileChange}
-            className="border border-line bg-card px-3 py-2 text-md text-ink file:mr-3 file:border-0 file:bg-wash file:px-2 file:py-1 file:text-sm file:font-medium file:text-ink focus:outline-none focus:ring-1 focus:ring-line"
+            className="rounded-[10px] border border-line bg-card px-3 py-2 text-md text-ink shadow-rested file:mr-3 file:border-0 file:bg-wash file:px-2 file:py-1 file:text-sm file:font-medium file:text-ink focus:outline-none focus:ring-1 focus:ring-line"
           />
           {fileName && (
             <span className="text-md-minus text-muted-foreground tnum">{fileName}</span>

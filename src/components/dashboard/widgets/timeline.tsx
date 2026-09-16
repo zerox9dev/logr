@@ -32,7 +32,7 @@ export function Timeline() {
   const { segments, ticks, legend, empty, outsideRangeCount } = metrics.timeline;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
       <span className="text-widget font-semibold text-heading">{t("timeline.title")}</span>
 
       <div className={`relative h-2.5 w-full overflow-hidden rounded-xs ${empty ? "bg-track" : "bg-grid"}`}>

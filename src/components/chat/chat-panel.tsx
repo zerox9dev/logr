@@ -150,7 +150,7 @@ export function ChatPanel() {
       </Button>
 
       {open && (
-        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col rounded-md bg-card shadow-lg">
+        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col rounded-md bg-card shadow-dropdown">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <span className="text-md font-semibold text-heading">{t("chat.title")}</span>
           </div>

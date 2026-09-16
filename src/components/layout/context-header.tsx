@@ -85,7 +85,7 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
         <Popover.Content
           align="end"
           sideOffset={8}
-          className="app-portal z-50 rounded-md bg-card p-3 shadow-md"
+          className="app-portal z-50 rounded-md bg-card p-3 shadow-dropdown"
         >
           <div className="mb-2 flex items-center justify-between">
             <Button
@@ -154,7 +154,7 @@ export function ContextHeader() {
   const t = useT();
 
   return (
-    <div className="mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-md bg-card px-5 py-3 shadow-sm lg:mx-2">
+    <div className="mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-card px-5 py-3 lg:mx-2">
       <div className="flex items-center gap-3">
         <h1 className="min-w-0">
           <DatePicker disabled={period === "All"} label={metrics.header.dateLabel} />
@@ -184,7 +184,7 @@ export function ContextHeader() {
       <div className="flex min-w-0 items-center overflow-x-auto">
         {/* Segmented Today / Week / Month / All tabs */}
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
-          <Tabs.List className="flex items-center rounded-sm bg-faint p-0.5 shadow-xs">
+          <Tabs.List className="flex items-center rounded-md bg-faint p-0.5 shadow-rested">
             {VIEWS.map((v) => (
               <Tabs.Trigger key={v} value={v} asChild>
                 <Button

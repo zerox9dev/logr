@@ -34,7 +34,7 @@ export function DailySummary() {
   const d = metrics.daily;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
       <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("daily.title")}</span>
 
       <div className="flex w-full items-start gap-2.5">

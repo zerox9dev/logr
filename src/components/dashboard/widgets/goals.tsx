@@ -82,7 +82,7 @@ export function Goals() {
   const [goalOpen, setGoalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
       <div className="flex items-center justify-between">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("goals.title")}</span>
         <Button

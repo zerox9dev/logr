@@ -19,7 +19,7 @@ export function ProjectPicker({
         <DropdownMenu.Content
           align="start"
           sideOffset={6}
-          className="app-portal z-50 max-h-[260px] min-w-[200px] max-w-[280px] overflow-auto rounded-md bg-card p-1 shadow-md"
+          className="app-portal z-50 max-h-[260px] min-w-[200px] max-w-[280px] overflow-auto rounded-md bg-card p-1 shadow-dropdown"
         >
           <DropdownMenu.Item className={item} onSelect={() => onChange(null)}>
             {t("track.noProject")}

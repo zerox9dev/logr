@@ -82,7 +82,7 @@ export function ProjectsTasks() {
     });
 
   return (
-    <div className="flex flex-col gap-4 rounded-md bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-md border border-line bg-card p-6">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
         <Button

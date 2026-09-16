@@ -104,7 +104,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           <RadixDialog.Content
             aria-label={t("cmd.search")}
             onKeyDown={onKeyDown}
-            className="app-portal fixed left-1/2 top-[18vh] z-50 w-full max-w-[560px] -translate-x-1/2 rounded-lg bg-card shadow-lg focus:outline-none"
+            className="app-portal fixed left-1/2 top-[18vh] z-50 w-full max-w-[560px] -translate-x-1/2 rounded-2xl bg-card shadow-dropdown focus:outline-none"
           >
             <RadixDialog.Title className="sr-only">{t("cmd.search")}</RadixDialog.Title>
             <div className="border-b border-line p-3">

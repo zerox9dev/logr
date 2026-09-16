@@ -14,7 +14,12 @@
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: var(--font-calistoga), Georgia, "Times New Roman", serif;
 
-  /* logr extra tokens (non-semantic — used directly as text-ink, bg-wash…) */
+  /* logr extra tokens (non-semantic — used directly as text-ink, bg-wash…).
+     These already cover cal.com's emphasis → default → subtle → muted depth
+     stack under logr's own names, so no parallel set is introduced:
+       text   ink · tertiary · gray-400 · placeholder
+       border gray-400 · gray-300 · line-2 · line
+       bg     page · wash · faint · card */
   --color-ink: #18181b;
   --color-heading: #141414;
   --color-tertiary: #71717a;
@@ -73,20 +78,38 @@
     to { transform: translateX(0); opacity: 1; }
   }
 
-  /* Radius scale. Only reaches the /app shell — everything else is held at 0
-     by the reset below, so the marketing site and /login stay square. */
-  --radius-xs: 6px;    /* chips, badges, small pills */
-  --radius-sm: 8px;    /* buttons, inputs, small controls */
-  --radius-md: 10px;   /* cards, panels */
-  --radius-lg: 14px;   /* dialogs, large surfaces */
+  /* Radius scale — cal.com's numeric scale verbatim (their tokens.css ships it
+     in rem under Tailwind-v3 names; the px here are the same values under v4
+     names, so `rounded-*` utilities keep working project-wide). Only reaches
+     the /app shell — everything else is held at 0 by the reset below, so the
+     marketing site and /login stay square. The one value with no token is the
+     10px flat-control radius cal.com writes inline as `rounded-[10px]` on
+     Button, Input and the large square Avatar; it stays inline here too. */
+  --radius-xs: 2px;    /* cal --radius-sm  0.125rem — tooltips */
+  --radius-sm: 4px;    /* cal --radius     0.25rem  — badges, checkbox */
+  --radius-md: 6px;    /* cal --radius-md  0.375rem — cards, small controls */
+  --radius-lg: 8px;    /* cal --radius-lg  0.5rem   — menu items */
+  --radius-xl: 12px;   /* cal --radius-xl  0.75rem  — menu surfaces */
+  --radius-2xl: 16px;  /* cal --radius-2xl 1rem     — dialogs, sheets */
+  --radius-3xl: 24px;  /* cal --radius-3xl 1.5rem */
   --radius-full: 9999px;
 
-  /* Elevation. The 0.5px spread ring replaces the 1px card border: the edge is
-     drawn by light instead of a stroke. */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 24px 48px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  /* Elevation — cal.com's layered box-shadow system, layer for layer. Their
+     stack is already neutral (rgba black plus a white inset highlight on solid
+     fills), so nothing needed de-tinting. Depth here is additive: a control
+     keeps its 1px border AND carries `--shadow-rested` at idle. */
+  --shadow-rested: 0px 2px 3px 0px rgba(0, 0, 0, 0.03), 0px 2px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0px 2px 3px 0px rgba(0, 0, 0, 0.03), 0px 2px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-active: 0px 2px 1px 0px rgba(0, 0, 0, 0.05) inset;
+  --shadow-focused: 0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 0px 0px 2px rgba(0, 0, 0, 0.1);
+
+  --shadow-solid-rested: 0px 2px 3px 0px rgba(0, 0, 0, 0.06), 0px 1px 1px 0px rgba(0, 0, 0, 0.08), 1px 4px 8px 0px rgba(0, 0, 0, 0.12), 0px 2px 0.4px 0px rgba(255, 255, 255, 0.12) inset, 0px -3px 2px 0px rgba(0, 0, 0, 0.04) inset;
+  --shadow-solid-hover: 0px 1px 1px 0px rgba(0, 0, 0, 0.1), 0px 2px 3px 0px rgba(0, 0, 0, 0.08), 1px 4px 8px 0px rgba(0, 0, 0, 0.12), 0px -3px 2px 0px rgba(0, 0, 0, 0.1) inset, 0px 2px 0.4px 0px rgba(255, 255, 255, 0.24) inset;
+  --shadow-solid-active: 0px 3px 1px 0px rgba(0, 0, 0, 0.1) inset, 0px 0px 2px 0px rgba(0, 0, 0, 0.1) inset;
+
+  --shadow-dropdown: 0px 5px 20px 0px rgba(0, 0, 0, 0.1), 0px 10px 40px 0px rgba(0, 0, 0, 0.03);
+  --shadow-elevation-low: 0px 1px 1px 0px rgba(0, 0, 0, 0.07), 0px 1px 2px 0px rgba(0, 0, 0, 0.08), 0px 2px 2px 0px rgba(0, 0, 0, 0.1), 0px 0px 8px 0px rgba(0, 0, 0, 0.05);
+  --shadow-switch-thumb: 0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.1), 0px 0.8px 3.2px 0px rgba(0, 0, 0, 0.08);
 
   /* Motion */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -112,7 +135,7 @@
      !important declarations the cascade prefers earlier layers, so a
      utility-layer rule would never win. */
   .card-radius {
-    border-radius: var(--radius-sm) !important;
+    border-radius: var(--radius-md) !important;
   }
   * {
     @apply border-border outline-ring/50;

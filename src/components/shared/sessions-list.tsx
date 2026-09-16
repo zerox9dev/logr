@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Timer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
@@ -108,12 +109,12 @@ export function SessionsList() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-widget font-semibold text-heading">{t("sidebar.sessions")}</h1>
           <div className="flex items-center gap-2">
-            <input
+            <Input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("sessions.searchPlaceholder")}
-              className="min-w-0 border border-line bg-card px-3 py-1.5 text-md text-ink placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-line"
+              className="h-8 min-w-0"
             />
             <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>{t("import.menuItem")}</Button>
             <Button size="sm" onClick={() => setEditing("new")} disabled={editing !== null}>{t("sessions.addEntryButton")}</Button>

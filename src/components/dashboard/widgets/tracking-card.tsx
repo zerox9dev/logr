@@ -116,7 +116,7 @@ export function TrackingCard() {
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
       {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
