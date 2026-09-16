@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { PB_AUTH_COOKIE, createPb, toPbUser, type PbUser } from "@/lib/pocketbase";
 import { getCurrentUser } from "@/lib/pocketbase-server";
+import { cookieValue, setSessionCookie } from "@/lib/session-cookie";
 
 export interface ActionResult {
   error?: string;
@@ -14,8 +15,6 @@ export interface AuthResult extends ActionResult {
   user?: PbUser;
 }
 
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
-
 function message(err: unknown, fallback: string): string {
   if (err && typeof err === "object" && "message" in err) {
     const m = (err as { message?: unknown }).message;
@@ -24,21 +23,8 @@ function message(err: unknown, fallback: string): string {
   return fallback;
 }
 
-/** `exportToCookie()` returns a full Set-Cookie string; Next wants the value alone. */
-function cookieValue(serialized: string): string {
-  const [pair] = serialized.split(";");
-  return pair.slice(pair.indexOf("=") + 1);
-}
-
 async function writeSessionCookie(value: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(PB_AUTH_COOKIE, value, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
+  setSessionCookie(await cookies(), value);
 }
 
 export async function signInAction(email: string, password: string): Promise<AuthResult> {

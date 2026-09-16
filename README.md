@@ -221,6 +221,20 @@ Running against your own PocketBase instead of the bundled one? Point `--migrati
 
 Finally, configure SMTP under *Settings → Mail settings* so password-reset emails go out, and point the password-reset link at `https://<your-domain>/reset-password?token={TOKEN}`.
 
+### Google sign-in (optional)
+
+The login page always offers *Continue with Google*; it works once the provider is configured, and until then it fails gracefully back to the sign-in form with a "Google sign-in is unavailable" message.
+
+PocketBase is not reachable from the browser here, so the SDK's popup flow does not apply. The handshake runs entirely server-side: `/auth/google` asks PocketBase for the provider's `authURL` + PKCE verifier, stashes the verifier in a short-lived httpOnly cookie and redirects to Google; `/auth/callback/google` exchanges the code for a session and writes the same `pb_auth` cookie password sign-in uses.
+
+To enable it:
+
+1. **Google Cloud Console** → *APIs & Services → Credentials* → OAuth client ID, type *Web application*. Add `https://<your-domain>/auth/callback/google` as an authorized redirect URI (and `http://localhost:3000/auth/callback/google` for local work), and fill in the OAuth consent screen.
+2. **PocketBase admin UI** → the `users` collection → *Options → OAuth2* → enable, add the **Google** provider, paste the Client ID and Client Secret.
+3. Set `APP_URL` to the app's public origin if a proxy in front of it rewrites `Host`; otherwise the origin is derived from the request.
+
+Accounts are matched by email, so a user who signed up with a password can also sign in with Google on the same address.
+
 The app sends the same ownership filter on every query, so it behaves correctly either way — but the rules are what actually enforces them.
 
 ## MCP (AI assistant access)

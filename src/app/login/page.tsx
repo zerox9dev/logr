@@ -8,6 +8,6 @@ interface PageProps {
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
-  const { next } = await searchParams;
-  return <LoginGate next={next} />;
+  const { next, error } = await searchParams;
+  return <LoginGate next={next} error={error} />;
 }
