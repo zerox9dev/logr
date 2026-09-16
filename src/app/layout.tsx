@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Calistoga } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -48,8 +48,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${calistoga.variable}`}>
       <body>
         <Providers>{children}</Providers>
-        <Analytics />
         <SpeedInsights />
+        <Script
+          src="https://umami.mirvald.com/script.js"
+          data-website-id="77e07cae-fa4b-4023-ba0b-bab2f2dae7ac"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
