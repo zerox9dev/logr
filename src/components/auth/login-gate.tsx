@@ -2,12 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInAction, requestPasswordResetAction } from "@/actions/auth";
+import { signInAction, signUpAction, requestPasswordResetAction } from "@/actions/auth";
 import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 8;
 
 interface FormState {
   error?: string;
@@ -23,7 +24,7 @@ interface LoginGateProps {
 export function LoginGate({ next }: LoginGateProps = {}) {
   const router = useRouter();
   const t = useT();
-  const [mode, setMode] = useState<"signIn" | "forgot">("signIn");
+  const [mode, setMode] = useState<"signIn" | "signUp" | "forgot">("signIn");
 
   const [signInState, signIn, signingIn] = useActionState<FormState, FormData>(
     async (_prev, formData) => {
@@ -33,6 +34,26 @@ export function LoginGate({ next }: LoginGateProps = {}) {
       if (!password) return { error: t("login.passwordRequired") };
 
       const { error } = await signInAction(email, password);
+      if (error) return { error };
+
+      router.replace(next ?? "/app");
+      router.refresh();
+      return {};
+    },
+    {},
+  );
+
+  const [signUpState, signUp, signingUp] = useActionState<FormState, FormData>(
+    async (_prev, formData) => {
+      const email = String(formData.get("email") ?? "").trim();
+      const password = String(formData.get("password") ?? "");
+      const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
+      if (!EMAIL_RE.test(email)) return { error: t("login.emailInvalid") };
+      if (password.length < MIN_PASSWORD_LENGTH) return { error: t("signup.tooShort") };
+      if (password !== passwordConfirm) return { error: t("signup.mismatch") };
+
+      const { error, emailTaken } = await signUpAction(email, password, passwordConfirm);
+      if (emailTaken) return { error: t("signup.emailTaken") };
       if (error) return { error };
 
       router.replace(next ?? "/app");
@@ -54,7 +75,11 @@ export function LoginGate({ next }: LoginGateProps = {}) {
     {},
   );
 
-  const error = mode === "signIn" ? signInState.error : resetState.error;
+  const error =
+    mode === "signIn" ? signInState.error : mode === "signUp" ? signUpState.error : resetState.error;
+
+  const subtitle =
+    mode === "signIn" ? t("login.title") : mode === "signUp" ? t("signup.title") : t("login.forgotTitle");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-card px-4">
@@ -67,9 +92,7 @@ export function LoginGate({ next }: LoginGateProps = {}) {
           </div>
           <div>
             <h1 className="text-lg font-semibold tracking-[-0.16px] text-ink">logr.work</h1>
-            <p className="mt-1 text-md-minus text-tertiary">
-              {mode === "signIn" ? t("login.title") : t("login.forgotTitle")}
-            </p>
+            <p className="mt-1 text-md-minus text-tertiary">{subtitle}</p>
           </div>
         </div>
 
@@ -104,6 +127,40 @@ export function LoginGate({ next }: LoginGateProps = {}) {
               {t("login.back")}
             </button>
           </form>
+        ) : mode === "signUp" ? (
+          <form action={signUp} className="flex flex-col gap-2.5">
+            <Input
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder={t("login.emailPlaceholder")}
+              disabled={signingUp}
+            />
+            <Input
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              placeholder={t("signup.passwordPlaceholder")}
+              disabled={signingUp}
+            />
+            <Input
+              name="passwordConfirm"
+              type="password"
+              autoComplete="new-password"
+              placeholder={t("signup.confirmPlaceholder")}
+              disabled={signingUp}
+            />
+            <Button type="submit" disabled={signingUp} className="w-full">
+              {signingUp ? t("signup.creating") : t("signup.submit")}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setMode("signIn")}
+              className="mt-1 text-md-minus text-tertiary underline underline-offset-4"
+            >
+              {t("login.back")}
+            </button>
+          </form>
         ) : (
           <form action={signIn} className="flex flex-col gap-2.5">
             <Input
@@ -123,13 +180,22 @@ export function LoginGate({ next }: LoginGateProps = {}) {
             <Button type="submit" disabled={signingIn} className="w-full">
               {signingIn ? t("login.signingIn") : t("login.signIn")}
             </Button>
-            <button
-              type="button"
-              onClick={() => setMode("forgot")}
-              className="mt-1 text-md-minus text-tertiary underline underline-offset-4"
-            >
-              {t("login.forgot")}
-            </button>
+            <div className="mt-1 flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => setMode("signUp")}
+                className="text-md-minus text-tertiary underline underline-offset-4"
+              >
+                {t("signup.cta")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="text-md-minus text-tertiary underline underline-offset-4"
+              >
+                {t("login.forgot")}
+              </button>
+            </div>
           </form>
         )}
 

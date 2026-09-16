@@ -21,7 +21,7 @@
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
 - 💬 **In-app AI assistant** — a chat panel over the shared tool registry: "show unbilled for Acme and draft an invoice." Reads and edits run inline; destructive actions (deletes) require an explicit confirm. Needs `ANTHROPIC_API_KEY`.
-- 🔐 **Auth** — email + password sign-in with a password-reset flow, via PocketBase.
+- 🔐 **Auth** — email + password sign-up and sign-in with a password-reset flow, via PocketBase.
 - 🌍 **i18n** — App UI in English, Ukrainian, and Russian (auto-detected).
 
 ## Why Logr?
@@ -74,38 +74,46 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Self-host / deploy (Docker)
 
-logr is a Next.js app backed by PocketBase. Run the app anywhere with Docker and point it at **your own PocketBase** instance. Because only the server talks to PocketBase, it never needs a public hostname — an internal Docker alias is enough.
+logr is a Next.js app backed by PocketBase. `docker compose up` runs both: the app and a PocketBase instance on the same Docker network. Because only the server talks to PocketBase, it never needs a public hostname — the internal `pocketbase` alias is enough.
 
-### 1 — Run PocketBase and create the collections
-
-Start PocketBase (its own container or binary), open the admin UI, and create the collections described in [PocketBase setup](#pocketbase-setup) below.
-
-### 2 — Configure and run the app
+### 1 — Start the stack
 
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
-cp .env.example .env       # set POCKETBASE_URL
+cp .env.example .env
 docker compose up -d --build
 ```
 
-`.env` needs one value, plus one optional key:
+`.env` needs no edits to run locally; the keys are optional:
 
 ```
-POCKETBASE_URL=http://pocketbase:8090         # server-only
+POCKETBASE_URL=http://pocketbase:8090         # server-only, defaults to the bundled service
 ANTHROPIC_API_KEY=sk-ant-...                  # optional — AI assistant + project suggestions
+PB_ADMIN_EMAIL=admin@logr.local               # superuser created on first boot
+PB_ADMIN_PASSWORD=changeme_please_1234        # change before exposing the instance
 ```
 
-The app comes up at **http://localhost:3000**. Optional `.env` knob: `APP_PORT` (change the host port). See [`.env.example`](.env.example).
+### 2 — Sign in to the admin UI
+
+The schema applies itself: `pb_migrations/` is mounted into the container and PocketBase runs any un-applied migration on start, so all nine collections and their API rules exist the moment the container reports healthy. The superuser is created from `PB_ADMIN_EMAIL` / `PB_ADMIN_PASSWORD`.
+
+Open the PocketBase admin UI at **http://localhost:8090/_/** and sign in with those credentials. Schema changes made there are written back into `pb_migrations/` as new files — commit them.
+
+The app comes up at **http://localhost:3000**. Optional `.env` knobs: `APP_PORT` and `POCKETBASE_PORT` (change the host ports). See [`.env.example`](.env.example).
 
 > `POCKETBASE_URL` is read at runtime, so changing it needs a container restart — never a rebuild.
+
+> **Production.** The bundled PocketBase is fine for local dev and small self-hosts, but its data lives in a single `pocketbase_data` Docker volume and backups are yours to handle. For anything you care about, run your own managed or otherwise persistent PocketBase and point `POCKETBASE_URL` at it.
 
 Prefer a one-click deploy? Use the [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/zerox9dev/logr) button at the top — with a PocketBase instance Vercel can reach.
 
 ### Stop / clean up
 
 ```bash
-docker compose down     # stop the app container
+docker compose down     # stop the containers; the pocketbase_data volume is kept
 ```
+
+To drop the database too: `docker compose down -v`.
 
 ---
 
@@ -157,7 +165,7 @@ src/
 | Route | Description |
 |-------|-------------|
 | `/` | Public SSR marketing landing |
-| `/login` | Auth — email + password, with a forgot-password flow |
+| `/login` | Auth — email + password sign-in, account creation and a forgot-password flow |
 | `/app` | Dashboard (auth-gated via proxy + server session check) |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/reset-password` | Sets a new password from the emailed PocketBase reset token |
@@ -172,26 +180,29 @@ src/
 
 ## PocketBase Setup
 
-1. Run PocketBase and create an admin account.
-2. Create the collections:
-   - **users** — the built-in auth collection (email + password).
-   - **clients**, **projects**, **sessions**, **invoices**, **activities**, **user_settings** — each with a `user` relation to `users`.
-   - **invoice_items** — relations `invoice` → invoices and `session` → sessions (no `user` field; ownership runs through the invoice).
-   - **share_links** — ownership likewise runs through its parent relation.
-3. Set API Rules so every record is reachable only by its owner. For the collections with a `user` relation, list/view/create/update/delete all use:
+The schema lives in [`pb_migrations/`](pb_migrations) as PocketBase JS migrations — one file per collection, each with an up and a down. The compose file mounts that directory at `/pb_migrations` and PocketBase applies any un-applied file on start, so a fresh instance is fully set up with no clicking.
 
-   ```
-   @request.auth.id != "" && user = @request.auth.id
-   ```
+Collections:
 
-   For `invoice_items` (and `share_links`), go through the relation instead:
+- **users** — the built-in auth collection (email + password), extended with `legacy_id`. Its default auth rules are left untouched.
+- **clients**, **projects**, **sessions**, **invoices**, **activities**, **user_settings** — each with a `user` relation to `users`.
+- **invoice_items** — relations `invoice` → invoices and `session` → sessions (no `user` field; ownership runs through the invoice).
+- **share_links** — ownership likewise runs through its parent relation.
 
-   ```
-   @request.auth.id != "" && invoice.user = @request.auth.id
-   ```
-4. Configure SMTP under *Settings → Mail settings* so password-reset emails go out, and point the password-reset link at `https://<your-domain>/reset-password?token={TOKEN}`.
+API rules make every record reachable only by its owner. For the collections with a `user` relation:
 
-The app sends the same ownership filter on every query, so it behaves correctly both before and after the rules are in place — but the rules are what actually enforces them.
+```
+list/view/update/delete   user = @request.auth.id
+create                    @request.auth.id != "" && user = @request.auth.id
+```
+
+For `invoice_items` and `share_links`, ownership goes through the relation instead — `invoice.user = @request.auth.id`. The separate create rule is what stops a signed-in user from creating a row owned by someone else.
+
+Running against your own PocketBase instead of the bundled one? Point `--migrationsDir` at this directory, or copy the files into the instance's `pb_migrations/`.
+
+Finally, configure SMTP under *Settings → Mail settings* so password-reset emails go out, and point the password-reset link at `https://<your-domain>/reset-password?token={TOKEN}`.
+
+The app sends the same ownership filter on every query, so it behaves correctly either way — but the rules are what actually enforces them.
 
 > The legacy Supabase SQL under `supabase/` is kept only as a historical reference for the old schema. It is not used by the running app.
 

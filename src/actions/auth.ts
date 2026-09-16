@@ -46,6 +46,42 @@ export async function signInAction(email: string, password: string): Promise<Act
   return {};
 }
 
+/** True when PocketBase rejected `users.create` because the email is taken. */
+function isDuplicateEmail(err: unknown): boolean {
+  const data = (err as { response?: { data?: Record<string, { code?: string }> } })?.response?.data;
+  const code = data?.email?.code;
+  return code === "validation_not_unique" || code === "validation_invalid_email";
+}
+
+export interface SignUpResult extends ActionResult {
+  /** Lets the client show a localized message instead of the English fallback. */
+  emailTaken?: boolean;
+}
+
+export async function signUpAction(
+  email: string,
+  password: string,
+  passwordConfirm: string,
+): Promise<SignUpResult> {
+  const trimmed = email.trim();
+  const pb = createPb();
+  try {
+    await pb.collection("users").create({ email: trimmed, password, passwordConfirm });
+  } catch (err) {
+    if (isDuplicateEmail(err)) {
+      return { error: "An account with this email already exists.", emailTaken: true };
+    }
+    return { error: message(err, "Could not create the account.") };
+  }
+  try {
+    await pb.collection("users").authWithPassword(trimmed, password);
+  } catch (err) {
+    return { error: message(err, "Account created, but sign-in failed. Try signing in.") };
+  }
+  await writeSessionCookie(cookieValue(pb.authStore.exportToCookie({ httpOnly: true }, PB_AUTH_COOKIE)));
+  return {};
+}
+
 export async function signOutAction(): Promise<ActionResult> {
   const cookieStore = await cookies();
   cookieStore.delete(PB_AUTH_COOKIE);

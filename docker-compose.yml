@@ -1,15 +1,20 @@
 # =============================================================================
-# logr — app container (bring-your-own PocketBase)
+# logr — app + PocketBase
 #
-# This runs the logr Next.js app in Docker. The backend is your own PocketBase
-# instance, reachable from this container over the network — e.g. a
-# `pocketbase` service on the same Docker network. Only the server talks to it,
-# so it needs no public hostname. See the "Self-host / deploy" section of the
-# README for the collections to create and the API Rules to set.
+# `docker compose up` brings up both the logr Next.js app and a PocketBase
+# instance, so a fresh clone runs standalone with no extra setup. The app
+# reaches PocketBase over the compose network as `http://pocketbase:8090`;
+# only the server talks to it, so it needs no public hostname. The schema is
+# applied automatically from `pb_migrations/` on boot; the admin UI is
+# published on the host at http://localhost:8090/_/.
 #
-#   cp .env.example .env     # set POCKETBASE_URL
+#   cp .env.example .env
 #   docker compose up -d --build
 #   open http://localhost:3000
+#
+# The bundled PocketBase is meant for local dev and small self-hosts. Its data
+# lives in the `pocketbase_data` volume — backups and persistence are yours to
+# handle. For production, point POCKETBASE_URL at your own managed instance.
 # =============================================================================
 
 services:
@@ -18,6 +23,9 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    depends_on:
+      pocketbase:
+        condition: service_healthy
     environment:
       # Server-only: read at runtime, never baked into the client bundle.
       POCKETBASE_URL: ${POCKETBASE_URL:-http://pocketbase:8090}
@@ -25,3 +33,31 @@ services:
     ports:
       # Override the host port if 3000 is taken: APP_PORT=3001 in .env
       - "${APP_PORT:-3000}:3000"
+
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:0.40.4
+    restart: unless-stopped
+    environment:
+      # Bootstraps the superuser on every boot so a fresh clone needs no manual
+      # setup. Change both before exposing this instance to anything public.
+      PB_ADMIN_EMAIL: ${PB_ADMIN_EMAIL:-admin@logr.local}
+      PB_ADMIN_PASSWORD: ${PB_ADMIN_PASSWORD:-changeme_please_1234}
+    # The image's entrypoint passes --dir/--publicDir/--hooksDir but not
+    # --migrationsDir, which would otherwise default next to the data dir.
+    # Pinning it keeps the mount below the single source of truth.
+    command: ["--migrationsDir=/pb_migrations"]
+    volumes:
+      - pocketbase_data:/pb_data
+      # Collections + API rules, applied automatically on start.
+      - ./pb_migrations:/pb_migrations
+    ports:
+      # Admin UI at http://localhost:8090/_/ — override with POCKETBASE_PORT.
+      - "${POCKETBASE_PORT:-8090}:8090"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pocketbase_data:

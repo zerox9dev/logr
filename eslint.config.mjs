@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "dist/**",
     "next-env.d.ts",
+    // Runs in PocketBase's goja runtime, not in the Next.js module graph.
+    "pb_migrations/**",
   ]),
 ]);
 
