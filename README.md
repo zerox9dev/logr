@@ -181,9 +181,12 @@ src/
 | `/login` | Auth — email + password sign-in, account creation and a forgot-password flow |
 | `/app` | Dashboard — the widget grid (auth-gated via proxy + server session check) |
 | `/app/projects` | Projects CRUD: client, billing type, rate or fixed budget, status |
+| `/app/projects/[id]` | Project detail: billing header, all-time stats and session history |
 | `/app/sessions` | Sessions CRUD: search, add, inline edit, paid toggle, CSV import; `?project=` / `?task=` deep links |
 | `/app/clients` | Clients CRUD plus per-client contact details and totals |
+| `/app/clients/[id]` | Client detail: contact header, related projects and invoices, activity log |
 | `/app/invoices` | Invoices: build from unbilled sessions, status, public share link |
+| `/app/invoices/[id]` | Invoice detail: line items, totals and the share / status / delete actions |
 | `/app/reports` | Per-client report ranges with a copyable public `/share/report` link |
 | `/app/settings` | Account profile, default rate, currency and goal settings |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
