@@ -295,6 +295,14 @@ const app: Record<string, Record<string, string>> = {
     "clientDetail.notFound": "Client not found.",
     "clientDetail.noProjects": "No projects for this client yet.",
     "clientDetail.noInvoices": "No invoices for this client yet.",
+    // Project detail
+    "projectDetail.notFound": "Project not found.",
+    "projectDetail.editRate": "Edit rate",
+    "projectDetail.totalTracked": "Total tracked time",
+    "projectDetail.billed": "Billed",
+    "projectDetail.unbilled": "Unbilled",
+    "projectDetail.sessionHistory": "Session history",
+    "projectDetail.noSessions": "No sessions tracked for this project yet.",
     // Activity log
     "activityLog.title": "Activity",
     "activityLog.empty": "No activity logged yet.",
@@ -593,6 +601,14 @@ const app: Record<string, Record<string, string>> = {
     "clientDetail.notFound": "Клієнта не знайдено.",
     "clientDetail.noProjects": "У цього клієнта ще немає проєктів.",
     "clientDetail.noInvoices": "У цього клієнта ще немає рахунків.",
+    // Project detail
+    "projectDetail.notFound": "Проєкт не знайдено.",
+    "projectDetail.editRate": "Змінити ставку",
+    "projectDetail.totalTracked": "Усього відстежено",
+    "projectDetail.billed": "Оплачено",
+    "projectDetail.unbilled": "Не оплачено",
+    "projectDetail.sessionHistory": "Історія сесій",
+    "projectDetail.noSessions": "Для цього проєкту ще немає сесій.",
     // Activity log
     "activityLog.title": "Активність",
     "activityLog.empty": "Записів активності ще немає.",
@@ -891,6 +907,14 @@ const app: Record<string, Record<string, string>> = {
     "clientDetail.notFound": "Клиент не найден.",
     "clientDetail.noProjects": "У этого клиента ещё нет проектов.",
     "clientDetail.noInvoices": "У этого клиента ещё нет счетов.",
+    // Project detail
+    "projectDetail.notFound": "Проект не найден.",
+    "projectDetail.editRate": "Изменить ставку",
+    "projectDetail.totalTracked": "Всего отслежено",
+    "projectDetail.billed": "Оплачено",
+    "projectDetail.unbilled": "Не оплачено",
+    "projectDetail.sessionHistory": "История сессий",
+    "projectDetail.noSessions": "Для этого проекта ещё нет сессий.",
     // Activity log
     "activityLog.title": "Активность",
     "activityLog.empty": "Записей активности ещё нет.",

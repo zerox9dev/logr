@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { NewProjectDialog } from "@/components/dashboard/new-project-dialog";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
@@ -24,9 +25,10 @@ const STATUS_CLASS: Record<ProjectStatus, string> = {
   cancelled: "border-line text-muted-foreground",
 };
 
-/** Projects page body: name, client, billing/rate chip and status. A row opens
- *  the existing RatesDialog for a quick billing edit. "New project" falls back
- *  to the client dialog while there is no client to attach a project to. */
+/** Projects page body: name, client, billing/rate chip and status. A row links
+ *  to the project detail page; the rate chip stays a quick RatesDialog opener.
+ *  "New project" falls back to the client dialog while there is no client to
+ *  attach a project to. */
 export function ProjectsList() {
   const { projects, loading, getClientById } = useAppData();
   const t = useT();
@@ -51,11 +53,9 @@ export function ProjectsList() {
               const client = getClientById(p.client_id);
               const fixed = p.billing_type === "fixed";
               return (
-                <button
+                <Link
                   key={p.id}
-                  type="button"
-                  onClick={() => setRateProject(p)}
-                  aria-label={`${t("rates.ratePrefix")}${p.name}`}
+                  href={`/app/projects/${p.id}`}
                   className="flex w-full flex-wrap items-center gap-3 border-b border-line py-2.5 text-left transition-colors last:border-0 hover:bg-wash"
                 >
                   <div className="flex min-w-0 flex-1 flex-col">
@@ -67,12 +67,21 @@ export function ProjectsList() {
                       {client?.name ?? "—"} · {fixed ? t("projects.fixed") : t("projects.hourly")}
                     </span>
                   </div>
-                  <span className="shrink-0 bg-page px-[11px] py-1 text-sm font-semibold text-dark-1 tnum">
+                  <button
+                    type="button"
+                    aria-label={`${t("rates.ratePrefix")}${p.name}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setRateProject(p);
+                    }}
+                    className="shrink-0 bg-page px-[11px] py-1 text-sm font-semibold text-dark-1 transition-colors tnum hover:bg-wash"
+                  >
                     {fixed
                       ? fmtMoney(p.fixed_budget ?? 0)
                       : `${p.rate ? `$${p.rate}` : "—"}${t("unit.perHr")}`}
-                  </span>
-                </button>
+                  </button>
+                </Link>
               );
             })}
           </div>
