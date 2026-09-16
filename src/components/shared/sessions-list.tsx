@@ -13,13 +13,14 @@ import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/format";
 import { nowTimeStr } from "@/lib/date";
+import { impliedHourlyRate } from "@/domain/employer";
 import type { Session } from "@/types/database";
 
 /** Full sessions CRUD: search, add, inline edit, paid toggle, delete.
  *  `?project=<id|none>` and `?task=<name>` narrow the list — both are shown
  *  as removable chips so a deep link never looks like an empty database. */
 export function SessionsList() {
-  const { sessions, settings, loading, getProjectById, addSession, updateSession, deleteSession } = useAppData();
+  const { sessions, settings, loading, getProjectById, getClientById, addSession, updateSession, deleteSession } = useAppData();
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const t = useT();
@@ -59,7 +60,8 @@ export function SessionsList() {
       tags: [],
       started_at: new Date(`${dateDay}T${startTime}:00`).toISOString(),
       duration_seconds: seconds,
-      rate: project?.rate ?? settings?.default_rate ?? 0,
+      rate: impliedHourlyRate(getClientById(project?.client_id ?? null), settings?.weekly_goal_hours ?? null)
+        ?? project?.rate ?? settings?.default_rate ?? 0,
       billing_type: project?.billing_type ?? "hourly",
       payment_status: "unpaid",
     });

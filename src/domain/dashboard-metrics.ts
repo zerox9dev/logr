@@ -262,7 +262,8 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
       return {
         id: client?.id,
         name: client?.name ?? tr("metric.noClient"),
-        rateLabel: rate ? `$${rate}${tr("unit.perHr")}` : undefined,
+        // Salary-derived rates land on long fractions; the label shows cents.
+        rateLabel: rate ? `$${Math.round(rate * 100) / 100}${tr("unit.perHr")}` : undefined,
         timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds), units),
         amountLabel: fmtMoney(amount, currency),
         dot: "var(--color-brand-ink)",

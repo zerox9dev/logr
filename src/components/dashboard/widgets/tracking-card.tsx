@@ -7,16 +7,19 @@ import { ProjectPicker } from "@/components/shared/project-picker";
 import { ManualDialog } from "@/components/dashboard/manual-entry-dialog";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
 import { useSessionSuggestion } from "@/hooks/use-session-suggestion";
+import { impliedHourlyRate } from "@/domain/employer";
 import type { Project, SessionInsert } from "@/types/database";
 
-/** Build a SessionInsert from a project + task + timing, applying the
- *  project's rate/billing (falling back to the user's defaults). */
+/** Build a SessionInsert from a project + task + timing, baking in the rate
+ *  that applies at creation time so every later aggregation reads it straight
+ *  off the session. An employer client's salary-implied hourly rate wins over
+ *  the project's own rate; otherwise the project rate, then the user default. */
 function buildSession(
   project: Project | undefined,
   name: string,
   startedAtMs: number,
   durationSeconds: number,
-  defaultRate: number,
+  rate: number,
 ): Omit<SessionInsert, "user_id"> {
   return {
     client_id: project?.client_id ?? null,
@@ -26,7 +29,7 @@ function buildSession(
     tags: [],
     started_at: new Date(startedAtMs).toISOString(),
     duration_seconds: durationSeconds,
-    rate: project?.rate ?? defaultRate,
+    rate,
     billing_type: project?.billing_type ?? "hourly",
     payment_status: "unpaid",
   };
@@ -37,7 +40,7 @@ function buildSession(
  *  Manual, project › task row. Idle at 00:00:00 greys the whole timer block. */
 export function TrackingCard() {
   const {
-    sessions, projects, settings, getProjectById, addSession,
+    sessions, projects, settings, getProjectById, getClientById, addSession,
     timerRunning, setTimerRunning,
     timerSeconds, setTimerSeconds,
     timerStartedAt, setTimerStartedAt,
@@ -53,9 +56,14 @@ export function TrackingCard() {
 
   const { suggestion, dismiss } = useSessionSuggestion(timerDescription, projectId);
 
+  /** Rate a session under this project would be logged at, salary first. */
+  const rateFor = (p: Project | undefined) =>
+    impliedHourlyRate(getClientById(p?.client_id ?? null), settings?.weekly_goal_hours ?? null)
+      ?? p?.rate ?? settings?.default_rate ?? 0;
+
   const project = getProjectById(projectId);
   const projectName = project?.name ?? t("track.selectProject");
-  const rate = project?.rate ?? settings?.default_rate ?? 0;
+  const rate = rateFor(project);
   const earned = (timerSeconds / 3600) * rate;
   // Zero state: nothing running and nothing on the clock — the whole
   // timer/rate/earned block drops to placeholder grey (Figma 310:1208).
@@ -98,7 +106,7 @@ export function TrackingCard() {
   const saveManual = async (pid: string | null, name: string, dateISO: string, seconds: number) => {
     const proj = getProjectById(pid);
     try {
-      await addSession(buildSession(proj, name, new Date(dateISO).getTime(), seconds, proj?.rate ?? settings?.default_rate ?? 0));
+      await addSession(buildSession(proj, name, new Date(dateISO).getTime(), seconds, rateFor(proj)));
       toast(`${t("track.logged")} ${fmtClock(seconds)}`, "success");
     } catch {
       toast(t("track.logFailed"), "error");
@@ -129,7 +137,7 @@ export function TrackingCard() {
             title={t("rates.editAria")}
             className={`bg-page px-[11px] py-1 text-sm font-semibold tnum transition-opacity hover:opacity-80 ${idle ? "text-placeholder" : "text-dark-1"}`}
           >
-            {rate === 0 ? "—" : `$${rate}`}{t("unit.perHr")}
+            {rate === 0 ? "—" : `$${Math.round(rate * 100) / 100}`}{t("unit.perHr")}
           </button>
           <span className={`text-base font-semibold tnum ${idle ? "text-placeholder" : "text-dark-1"}`}>
             {fmtMoney(earned)} {t("track.earned")}

@@ -8,6 +8,7 @@ import type {
   InvoiceItem, InvoiceItemInsert, InvoiceItemUpdate,
   Activity, ActivityInsert,
   BillingType, PaymentStatus, InvoiceStatus, ProjectStatus, ActivityType,
+  ClientType, SalaryPeriod,
 } from "@/types/database";
 
 // Translation layer between PocketBase records and the row shapes the rest of
@@ -105,6 +106,9 @@ export function toClientRow(r: RecordModel): Client {
     website: str(r.website),
     tags: tags(r.tags),
     notes: str(r.notes),
+    client_type: (str(r.client_type) ?? "client") as ClientType,
+    salary_amount: num(r.salary_amount),
+    salary_period: str(r.salary_period) as SalaryPeriod | null,
     created_at: createdAt(r),
     updated_at: updatedAt(r),
   };
@@ -123,6 +127,9 @@ export function fromClient(data: ClientInsert | ClientUpdate): Record<string, un
     website: data.website,
     tags: data.tags,
     notes: data.notes,
+    client_type: data.client_type,
+    salary_amount: data.salary_amount,
+    salary_period: data.salary_period === undefined ? undefined : data.salary_period ?? "",
   });
 }
 

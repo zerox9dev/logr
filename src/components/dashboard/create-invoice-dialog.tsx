@@ -21,6 +21,9 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
   const [dueDate, setDueDate] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Employers are paid a salary, not invoiced.
+  const invoiceable = useMemo(() => clients.filter((c) => c.client_type !== "employer"), [clients]);
+
   const currency = settings?.default_currency ?? "USD";
   const units = { hr: t("unit.hr"), min: t("unit.min") };
 
@@ -82,7 +85,7 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
 
   const close = () => { reset(); onClose(); };
 
-  if (clients.length === 0) {
+  if (invoiceable.length === 0) {
     return (
       <Dialog open={open} onClose={close} title={t("invoice.title")}>
         <p className="py-4 text-center text-md text-tertiary">{t("invoice.noClients")}</p>
@@ -97,7 +100,7 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
         <label className="flex flex-col gap-1.5">
           <span className="text-md-minus text-muted-foreground">{t("invoice.client")}</span>
           <ClientPicker
-            clients={clients}
+            clients={invoiceable}
             onChange={pickClient}
             trigger={
               <Button type="button" variant="outline" size="default" className="w-full justify-between">

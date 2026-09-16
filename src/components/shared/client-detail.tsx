@@ -9,11 +9,19 @@ import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { Field } from "@/components/shared/field";
 import { useAppData } from "@/contexts/data-context";
+import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { useT, useLang } from "@/i18n";
 import { fmtMoney } from "@/lib/format";
-import type { ActivityType } from "@/types/database";
+import { impliedHourlyRate } from "@/domain/employer";
+import type { ActivityType, SalaryPeriod } from "@/types/database";
 
 const ACTIVITY_TYPES: ActivityType[] = ["call", "email", "meeting", "note", "payment"];
+
+const SALARY_PERIOD_LABEL_KEYS: Record<SalaryPeriod, string> = {
+  hourly: "client.salaryPeriod.hourly",
+  monthly: "client.salaryPeriod.monthly",
+  annual: "client.salaryPeriod.annual",
+};
 
 const ACTIVITY_TYPE_LABEL_KEYS: Record<ActivityType, string> = {
   call: "activityLog.type.call",
@@ -28,7 +36,7 @@ const ACTIVITY_TYPE_LABEL_KEYS: Record<ActivityType, string> = {
 export function ClientDetail({ id }: { id: string }) {
   const {
     loading, getClientById, getActivitiesByClient,
-    projects, invoices, addActivity, deleteActivity,
+    projects, invoices, settings, addActivity, deleteActivity,
   } = useAppData();
   const { toast } = useToast();
   const { confirm } = useConfirm();
@@ -39,6 +47,7 @@ export function ClientDetail({ id }: { id: string }) {
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const client = getClientById(id);
 
@@ -98,6 +107,8 @@ export function ClientDetail({ id }: { id: string }) {
   );
 
   const meta = [client.company, client.email, client.phone, client.address].filter(Boolean);
+  const isEmployer = client.client_type === "employer";
+  const impliedRate = impliedHourlyRate(client, settings?.weekly_goal_hours ?? null);
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
@@ -105,9 +116,30 @@ export function ClientDetail({ id }: { id: string }) {
         <Link href="/app/clients" className="text-md-minus text-muted-foreground transition-colors hover:text-ink">
           ← {t("sidebar.clients")}
         </Link>
-        <h1 className="mt-2 text-widget font-semibold text-heading">{client.name}</h1>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+            <h1 className="text-widget font-semibold text-heading">{client.name}</h1>
+            {isEmployer && <Badge variant="secondary">{t("client.type.employer")}</Badge>}
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>{t("client.edit")}</Button>
+        </div>
         {meta.length > 0 && (
           <p className="mt-1 text-md text-muted-foreground">{meta.join(" · ")}</p>
+        )}
+        {isEmployer && client.salary_amount != null && (
+          <p className="mt-1 text-md text-heading">
+            <span className="font-semibold tnum">{fmtMoney(client.salary_amount)}</span>
+            {" "}
+            <span className="text-muted-foreground">
+              {t(SALARY_PERIOD_LABEL_KEYS[client.salary_period ?? "monthly"])}
+            </span>
+            {impliedRate != null && (
+              <span className="text-muted-foreground">
+                {" · "}
+                {t("client.impliedRate").replace("{rate}", fmtMoney(Math.round(impliedRate * 100) / 100))}
+              </span>
+            )}
+          </p>
         )}
         {client.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
@@ -140,6 +172,9 @@ export function ClientDetail({ id }: { id: string }) {
         )}
       </div>
 
+      {/* Employers are paid a salary, not invoiced — the section would only
+          ever be empty for them. */}
+      {!isEmployer && (
       <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("sidebar.invoices")}</h2>
         {clientInvoices.length === 0 ? (
@@ -162,6 +197,7 @@ export function ClientDetail({ id }: { id: string }) {
           </div>
         )}
       </div>
+      )}
 
       <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("activityLog.title")}</h2>
@@ -214,6 +250,8 @@ export function ClientDetail({ id }: { id: string }) {
           </div>
         )}
       </div>
+
+      <NewClientDialog open={editOpen} onClose={() => setEditOpen(false)} client={client} />
     </div>
   );
 }

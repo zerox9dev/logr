@@ -5,6 +5,7 @@ import { EntryForm, valuesOf } from "@/components/shared/session-entry-form";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import { nowTimeStr } from "@/lib/date";
+import { impliedHourlyRate } from "@/domain/employer";
 
 /** Quick edit for one task's time entry, opened from a task row or ⌘K hit.
  *  Edits the most recent entry matching `match`, or adds the first one. */
@@ -15,7 +16,7 @@ export function SessionEditDialog({
   onClose: () => void;
   match: { projectId?: string; name: string };
 }) {
-  const { sessions, settings, getProjectById, addSession, updateSession, deleteSession } = useAppData();
+  const { sessions, settings, getProjectById, getClientById, addSession, updateSession, deleteSession } = useAppData();
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const t = useT();
@@ -43,7 +44,8 @@ export function SessionEditDialog({
       tags: [],
       started_at,
       duration_seconds: seconds,
-      rate: project?.rate ?? settings?.default_rate ?? 0,
+      rate: impliedHourlyRate(getClientById(project?.client_id ?? null), settings?.weekly_goal_hours ?? null)
+        ?? project?.rate ?? settings?.default_rate ?? 0,
       billing_type: project?.billing_type ?? "hourly",
       payment_status: "unpaid",
     });

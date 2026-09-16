@@ -30,6 +30,7 @@ export function ClientsList() {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-md-minus text-muted-foreground">{t("clients.name")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("client.typeLabel")}</TableHead>
               <TableHead className="text-md-minus text-muted-foreground">{t("clients.company")}</TableHead>
               <TableHead className="text-md-minus text-muted-foreground">{t("clients.email")}</TableHead>
               <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.tags")}</TableHead>
@@ -38,7 +39,7 @@ export function ClientsList() {
           <TableBody>
             {loading || clients.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={4} className="py-8 text-center text-base text-muted-foreground">
+                <TableCell colSpan={5} className="py-8 text-center text-base text-muted-foreground">
                   {loading ? t("common.loading") : t("clients.noClients")}
                 </TableCell>
               </TableRow>
@@ -57,6 +58,11 @@ export function ClientsList() {
                     >
                       {c.name}
                     </Link>
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <Badge variant={c.client_type === "employer" ? "default" : "secondary"}>
+                      {c.client_type === "employer" ? t("client.type.employer") : t("client.type.client")}
+                    </Badge>
                   </TableCell>
                   <TableCell className="py-2.5 text-md-minus text-muted-foreground">{c.company || "—"}</TableCell>
                   <TableCell className="py-2.5 text-md-minus text-muted-foreground">{c.email || "—"}</TableCell>

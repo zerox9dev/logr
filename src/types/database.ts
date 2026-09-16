@@ -5,6 +5,8 @@ export type PaymentStatus = "unpaid" | "paid";
 export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
 export type ProjectStatus = "active" | "paused" | "completed" | "cancelled";
 export type ActivityType = "call" | "email" | "meeting" | "note" | "payment";
+export type ClientType = "client" | "employer";
+export type SalaryPeriod = "hourly" | "monthly" | "annual";
 
 // ── Row types (match DB columns 1:1) ──
 
@@ -36,6 +38,9 @@ export interface Client {
   website: string | null;
   tags: string[];
   notes: string | null;
+  client_type: ClientType;
+  salary_amount: number | null;
+  salary_period: SalaryPeriod | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,7 +115,13 @@ export interface Activity {
 export type UserSettingsInsert = Omit<UserSettings, "id" | "created_at" | "updated_at">;
 export type UserSettingsUpdate = Partial<Omit<UserSettings, "id" | "user_id" | "created_at" | "updated_at">>;
 
-export type ClientInsert = Omit<Client, "id" | "created_at" | "updated_at"> & { tags?: string[] };
+export type ClientInsert =
+  Omit<Client, "id" | "created_at" | "updated_at" | "client_type" | "salary_amount" | "salary_period"> & {
+    tags?: string[];
+    client_type?: ClientType;
+    salary_amount?: number | null;
+    salary_period?: SalaryPeriod | null;
+  };
 export type ClientUpdate = Partial<Omit<Client, "id" | "user_id" | "created_at" | "updated_at">>;
 
 export type ProjectInsert = Omit<Project, "id" | "created_at">;

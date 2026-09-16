@@ -15,6 +15,7 @@
 - ⏱️ **Timer** — Start/stop tracking with one click. Manual entries, plus bulk import of time entries from CSV.
 - ✨ **Smart project suggestions** — as you describe what you're working on, Logr suggests the matching project (and applies its rate/billing) with one click. Works offline from your own history; optionally sharpened by Claude when you set `ANTHROPIC_API_KEY`.
 - 📁 **Projects & Clients** — Organize work by client; hourly or fixed-budget billing.
+- 💼 **Employers** — Mark a client as an employer and give it a salary (hourly, monthly or annual). Sessions logged against it are valued at the hourly rate implied by that salary and your weekly hours goal, and employers are left out of invoicing.
 - 💸 **Billing** — Per-session and per-project rates, paid/unpaid status, billable vs total time.
 - 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid/overdue status, and share a public invoice link.
 - 🧭 **Sidebar navigation** — Dashboard, Projects, Sessions, Clients, Invoices, Reports and Settings as real routes, plus a ⌘K command palette. Collapses to an off-canvas sheet on small screens.
