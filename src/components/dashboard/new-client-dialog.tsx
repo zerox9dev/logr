@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
-import { Field } from "@/components/shared/field";
+import { FormField } from "@/components/ui/form-field";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import type { Client, ClientType, SalaryPeriod } from "@/types/database";
@@ -71,18 +72,17 @@ function ClientForm({ client, onClose }: { client?: Client; onClose: () => void 
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <Field label={t("new.name")}>
+      <FormField label={t("new.name")}>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Inc." autoFocus />
-      </Field>
-      <Field label={t("new.email")}>
+      </FormField>
+      <FormField label={t("new.email")}>
         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@acme.com" />
-      </Field>
-      <Field label={t("new.company")}>
+      </FormField>
+      <FormField label={t("new.company")}>
         <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t("new.optional")} />
-      </Field>
+      </FormField>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-md-minus text-muted-foreground">{t("client.typeLabel")}</span>
+      <FormField label={t("client.typeLabel")}>
         <div className="flex w-fit items-start gap-0.5 rounded-sm bg-wash p-1">
           <Button type="button" variant={!isEmployer ? "surface" : "ghost-muted"} size="sm" onClick={() => setClientType("client")}>
             {t("client.type.client")}
@@ -91,12 +91,12 @@ function ClientForm({ client, onClose }: { client?: Client; onClose: () => void 
             {t("client.type.employer")}
           </Button>
         </div>
-      </div>
+      </FormField>
 
       {isEmployer && (
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[140px] flex-1">
-            <Field label={t("client.salaryAmount")}>
+            <FormField label={t("client.salaryAmount")}>
               <Input
                 type="number"
                 min="0"
@@ -104,20 +104,21 @@ function ClientForm({ client, onClose }: { client?: Client; onClose: () => void 
                 onChange={(e) => setSalaryAmount(e.target.value)}
                 placeholder="0"
               />
-            </Field>
+            </FormField>
           </div>
           <div className="w-[160px] shrink-0">
-            <Field label={t("client.salaryPeriodLabel")}>
-              <select
-                value={salaryPeriod}
-                onChange={(e) => setSalaryPeriod(e.target.value as SalaryPeriod)}
-                className="h-9 w-full border border-line bg-card px-3 text-md text-ink transition-colors focus-visible:border-ink focus-visible:outline-none"
-              >
-                {SALARY_PERIODS.map((p) => (
-                  <option key={p} value={p}>{t(SALARY_PERIOD_LABEL_KEYS[p])}</option>
-                ))}
-              </select>
-            </Field>
+            <FormField label={t("client.salaryPeriodLabel")}>
+              <Select value={salaryPeriod} onValueChange={(v) => setSalaryPeriod(v as SalaryPeriod)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SALARY_PERIODS.map((p) => (
+                    <SelectItem key={p} value={p}>{t(SALARY_PERIOD_LABEL_KEYS[p])}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
           </div>
           <p className="w-full text-sm text-muted-foreground">{t("client.salaryHint")}</p>
         </div>

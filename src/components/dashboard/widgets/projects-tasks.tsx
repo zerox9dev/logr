@@ -3,8 +3,9 @@
  *  Left-column card: border #ececec, p-24, gap-16. */
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Folder, CircleDot, ChevronDown } from "lucide-react";
+import { Folder, CircleDot, ChevronDown, FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
 import { SessionEditDialog } from "@/components/shared/session-edit-dialog";
@@ -97,21 +98,26 @@ export function ProjectsTasks() {
       {dialog && <SessionEditDialog open onClose={() => setDialog(null)} match={dialog} />}
 
       {empty && (
-        <div className="flex w-full flex-col items-center justify-center gap-4 py-10">
-          <span className="text-center text-base text-placeholder">{t("projects.empty")}</span>
-          <Button
-            type="button"
-            size="xl"
-            onClick={() => {
-              setTimerStartedAt(Date.now());
-              setTimerSeconds(0);
-              setTimerRunning(true);
-            }}
-          >
-            <span aria-hidden="true">+</span>
-            {t("projects.emptyCta")}
-          </Button>
-        </div>
+        <EmptyState
+          size="compact"
+          icon={FolderKanban}
+          headline={t("projects.empty")}
+          className="w-full"
+          action={
+            <Button
+              type="button"
+              size="xl"
+              onClick={() => {
+                setTimerStartedAt(Date.now());
+                setTimerSeconds(0);
+                setTimerRunning(true);
+              }}
+            >
+              <span aria-hidden="true">+</span>
+              {t("projects.emptyCta")}
+            </Button>
+          }
+        />
       )}
 
       {rows.map((p, i) => {

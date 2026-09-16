@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { ClientPicker } from "@/components/shared/client-picker";
-import { Field } from "@/components/shared/field";
+import { FormField } from "@/components/ui/form-field";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import type { BillingType } from "@/types/database";
@@ -66,17 +66,10 @@ export function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolea
   return (
     <Dialog open={open} onClose={onClose} title={t("new.newProject")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <Field label={t("new.name")}>
+        <FormField label={t("new.name")}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Finwall app" autoFocus />
-        </Field>
-        <Field
-          label={
-            <span className="flex items-center gap-1">
-              {t("new.client")}
-              <span aria-label={t("new.required")} className="text-muted-foreground">*</span>
-            </span>
-          }
-        >
+        </FormField>
+        <FormField label={t("new.client")} required>
           <ClientPicker
             clients={clients}
             onChange={setClientId}
@@ -87,17 +80,17 @@ export function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolea
               </Button>
             }
           />
-        </Field>
+        </FormField>
         <div className="flex items-end gap-3">
-          <Field label={t("new.billing")}>
+          <FormField label={t("new.billing")}>
             <div className="flex items-start gap-0.5 rounded-sm bg-wash p-1">
               <Button type="button" variant={billing === "hourly" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("new.hourly")}</Button>
               <Button type="button" variant={billing === "fixed" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("new.fixed")}</Button>
             </div>
-          </Field>
-          <Field label={billing === "hourly" ? t("new.rateHr") : t("new.budget")}>
+          </FormField>
+          <FormField label={billing === "hourly" ? t("new.rateHr") : t("new.budget")}>
             <Input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="0" />
-          </Field>
+          </FormField>
         </div>
         <div className="flex justify-end gap-2.5 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>{t("new.cancel")}</Button>

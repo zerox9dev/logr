@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -51,24 +52,20 @@ function RatesForm({ project, onClose }: { project: Project | undefined; onClose
     <form onSubmit={submit} className="flex flex-col gap-4">
       {project ? (
         <>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{t("rates.billing")}</span>
+          <FormField label={t("rates.billing")}>
             <div className="flex w-fit items-start gap-0.5 rounded-sm bg-wash p-1">
               <Button type="button" variant={!fixed ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("rates.hourly")}</Button>
               <Button type="button" variant={fixed ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("rates.fixed")}</Button>
             </div>
-          </div>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{fixed ? t("rates.budget") : t("rates.rate")}</span>
+          </FormField>
+          <FormField label={fixed ? t("rates.budget") : t("rates.rate")}>
             <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
-          </label>
+          </FormField>
         </>
       ) : (
-        <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("rates.defaultRateField")}</span>
+        <FormField label={t("rates.defaultRateField")} hint={t("rates.noProjectHint")}>
           <Input type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus />
-          <span className="text-sm text-muted-foreground">{t("rates.noProjectHint")}</span>
-        </label>
+        </FormField>
       )}
 
       <div className="flex justify-end gap-2.5 pt-2">

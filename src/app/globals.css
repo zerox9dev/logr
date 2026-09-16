@@ -91,6 +91,7 @@
   /* Motion */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-overshoot: cubic-bezier(0.35, 1.55, 0.65, 1);
+  --ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-entrance: 300ms;
@@ -187,6 +188,21 @@
 @keyframes app-pop-in {
   from { opacity: 0; transform: scale(0.94); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* Entrance curve for overlays (dialog, sheet). Applied to the open state only:
+   the exit keeps whatever `animate-out` already uses, because a decelerating
+   curve on the way out leaves the surface hanging on screen. */
+@utility app-enter {
+  &[data-state="open"] {
+    animation-duration: var(--duration-base);
+    animation-timing-function: var(--ease-decelerate);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-state="open"] {
+      animation-duration: 1ms;
+    }
+  }
 }
 
 

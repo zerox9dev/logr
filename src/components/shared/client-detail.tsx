@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FileText, FolderOpen, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
-import { Field } from "@/components/shared/field";
+import { FormField } from "@/components/ui/form-field";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppData } from "@/contexts/data-context";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { useT, useLang } from "@/i18n";
@@ -153,7 +156,7 @@ export function ClientDetail({ id }: { id: string }) {
       <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("sidebar.projects")}</h2>
         {clientProjects.length === 0 ? (
-          <p className="py-4 text-md text-muted-foreground">{t("clientDetail.noProjects")}</p>
+          <EmptyState size="compact" icon={FolderOpen} headline={t("clientDetail.noProjects")} />
         ) : (
           <div className="flex flex-col gap-px">
             {clientProjects.map((p) => (
@@ -178,7 +181,7 @@ export function ClientDetail({ id }: { id: string }) {
       <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("sidebar.invoices")}</h2>
         {clientInvoices.length === 0 ? (
-          <p className="py-4 text-md text-muted-foreground">{t("clientDetail.noInvoices")}</p>
+          <EmptyState size="compact" icon={FileText} headline={t("clientDetail.noInvoices")} />
         ) : (
           <div className="flex flex-col gap-px">
             {clientInvoices.map((inv) => (
@@ -204,32 +207,33 @@ export function ClientDetail({ id }: { id: string }) {
 
         <form onSubmit={submit} className="mb-4 flex flex-wrap items-end gap-3">
           <div className="w-[160px] shrink-0">
-            <Field label={t("activityLog.typeLabel")}>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as ActivityType)}
-                className="h-9 w-full border border-line bg-card px-3 text-md text-ink transition-colors focus-visible:border-ink focus-visible:outline-none"
-              >
-                {ACTIVITY_TYPES.map((v) => (
-                  <option key={v} value={v}>{t(ACTIVITY_TYPE_LABEL_KEYS[v])}</option>
-                ))}
-              </select>
-            </Field>
+            <FormField label={t("activityLog.typeLabel")}>
+              <Select value={type} onValueChange={(v) => setType(v as ActivityType)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ACTIVITY_TYPES.map((v) => (
+                    <SelectItem key={v} value={v}>{t(ACTIVITY_TYPE_LABEL_KEYS[v])}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
           </div>
           <div className="min-w-[200px] flex-1">
-            <Field label={t("activityLog.descriptionLabel")}>
+            <FormField label={t("activityLog.descriptionLabel")}>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("activityLog.descriptionPlaceholder")}
               />
-            </Field>
+            </FormField>
           </div>
           <Button type="submit" disabled={!description.trim() || saving}>{t("activityLog.add")}</Button>
         </form>
 
         {activities.length === 0 ? (
-          <p className="py-4 text-md text-muted-foreground">{t("activityLog.empty")}</p>
+          <EmptyState size="compact" icon={History} headline={t("activityLog.empty")} />
         ) : (
           <div className="flex flex-col gap-px">
             {activities.map((a) => (

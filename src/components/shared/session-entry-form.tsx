@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/i18n";
 import type { Session } from "@/types/database";
@@ -42,29 +43,24 @@ export function EntryForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1.5">
-        <span className="text-md-minus text-muted-foreground">{t("sessions.task")}</span>
+      <FormField label={t("sessions.task")}>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("sessions.taskPlaceholder")} autoFocus />
-      </label>
+      </FormField>
       <div className="flex gap-3">
-        <label className="flex flex-1 flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("sessions.date")}</span>
+        <FormField label={t("sessions.date")} className="flex-1">
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </label>
-        <label className="flex w-28 flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("sessions.startTime")}</span>
+        </FormField>
+        <FormField label={t("sessions.startTime")} className="w-28">
           <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-        </label>
+        </FormField>
       </div>
       <div className="flex gap-3">
-        <label className="flex w-24 flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("sessions.hours")}</span>
+        <FormField label={t("sessions.hours")} className="w-24">
           <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
-        </label>
-        <label className="flex w-24 flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("sessions.min")}</span>
+        </FormField>
+        <FormField label={t("sessions.min")} className="w-24">
           <Input type="number" min="0" max="59" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="0" />
-        </label>
+        </FormField>
       </div>
       <div className="flex justify-end gap-2.5">
         <Button type="button" variant="outline" onClick={onCancel}>{t("sessions.cancel")}</Button>

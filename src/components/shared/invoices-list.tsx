@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
@@ -108,6 +110,13 @@ export function InvoicesList() {
           <Button size="sm" onClick={() => setCreateOpen(true)}>{t("invoice.new")}</Button>
         </div>
 
+        {!loading && invoices.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            headline={t("invoice.empty")}
+            action={<Button onClick={() => setCreateOpen(true)}>{t("invoice.new")}</Button>}
+          />
+        ) : (
         <Table className="min-w-[860px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -121,10 +130,10 @@ export function InvoicesList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading || invoices.length === 0 ? (
+            {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={7} className="py-8 text-center text-base text-muted-foreground">
-                  {loading ? t("common.loading") : t("invoice.empty")}
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -181,6 +190,7 @@ export function InvoicesList() {
             )}
           </TableBody>
         </Table>
+        )}
       </div>
 
       <CreateInvoiceDialog open={createOpen} onClose={() => setCreateOpen(false)} />

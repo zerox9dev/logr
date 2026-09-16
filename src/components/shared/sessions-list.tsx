@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
+import { Timer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
@@ -167,6 +168,13 @@ export function SessionsList() {
           </div>
         )}
 
+        {!loading && filteredRows.length === 0 ? (
+          <EmptyState
+            icon={Timer}
+            headline={t("sessions.noEntries")}
+            action={<Button onClick={() => setEditing("new")} disabled={editing !== null}>{t("sessions.addEntryButton")}</Button>}
+          />
+        ) : (
         <Table className="min-w-[860px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -180,10 +188,10 @@ export function SessionsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading || filteredRows.length === 0 ? (
+            {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={7} className="py-6 text-center text-base text-muted-foreground">
-                  {loading ? t("common.loading") : t("sessions.noEntries")}
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -231,6 +239,7 @@ export function SessionsList() {
             )}
           </TableBody>
         </Table>
+        )}
 
         {filteredRows.length > 50 && (
           <span className="py-6 text-center text-md text-muted-foreground">

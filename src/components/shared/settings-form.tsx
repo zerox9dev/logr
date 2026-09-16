@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field } from "@/components/shared/field";
+import { FormField } from "@/components/ui/form-field";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -61,22 +61,22 @@ function SettingsFields({ settings }: { settings: UserSettings | null }) {
       <section className="flex flex-col gap-3">
         <h2 className="text-md font-semibold text-heading">{t("settings.profile")}</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={t("settings.fullName")}>
+          <FormField label={t("settings.fullName")}>
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          </Field>
-          <Field label={t("settings.company")}>
+          </FormField>
+          <FormField label={t("settings.company")}>
             <Input value={company} onChange={(e) => setCompany(e.target.value)} />
-          </Field>
-          <Field label={t("settings.email")}>
+          </FormField>
+          <FormField label={t("settings.email")}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </Field>
-          <Field label={t("settings.phone")}>
+          </FormField>
+          <FormField label={t("settings.phone")}>
             <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </Field>
+          </FormField>
           <div className="sm:col-span-2">
-            <Field label={t("settings.address")}>
+            <FormField label={t("settings.address")}>
               <Input value={address} onChange={(e) => setAddress(e.target.value)} />
-            </Field>
+            </FormField>
           </div>
         </div>
       </section>
@@ -84,21 +84,21 @@ function SettingsFields({ settings }: { settings: UserSettings | null }) {
       <section className="flex flex-col gap-3">
         <h2 className="text-md font-semibold text-heading">{t("settings.billingDefaults")}</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={t("settings.currency")}>
+          <FormField label={t("settings.currency")}>
             <Input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="USD" />
-          </Field>
-          <Field label={t("settings.defaultRate")}>
+          </FormField>
+          <FormField label={t("settings.defaultRate")}>
             <Input type="number" min="0" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="0" />
-          </Field>
+          </FormField>
         </div>
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-md font-semibold text-heading">{t("goals.title")}</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={t("goals.weeklyGoalHours")}>
+          <FormField label={t("goals.weeklyGoalHours")}>
             <Input type="number" min="0" value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="40" />
-          </Field>
+          </FormField>
         </div>
       </section>
 

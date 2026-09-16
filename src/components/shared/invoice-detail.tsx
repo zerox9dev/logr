@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { useAppData } from "@/contexts/data-context";
@@ -195,7 +197,7 @@ export function InvoiceDetail({ id }: { id: string }) {
             {items === null ? (
               <p className="py-4 text-md text-muted-foreground">{t("common.loading")}</p>
             ) : items.length === 0 ? (
-              <p className="py-4 text-md text-muted-foreground">{t("invoiceDetail.noItems")}</p>
+              <EmptyState size="compact" icon={FileText} headline={t("invoiceDetail.noItems")} />
             ) : (
               items.map((it) => (
                 <div key={it.id} className="flex items-center gap-3 border-b border-line py-2.5 text-md last:border-0">

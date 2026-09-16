@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
+import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
@@ -73,6 +75,9 @@ export function ReportsList() {
         </div>
         <p className="mb-4 text-md-minus text-muted-foreground">{t("reports.shareHintClient")}</p>
 
+        {!loading && clients.length === 0 ? (
+          <EmptyState icon={Users} headline={t("clients.noClients")} />
+        ) : (
         <Table className="min-w-[480px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -82,10 +87,10 @@ export function ReportsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading || clients.length === 0 ? (
+            {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={3} className="py-8 text-center text-base text-muted-foreground">
-                  {loading ? t("common.loading") : t("clients.noClients")}
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -111,6 +116,7 @@ export function ReportsList() {
             )}
           </TableBody>
         </Table>
+        )}
       </div>
     </div>
   );

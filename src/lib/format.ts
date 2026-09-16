@@ -62,3 +62,9 @@ export function fmtCompactNumber(n: number): string {
   }
   return String(Math.round(n));
 }
+
+/** Initials from a name ("Ada Lovelace" → "AL") or email ("a@x" → "A"). */
+export function initials(name: string): string {
+  const parts = name.trim().split(/[\s.@]+/).filter(Boolean);
+  return (parts.slice(0, 2).map((p) => p[0]).join("") || "?").toUpperCase();
+}

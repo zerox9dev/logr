@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
-  Check,
   ChevronsUpDown,
   FileText,
   FolderKanban,
@@ -25,6 +23,16 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { initials } from "@/lib/format";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppData } from "@/contexts/data-context";
 import { useLang, useT, LANGS, LANG_LABELS } from "@/i18n";
@@ -38,12 +46,6 @@ const NAV = [
   { href: "/app/reports", labelKey: "sidebar.reports", icon: FileText },
   { href: "/app/settings", labelKey: "sidebar.settings", icon: Settings },
 ] as const;
-
-/** Initials from a name ("Ada Lovelace" → "AL") or email ("a@x" → "A"). */
-function initials(name: string): string {
-  const parts = name.trim().split(/[\s.@]+/).filter(Boolean);
-  return (parts.slice(0, 2).map((p) => p[0]).join("") || "?").toUpperCase();
-}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -107,16 +109,16 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
                   aria-label={t("nav.accountMenu")}
                   className="app-press! app-focus-invert rounded-sm"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-purple-dark text-md-minus font-semibold text-card">
-                    {initials(label)}
-                  </span>
+                  <Avatar size="md">
+                    <AvatarFallback className="bg-purple-dark text-card">{initials(label)}</AvatarFallback>
+                  </Avatar>
                   <span className="grid flex-1 text-left leading-tight">
                     {settings?.full_name && (
                       <span className="truncate text-md font-medium text-sidebar-foreground">
@@ -127,37 +129,24 @@ export function AppSidebar() {
                   </span>
                   <ChevronsUpDown className="ml-auto" aria-hidden="true" />
                 </SidebarMenuButton>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  side="top"
-                  align="start"
-                  sideOffset={8}
-                  className="app-portal z-50 min-w-[220px] rounded-md bg-card p-1 shadow-md"
-                >
-                  {LANGS.map((l) => (
-                    <DropdownMenu.Item
-                      key={l}
-                      className="app-motion flex min-h-9 cursor-pointer items-center justify-between rounded-xs px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        setLang(l);
-                      }}
-                    >
-                      {LANG_LABELS[l]}
-                      {lang === l && <Check className="size-4 text-ink" />}
-                    </DropdownMenu.Item>
-                  ))}
-                  <DropdownMenu.Separator className="my-1 h-px bg-line" />
-                  <DropdownMenu.Item
-                    className="app-motion flex min-h-9 cursor-pointer items-center rounded-xs px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
-                    onSelect={() => signOut()}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" sideOffset={8}>
+                {LANGS.map((l) => (
+                  <DropdownMenuCheckboxItem
+                    key={l}
+                    checked={lang === l}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setLang(l);
+                    }}
                   >
-                    {t("nav.signOut")}
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+                    {LANG_LABELS[l]}
+                  </DropdownMenuCheckboxItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => signOut()}>{t("nav.signOut")}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

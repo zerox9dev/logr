@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { useToast } from "@/components/ui/toast";
 import { ClientPicker } from "@/components/shared/client-picker";
 import { useAppData } from "@/contexts/data-context";
@@ -95,10 +97,9 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
   }
 
   return (
-    <Dialog open={open} onClose={close} title={t("invoice.title")} wide>
+    <Dialog open={open} onClose={close} title={t("invoice.title")} size="lg">
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("invoice.client")}</span>
+        <FormField label={t("invoice.client")} required>
           <ClientPicker
             clients={invoiceable}
             onChange={pickClient}
@@ -109,7 +110,7 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
               </Button>
             }
           />
-        </label>
+        </FormField>
 
         {clientId && (
           <>
@@ -127,15 +128,24 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
                   {unbilled.map((s) => {
                     const amount = (s.duration_seconds / 3600) * s.rate;
                     return (
-                      <label key={s.id} className="flex cursor-pointer items-center gap-3 border-b border-line bg-card px-3 py-2.5 last:border-0 hover:bg-wash">
-                        <input type="checkbox" checked={selected.has(s.id)} onChange={() => toggle(s.id)} className="size-4 shrink-0 accent-brand" />
+                      <div
+                        key={s.id}
+                        onClick={() => toggle(s.id)}
+                        className="flex cursor-pointer items-center gap-3 border-b border-line bg-card px-3 py-2.5 last:border-0 hover:bg-wash"
+                      >
+                        <Checkbox
+                          checked={selected.has(s.id)}
+                          onCheckedChange={() => toggle(s.id)}
+                          aria-label={s.name}
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <span className="w-[64px] shrink-0 text-md-minus text-muted-foreground tnum">
                           {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-md text-heading">{s.name}</span>
                         <span className="w-[88px] shrink-0 text-right text-md-minus text-tertiary tnum">{fmtDuration(s.duration_seconds, units)}</span>
                         <span className="w-[80px] shrink-0 text-right text-md font-semibold text-money tnum">{fmtMoney(amount, currency)}</span>
-                      </label>
+                      </div>
                     );
                   })}
                 </div>
@@ -143,14 +153,12 @@ export function CreateInvoiceDialog({ open, onClose }: { open: boolean; onClose:
             </div>
 
             <div className="flex gap-3">
-              <label className="flex w-28 flex-col gap-1.5">
-                <span className="text-md-minus text-muted-foreground">{t("invoice.tax")}</span>
+              <FormField label={t("invoice.tax")} className="w-28">
                 <Input type="number" min="0" max="100" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} placeholder="0" />
-              </label>
-              <label className="flex flex-1 flex-col gap-1.5">
-                <span className="text-md-minus text-muted-foreground">{t("invoice.dueDate")}</span>
+              </FormField>
+              <FormField label={t("invoice.dueDate")} className="flex-1">
                 <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-              </label>
+              </FormField>
             </div>
 
             <div className="flex flex-col gap-1 border-t border-line pt-3 text-md">

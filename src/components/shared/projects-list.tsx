@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NewProjectDialog } from "@/components/dashboard/new-project-dialog";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
@@ -47,6 +49,13 @@ export function ProjectsList() {
           <Button size="sm" onClick={() => setDialog("project")}>{t("new.newProject")}</Button>
         </div>
 
+        {!loading && projects.length === 0 ? (
+          <EmptyState
+            icon={FolderKanban}
+            headline={t("projects.noProjects")}
+            action={<Button onClick={() => setDialog("project")}>{t("new.newProject")}</Button>}
+          />
+        ) : (
         <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -58,10 +67,10 @@ export function ProjectsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading || projects.length === 0 ? (
+            {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={5} className="py-8 text-center text-base text-muted-foreground">
-                  {loading ? t("common.loading") : t("projects.noProjects")}
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -115,6 +124,7 @@ export function ProjectsList() {
             )}
           </TableBody>
         </Table>
+        )}
       </div>
 
       <NewProjectDialog open={dialog === "project"} onClose={() => setDialog(null)} onNeedClient={() => setDialog("client")} />

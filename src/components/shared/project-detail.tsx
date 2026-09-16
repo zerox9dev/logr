@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
 import { JiraAvatar } from "@/components/shared/jira-avatar";
 import { useAppData } from "@/contexts/data-context";
@@ -118,7 +120,7 @@ export function ProjectDetail({ id }: { id: string }) {
       <div className="card-radius flex min-w-0 flex-col overflow-x-auto border border-line bg-card p-6">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("projectDetail.sessionHistory")}</h2>
         {rows.length === 0 ? (
-          <p className="py-4 text-md text-muted-foreground">{t("projectDetail.noSessions")}</p>
+          <EmptyState size="compact" icon={Timer} headline={t("projectDetail.noSessions")} />
         ) : (
           <div className="flex min-w-[600px] flex-col gap-px">
             {rows.map((s) => {

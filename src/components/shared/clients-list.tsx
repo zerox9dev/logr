@@ -3,12 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
+import { initials } from "@/lib/format";
 
 /** Clients page body: name, company, email and tags, plus the "New client"
  *  entry point. Each row links to that client's detail page. */
@@ -26,6 +30,13 @@ export function ClientsList() {
           <Button size="sm" onClick={() => setCreateOpen(true)}>{t("new.newClient")}</Button>
         </div>
 
+        {!loading && clients.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            headline={t("clients.noClients")}
+            action={<Button onClick={() => setCreateOpen(true)}>{t("new.newClient")}</Button>}
+          />
+        ) : (
         <Table className="min-w-[560px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -37,10 +48,10 @@ export function ClientsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading || clients.length === 0 ? (
+            {loading ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={5} className="py-8 text-center text-base text-muted-foreground">
-                  {loading ? t("common.loading") : t("clients.noClients")}
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -54,8 +65,11 @@ export function ClientsList() {
                     <Link
                       href={`/app/clients/${c.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-md font-semibold text-heading"
+                      className="flex items-center gap-2.5 text-md font-semibold text-heading"
                     >
+                      <Avatar size="sm">
+                        <AvatarFallback>{initials(c.name)}</AvatarFallback>
+                      </Avatar>
                       {c.name}
                     </Link>
                   </TableCell>
@@ -82,6 +96,7 @@ export function ClientsList() {
             )}
           </TableBody>
         </Table>
+        )}
       </div>
 
       <NewClientDialog open={createOpen} onClose={() => setCreateOpen(false)} />

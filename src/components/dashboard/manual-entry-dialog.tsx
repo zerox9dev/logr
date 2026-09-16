@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { ProjectPicker } from "@/components/shared/project-picker";
@@ -39,8 +40,7 @@ export function ManualDialog({
   return (
     <Dialog open={open} onClose={onClose} title={t("manual.title")}>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("manual.project")}</span>
+        <FormField label={t("manual.project")}>
           <ProjectPicker
             onChange={setProjectId}
             projects={projects}
@@ -51,32 +51,27 @@ export function ManualDialog({
               </Button>
             }
           />
-        </label>
+        </FormField>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-md-minus text-muted-foreground">{t("manual.task")}</span>
+        <FormField label={t("manual.task")}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("manual.taskPlaceholder")} />
-        </label>
+        </FormField>
 
         <div className="flex gap-3">
-          <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{t("manual.date")}</span>
+          <FormField label={t("manual.date")} className="flex-1">
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          </label>
-          <label className="flex w-28 flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{t("manual.startTime")}</span>
+          </FormField>
+          <FormField label={t("manual.startTime")} className="w-28">
             <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-          </label>
+          </FormField>
         </div>
         <div className="flex gap-3">
-          <label className="flex w-20 flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{t("manual.hours")}</span>
+          <FormField label={t("manual.hours")} className="w-20">
             <Input type="number" min="0" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="0" />
-          </label>
-          <label className="flex w-20 flex-col gap-1.5">
-            <span className="text-md-minus text-muted-foreground">{t("manual.min")}</span>
+          </FormField>
+          <FormField label={t("manual.min")} className="w-20">
             <Input type="number" min="0" max="59" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="0" />
-          </label>
+          </FormField>
         </div>
 
         <div className="flex justify-end gap-2.5 pt-2">
