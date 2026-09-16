@@ -24,7 +24,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <TooltipProvider>
                 <SidebarProvider>
                   <AppSidebar />
-                  <SidebarInset className="bg-page">
+                  {/* min-w-0: without it the inset's automatic minimum size
+                      lets a wide page (the sessions table) push the layout
+                      past the viewport instead of scrolling inside itself. */}
+                  <SidebarInset className="min-w-0 bg-page">
                     <AppHeader />
                     {children}
                   </SidebarInset>

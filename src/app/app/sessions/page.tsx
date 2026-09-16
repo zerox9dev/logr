@@ -1,5 +1,10 @@
-import { ComingSoon } from "@/components/layout/coming-soon";
+import { Suspense } from "react";
+import { SessionsList } from "@/components/shared/sessions-list";
 
 export default function Page() {
-  return <ComingSoon titleKey="sidebar.sessions" />;
+  return (
+    <Suspense>
+      <SessionsList />
+    </Suspense>
+  );
 }

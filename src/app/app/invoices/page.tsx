@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/layout/coming-soon";
+import { InvoicesList } from "@/components/shared/invoices-list";
 
 export default function Page() {
-  return <ComingSoon titleKey="sidebar.invoices" />;
+  return <InvoicesList />;
 }

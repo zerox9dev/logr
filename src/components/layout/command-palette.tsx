@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
-import { SessionsDialog } from "@/components/shared/sessions-dialog";
+import { SessionEditDialog } from "@/components/shared/session-edit-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 
@@ -14,14 +15,15 @@ const CAP = 8;
 const RECENT = 30;
 
 /** ⌘K command palette — fuzzy(ish) search over projects + recent sessions.
- *  Keyboard-first: ↑/↓ to move, Enter to open, Esc to close. Activating a
- *  result opens a SessionsDialog filtered to that project / task. */
+ *  Keyboard-first: ↑/↓ to move, Enter to open, Esc to close. A session hit
+ *  opens its quick-edit dialog; a project hit opens the filtered list page. */
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { sessions, projects, getProjectById } = useAppData();
   const t = useT();
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
-  const [match, setMatch] = useState<{ projectId?: string; name?: string } | null>(null);
+  const [match, setMatch] = useState<{ projectId: string; name: string } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   // Reset query + highlight on close (event-driven), so the next open is fresh.
@@ -64,9 +66,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const activeIndex = results.length > 0 ? Math.min(active, results.length - 1) : 0;
 
   const activate = (r: Result) => {
-    if (r.kind === "project") setMatch({ projectId: r.id });
+    if (r.kind === "project") router.push(`/app/sessions?project=${encodeURIComponent(r.id)}`);
     else setMatch({ projectId: r.projectId, name: r.name });
-    close(); // close palette; SessionsDialog takes over
+    close(); // close palette; the edit dialog or the sessions page takes over
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -148,7 +150,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         </RadixDialog.Portal>
       </RadixDialog.Root>
 
-      {match && <SessionsDialog open onClose={() => setMatch(null)} match={match} />}
+      {match && <SessionEditDialog open onClose={() => setMatch(null)} match={match} />}
     </>
   );
 }

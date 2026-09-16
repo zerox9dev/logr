@@ -2,10 +2,11 @@
  *  Accent = TIME (bold black time values).
  *  Left-column card: border #ececec, p-24, gap-16. */
 import { Fragment, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Folder, CircleDot, ChevronDown } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
-import { SessionsDialog } from "@/components/shared/sessions-dialog";
+import { SessionEditDialog } from "@/components/shared/session-edit-dialog";
 import { useT } from "@/i18n";
 
 function ProjectRow({
@@ -53,9 +54,11 @@ export function ProjectsTasks() {
   const { metrics } = useDashboard();
   const { setTimerRunning, setTimerStartedAt, setTimerSeconds } = useAppData();
   const t = useT();
+  const router = useRouter();
   const { rows, empty } = metrics.projects;
-  // null = closed; {} = all sessions (••• menu); {projectId,name} = one task.
-  const [dialog, setDialog] = useState<null | { projectId?: string; name?: string }>(null);
+  // null = closed; {projectId,name} = quick edit for one task. The ••• menu
+  // now leads to the full /app/sessions page instead of a list dialog.
+  const [dialog, setDialog] = useState<null | { projectId: string; name: string }>(null);
   // Holds the rows whose state the user flipped away from the default (the top
   // project starts expanded, the rest collapsed). Storing the flip rather than
   // the open set keeps that default correct when rows arrive after mount.
@@ -72,9 +75,9 @@ export function ProjectsTasks() {
     <div className="card-radius flex flex-col gap-4 border border-line bg-card p-6">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
-        <button onClick={() => setDialog({})} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted-foreground transition-colors">•••</button>
+        <button onClick={() => router.push("/app/sessions")} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted-foreground transition-colors">•••</button>
       </div>
-      <SessionsDialog open={dialog !== null} onClose={() => setDialog(null)} match={dialog ?? undefined} />
+      {dialog && <SessionEditDialog open onClose={() => setDialog(null)} match={dialog} />}
 
       {empty && (
         <div className="flex w-full flex-col items-center justify-center gap-4 py-10">

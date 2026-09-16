@@ -1,11 +1,10 @@
 /** Billable hours — Figma 310:1613 (filled) / 310:1672 (empty). Amounts are
  *  monochrome in the current design — green is reserved for the Start action.
  *  Left-column card: border #ececec, p-24, gap-16. */
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Share2 } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
-import { SessionsDialog } from "@/components/shared/sessions-dialog";
 import { useT } from "@/i18n";
 import { useToast } from "@/components/ui/toast";
 import { createReportSummary, encodeSharedReport, type ReportsRange } from "@/domain/report-share";
@@ -69,8 +68,8 @@ export function BillableHours() {
   const { sessions, clients, settings, getProjectById } = useAppData();
   const t = useT();
   const { toast } = useToast();
+  const router = useRouter();
   const b = metrics.billable;
-  const [manageOpen, setManageOpen] = useState(false);
 
   async function handleShareClient(clientId: string, clientName: string) {
     try {
@@ -100,9 +99,8 @@ export function BillableHours() {
     <div className="card-radius flex flex-col gap-4 border border-line bg-card p-6">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
-        <button onClick={() => setManageOpen(true)} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted-foreground transition-colors">•••</button>
+        <button onClick={() => router.push("/app/sessions")} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted-foreground transition-colors">•••</button>
       </div>
-      <SessionsDialog open={manageOpen} onClose={() => setManageOpen(false)} />
 
       {/* Billable / Non-billable totals */}
       <div className="flex w-full items-start justify-between">
