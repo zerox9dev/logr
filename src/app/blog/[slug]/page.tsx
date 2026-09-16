@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             Turn tracked hours into a paid invoice
           </span>
           <span className="text-md text-tertiary">
-            Logr does both in one screen. Free forever, or self-host it.
+            Logr does both in one fast workspace. Free forever, or self-host it.
           </span>
         </div>
         <div className="flex gap-3 flex-wrap shrink-0">

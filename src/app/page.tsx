@@ -11,7 +11,7 @@ const structuredData = [
     operatingSystem: "Web",
     url: "https://logr.work",
     description:
-      "Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Track time, manage clients and projects, build invoices from unbilled sessions, and share public invoice links — all in one single-screen dashboard.",
+      "Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Track time, manage clients and projects, build invoices from unbilled sessions, and share public invoice links — all from one fast workspace with instant client-side navigation.",
     screenshot: "https://logr.work/logr.png",
     featureList: [
       "Time tracking",
@@ -260,7 +260,7 @@ export default function Home() {
           <div className="w-full max-w-[1080px] bg-card border border-line p-10 sm:p-14 flex flex-col gap-5">
             <h2 className="font-display text-[28px] leading-[1.1] text-heading">What is Logr?</h2>
             <p className="text-base leading-[1.7] text-tertiary max-w-[680px]">
-              Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Hit start on the one-click timer and every second is captured against the client and project you choose — each with its own hourly rate. When you are ready to bill, Logr collects every unbilled session into a draft invoice in seconds. Send your client a shareable invoice link they can open in any browser, no account required. The entire product lives on a single screen: timer, timeline, clients, projects, and invoices in one place, with nothing hidden behind nested menus. Logr is licensed under AGPL-3.0 and built on React, Next.js, and PocketBase. You can self-host it for free on any infrastructure that runs Node.js, or use the hosted version at logr.work.
+              Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Hit start on the one-click timer and every second is captured against the client and project you choose — each with its own hourly rate. When you are ready to bill, Logr collects every unbilled session into a draft invoice in seconds. Send your client a shareable invoice link they can open in any browser, no account required. The whole product sits behind one sidebar — dashboard, projects, sessions, clients, invoices, reports, and settings — and every section is one click away, loaded client-side with no page reloads and nothing buried in nested menus. Logr is licensed under AGPL-3.0 and built on React, Next.js, and PocketBase. You can self-host it for free on any infrastructure that runs Node.js, or use the hosted version at logr.work.
             </p>
           </div>
         </section>
@@ -287,7 +287,7 @@ export default function Home() {
                     ["Time tracking", true, true, true, true],
                     ["Invoicing built-in", true, false, true, false],
                     ["Shareable invoice links", true, false, false, false],
-                    ["Single-screen", true, false, false, false],
+                    ["Instant, no-reload navigation", true, false, false, false],
                     ["Free (self-host)", true, "Partial", "Partial", "Partial"],
                   ].map(([label, logr, toggl, harvest, clockify]) => (
                     <tr key={String(label)} className="border-b border-line last:border-0">

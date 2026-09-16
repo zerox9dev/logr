@@ -305,7 +305,7 @@ export const competitors: Competitor[] = [
       "a modern, open-source alternative built on Next.js and PocketBase — deployable " +
       "to Vercel, Fly.io, or any Node.js host in minutes, with no PHP runtime " +
       "required. Both tools are AGPL-licensed and self-hostable; Logr differentiates " +
-      "with a single-screen interface, built-in shareable invoice links, a live day " +
+      "with an instant, no-reload interface, built-in shareable invoice links, a live day " +
       "timeline, and a built-in AI assistant that can answer questions and draft invoices. " +
       "If you want a modern stack you can deploy with one click, Logr is worth a look.",
     comparisonRows: [
