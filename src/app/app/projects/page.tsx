@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/layout/coming-soon";
+import { ProjectsList } from "@/components/shared/projects-list";
 
 export default function Page() {
-  return <ComingSoon titleKey="sidebar.projects" />;
+  return <ProjectsList />;
 }
