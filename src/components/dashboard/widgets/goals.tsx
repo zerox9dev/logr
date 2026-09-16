@@ -1,5 +1,6 @@
-/** Goals — Figma 57:317. Weekly goal progress + current/longest streak.
- *  Right-column card: border #e4e4e7, px-24 py-18, gap-14. */
+/** Goals — Figma 310:1849. Weekly goal progress + a Mon–Sun bar chart of the
+ *  current week + current/longest streak.
+ *  Right-column card: border #ececec, p-24, gap-8. */
 import { useState, type FormEvent } from "react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { Dialog } from "@/components/ui/dialog";
@@ -80,7 +81,7 @@ export function Goals() {
   const [goalOpen, setGoalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-3.5 border border-line-2 bg-card px-6 py-[18px]">
+    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
       <div className="flex items-center justify-between">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("goals.title")}</span>
         <button
@@ -103,6 +104,25 @@ export function Goals() {
           <div className="h-2 bg-ink" style={{ width: `${g.weeklyPct}%` }} />
         </div>
         <span className="text-sm text-tertiary tnum">{g.weeklyLabel}</span>
+      </div>
+
+      {/* This week — one column per day, scaled to the busiest day. Days with
+          no tracked time keep a 4px stub so the row stays readable. */}
+      <div className="flex w-full flex-col gap-2">
+        <span className="text-sm text-tertiary">{t("goals.thisWeek")}</span>
+        <div className="flex w-full items-end justify-between">
+          {g.week.map((day, i) => (
+            <div key={i} className="flex flex-col items-center gap-1.5">
+              <div className="flex h-[30px] w-[22px] flex-col justify-end">
+                <div
+                  className={day.empty ? "bg-line-2" : "bg-ink"}
+                  style={{ height: day.empty ? 4 : Math.max(4, Math.round(day.heightPct * 30)) }}
+                />
+              </div>
+              <span className="text-xs text-tertiary">{day.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="h-px w-full bg-line-2" />

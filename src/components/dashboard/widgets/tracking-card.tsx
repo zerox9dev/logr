@@ -32,8 +32,9 @@ function buildSession(
   };
 }
 
-/** Tracking card — Figma 1:28. Blinking dot + 52px timer + rate/earned (rate
- *  chip opens the Rates manager), Start/Stop + Manual, project › task row. */
+/** Tracking card — Figma 310:1501 (active) / 310:1208 (idle). Blinking dot +
+ *  52px timer + rate/earned (rate chip opens the Rates manager), Start/Stop +
+ *  Manual, project › task row. Idle at 00:00:00 greys the whole timer block. */
 export function TrackingCard() {
   const {
     sessions, projects, settings, getProjectById, addSession,
@@ -53,9 +54,12 @@ export function TrackingCard() {
   const { suggestion, dismiss } = useSessionSuggestion(timerDescription, projectId);
 
   const project = getProjectById(projectId);
-  const projectName = project?.name ?? t("track.untracked");
+  const projectName = project?.name ?? t("track.selectProject");
   const rate = project?.rate ?? settings?.default_rate ?? 0;
   const earned = (timerSeconds / 3600) * rate;
+  // Zero state: nothing running and nothing on the clock — the whole
+  // timer/rate/earned block drops to placeholder grey (Figma 310:1208).
+  const idle = !timerRunning && timerSeconds === 0;
 
   // Tick the timer from wall-clock so it stays accurate across throttling.
   useEffect(() => {
@@ -102,7 +106,7 @@ export function TrackingCard() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-line bg-card p-6">
+    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
       {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -113,7 +117,7 @@ export function TrackingCard() {
           <span
             role="timer"
             aria-label={t("track.timerAriaLabel").replace("{time}", fmtClock(timerSeconds))}
-            className="text-4xl font-bold tracking-[2px] text-heading tnum lg:text-hero"
+            className={`text-4xl font-bold tracking-[2px] tnum lg:text-hero ${idle ? "text-placeholder" : "text-heading"}`}
           >
             {fmtClock(timerSeconds)}
           </span>
@@ -123,18 +127,20 @@ export function TrackingCard() {
             onClick={() => setRatesOpen(true)}
             aria-label={t("rates.editAria")}
             title={t("rates.editAria")}
-            className="bg-brand-soft px-[11px] py-1 text-sm font-semibold text-brand tnum transition-opacity hover:opacity-80"
+            className={`bg-page px-[11px] py-1 text-sm font-semibold tnum transition-opacity hover:opacity-80 ${idle ? "text-placeholder" : "text-dark-1"}`}
           >
-            ${rate}{t("unit.perHr")}{rate === 0 && <span aria-hidden="true" className="ml-1 text-xs font-normal text-muted-foreground">✎</span>}
+            {rate === 0 ? "—" : `$${rate}`}{t("unit.perHr")}
           </button>
-          <span className="text-base font-semibold text-brand tnum">{fmtMoney(earned)} {t("track.earned")}</span>
+          <span className={`text-base font-semibold tnum ${idle ? "text-placeholder" : "text-dark-1"}`}>
+            {fmtMoney(earned)} {t("track.earned")}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={timerRunning ? stop : start}
-            className={`px-[30px] py-[11px] text-base font-semibold text-card transition-colors ${
-              timerRunning ? "bg-red-600 hover:bg-red-700" : "bg-money hover:opacity-90"
+            className={`px-[30px] py-[11px] text-base font-semibold text-card transition-opacity hover:opacity-90 ${
+              timerRunning ? "bg-error-soft" : "bg-money"
             }`}
           >
             {timerRunning ? t("track.stop") : t("track.start")}

@@ -2,9 +2,10 @@ import { Zap } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT } from "@/i18n";
 
-/** Daily Summary — Figma 57:2. Title 20px + summary sentence with bold figures
- *  + divider + Total time / Percent of work day + 4 grayscale donut rings.
- *  Right-column card: border #e4e4e7, px-24 py-18, gap-14. */
+/** Daily Summary — Figma 310:2860 (filled) / 310:2903 (empty). Title 20px +
+ *  summary sentence with bold figures + divider + Total time / Percent of work
+ *  day + 4 grayscale donut rings.
+ *  Right-column card: border #ececec, p-24, gap-8. */
 
 function Donut({ pct, label, ring }: { pct: number; label: string; ring: string }) {
   const r = 18;
@@ -33,20 +34,24 @@ export function DailySummary() {
   const d = metrics.daily;
 
   return (
-    <div className="flex flex-col gap-3.5 border border-line-2 bg-card px-6 py-[18px]">
+    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
       <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("daily.title")}</span>
 
       <div className="flex w-full items-start gap-2.5">
         <span className="flex size-[30px] shrink-0 items-center justify-center bg-icon-tile">
           <Zap className="size-[15px] text-ink" />
         </span>
-        <p className="flex-1 text-md-minus leading-[1.45] text-[#3f3f46]">
-          {d.sentence.lead} {t("daily.youTracked")} <strong className="font-semibold text-ink">{d.sentence.time}</strong> {t("daily.across")}{" "}
-          <strong className="font-semibold text-ink">{d.sentence.projects}</strong>{" "}
-          {d.sentence.projects === "1" ? t("daily.project") : t("daily.projects")}, {t("daily.over")}{" "}
-          <strong className="font-semibold text-ink">{d.sentence.tasks}</strong>{" "}
-          {d.sentence.tasks === "1" ? t("daily.session") : t("daily.sessions")}.
-        </p>
+        {d.sentence.tasks === "0" ? (
+          <p className="flex-1 text-md-minus leading-[1.45] text-placeholder">{t("daily.emptyHint")}</p>
+        ) : (
+          <p className="flex-1 text-md-minus leading-[1.45] text-[#3f3f46]">
+            {d.sentence.lead} {t("daily.youTracked")} <strong className="font-semibold text-ink">{d.sentence.time}</strong> {t("daily.across")}{" "}
+            <strong className="font-semibold text-ink">{d.sentence.projects}</strong>{" "}
+            {d.sentence.projects === "1" ? t("daily.project") : t("daily.projects")}, {t("daily.over")}{" "}
+            <strong className="font-semibold text-ink">{d.sentence.tasks}</strong>{" "}
+            {d.sentence.tasks === "1" ? t("daily.session") : t("daily.sessions")}.
+          </p>
+        )}
       </div>
 
       <div className="h-px w-full bg-line-2" />

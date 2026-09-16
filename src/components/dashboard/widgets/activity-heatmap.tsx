@@ -1,6 +1,6 @@
-/** Activity — Figma 57:44. GitHub-style heatmap, 30 weeks × 7 days, 5-level
+/** Activity — Figma 310:2539. GitHub-style heatmap, 30 weeks × 7 days, 5-level
  *  grayscale, month labels, weekday labels (Mon/Wed/Fri), Less…More legend.
- *  Right-column card: border #e4e4e7, px-24 py-18, gap-8. */
+ *  Right-column card: border #ececec, p-24, gap-8. */
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT } from "@/i18n";
 
@@ -13,7 +13,7 @@ export function ActivityHeatmap() {
   const WEEKDAYS = ["", t("activity.mon"), "", t("activity.wed"), "", t("activity.fri"), ""];
 
   return (
-    <div className="flex flex-col gap-2 border border-line-2 bg-card px-6 py-[18px]">
+    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
       <div className="flex flex-col gap-0.5">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("activity.title")}</span>
         <span className="text-sm text-tertiary tnum">{totalHoursLabel}</span>
@@ -33,7 +33,7 @@ export function ActivityHeatmap() {
                 <div key={i} className="flex h-[9px] w-5 items-center text-[9px] text-tertiary">{d}</div>
               ))}
             </div>
-            <div className="flex flex-1 justify-between">
+            <div className="flex flex-1 gap-0.5">
               {weeks.map((days, w) => (
                 <div key={w} className="flex flex-col gap-0.5">
                   {days.map((day, d) => (

@@ -189,9 +189,13 @@ export function NewMenu() {
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <button className="flex items-center gap-1.5 bg-black px-4 py-[9px] font-medium text-card transition-colors">
-            <span aria-hidden="true" className="text-base leading-none">+</span>
-            <span className="text-md">{t("new.new")}</span>
+          <button
+            aria-label={t("new.new")}
+            className="flex items-center gap-1.5 bg-brand-ink px-3 py-2 font-medium text-card transition-opacity hover:opacity-90 sm:px-4"
+          >
+            <span aria-hidden="true" className="text-md-minus leading-none">+</span>
+            {/* Mobile top bar is icon-only (Figma 310:6298) */}
+            <span className="hidden text-md sm:inline">{t("new.new")}</span>
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>

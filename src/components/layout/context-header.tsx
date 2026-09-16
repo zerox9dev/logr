@@ -30,8 +30,10 @@ function buildGrid(viewMonth: Date): Date[] {
   );
 }
 
-/** Calendar date picker rendered inside a Radix Popover. */
-function DatePicker({ disabled = false }: { disabled?: boolean }) {
+/** Calendar date picker rendered inside a Radix Popover. The new header
+ *  (Figma 296:1215) has no calendar button of its own, so the date label
+ *  itself is the trigger. */
+function DatePicker({ disabled = false, label }: { disabled?: boolean; label: string }) {
   const { refDate, goToDate } = useDashboard();
   const t = useT();
   const { lang } = useLang();
@@ -67,11 +69,11 @@ function DatePicker({ disabled = false }: { disabled?: boolean }) {
           disabled={disabled}
           aria-disabled={disabled}
           aria-label={t("ctx.pickDate")}
-          // Match the segmented tabs' height: tabs = p-1 (4px) + py-2 (8px) ≈ 12px
-          // vertical around 15px text; py-3 here mirrors that.
-          className="flex items-center justify-center border border-line bg-card px-3 py-3 hover:bg-wash disabled:opacity-40 disabled:cursor-not-allowed"
+          title={t("ctx.pickDate")}
+          className="flex items-center gap-2 text-widget font-semibold text-ink tnum disabled:cursor-default"
         >
-          <Calendar className="size-4 text-heading" />
+          {label}
+          {!disabled && <Calendar className="size-4 text-tertiary" aria-hidden="true" />}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
@@ -141,53 +143,53 @@ function DatePicker({ disabled = false }: { disabled?: boolean }) {
   );
 }
 
-/** Contextual header below the top bar. Figma node 1:6.
- *  Left: current date + ‹ date-picker › date nav. Right: Today/Week/Month/All
- *  tabs (Today also jumps to the current day). */
+/** "Header — date & period" card. Figma node 296:1215.
+ *  Left: current date (also the date-picker trigger) + ‹ › 32px step buttons.
+ *  Right: Today/Week/Month/All tabs (Today also jumps to the current day). */
 export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
   const t = useT();
 
+  const stepButton =
+    "flex size-8 shrink-0 items-center justify-center border border-gray-300 bg-card text-lg leading-none text-tertiary transition-colors hover:bg-wash disabled:text-gray-300 disabled:hover:bg-card";
+
   return (
-    <div className="mx-2 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 bg-card px-3 py-4 sm:gap-4 sm:px-6 sm:py-6">
-      <div className="flex items-center gap-[18px]">
-        <h1 className="text-2xl font-semibold text-heading tnum sm:text-3xl lg:text-4xl">
-          {metrics.header.dateLabel}
+    <div className="card-radius mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 bg-card px-5 py-3 lg:mx-2">
+      <div className="flex items-center gap-3">
+        <h1 className="min-w-0">
+          <DatePicker disabled={period === "All"} label={metrics.header.dateLabel} />
         </h1>
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => pageDate(-1)}
             disabled={!canPageBack}
             aria-label={t("ctx.prevPeriod")}
-            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300 transition-colors"
+            className={stepButton}
           >
             ‹
           </button>
-
-          <DatePicker disabled={period === "All"} />
-
           <button
             onClick={() => pageDate(1)}
             disabled={!canPageForward}
             aria-label={t("ctx.nextPeriod")}
-            className="text-3xl font-medium leading-none text-heading disabled:text-gray-300 transition-colors"
+            className={stepButton}
           >
             ›
           </button>
         </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-3.5 overflow-x-auto">
+      <div className="flex min-w-0 items-center overflow-x-auto">
         {/* Segmented Today / Week / Month / All tabs */}
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
-          <Tabs.List className="flex items-start bg-wash p-1">
+          <Tabs.List className="flex items-center border border-line-2 bg-faint p-0.5">
             {VIEWS.map((v) => (
               <Tabs.Trigger
                 key={v}
                 value={v}
                 // "Today" tab also resets to the current day (even on re-click).
                 onClick={v === "Day" ? goToToday : undefined}
-                className="px-4 py-2 text-base font-medium text-dark-3 data-[state=active]:bg-card data-[state=active]:font-semibold data-[state=active]:text-heading data-[state=active]:shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]"
+                className="flex h-8 items-center justify-center px-4 text-md-minus font-medium text-tertiary data-[state=active]:bg-ink data-[state=active]:text-card"
               >
                 {t(VIEW_KEYS[v])}
               </Tabs.Trigger>

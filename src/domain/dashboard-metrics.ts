@@ -2,9 +2,9 @@ import type {
   Session, Project, Client, Invoice, Activity, UserSettings,
 } from "@/types/database";
 import {
-  type Range, startOfDay, startOfWeek, startOfMonth, addDays, sameDay, inRange,
+  type Range, startOfDay, startOfWeek, startOfMonth, addDays, inRange,
 } from "@/lib/date";
-import { fmtDuration, fmtMoney, fmtDateLong, pad2 } from "@/lib/format";
+import { fmtDuration, fmtDurationCompact, fmtDurationFull, fmtMoney, fmtDateLong, pad2 } from "@/lib/format";
 import { dashboard } from "@/i18n/dashboard";
 
 // ── Period ──
@@ -51,7 +51,6 @@ export interface MetricsInput {
   activities: Activity[];
   settings: UserSettings | null;
   now: Date;   // reference date (movable via date-nav)
-  today: Date; // real current date (anchors the "now" marker)
   period: Period;
   t?: (key: string) => string; // app translator; omitted → English
   lang?: string;               // BCP-47 locale for dates/numbers; omitted → en-US
@@ -137,35 +136,44 @@ export interface HeatmapView {
   totalHoursLabel: string;
 }
 
+/** One weekday column of the "This week" bar chart. `heightPct` is 0..1 of the
+ *  tallest day; days with no time still render a stub. */
+export interface GoalDayBar {
+  label: string;
+  heightPct: number;
+  empty: boolean;
+}
+
 export interface GoalsView {
   weeklyPct: number;
   weeklyLabel: string;
   currentStreak: number;
   longestStreak: number;
+  week: GoalDayBar[];
 }
 
-/** A single session, positioned on the day axis. Color encodes billable. */
-export interface TimelineBlock {
-  left: number;
-  width: number;
-  color: string;
+export type TimelineCategory = "focus" | "meetings" | "breaks";
+
+/** A session laid onto the 09:00–20:00 strip, as percentages of its width. */
+export interface TimelineSegment {
+  leftPct: number;
+  widthPct: number;
+  category: TimelineCategory;
 }
 
-/** One hour-of-day column in the aggregate (wide-period) view. */
-export interface TimelineHourBar {
-  left: number;
-  width: number;
-  heightPct: number; // 0..1 of the plot height
+/** An axis tick and where it sits on the same strip. */
+export interface TimelineTick {
+  label: string;
+  leftPct: number;
 }
 
 export interface TimelineView {
-  mode: "sessions" | "hourly";
-  blocks: TimelineBlock[];     // sessions mode (Day)
-  hours: TimelineHourBar[];    // hourly mode (Week/Month/All)
-  nowLeft: number;
-  nowLabel: string;
-  showNow: boolean;
-  /** Number of Day-view sessions that fell outside the 9:00–20:00 axis. */
+  segments: TimelineSegment[];
+  ticks: TimelineTick[];
+  /** Compact per-category totals for the legend, e.g. "5h 41m". */
+  legend: Record<TimelineCategory, string>;
+  empty: boolean;
+  /** Number of sessions that fell outside the 9:00–20:00 axis. */
   outsideRangeCount: number;
 }
 
@@ -233,8 +241,11 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
   const nonBillable = sessions.filter((s) => !isBillable(s));
   const billSec = sumBy(billable, (s) => s.duration_seconds);
   const nonSec = sumBy(nonBillable, (s) => s.duration_seconds);
-  const total = billSec + nonSec || 1;
-  const billPct = Math.round((billSec / total) * 100);
+  const tracked = billSec + nonSec;
+  // With nothing tracked both halves read 0%, which is what puts the split bar
+  // into its neutral single-tone state instead of showing 100% non-billable.
+  const billPct = tracked > 0 ? Math.round((billSec / tracked) * 100) : 0;
+  const nonBillPct = tracked > 0 ? 100 - billPct : 0;
 
   // By client (billable only), grouped.
   const byClient = new Map<string, Session[]>();
@@ -254,7 +265,7 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
         rateLabel: rate ? `$${rate}${tr("unit.perHr")}` : undefined,
         timeLabel: fmtDuration(sumBy(group, (s) => s.duration_seconds), units),
         amountLabel: fmtMoney(amount, currency),
-        dot: "#2f7a5b",
+        dot: "var(--color-brand-ink)",
         internal: false,
       };
     });
@@ -264,7 +275,7 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
       name: tr("metric.internal"),
       timeLabel: fmtDuration(nonSec, units),
       amountLabel: "—",
-      dot: "#a1a1aa",
+      dot: "var(--color-placeholder)",
       internal: true,
     });
   }
@@ -277,13 +288,13 @@ function billableView(sessions: Session[], clients: Client[], invoices: Invoice[
   );
 
   return {
-    billableTimeLabel: fmtDuration(billSec, units),
+    billableTimeLabel: fmtDurationFull(billSec, units),
     billableEarnedLabel: `${fmtMoney(sumBy(billable, earned), currency)} ${tr("metric.earned")}`,
-    nonBillableTimeLabel: fmtDuration(nonSec, units),
+    nonBillableTimeLabel: fmtDurationFull(nonSec, units),
     billablePct: billPct,
-    nonBillablePct: 100 - billPct,
+    nonBillablePct: nonBillPct,
     pctLabel: `${billPct}% ${tr("metric.ofTrackedTime")}`,
-    nonBillablePctLabel: `${100 - billPct}%`,
+    nonBillablePctLabel: `${nonBillPct}%`,
     clients: clientRows,
     invoicedLabel: fmtMoney(invoiced, currency),
   };
@@ -308,11 +319,13 @@ function dailyView(sessions: Session[], activities: Activity[], period: Period, 
   const nFocus = sessions.length - meetingSessions;
   const nMeet = meetingSessions + activities.filter((a) => a.type === "meeting" || a.type === "call").length;
   const nOther = activities.filter((a) => a.type === "email" || a.type === "note" || a.type === "payment").length;
-  const denom = nFocus + nMeet + nOther || 1;
-  const focus = Math.round((nFocus / denom) * 100);
-  const meetings = Math.round((nMeet / denom) * 100);
-  const other = Math.round((nOther / denom) * 100);
-  const breaks = Math.max(0, 100 - focus - meetings - other);
+  const denom = nFocus + nMeet + nOther;
+  // Breaks is the remainder of the other three, so with no signal at all it
+  // would otherwise read 100% — the zero state wants four 0% rings.
+  const focus = denom > 0 ? Math.round((nFocus / denom) * 100) : 0;
+  const meetings = denom > 0 ? Math.round((nMeet / denom) * 100) : 0;
+  const other = denom > 0 ? Math.round((nOther / denom) * 100) : 0;
+  const breaks = denom > 0 ? Math.max(0, 100 - focus - meetings - other) : 0;
 
   return {
     sentence: {
@@ -321,7 +334,7 @@ function dailyView(sessions: Session[], activities: Activity[], period: Period, 
       tasks: String(sessions.length),
       projects: String(projectCount),
     },
-    totalTimeLabel: fmtDuration(totalSec, units),
+    totalTimeLabel: fmtDurationFull(totalSec, units),
     percentOfDay,
     dayBaseLabel: `${baseHours} ${tr("unit.hr")}`,
     donuts: { focus, meetings, breaks, other },
@@ -381,7 +394,25 @@ function heatmapView(sessions: Session[], now: Date, tr: TR, locale: string): He
   };
 }
 
-function goalsView(sessions: Session[], now: Date, tr: TR, period: Period, settings?: UserSettings | null): GoalsView {
+/** Mon…Sun columns for the week containing `now`, scaled to the busiest day. */
+function goalWeekBars(sessions: Session[], now: Date, locale: string): GoalDayBar[] {
+  const monday = startOfWeek(now);
+  const perDay = new Map<string, number>();
+  for (const s of sessions) {
+    const k = dayKey(new Date(s.started_at));
+    perDay.set(k, (perDay.get(k) ?? 0) + s.duration_seconds);
+  }
+  const secs = Array.from({ length: 7 }, (_, i) => perDay.get(dayKey(addDays(monday, i))) ?? 0);
+  const max = Math.max(1, ...secs);
+  return secs.map((sec, i) => ({
+    // Figma labels are single letters (M T W T F S S) taken from the locale.
+    label: addDays(monday, i).toLocaleDateString(locale, { weekday: "narrow" }),
+    heightPct: sec / max,
+    empty: sec === 0,
+  }));
+}
+
+function goalsView(sessions: Session[], now: Date, tr: TR, period: Period, locale: string, settings?: UserSettings | null): GoalsView {
   const units = { hr: tr("unit.hr"), min: tr("unit.min") };
   // Goal scales with the active period; streaks below stay all-time.
   const range = rangeFor(period, now);
@@ -421,62 +452,58 @@ function goalsView(sessions: Session[], now: Date, tr: TR, period: Period, setti
     weeklyLabel: `${fmtDuration(scopedSec, units)} ${tr("metric.of")} ${targetHours} ${tr("unit.hr")}`,
     currentStreak: current,
     longestStreak: longest,
+    week: goalWeekBars(sessions, now, locale),
   };
 }
 
-const TL_W = 955;
-const TL_HOUR_PX = 81.034;
-const TL_ORIGIN = 10;
 const TL_START_HOUR = 9;
-const TL_END_HOUR = 20; // axis covers 9:00 → 20:00 (12 gridlines)
-// Map an hour-of-day to an x in the 955px frame (9:00 → ORIGIN).
-const tlX = (hours: number) => TL_ORIGIN + (hours - TL_START_HOUR) * TL_HOUR_PX;
+const TL_END_HOUR = 20;               // strip covers 09:00 → 20:00
+const TL_SPAN = TL_END_HOUR - TL_START_HOUR;
+const TL_TICK_HOURS = [9, 11, 13, 15, 17, 19];
+/** Position of an hour-of-day as a percentage of the strip. */
+const tlPct = (hours: number) => ((hours - TL_START_HOUR) / TL_SPAN) * 100;
 
-function timelineView(scoped: Session[], now: Date, period: Period, today: Date): TimelineView {
-  const nowH = today.getHours() + today.getMinutes() / 60;
-  const base = {
-    nowLeft: tlX(nowH),
-    nowLabel: `${pad2(today.getHours())}:${pad2(today.getMinutes())}`,
-    // "now" marker only on the single-day view of the actual current day.
-    showNow: period === "Day" && sameDay(now, today),
-  };
+/** A session's timeline lane. Tags drive it: an untagged session is focus. */
+function sessionCategory(s: Session): TimelineCategory {
+  const tags = (s.tags ?? []).map((t) => t.toLowerCase());
+  if (tags.includes("break")) return "breaks";
+  if (tags.includes("meeting") || tags.includes("call")) return "meetings";
+  return "focus";
+}
 
-  // ── Day: each session as a positioned block, colored by billable. ──
-  if (period === "Day") {
-    const blocks: TimelineBlock[] = [];
-    let outsideRangeCount = 0;
-    for (const s of scoped) {
-      const start = new Date(s.started_at);
-      const h = start.getHours() + start.getMinutes() / 60;
-      const left = tlX(h);
-      if (left < TL_ORIGIN || left > TL_W) { outsideRangeCount++; continue; }
-      const width = Math.min(Math.max(2, (s.duration_seconds / 3600) * TL_HOUR_PX), TL_W - left);
-      blocks.push({
-        left,
-        width,
-        color: isBillable(s) ? "var(--color-brand)" : "var(--color-error-soft)",
-      });
-    }
-    return { mode: "sessions", blocks, hours: [], outsideRangeCount, ...base };
-  }
+function timelineView(scoped: Session[]): TimelineView {
+  const segments: TimelineSegment[] = [];
+  const totals: Record<TimelineCategory, number> = { focus: 0, meetings: 0, breaks: 0 };
+  let outsideRangeCount = 0;
 
-  // ── Week/Month/All: aggregate total time per hour-of-day across the range. ──
-  const buckets = new Array(TL_END_HOUR - TL_START_HOUR + 1).fill(0); // 9..20
   for (const s of scoped) {
-    const hour = new Date(s.started_at).getHours();
-    const idx = hour - TL_START_HOUR;
-    if (idx < 0 || idx >= buckets.length) continue;
-    buckets[idx] += s.duration_seconds;
-  }
-  const maxSec = Math.max(1, ...buckets);
-  const barW = TL_HOUR_PX * 0.62;
-  const hours: TimelineHourBar[] = buckets.map((sec, i) => ({
-    left: tlX(TL_START_HOUR + i) + (TL_HOUR_PX - barW) / 2,
-    width: barW,
-    heightPct: sec / maxSec,
-  })).filter((b) => b.heightPct > 0);
+    const category = sessionCategory(s);
+    totals[category] += s.duration_seconds;
 
-  return { mode: "hourly", blocks: [], hours, outsideRangeCount: 0, ...base };
+    const start = new Date(s.started_at);
+    const h = start.getHours() + start.getMinutes() / 60;
+    const leftPct = tlPct(h);
+    if (leftPct < 0 || leftPct >= 100) { outsideRangeCount++; continue; }
+    // Sub-minute sessions would otherwise render as nothing at all.
+    const rawWidth = (s.duration_seconds / 3600 / TL_SPAN) * 100;
+    segments.push({
+      leftPct,
+      widthPct: Math.min(Math.max(0.5, rawWidth), 100 - leftPct),
+      category,
+    });
+  }
+
+  return {
+    segments,
+    ticks: TL_TICK_HOURS.map((h) => ({ label: `${pad2(h)}:00`, leftPct: tlPct(h) })),
+    legend: {
+      focus: fmtDurationCompact(totals.focus),
+      meetings: fmtDurationCompact(totals.meetings),
+      breaks: fmtDurationCompact(totals.breaks),
+    },
+    empty: segments.length === 0,
+    outsideRangeCount,
+  };
 }
 
 // ── Entry point ──
@@ -497,7 +524,7 @@ function headerLabel(period: Period, now: Date, tr: TR, locale: string): string 
 }
 
 export function computeMetrics(input: MetricsInput): DashboardMetrics {
-  const { sessions, projects, clients, invoices, activities, settings, now, today, period } = input;
+  const { sessions, projects, clients, invoices, activities, settings, now, period } = input;
   const tr: TR = (k) => input.t?.(k) ?? dashboard.en[k] ?? k;
   const locale = input.lang ?? "en-US";
   const currency = settings?.default_currency ?? "USD";
@@ -518,7 +545,7 @@ export function computeMetrics(input: MetricsInput): DashboardMetrics {
     billable: billableView(scoped, clients, invoices, now, tr, period, currency),
     daily: dailyView(scoped, scopedActs, period, tr, settings),
     heatmap: heatmapView(sessions, now, tr, locale),
-    goals: goalsView(sessions, now, tr, period, settings),
-    timeline: timelineView(scoped, now, period, today),
+    goals: goalsView(sessions, now, tr, period, locale, settings),
+    timeline: timelineView(scoped),
   };
 }

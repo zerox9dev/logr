@@ -11,16 +11,18 @@ import { BillableHours } from "@/components/dashboard/widgets/billable-hours";
 import { DailySummary } from "@/components/dashboard/widgets/daily-summary";
 import { ActivityHeatmap } from "@/components/dashboard/widgets/activity-heatmap";
 import { Goals } from "@/components/dashboard/widgets/goals";
-import { EmptyState } from "@/components/dashboard/empty-state";
 
 /** The single screen. Everything the product does lives here as panels,
  *  modals, dropdowns, and view-modes — no routing between features.
  *
- *  Grid (Figma 1:1, 1440px frame): two columns 920px / 496px, 8px gap.
- *  Left  (920px): Tracking → Timeline → [Projects&tasks | Billable hours].
- *  Right (496px): Daily Summary → Activity → Goals. Six widgets total. */
+ *  Grid (Figma 296:1196 / 310:3, 1400px frame): 688px / 440px, 8px gap.
+ *  Left  (688px): Tracking → Timeline → Projects&tasks → Billable hours.
+ *  Right (440px): Daily Summary → Activity → Goals.
+ *
+ *  Both the filled and the zero-data design render this same grid — each
+ *  widget draws its own empty look, so there is no separate onboarding view. */
 export function DashboardScreen() {
-  const { loading, loadError, reload, sessions, projects, clients, timerRunning } = useAppData();
+  const { loading, loadError, reload } = useAppData();
   const t = useT();
 
   if (loading) {
@@ -45,42 +47,34 @@ export function DashboardScreen() {
     );
   }
 
-  // A running timer counts as activity — otherwise starting it from the empty
-  // state would keep the onboarding panel up and hide the live TrackingCard.
-  const isEmpty =
-    !timerRunning && sessions.length === 0 && projects.length === 0 && clients.length === 0;
-
   return (
     <DashboardProvider>
-    <div className="min-h-screen overflow-x-hidden bg-page">
+    <div className="min-h-screen overflow-x-hidden bg-page pb-2">
       <TopBar />
 
-      {/* 1440 frame: white header подложка + widget grid share the same edges */}
       <div className="mx-auto">
         <ContextHeader />
 
-        {isEmpty ? (
-          <EmptyState />
-        ) : (
-        <main className="grid grid-cols-1 gap-2 px-2 lg:grid-cols-[920fr_496fr]">
-          {/* Left column */}
-          <div className="flex flex-col gap-2">
+        {/* DOM order is the mobile design (296:1805): tracker → timeline →
+            summary/activity/goals → projects → billable. Explicit lg placement
+            pulls the last group back under the left column. */}
+        <main className="grid grid-cols-1 items-start gap-2 px-4 lg:grid-cols-[688fr_440fr] lg:px-2">
+          <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-1">
             <TrackingCard />
             <Timeline />
-            <div className="grid grid-cols-1 items-start gap-2 sm:grid-cols-2">
-              <ProjectsTasks />
-              <BillableHours />
-            </div>
           </div>
 
-          {/* Right column */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <DailySummary />
             <ActivityHeatmap />
             <Goals />
           </div>
+
+          <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-2">
+            <ProjectsTasks />
+            <BillableHours />
+          </div>
         </main>
-        )}
       </div>
     </div>
     </DashboardProvider>

@@ -37,8 +37,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const goToDate = useCallback((d: Date) => setRefDate(d), []);
 
   const metrics = useMemo(
-    () => computeMetrics({ sessions, projects, clients, invoices, activities, settings, now: refDate, today, period, t, lang }),
-    [sessions, projects, clients, invoices, activities, settings, refDate, today, period, t, lang],
+    () => computeMetrics({ sessions, projects, clients, invoices, activities, settings, now: refDate, period, t, lang }),
+    [sessions, projects, clients, invoices, activities, settings, refDate, period, t, lang],
   );
 
   const canPageForward = period !== "All" && !isAtCurrentPeriod(period, refDate, today);

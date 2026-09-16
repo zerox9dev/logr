@@ -15,8 +15,8 @@ function initials(name: string): string {
   return (parts.slice(0, 2).map((p) => p[0]).join("") || "?").toUpperCase();
 }
 
-/** Top bar — 56px, full width, white, bottom hairline. Replaces the sidebar.
- *  Figma node 18:302. Logo · Search ⌘K · + New · account avatar. */
+/** Top bar — Figma 310:6298. Full width, white, bottom hairline.
+ *  Logo · Search ⌘K · + New · account avatar. */
 export function TopBar() {
   const { user, signOut } = useAuth();
   const { settings } = useAppData();
@@ -49,22 +49,24 @@ export function TopBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-card px-3">
-        {/* Left: logo + wordmark */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative size-6 bg-black">
-            <span className="absolute left-2 top-[5px] h-2.5 w-[2px] bg-card" />
-            <span className="absolute left-[12.5px] top-[5px] h-2.5 w-[2px] bg-card" />
-          </div>
-          <span className="text-lg font-semibold tracking-[-0.16px] text-ink">logr.work</span>
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line-2 bg-card px-4 py-3">
+        {/* Left: bar-chart mark + wordmark */}
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex items-end gap-[2px]">
+            <span className="h-[7px] w-[3px] bg-ink" />
+            <span className="h-[11px] w-[3px] bg-ink" />
+            <span className="h-[8px] w-[3px] bg-ink" />
+            <span className="h-[15px] w-[3px] bg-ink" />
+          </span>
+          <span className="text-lg font-bold tracking-[-0.3px] text-ink">logr.work</span>
         </div>
 
         {/* Right cluster: search · + New · avatar */}
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-1.5">
           <button
             aria-label={t("nav.search")}
             onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-5 bg-wash px-3 py-2 text-tertiary hover:bg-wash transition-colors"
+            className="flex items-center gap-5 bg-page px-2.5 py-2 text-tertiary transition-opacity hover:opacity-80"
           >
             {/* Mobile (<sm): show a Search icon instead of the shortcut hint */}
             <Search className="size-4 sm:hidden" aria-hidden="true" />
@@ -80,7 +82,7 @@ export function TopBar() {
             <DropdownMenu.Trigger asChild>
               <button
                 aria-label={t("nav.accountMenu")}
-                className="flex size-[39px] items-center justify-center bg-ink text-sm-minus font-semibold text-card transition-colors"
+                className="flex items-center justify-center bg-purple-dark p-2 text-md-minus font-semibold text-card transition-opacity hover:opacity-90"
               >
                 {initials(label)}
               </button>

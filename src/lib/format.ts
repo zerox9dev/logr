@@ -10,6 +10,13 @@ export function fmtDuration(seconds: number, units: { hr: string; min: string } 
   return h > 0 ? `${h} ${units.hr} ${pad2(m)} ${units.min}` : `${m} ${units.min}`;
 }
 
+/** "4 hr 12 min", "0 hr 00 min" — always keeps the hour part. The summary
+ *  widgets use it because a bare "0 min" there reads as missing data. */
+export function fmtDurationFull(seconds: number, units: { hr: string; min: string } = { hr: "hr", min: "min" }): string {
+  const total = Math.max(0, Math.round(seconds / 60));
+  return `${Math.floor(total / 60)} ${units.hr} ${pad2(total % 60)} ${units.min}`;
+}
+
 /** Compact duration "3h 26m" / "26m" — used in reports/CSV. */
 export function fmtDurationCompact(seconds: number): string {
   const hours = Math.floor(seconds / 3600);

@@ -153,10 +153,9 @@ describe("computeMetrics", () => {
 
   // Anchor on a fixed local-time day so range filtering is deterministic.
   const now = new Date(2026, 5, 15, 23, 0); // June 15 2026, local
-  const today = now;
 
   function input(sessions: Session[]): MetricsInput {
-    return { sessions, projects, clients, invoices, activities, settings, now, today, period: "Day" };
+    return { sessions, projects, clients, invoices, activities, settings, now, period: "Day" };
   }
 
   it("exposes the default rate in the tracking view", () => {
@@ -209,5 +208,73 @@ describe("computeMetrics", () => {
     // Only the in-range session contributes to projects.
     expect(m.projects.rows).toHaveLength(1);
     expect(m.daily.sentence.tasks).toBe("1");
+  });
+
+  it("zeroes every proportion in the no-data state", () => {
+    const m = computeMetrics(input([]));
+    expect(m.billable.billablePct).toBe(0);
+    expect(m.billable.nonBillablePct).toBe(0);
+    expect(m.billable.nonBillablePctLabel).toBe("0%");
+    // The summary widgets keep the hour part so the zero state reads as data.
+    expect(m.billable.billableTimeLabel).toBe("0 hr 00 min");
+    expect(m.daily.totalTimeLabel).toBe("0 hr 00 min");
+    expect(m.billable.clients).toHaveLength(0);
+    expect(m.daily.donuts).toEqual({ focus: 0, meetings: 0, breaks: 0, other: 0 });
+  });
+
+  it("reports an empty timeline with zeroed legend totals when there is nothing to plot", () => {
+    const m = computeMetrics(input([]));
+    expect(m.timeline.empty).toBe(true);
+    expect(m.timeline.segments).toHaveLength(0);
+    expect(m.timeline.legend).toEqual({ focus: "0m", meetings: "0m", breaks: "0m" });
+    expect(m.timeline.ticks.map((t) => t.label)).toEqual([
+      "09:00", "11:00", "13:00", "15:00", "17:00", "19:00",
+    ]);
+    expect(m.timeline.ticks[0].leftPct).toBe(0);
+  });
+
+  it("lays sessions onto the timeline strip and splits the legend by tag", () => {
+    const focus = makeSession({
+      id: "f", started_at: new Date(2026, 5, 15, 9, 0).toISOString(), duration_seconds: 3600,
+    });
+    const meeting = makeSession({
+      id: "m", tags: ["Meeting"], started_at: new Date(2026, 5, 15, 14, 30).toISOString(), duration_seconds: 1800,
+    });
+
+    const m = computeMetrics(input([focus, meeting]));
+    expect(m.timeline.empty).toBe(false);
+    expect(m.timeline.legend.focus).toBe("1h 0m");
+    expect(m.timeline.legend.meetings).toBe("30m");
+
+    // 09:00 is the strip origin; one hour of an 11-hour strip is ~9.09%.
+    const first = m.timeline.segments[0];
+    expect(first.category).toBe("focus");
+    expect(first.leftPct).toBe(0);
+    expect(first.widthPct).toBeCloseTo(100 / 11, 5);
+    // 14:30 sits 5.5h in.
+    expect(m.timeline.segments[1].category).toBe("meetings");
+    expect(m.timeline.segments[1].leftPct).toBeCloseTo(50, 5);
+  });
+
+  it("counts sessions outside the 09:00–20:00 strip instead of plotting them", () => {
+    const earlyBird = makeSession({ id: "e", started_at: new Date(2026, 5, 15, 6, 0).toISOString() });
+    const m = computeMetrics(input([earlyBird]));
+    expect(m.timeline.segments).toHaveLength(0);
+    expect(m.timeline.outsideRangeCount).toBe(1);
+    // It still counts towards the legend total.
+    expect(m.timeline.legend.focus).toBe("1h 0m");
+  });
+
+  it("builds seven weekday goal bars scaled to the busiest day", () => {
+    // June 15 2026 is a Monday, so the week runs Mon 15 → Sun 21.
+    const monday = makeSession({ id: "mon", started_at: new Date(2026, 5, 15, 10, 0).toISOString(), duration_seconds: 7200 });
+    const tuesday = makeSession({ id: "tue", started_at: new Date(2026, 5, 16, 10, 0).toISOString(), duration_seconds: 3600 });
+
+    const m = computeMetrics(input([monday, tuesday]));
+    expect(m.goals.week).toHaveLength(7);
+    expect(m.goals.week[0].heightPct).toBe(1);
+    expect(m.goals.week[0].empty).toBe(false);
+    expect(m.goals.week[1].heightPct).toBe(0.5);
+    expect(m.goals.week[2].empty).toBe(true);
   });
 });

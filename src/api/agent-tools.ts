@@ -235,7 +235,6 @@ export const agentTools: AgentTool[] = [
         activities: activities.map(toActivityRow),
         settings: settings ? toUserSettingsRow(settings) : null,
         now,
-        today: new Date(now.toDateString()),
         period: p,
       };
 
