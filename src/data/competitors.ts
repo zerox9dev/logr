@@ -56,7 +56,7 @@ export const competitors: Competitor[] = [
       "own their data. It ships with a live timeline, per-client billing rates, " +
       "and built-in invoicing so you never need a separate invoice tool. Because " +
       "Logr is self-hostable, your time entries and client data live in your own " +
-      "Supabase database — no vendor lock-in, no per-seat pricing, no data brokers. " +
+      "PocketBase instance — no vendor lock-in, no per-seat pricing, no data brokers. " +
       "The entire codebase is published under the GNU Affero General Public " +
       "License v3.0 (AGPL-3.0), so you can audit, fork, and contribute freely.",
     comparisonRows: [
@@ -302,11 +302,11 @@ export const competitors: Competitor[] = [
     heroCopy:
       "Kimai is an established open-source time tracker built with PHP and Symfony, " +
       "requiring a server with PHP and a relational database to self-host. Logr is " +
-      "a modern, open-source alternative built on Next.js and Supabase — deployable " +
+      "a modern, open-source alternative built on Next.js and PocketBase — deployable " +
       "to Vercel, Fly.io, or any Node.js host in minutes, with no PHP runtime " +
       "required. Both tools are AGPL-licensed and self-hostable; Logr differentiates " +
       "with a single-screen interface, built-in shareable invoice links, a live day " +
-      "timeline, and a hosted MCP endpoint for AI assistant integration. " +
+      "timeline, and a built-in AI assistant that can answer questions and draft invoices. " +
       "If you want a modern stack you can deploy with one click, Logr is worth a look.",
     comparisonRows: [
       { feature: "Open source", logr: true, competitor: true },
@@ -317,7 +317,7 @@ export const competitors: Competitor[] = [
       { feature: "One-click cloud deploy", logr: true, competitor: false },
       { feature: "Shareable invoice & report links", logr: true, competitor: false },
       { feature: "Live day timeline", logr: true, competitor: false },
-      { feature: "MCP / AI assistant endpoint", logr: true, competitor: false },
+      { feature: "Built-in AI assistant", logr: true, competitor: false },
       { feature: "License", logr: "AGPL-3.0", competitor: "AGPL-3.0" },
     ],
     migrationTitle: "Switching from Kimai to Logr",
@@ -336,10 +336,10 @@ export const competitors: Competitor[] = [
       },
       {
         title: "Deploy Logr and start tracking",
-        body: "Click 'Deploy to Vercel' in the Logr GitHub repo, connect your Supabase project, and you are ready. Your imported history is immediately available for invoicing.",
+        body: "Click 'Deploy to Vercel' in the Logr GitHub repo, point it at a PocketBase instance, and you are ready. Your imported history is immediately available for invoicing.",
       },
     ],
-    seoTitle: "Logr — Modern Open-Source Kimai Alternative (Next.js + Supabase)",
+    seoTitle: "Logr — Modern Open-Source Kimai Alternative (Next.js + PocketBase)",
     seoDescription:
       "Logr is a modern, open-source Kimai alternative built on Next.js — deploy to Vercel in one click. AGPL-3.0, self-hostable, with built-in invoicing and shareable links.",
   },

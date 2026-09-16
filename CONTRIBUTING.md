@@ -15,11 +15,11 @@ Thanks for your interest in improving Logr! Contributions of all sizes are welco
 git clone https://github.com/zerox9dev/logr.git
 cd logr
 npm install
-cp .env.local.example .env.local   # then fill in your Supabase URL + anon key
+cp .env.local.example .env.local   # then point POCKETBASE_URL at your PocketBase instance
 npm run dev
 ```
 
-See the [README](README.md#supabase-setup) for the Supabase setup (tables, auth providers, redirect URLs).
+See the [README](README.md#pocketbase-setup) for the PocketBase setup (collections, API rules, password-reset link). `docker compose up -d` starts a PocketBase instance that applies `pb_migrations/` on boot, so a fresh checkout has the full schema without any manual clicking.
 
 ## Before opening a PR
 

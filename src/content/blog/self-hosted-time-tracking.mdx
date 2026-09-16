@@ -14,7 +14,7 @@ Hosted tools change. Free tiers shrink, per-seat prices go up, features move beh
 
 ### Export freedom
 
-Most SaaS trackers offer CSV export, and that covers the basics. What it usually does not cover is the full relational picture: which entries fed which invoice, per-project rate history, paid/unpaid status. When the data is in your own Postgres instance, export is not a feature someone granted you — it is `pg_dump`, or any SQL query you care to write.
+Most SaaS trackers offer CSV export, and that covers the basics. What it usually does not cover is the full relational picture: which entries fed which invoice, per-project rate history, paid/unpaid status. When the database is yours, export is not a feature someone granted you — it is a dump of the whole thing, or any SQL query you care to write.
 
 ### Auditable code
 
@@ -30,7 +30,7 @@ Self-hosting is not free ownership. You are trading a subscription fee for opera
 
 **You own upgrades.** Security patches, dependency updates, and database migrations do not apply themselves. A small app is maybe an hour a month of attention, but it is a recurring hour, and skipping it for a year makes the eventual upgrade harder.
 
-**You own auth and access.** SSO, revoking a departed contractor's access, password resets — all yours now. Tools that delegate auth to a managed provider (Logr uses Supabase Auth, for example) offload most of this, but the configuration is still on you.
+**You own auth and access.** Revoking a departed contractor's access, password resets, the SMTP account the reset emails go out through — all yours now. Tools that ship auth as part of the backend (Logr uses PocketBase's built-in auth, for example) keep this down to a few settings, but those settings are still yours to get right.
 
 The honest summary: self-hosting makes sense when the data-ownership benefits outweigh a small but real ongoing ops cost. For a solo freelancer with no confidentiality constraints, SaaS is often the rational choice. For a five-person agency handling NDA-covered clients, the calculation flips quickly.
 
@@ -38,11 +38,11 @@ The honest summary: self-hosting makes sense when the data-ownership benefits ou
 
 The table below compares a five-person team over a year. **All figures are illustrative ranges, not quotes** — SaaS pricing changes often and varies by plan, so check current pricing before deciding. The point is the shape of the cost, not the exact numbers.
 
-| Cost item | Per-seat SaaS (illustrative) | Self-hosted (small VPS or Vercel + Postgres) |
+| Cost item | Per-seat SaaS (illustrative) | Self-hosted (small VPS, or Vercel + a backend host) |
 |---|---|---|
 | Software license | ~$5–15 per user/month → **$300–900/yr** for 5 seats | $0 (open source) |
-| Hosting | Included | Small VPS ~$5–10/mo, **or** Vercel free/hobby tier + managed Postgres free tier → **$0–120/yr** |
-| Database & backups | Included | Managed Postgres free tier or ~$0–25/mo depending on size |
+| Hosting | Included | Small VPS ~$5–10/mo running both app and backend, **or** Vercel free/hobby tier + a small backend host → **$0–120/yr** |
+| Database & backups | Included | Usually the same VPS; add ~$0–10/mo for volume snapshots or off-site storage |
 | Setup time | ~0 hours | ~2–4 hours once |
 | Maintenance | ~0 hours | ~0.5–1 hour/month (updates, backup checks) |
 | Cost of growth | Linear per seat | Flat — 5 or 15 users, same server |
@@ -51,38 +51,38 @@ Two things to notice. First, self-hosting cost is flat: adding a sixth teammate 
 
 ## Deployment options
 
-Using Logr as the concrete example — an AGPL-3.0 tracker built on Next.js and Supabase Postgres — there are three realistic paths, in increasing order of control.
+Using Logr as the concrete example — an AGPL-3.0 tracker built on Next.js with PocketBase as its backend — there are three realistic paths, in increasing order of control.
 
 ### One-click on Vercel
 
-The lowest-effort path: deploy the app to Vercel from the repository, create a Supabase project (the free tier is enough to start), and set three environment variables — the Supabase URL, the anon key, and the server-only service-role key. The app runs on Vercel's free tier; your data lives in your Supabase Postgres database, which you can dump, query, or migrate away from at any time.
+The lowest-effort path: deploy the app to Vercel from the repository, run PocketBase somewhere Vercel can reach it, and set a single environment variable — `POCKETBASE_URL`. There is no anon key and service-role key to keep straight: the browser never talks to the backend directly, so that URL stays server-only and the instance behind it never needs a public hostname. The app runs on Vercel's free tier; your data is a database file on a disk you control, which you can copy, query, or migrate away from at any time.
 
 ### Docker on any host
 
-For a fully self-managed app layer, run the container anywhere Docker runs and point it at your own Supabase project:
+For a fully self-managed stack, `docker compose up` runs both halves — the app and PocketBase — on the same Docker network:
 
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
-cp .env.example .env    # fill in the 3 Supabase values
+cp .env.example .env    # runs as-is locally; every key in it is optional
 docker compose up -d --build
 ```
 
-Before first run, apply the schema migration to your Supabase project (via the SQL editor or `supabase db push`) and enable your auth providers. The app comes up on port 3000.
+The schema applies itself. The `pb_migrations/` directory is mounted into the PocketBase container and every un-applied migration runs at startup, so all the collections and their per-record access rules exist by the time the container reports healthy — no SQL editor, no clicking through a dashboard. The app comes up on port 3000 and the PocketBase admin UI on 8090, where you point SMTP at your mail provider so password-reset emails go out.
 
 ### Own VPS, own everything
 
-The maximum-ownership path: the same Docker setup on a VPS you control, pointed at a [self-hosted Supabase](https://supabase.com/docs/guides/self-hosting/docker) instead of Supabase Cloud. Now the application, the auth layer, and the Postgres database all run on your hardware. This is the right choice when contracts require data to stay in a specific jurisdiction or on specific infrastructure — and it is also the option with the most moving parts to maintain.
+The maximum-ownership path: the same compose file on a VPS you control, with a real domain, TLS, and the database volume on your own disk. Now the application, the auth layer, and the database all run on your hardware, and no part of the deployment depends on a managed provider staying in business. This is the right choice when contracts require data to stay in a specific jurisdiction or on specific infrastructure — and it is also the option where uptime, TLS renewal, and backups are entirely on you.
 
-A design note that matters for maintenance: Logr deliberately keeps the app and the database separate rather than shipping a bundled multi-container stack. You get Supabase's auth, Postgres, and row-level security as a managed (or separately self-hosted) service, and the app itself stays a single container that is trivial to rebuild or move.
+A design note that matters for maintenance: the whole backend is one process with one data directory. PocketBase carries auth, the REST API, and per-record access rules in a single SQLite-backed binary, so there is no separate database server to tune, no connection pool to size, and a backup is a copy of one directory. The trade-off is the obvious one — a single instance does not scale horizontally — which for a team's time-tracking data is a trade worth making.
 
 ## Backup, restore, and upgrade checklist
 
 The unglamorous part that decides whether self-hosting was a good idea. Run through this once at setup and revisit quarterly:
 
-- [ ] **Automate database dumps.** Nightly `pg_dump` (or your Postgres provider's scheduled backups), retained for at least 30 days.
+- [ ] **Automate database dumps.** A nightly dump or snapshot of the data directory (or your provider's scheduled backups), retained for at least 30 days.
 - [ ] **Store backups off the server.** A backup on the same VPS as the database protects you from nothing that matters.
 - [ ] **Test a restore.** Actually restore a dump into a scratch database and open the app against it. Do this before you need it, then repeat every few months.
-- [ ] **Back up your environment configuration.** The `.env` values (database URL, keys) belong in a password manager or secrets store — losing them can be as painful as losing data.
+- [ ] **Back up your environment configuration.** The `.env` values (backend URL, admin credentials, API keys) belong in a password manager or secrets store — losing them can be as painful as losing data.
 - [ ] **Snapshot before upgrading.** Take a fresh dump immediately before pulling a new version.
 - [ ] **Read migration notes.** Check the release changelog for schema migrations and run them in the documented order.
 - [ ] **Rebuild, don't just restart.** With Docker, changed build-time variables require a rebuild (`docker compose up -d --build`), not just a container restart.
@@ -101,4 +101,4 @@ Not every open-source project is worth betting your billing history on. Before c
 
 ## Closing
 
-Self-hosted time tracking is a trade: a few hours of setup and an hour a month of maintenance, in exchange for flat costs, export freedom, and a straight answer to "where is our client data?" If none of those pressures apply to you, a hosted tracker is the simpler choice, and that is fine. If they do apply, the tooling has become genuinely easy — a container, a Postgres database, three environment variables — and the open-source options, Logr among them, are mature enough to run your billing on. Start with the checklist, test your first restore, and the rest is routine.
+Self-hosted time tracking is a trade: a few hours of setup and an hour a month of maintenance, in exchange for flat costs, export freedom, and a straight answer to "where is our client data?" If none of those pressures apply to you, a hosted tracker is the simpler choice, and that is fine. If they do apply, the tooling has become genuinely easy — two containers, one environment variable, a schema that migrates itself — and the open-source options, Logr among them, are mature enough to run your billing on. Start with the checklist, test your first restore, and the rest is routine.

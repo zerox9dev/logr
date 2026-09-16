@@ -204,11 +204,9 @@ Finally, configure SMTP under *Settings → Mail settings* so password-reset ema
 
 The app sends the same ownership filter on every query, so it behaves correctly either way — but the rules are what actually enforces them.
 
-> The legacy Supabase SQL under `supabase/` is kept only as a historical reference for the old schema. It is not used by the running app.
-
 ## MCP (AI assistant access)
 
-The hosted MCP server and its OAuth 2.1 authorization flow were built on Supabase Auth and were removed with it. The in-app AI assistant (`/api/chat`) still runs the full tool registry. A PocketBase-native MCP endpoint is an open follow-up.
+The hosted MCP server and its OAuth 2.1 authorization flow were removed along with the old backend. The in-app AI assistant (`/api/chat`) still runs the full tool registry. A PocketBase-native MCP endpoint is an open follow-up.
 
 ## Contributing
 

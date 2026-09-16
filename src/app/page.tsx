@@ -260,7 +260,7 @@ export default function Home() {
           <div className="w-full max-w-[1080px] bg-card border border-line p-10 sm:p-14 flex flex-col gap-5">
             <h2 className="font-display text-[28px] leading-[1.1] text-heading">What is Logr?</h2>
             <p className="text-base leading-[1.7] text-tertiary max-w-[680px]">
-              Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Hit start on the one-click timer and every second is captured against the client and project you choose — each with its own hourly rate. When you are ready to bill, Logr collects every unbilled session into a draft invoice in seconds. Send your client a shareable invoice link they can open in any browser, no account required. The entire product lives on a single screen: timer, timeline, clients, projects, and invoices in one place, with nothing hidden behind nested menus. Logr is licensed under AGPL-3.0 and built on React, Next.js, and Supabase. You can self-host it for free on any infrastructure that runs Node.js, or use the hosted version at logr.work.
+              Logr is an open-source, self-hostable time tracker with built-in invoicing for freelancers and agencies. Hit start on the one-click timer and every second is captured against the client and project you choose — each with its own hourly rate. When you are ready to bill, Logr collects every unbilled session into a draft invoice in seconds. Send your client a shareable invoice link they can open in any browser, no account required. The entire product lives on a single screen: timer, timeline, clients, projects, and invoices in one place, with nothing hidden behind nested menus. Logr is licensed under AGPL-3.0 and built on React, Next.js, and PocketBase. You can self-host it for free on any infrastructure that runs Node.js, or use the hosted version at logr.work.
             </p>
           </div>
         </section>
@@ -340,8 +340,8 @@ export default function Home() {
               <li className="flex gap-5 items-start">
                 <span className="shrink-0 w-7 h-7 bg-ink text-white text-sm font-semibold flex items-center justify-center">2</span>
                 <div className="flex flex-col gap-1">
-                  <p className="text-base font-semibold text-heading">Connect a Supabase project</p>
-                  <p className="text-base text-tertiary leading-relaxed">Create a free Supabase project, paste the URL and anon key into Vercel environment variables, and run the included migrations.</p>
+                  <p className="text-base font-semibold text-heading">Point it at a PocketBase instance</p>
+                  <p className="text-base text-tertiary leading-relaxed">Run PocketBase anywhere Vercel can reach it &mdash; the bundled migrations create the schema on first boot &mdash; then set POCKETBASE_URL as a Vercel environment variable. Add ANTHROPIC_API_KEY if you want the AI assistant.</p>
                 </div>
               </li>
               <li className="flex gap-5 items-start">
@@ -401,7 +401,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <h3 className="text-base font-semibold text-heading">Is Logr free?</h3>
                 <p className="text-base text-tertiary leading-relaxed">
-                  Yes. Logr is open source under AGPL-3.0, which means you can self-host it at zero cost on any infrastructure you choose. The hosted version at logr.work is also free to use. There is no paid tier, no feature gating, and no hidden seats pricing. Your data stays in the Supabase project you control.
+                  Yes. Logr is open source under AGPL-3.0, which means you can self-host it at zero cost on any infrastructure you choose. The hosted version at logr.work is also free to use. There is no paid tier, no feature gating, and no hidden seats pricing. Your data stays in the PocketBase instance you control.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
@@ -413,7 +413,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <h3 className="text-base font-semibold text-heading">Can I self-host Logr?</h3>
                 <p className="text-base text-tertiary leading-relaxed">
-                  Absolutely. Logr is designed to be self-hosted. The stack is Next.js for the frontend and API routes, and Supabase (Postgres + Auth + Storage) for the database. Deploy the Next.js app anywhere that supports Node.js — Vercel, Fly.io, a VPS — point it at your own Supabase project, run the migrations, and you have a fully private instance. Instructions are in the GitHub repo.
+                  Absolutely. Logr is designed to be self-hosted. The stack is Next.js for the frontend and API routes, and PocketBase (SQLite-backed, with auth and per-record API rules built in) for the database. The repo ships a Docker Compose file that runs both, and the bundled migrations create the schema on first boot. Deploy the Next.js app anywhere that supports Node.js — Vercel, Fly.io, a VPS — point POCKETBASE_URL at your own PocketBase instance, and you have a fully private setup. Instructions are in the GitHub repo.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
