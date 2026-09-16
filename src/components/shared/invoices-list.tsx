@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
@@ -114,7 +115,11 @@ export function InvoicesList() {
               const client = getClientById(inv.client_id);
               const disabled = busy === inv.id;
               return (
-                <div key={inv.id} className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 last:border-0">
+                <Link
+                  key={inv.id}
+                  href={`/app/invoices/${inv.id}`}
+                  className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 transition-colors last:border-0 hover:bg-wash"
+                >
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="text-md font-semibold text-heading tnum">{inv.invoice_number}</span>
@@ -127,16 +132,16 @@ export function InvoicesList() {
                   </div>
                   <span className="w-[96px] shrink-0 text-right text-md font-semibold text-money tnum">{fmtMoney(inv.total, inv.currency)}</span>
                   <div className="flex shrink-0 items-center gap-1.5">
-                    <button disabled={disabled} onClick={() => share(inv)} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.share")}</button>
+                    <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(inv); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.share")}</button>
                     {inv.status === "draft" && (
-                      <button disabled={disabled} onClick={() => setStatus(inv, "sent")} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.markSent")}</button>
+                      <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "sent"); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.markSent")}</button>
                     )}
                     {inv.status !== "paid" && (
-                      <button disabled={disabled} onClick={() => setStatus(inv, "paid")} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
+                      <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "paid"); }} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
                     )}
-                    <button disabled={disabled} onClick={() => remove(inv)} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
+                    <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove(inv); }} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

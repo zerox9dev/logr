@@ -303,6 +303,9 @@ const app: Record<string, Record<string, string>> = {
     "projectDetail.unbilled": "Unbilled",
     "projectDetail.sessionHistory": "Session history",
     "projectDetail.noSessions": "No sessions tracked for this project yet.",
+
+    "invoiceDetail.notFound": "Invoice not found.",
+    "invoiceDetail.noItems": "No line items on this invoice.",
     // Activity log
     "activityLog.title": "Activity",
     "activityLog.empty": "No activity logged yet.",
@@ -609,6 +612,9 @@ const app: Record<string, Record<string, string>> = {
     "projectDetail.unbilled": "Не оплачено",
     "projectDetail.sessionHistory": "Історія сесій",
     "projectDetail.noSessions": "Для цього проєкту ще немає сесій.",
+
+    "invoiceDetail.notFound": "Рахунок не знайдено.",
+    "invoiceDetail.noItems": "У цьому рахунку немає позицій.",
     // Activity log
     "activityLog.title": "Активність",
     "activityLog.empty": "Записів активності ще немає.",
@@ -915,6 +921,9 @@ const app: Record<string, Record<string, string>> = {
     "projectDetail.unbilled": "Не оплачено",
     "projectDetail.sessionHistory": "История сессий",
     "projectDetail.noSessions": "Для этого проекта ещё нет сессий.",
+
+    "invoiceDetail.notFound": "Счёт не найден.",
+    "invoiceDetail.noItems": "В этом счёте нет позиций.",
     // Activity log
     "activityLog.title": "Активность",
     "activityLog.empty": "Записей активности ещё нет.",
