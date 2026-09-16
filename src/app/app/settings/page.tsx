@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/layout/coming-soon";
+import { SettingsForm } from "@/components/shared/settings-form";
 
 export default function Page() {
-  return <ComingSoon titleKey="sidebar.settings" />;
+  return <SettingsForm />;
 }
