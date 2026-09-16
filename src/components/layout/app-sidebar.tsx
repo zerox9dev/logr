@@ -23,6 +23,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppData } from "@/contexts/data-context";
@@ -50,6 +51,7 @@ export function AppSidebar() {
   const { lang, setLang } = useLang();
   const { user, signOut } = useAuth();
   const { settings } = useAppData();
+  const { setOpenMobile } = useSidebar();
 
   const label = settings?.full_name || user?.email || "";
   const email = user?.email ?? "";
@@ -79,7 +81,10 @@ export function AppSidebar() {
                     isActive={href === "/app" ? pathname === "/app" : pathname.startsWith(href)}
                     tooltip={t(labelKey)}
                   >
-                    <Link href={href}>
+                    {/* The off-canvas sheet has no route awareness of its own,
+                        so a tap would navigate and leave the menu covering the
+                        page it just opened. */}
+                    <Link href={href} onClick={() => setOpenMobile(false)}>
                       <Icon aria-hidden="true" />
                       <span>{t(labelKey)}</span>
                     </Link>

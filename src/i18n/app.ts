@@ -22,7 +22,6 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Search...",
     "common.noData": "No data yet.",
     "common.loading": "Loading...",
-    "common.comingSoon": "Coming soon",
     "common.all": "All",
     "common.viewAll": "View all",
     // Dashboard
@@ -305,7 +304,6 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Пошук...",
     "common.noData": "Даних поки немає.",
     "common.loading": "Завантаження...",
-    "common.comingSoon": "Незабаром",
     "common.all": "Всі",
     "common.viewAll": "Переглянути все",
     "dash.greeting": "З поверненням",
@@ -576,7 +574,6 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Поиск...",
     "common.noData": "Данных пока нет.",
     "common.loading": "Загрузка...",
-    "common.comingSoon": "Скоро будет",
     "common.all": "Все",
     "common.viewAll": "Показать все",
     "dash.greeting": "С возвращением",

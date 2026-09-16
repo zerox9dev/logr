@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { EntryForm, valuesOf } from "@/components/shared/session-entry-form";
+import { ImportDialog } from "@/components/dashboard/import-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import { fmtDuration, fmtMoney } from "@/lib/format";
@@ -26,6 +27,7 @@ export function SessionsList() {
   const params = useSearchParams();
   const [editing, setEditing] = useState<null | "new" | Session>(null);
   const [search, setSearch] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
 
   const projectFilter = params.get("project");
   const taskFilter = params.get("task");
@@ -110,9 +112,12 @@ export function SessionsList() {
               placeholder={t("sessions.searchPlaceholder")}
               className="min-w-0 border border-line bg-card px-3 py-1.5 text-md text-ink placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-line"
             />
+            <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>{t("import.menuItem")}</Button>
             <Button size="sm" onClick={() => setEditing("new")} disabled={editing !== null}>{t("sessions.addEntryButton")}</Button>
           </div>
         </div>
+
+        <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
 
         {(filterProjectName || taskFilter) && (
           <div className="mb-3 flex flex-wrap items-center gap-2">

@@ -1,6 +1,6 @@
 # Logr
 
-**Open-source, self-hostable Toggl alternative — with built-in invoicing.** Track time, bill clients, and get paid from one fast single-screen dashboard. Built with Next.js, React 19, and PocketBase.
+**Open-source, self-hostable Toggl alternative — with built-in invoicing.** Track time, bill clients, and get paid from one fast app — a persistent sidebar over Dashboard, Projects, Sessions, Clients, Invoices, Reports and Settings. Built with Next.js, React 19, and PocketBase.
 
 [![Live demo](https://img.shields.io/badge/live-demo-000?style=flat)](https://logr.work) ![Status](https://img.shields.io/badge/status-beta-orange) [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE) ![Stars](https://img.shields.io/github/stars/zerox9dev/logr?style=flat)
 
@@ -17,6 +17,7 @@
 - 📁 **Projects & Clients** — Organize work by client; hourly or fixed-budget billing.
 - 💸 **Billing** — Per-session and per-project rates, paid/unpaid status, billable vs total time.
 - 🧾 **Invoicing** — Build an invoice from a client's unbilled sessions (optional tax & due date), track draft/sent/paid/overdue status, and share a public invoice link.
+- 🧭 **Sidebar navigation** — Dashboard, Projects, Sessions, Clients, Invoices, Reports and Settings as real routes, plus a ⌘K command palette. Collapses to an off-canvas sheet on small screens.
 - 📊 **Dashboard widgets** — Daily summary, billable hours, tracking card, goals, projects & tasks, timeline.
 - 📈 **Activity heatmap** — GitHub-style graph of your work history.
 - 🔗 **Shareable links** — Self-contained report and invoice links (encoded in the URL).
@@ -35,7 +36,7 @@ Most time trackers stop at "track" and make you bolt on a separate invoicing too
 | Time tracking | ✅ | ✅ | ✅ | ✅ |
 | Invoicing built-in | ✅ | ❌ (add-on) | ✅ | ➖ |
 | Shareable report/invoice links | ✅ | ➖ | ✅ | ➖ |
-| Single-screen, no page reloads | ✅ | ❌ | ❌ | ❌ |
+| Client-side routing, no page reloads | ✅ | ❌ | ❌ | ❌ |
 | Free forever (self-host) | ✅ | ❌ | ❌ | ➖ |
 
 ## Stack
@@ -136,7 +137,10 @@ src/
 ├── app/                    # Next App Router
 │   ├── layout.tsx / page.tsx / providers.tsx / globals.css
 │   ├── login/              # Auth page
-│   ├── app/                # Dashboard (auth-gated)
+│   ├── app/                # The app itself (auth-gated), one route per sidebar section:
+│   │                       # app-shell.tsx (providers + sidebar), layout.tsx, page.tsx
+│   │                       # (dashboard), projects/, sessions/, clients/, invoices/,
+│   │                       # reports/, settings/
 │   ├── share/              # Public shared report & invoice links
 │   ├── reset-password/     # Password-reset confirmation (PocketBase token link)
 │   ├── alternatives/       # SEO hub + /[competitor] comparison pages (data-driven)
@@ -148,9 +152,18 @@ src/
 ├── content/blog/   # Blog articles as MDX (body only; metadata lives in data/posts.ts)
 ├── data/           # Static content sources: competitors.ts, posts.ts
 ├── mdx-components.tsx  # MDX element → Tailwind token mapping for blog articles
-├── components/     # ui/ (shadcn primitives), shared/, dashboard/ (+ widgets/), layout/, auth/
+├── components/
+│   ├── ui/         # shadcn primitives (button, dialog, sheet, sidebar, toast, …)
+│   ├── layout/     # app-sidebar, app-header, command-palette, context-header
+│   ├── shared/     # one *-list per section (projects, sessions, clients, invoices,
+│   │               # reports) + settings-form, pickers, session forms
+│   ├── dashboard/  # widgets/ (the /app grid) + dialogs: import, create-invoice,
+│   │               # manual-entry, new-client, new-project, rates
+│   ├── chat/       # in-app AI assistant panel
+│   ├── marketing/  # landing header & footer
+│   └── auth/       # login gate
 ├── contexts/       # auth, data, dashboard providers
-├── hooks/          # use-data, use-timer
+├── hooks/          # use-data, use-timer, use-mobile, use-session-suggestion
 ├── domain/         # pure logic + tests: dashboard-metrics, report-share, invoicing, invoice-share
 ├── i18n/           # provider + en/uk/ru dictionaries
 ├── lib/            # pocketbase (client factory + helpers), pocketbase-server (session from
@@ -166,7 +179,13 @@ src/
 |-------|-------------|
 | `/` | Public SSR marketing landing |
 | `/login` | Auth — email + password sign-in, account creation and a forgot-password flow |
-| `/app` | Dashboard (auth-gated via proxy + server session check) |
+| `/app` | Dashboard — the widget grid (auth-gated via proxy + server session check) |
+| `/app/projects` | Projects CRUD: client, billing type, rate or fixed budget, status |
+| `/app/sessions` | Sessions CRUD: search, add, inline edit, paid toggle, CSV import; `?project=` / `?task=` deep links |
+| `/app/clients` | Clients CRUD plus per-client contact details and totals |
+| `/app/invoices` | Invoices: build from unbilled sessions, status, public share link |
+| `/app/reports` | Per-client report ranges with a copyable public `/share/report` link |
+| `/app/settings` | Account profile, default rate, currency and goal settings |
 | `/share/report`, `/share/invoice` | Public read-only shared links (data encoded in URL) |
 | `/reset-password` | Sets a new password from the emailed PocketBase reset token |
 | `/api/chat` | In-app AI assistant — server-side tool-use loop over the shared tool registry |
@@ -176,7 +195,7 @@ src/
 | `/blog/rss.xml` | RSS 2.0 feed for the blog |
 | `/privacy`, `/terms` | Legal pages |
 
-`/` and `/share/*` are server-rendered; `/app` is a client dashboard behind the auth gate.
+`/` and `/share/*` are server-rendered. Everything under `/app/*` sits behind the auth gate and shares one client shell (`src/app/app/app-shell.tsx`) — the provider tree and the sidebar mount once, so moving between sections is client-side routing with no reload and no refetch.
 
 ## PocketBase Setup
 
