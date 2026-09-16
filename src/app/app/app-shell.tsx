@@ -22,7 +22,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <DataProvider>
             <DashboardProvider>
               <TooltipProvider>
-                <SidebarProvider>
+                {/* `app-shell` opts this subtree out of the global square
+                    reset in globals.css — radius/shadow tokens apply here and
+                    nowhere else on the site. */}
+                <SidebarProvider className="app-shell">
                   <AppSidebar />
                   {/* min-w-0: without it the inset's automatic minimum size
                       lets a wide page (the sessions table) push the layout

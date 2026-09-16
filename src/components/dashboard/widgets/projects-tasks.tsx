@@ -25,7 +25,7 @@ function ProjectRow({
         onClick={onToggle}
         disabled={!hasTasks}
         aria-expanded={hasTasks ? open : undefined}
-        className={`flex min-w-0 max-w-[260px] items-center gap-2 py-1.5 pl-2.5 pr-3 transition-colors ${active ? "bg-purple-soft" : "bg-wash"}`}
+        className={`app-press app-focus flex min-h-9 min-w-0 max-w-[260px] items-center gap-2 rounded-sm py-1.5 pl-2.5 pr-3 disabled:cursor-default ${active ? "bg-purple-soft hover:bg-purple-soft/70" : "bg-wash hover:bg-track"}`}
       >
         <JiraAvatar
           url={avatarUrl}
@@ -34,7 +34,7 @@ function ProjectRow({
         />
         <span className="line-clamp-1 min-w-0 text-base font-semibold text-heading">{name}</span>
         {hasTasks && (
-          <ChevronDown className={`size-4 shrink-0 text-dark-2 transition-transform ${open ? "" : "-rotate-90"}`} />
+          <ChevronDown className={`app-motion size-4 shrink-0 text-dark-2 ${open ? "" : "-rotate-90"}`} />
         )}
       </button>
       <span className="line-clamp-1 w-[96px] shrink-0 text-right text-base font-semibold text-ink tnum">{time}</span>
@@ -46,7 +46,7 @@ function TaskRow({ name, time, onClick }: { name: string; time: string; onClick:
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 pl-[40px] text-left transition-colors hover:opacity-70 sm:pl-[56px]"
+      className="app-press app-focus flex min-h-9 w-full items-center gap-3 rounded-sm pl-[40px] pr-2 text-left hover:bg-wash sm:pl-[56px]"
     >
       <CircleDot className="size-[18px] shrink-0 text-dark-2" />
       <span className="line-clamp-1 min-w-0 flex-1 text-base text-heading">{name}</span>
@@ -77,10 +77,10 @@ export function ProjectsTasks() {
     });
 
   return (
-    <div className="card-radius flex flex-col gap-4 border border-line bg-card p-6">
+    <div className="flex flex-col gap-4 rounded-md bg-card p-6 shadow-sm">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
-        <button onClick={() => router.push("/app/sessions")} aria-label={t("projects.manageSessions")} className="text-md font-bold text-muted-foreground transition-colors">•••</button>
+        <button onClick={() => router.push("/app/sessions")} aria-label={t("projects.manageSessions")} className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-md font-bold text-muted-foreground hover:bg-wash hover:text-ink">•••</button>
       </div>
       {dialog && <SessionEditDialog open onClose={() => setDialog(null)} match={dialog} />}
 
@@ -94,7 +94,7 @@ export function ProjectsTasks() {
               setTimerSeconds(0);
               setTimerRunning(true);
             }}
-            className="flex items-center gap-2 bg-heading px-6 py-[11px] text-base font-semibold text-card transition-opacity hover:opacity-90"
+            className="app-press app-focus flex items-center gap-2 rounded-sm bg-heading px-6 py-[11px] text-base font-semibold text-card shadow-xs hover:opacity-90"
           >
             <span aria-hidden="true">+</span>
             {t("projects.emptyCta")}

@@ -35,7 +35,7 @@ function ClientRow({
       <span className="size-2 shrink-0 rounded-full" style={{ background: dot }} />
       <span className="line-clamp-1 min-w-0 flex-1 text-base font-medium text-heading">{name}</span>
       {rate && (
-        <span className="shrink-0 bg-page px-2 py-0.5 text-sm-minus font-semibold text-brand-ink tnum">{rate}</span>
+        <span className="shrink-0 rounded-xs bg-page px-2 py-0.5 text-sm-minus font-semibold text-brand-ink tnum">{rate}</span>
       )}
       {!internal && id && onShare && shareLabel && (
         <button
@@ -43,7 +43,7 @@ function ClientRow({
           onClick={onShare}
           title={shareLabel}
           aria-label={shareLabel}
-          className="shrink-0 border border-line p-0.5 text-muted-foreground opacity-40 transition-opacity hover:border-ink hover:text-ink hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
+          className="app-press app-focus flex size-9 shrink-0 items-center justify-center rounded-xs text-muted-foreground opacity-40 shadow-xs hover:bg-wash hover:text-ink hover:opacity-100 focus-visible:opacity-100"
         >
           <Share2 className="size-3" />
         </button>
@@ -96,10 +96,10 @@ export function BillableHours() {
   }
 
   return (
-    <div className="card-radius flex flex-col gap-4 border border-line bg-card p-6">
+    <div className="flex flex-col gap-4 rounded-md bg-card p-6 shadow-sm">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
-        <button onClick={() => router.push("/app/sessions")} aria-label={t("billable.manageSessions")} className="text-md-minus font-bold text-muted-foreground transition-colors">•••</button>
+        <button onClick={() => router.push("/app/sessions")} aria-label={t("billable.manageSessions")} className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-md-minus font-bold text-muted-foreground hover:bg-wash hover:text-ink">•••</button>
       </div>
 
       {/* Billable / Non-billable totals */}
@@ -125,12 +125,12 @@ export function BillableHours() {
       {/* Split bar — show neutral empty bar when there is no data at all */}
       <div className="flex w-full items-start gap-[3px]">
         {b.billablePct === 0 && b.nonBillablePct === 0 ? (
-          <div className="h-2.5 w-full bg-track" />
+          <div className="h-2.5 w-full rounded-xs bg-track" />
         ) : (
           <>
             {/* flexGrow 0 collapses a 0% half entirely — no sliver. */}
-            <div className="h-2.5 bg-dark-1" style={{ flexGrow: b.billablePct }} />
-            <div className="h-2.5 bg-track" style={{ flexGrow: b.nonBillablePct }} />
+            <div className="h-2.5 rounded-xs bg-dark-1" style={{ flexGrow: b.billablePct }} />
+            <div className="h-2.5 rounded-xs bg-track" style={{ flexGrow: b.nonBillablePct }} />
           </>
         )}
       </div>
@@ -164,7 +164,7 @@ export function BillableHours() {
       )}
 
       {/* Invoiced footer */}
-      <div className="flex w-full items-center justify-between bg-faint px-4 py-3">
+      <div className="flex w-full items-center justify-between rounded-sm bg-faint px-4 py-3">
         <span className="text-md font-medium text-heading">{t(INVOICED_LABEL_KEYS[period] ?? "billable.invoicedThisWeek")}</span>
         <span className="text-xl font-semibold text-brand-ink tnum">{b.invoicedLabel}</span>
       </div>

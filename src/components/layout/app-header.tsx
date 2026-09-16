@@ -33,12 +33,14 @@ export function AppHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-line-2 bg-card px-4 py-3">
-      <SidebarTrigger />
+    <header className="sticky top-0 z-30 flex items-center gap-2 bg-card px-4 py-3 shadow-xs">
+      {/* `!` beats the Button primitive's own focus-visible outline, which is
+          --ring at 50% and all but invisible on this white header. */}
+      <SidebarTrigger className="app-press app-focus! size-9 rounded-sm" aria-label={t("nav.toggleSidebar")} />
       <button
         aria-label={t("nav.search")}
         onClick={() => setPaletteOpen(true)}
-        className="ml-auto flex items-center gap-5 bg-page px-2.5 py-2 text-tertiary transition-opacity hover:opacity-80"
+        className="app-press app-focus ml-auto flex min-h-9 items-center gap-5 rounded-sm bg-page px-2.5 text-tertiary hover:bg-track"
       >
         <Search className="size-4 sm:hidden" aria-hidden="true" />
         <span className="hidden text-md-minus sm:inline">{t("nav.search")}</span>

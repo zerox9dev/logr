@@ -81,7 +81,7 @@ export function Goals() {
   const [goalOpen, setGoalOpen] = useState(false);
 
   return (
-    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("goals.title")}</span>
         <button
@@ -89,7 +89,7 @@ export function Goals() {
           onClick={() => setGoalOpen(true)}
           aria-label={t("goals.editGoal")}
           title={t("goals.editGoal")}
-          className="text-sm text-tertiary transition-colors hover:text-ink"
+          className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-sm text-tertiary hover:bg-wash hover:text-ink"
         >
           ✎
         </button>
@@ -100,8 +100,8 @@ export function Goals() {
           <span className="text-sm text-tertiary">{t(GOAL_LABEL_KEYS[period] ?? "goals.weeklyGoal")}</span>
           <span className="text-md-minus font-semibold text-ink tnum">{g.weeklyPct}%</span>
         </div>
-        <div className="h-2 w-full bg-line-2">
-          <div className="h-2 bg-ink" style={{ width: `${g.weeklyPct}%` }} />
+        <div className="h-2 w-full rounded-xs bg-line-2">
+          <div className="h-2 rounded-xs bg-ink" style={{ width: `${g.weeklyPct}%` }} />
         </div>
         <span className="text-sm text-tertiary tnum">{g.weeklyLabel}</span>
       </div>
@@ -115,7 +115,7 @@ export function Goals() {
             <div key={i} className="flex flex-col items-center gap-1.5">
               <div className="flex h-[30px] w-[22px] flex-col justify-end">
                 <div
-                  className={day.empty ? "bg-line-2" : "bg-ink"}
+                  className={`rounded-xs ${day.empty ? "bg-line-2" : "bg-ink"}`}
                   style={{ height: day.empty ? 4 : Math.max(4, Math.round(day.heightPct * 30)) }}
                 />
               </div>

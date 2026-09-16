@@ -113,13 +113,13 @@ export function TrackingCard() {
   };
 
   return (
-    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       {/* Top row: timer-block (dot · timer / rate · earned) + actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span
             aria-hidden="true"
-            className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money" : "bg-track"}`}
+            className={`size-[9px] shrink-0 rounded-full ${timerRunning ? "animate-pulse bg-money motion-reduce:animate-none" : "bg-track"}`}
           />
           <span
             role="timer"
@@ -134,7 +134,7 @@ export function TrackingCard() {
             onClick={() => setRatesOpen(true)}
             aria-label={t("rates.editAria")}
             title={t("rates.editAria")}
-            className={`bg-page px-[11px] py-1 text-sm font-semibold tnum transition-opacity hover:opacity-80 ${idle ? "text-placeholder" : "text-dark-1"}`}
+            className={`app-press app-focus flex min-h-9 items-center rounded-xs bg-page px-3 text-sm font-semibold tnum hover:bg-track ${idle ? "text-placeholder" : "text-dark-1"}`}
           >
             {rate === 0 ? "—" : `$${Math.round(rate * 100) / 100}`}{t("unit.perHr")}
           </button>
@@ -146,7 +146,7 @@ export function TrackingCard() {
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={timerRunning ? stop : start}
-            className={`px-[30px] py-[11px] text-base font-semibold text-card transition-opacity hover:opacity-90 ${
+            className={`app-press app-focus rounded-sm px-[30px] py-[11px] text-base font-semibold text-card shadow-xs hover:opacity-90 ${
               timerRunning ? "bg-error-soft" : "bg-money"
             }`}
           >
@@ -154,7 +154,7 @@ export function TrackingCard() {
           </button>
           <button
             onClick={() => setManualOpen(true)}
-            className="flex h-[40px] items-center justify-center border border-gray-300 bg-card px-[22px] text-md font-medium text-ink transition-colors"
+            className="app-press app-focus flex h-[40px] items-center justify-center rounded-sm bg-card px-[22px] text-md font-medium text-ink shadow-sm hover:bg-wash"
           >
             {t("track.manual")}
           </button>
@@ -167,8 +167,11 @@ export function TrackingCard() {
           onChange={setProjectId}
           projects={projects}
           trigger={
-            <button className="flex max-w-[220px] items-center gap-2 bg-purple-soft py-1.5 pl-2.5 pr-3 transition-colors">
-              <span aria-hidden="true" className="h-3 w-4 shrink-0 bg-black" />
+            <button
+              aria-label={`${t("track.selectProject")}: ${projectName}`}
+              className="app-press app-focus flex min-h-9 max-w-[220px] items-center gap-2 rounded-sm bg-purple-soft py-1.5 pl-2.5 pr-3 hover:bg-purple-soft/70"
+            >
+              <span aria-hidden="true" className="h-3 w-4 shrink-0 rounded-xs bg-black" />
               <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
             </button>
           }
@@ -178,21 +181,22 @@ export function TrackingCard() {
           value={timerDescription}
           onChange={(e) => setTimerDescription(e.target.value)}
           placeholder={t("track.workingPlaceholder")}
-          className="min-w-[120px] flex-1 bg-transparent text-base font-medium text-heading placeholder:font-normal placeholder:text-muted-foreground focus:outline-none"
+          aria-label={t("track.workingPlaceholder")}
+          className="app-focus min-h-9 min-w-[120px] flex-1 rounded-sm bg-transparent px-1 text-base font-medium text-heading placeholder:font-normal placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Inline project suggestion — accept applies the project (and its
           rate/billing); ✕ dismisses it. Local history match, LLM fallback. */}
       {suggestion && (
-        <div className="flex flex-wrap items-center gap-2 text-md">
+        <div className="app-pop-in flex flex-wrap items-center gap-2 text-md">
           <span aria-hidden="true">✨</span>
           <span className="text-muted-foreground">{t("track.suggestLabel")}:</span>
           <button
             type="button"
             onClick={() => { setProjectId(suggestion.projectId); dismiss(); }}
             aria-label={t("track.suggestApply")}
-            className="bg-purple-soft px-2.5 py-1 font-semibold text-heading transition-opacity hover:opacity-80"
+            className="app-press app-focus flex min-h-9 items-center rounded-xs bg-purple-soft px-2.5 font-semibold text-heading hover:bg-purple-soft/70"
           >
             {suggestion.projectName}
           </button>
@@ -200,7 +204,7 @@ export function TrackingCard() {
             type="button"
             onClick={dismiss}
             aria-label={t("track.suggestDismiss")}
-            className="px-1 text-muted-foreground transition-colors hover:text-ink"
+            className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-muted-foreground hover:bg-wash hover:text-ink"
           >
             ✕
           </button>

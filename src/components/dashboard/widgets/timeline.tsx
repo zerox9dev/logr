@@ -32,10 +32,10 @@ export function Timeline() {
   const { segments, ticks, legend, empty, outsideRangeCount } = metrics.timeline;
 
   return (
-    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       <span className="text-widget font-semibold text-heading">{t("timeline.title")}</span>
 
-      <div className={`relative h-2.5 w-full overflow-hidden ${empty ? "bg-track" : "bg-grid"}`}>
+      <div className={`relative h-2.5 w-full overflow-hidden rounded-xs ${empty ? "bg-track" : "bg-grid"}`}>
         {segments.map((s, i) => (
           <div
             key={i}

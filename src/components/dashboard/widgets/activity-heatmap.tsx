@@ -13,7 +13,7 @@ export function ActivityHeatmap() {
   const WEEKDAYS = ["", t("activity.mon"), "", t("activity.wed"), "", t("activity.fri"), ""];
 
   return (
-    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       <div className="flex flex-col gap-0.5">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("activity.title")}</span>
         <span className="text-sm text-tertiary tnum">{totalHoursLabel}</span>
@@ -41,8 +41,8 @@ export function ActivityHeatmap() {
                       key={d}
                       role="img"
                       aria-label={day.title}
-                      tabIndex={0}
-                      className="size-[9px] focus-visible:outline focus-visible:outline-1 focus-visible:outline-ink"
+                      title={day.title}
+                      className="size-[9px]"
                       style={{ background: LEVELS[day.level] }}
                     />
                   ))}

@@ -6,8 +6,9 @@
 
 /* ─────────────────────────────────────────────────────────────
    logr design tokens (1:1 from Figma) + shadcn/ui semantic tokens
-   skinned to logr's palette. Square (radius 0), monochrome,
-   money = green, active project = purple. Light-only.
+   skinned to logr's palette. Monochrome, money = green,
+   active project = purple. Light-only. Square outside /app
+   (marketing, /login, /share); rounded + shadowed inside it.
    ───────────────────────────────────────────────────────────── */
 @theme {
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
@@ -71,17 +72,46 @@
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
+
+  /* Radius scale. Only reaches the /app shell — everything else is held at 0
+     by the reset below, so the marketing site and /login stay square. */
+  --radius-xs: 6px;    /* chips, badges, small pills */
+  --radius-sm: 8px;    /* buttons, inputs, small controls */
+  --radius-md: 10px;   /* cards, panels */
+  --radius-lg: 14px;   /* dialogs, large surfaces */
+  --radius-full: 9999px;
+
+  /* Elevation. The 0.5px spread ring replaces the 1px card border: the edge is
+     drawn by light instead of a stroke. */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 24px 48px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+
+  /* Motion */
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-overshoot: cubic-bezier(0.35, 1.55, 0.65, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-entrance: 300ms;
 }
 
 @layer base {
-  *, *::before, *::after {
-    border-radius: 0 !important;   /* square everywhere — logr design rule */
+  /* Square everywhere — logr's brand identity on the marketing site, /login and
+     the public /share pages. The /app redesign is the one exception: `.app-shell`
+     wraps every /app route, and `.app-portal` marks the Radix portals that render
+     outside that subtree. Inside either, `rounded-*` behaves normally. */
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *)),
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *))::before,
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *))::after {
+    border-radius: 0 !important;
   }
-  /* …except dashboard surfaces, which the current design rounds. This has to
-     sit in the same layer as the reset above: for !important declarations the
-     cascade prefers earlier layers, so a utility-layer rule would never win. */
+  /* Pre-redesign card rounding, still used by the pages the redesign has not
+     reached. This has to sit in the same layer as the reset above: for
+     !important declarations the cascade prefers earlier layers, so a
+     utility-layer rule would never win. */
   .card-radius {
-    border-radius: 8px !important;
+    border-radius: var(--radius-sm) !important;
   }
   * {
     @apply border-border outline-ring/50;
@@ -95,6 +125,68 @@
 
 @utility tnum {
   font-variant-numeric: tabular-nums;
+}
+
+/* ── /app interaction primitives ──────────────────────────────────────────
+   Every duration and curve below comes from the tokens above, and each one
+   collapses under prefers-reduced-motion — bundling that into the utility is
+   what keeps it from being forgotten at a call site. */
+
+/* Hover/state transition for surfaces and rows. */
+@utility app-motion {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-smooth);
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 1ms;
+  }
+}
+
+/* app-motion + a firm press. */
+@utility app-press {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-smooth);
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+    transition-duration: var(--duration-fast);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 1ms;
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+/* Keyboard focus ring on light surfaces. */
+@utility app-focus {
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* Same ring, inverted for the dark sidebar. */
+@utility app-focus-invert {
+  &:focus-visible {
+    outline: 2px solid var(--color-page);
+    outline-offset: 2px;
+  }
+}
+
+/* Entrance for something that appears and confirms — the one place the
+   overshoot curve is warranted. */
+@utility app-pop-in {
+  animation: app-pop-in var(--duration-entrance) var(--ease-overshoot) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 1ms;
+  }
+}
+
+@keyframes app-pop-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 
@@ -131,15 +223,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
 }
 
 /* Semantic values skinned to logr's palette */
 :root {
-  --radius: 0rem;
   --background: #f4f4f5;          /* page */
   --foreground: #18181b;          /* ink */
   --card: #ffffff;

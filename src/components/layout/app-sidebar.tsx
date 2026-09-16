@@ -61,12 +61,12 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
           <span aria-hidden="true" className="flex items-end gap-[2px]">
-            <span className="h-[7px] w-[3px] bg-ink" />
-            <span className="h-[11px] w-[3px] bg-ink" />
-            <span className="h-[8px] w-[3px] bg-ink" />
-            <span className="h-[15px] w-[3px] bg-ink" />
+            <span className="h-[7px] w-[3px] bg-sidebar-foreground" />
+            <span className="h-[11px] w-[3px] bg-sidebar-foreground" />
+            <span className="h-[8px] w-[3px] bg-sidebar-foreground" />
+            <span className="h-[15px] w-[3px] bg-sidebar-foreground" />
           </span>
-          <span className="text-lg font-bold tracking-[-0.3px] text-ink">logr.work</span>
+          <span className="text-lg font-bold tracking-[-0.3px] text-sidebar-foreground">logr.work</span>
         </div>
       </SidebarHeader>
 
@@ -74,23 +74,31 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV.map(({ href, labelKey, icon: Icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={href === "/app" ? pathname === "/app" : pathname.startsWith(href)}
-                    tooltip={t(labelKey)}
-                  >
-                    {/* The off-canvas sheet has no route awareness of its own,
-                        so a tap would navigate and leave the menu covering the
-                        page it just opened. */}
-                    <Link href={href} onClick={() => setOpenMobile(false)}>
-                      <Icon aria-hidden="true" />
-                      <span>{t(labelKey)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {NAV.map(({ href, labelKey, icon: Icon }) => {
+                const active = href === "/app" ? pathname === "/app" : pathname.startsWith(href);
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={t(labelKey)}
+                      className="app-press! app-focus-invert h-10 rounded-sm"
+                    >
+                      {/* The off-canvas sheet has no route awareness of its own,
+                          so a tap would navigate and leave the menu covering the
+                          page it just opened. */}
+                      <Link
+                        href={href}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setOpenMobile(false)}
+                      >
+                        <Icon aria-hidden="true" />
+                        <span>{t(labelKey)}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -101,13 +109,17 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
-                <SidebarMenuButton size="lg" aria-label={t("nav.accountMenu")}>
-                  <span className="flex size-8 shrink-0 items-center justify-center bg-purple-dark text-md-minus font-semibold text-card">
+                <SidebarMenuButton
+                  size="lg"
+                  aria-label={t("nav.accountMenu")}
+                  className="app-press! app-focus-invert rounded-sm"
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-purple-dark text-md-minus font-semibold text-card">
                     {initials(label)}
                   </span>
                   <span className="grid flex-1 text-left leading-tight">
                     {settings?.full_name && (
-                      <span className="truncate text-md font-medium text-heading">
+                      <span className="truncate text-md font-medium text-sidebar-foreground">
                         {settings.full_name}
                       </span>
                     )}
@@ -121,12 +133,12 @@ export function AppSidebar() {
                   side="top"
                   align="start"
                   sideOffset={8}
-                  className="z-50 min-w-[220px] border border-line bg-card py-1 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)]"
+                  className="app-portal z-50 min-w-[220px] rounded-md bg-card p-1 shadow-md"
                 >
                   {LANGS.map((l) => (
                     <DropdownMenu.Item
                       key={l}
-                      className="flex cursor-pointer items-center justify-between px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
+                      className="app-motion flex min-h-9 cursor-pointer items-center justify-between rounded-xs px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
                       onSelect={(e) => {
                         e.preventDefault();
                         setLang(l);
@@ -138,7 +150,7 @@ export function AppSidebar() {
                   ))}
                   <DropdownMenu.Separator className="my-1 h-px bg-line" />
                   <DropdownMenu.Item
-                    className="cursor-pointer px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
+                    className="app-motion flex min-h-9 cursor-pointer items-center rounded-xs px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash"
                     onSelect={() => signOut()}
                   >
                     {t("nav.signOut")}

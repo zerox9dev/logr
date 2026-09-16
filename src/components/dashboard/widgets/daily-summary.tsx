@@ -34,11 +34,11 @@ export function DailySummary() {
   const d = metrics.daily;
 
   return (
-    <div className="card-radius flex flex-col gap-2 border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("daily.title")}</span>
 
       <div className="flex w-full items-start gap-2.5">
-        <span className="flex size-[30px] shrink-0 items-center justify-center bg-icon-tile">
+        <span className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-icon-tile">
           <Zap className="size-[15px] text-ink" />
         </span>
         {d.sentence.tasks === "0" ? (
