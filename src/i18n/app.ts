@@ -325,6 +325,15 @@ const app: Record<string, Record<string, string>> = {
     "activityLog.deleteMessage": "This permanently deletes this log entry.",
     "activityLog.deleted": "Activity deleted",
     "activityLog.deleteFailed": "Couldn't delete the activity.",
+    // Table column headers
+    "table.rateBudget": "Rate / Budget",
+    "table.project": "Project",
+    "table.status": "Status",
+    "table.tags": "Tags",
+    "table.number": "Number",
+    "table.due": "Due",
+    "table.contact": "Contact",
+    "table.actions": "Actions",
   },
   uk: {
     "sidebar.dashboard": "Дашборд",
@@ -634,6 +643,15 @@ const app: Record<string, Record<string, string>> = {
     "activityLog.deleteMessage": "Це назавжди видалить цей запис.",
     "activityLog.deleted": "Запис видалено",
     "activityLog.deleteFailed": "Не вдалося видалити запис.",
+    // Table column headers
+    "table.rateBudget": "Ставка / Бюджет",
+    "table.project": "Проєкт",
+    "table.status": "Статус",
+    "table.tags": "Теги",
+    "table.number": "Номер",
+    "table.due": "Термін",
+    "table.contact": "Контакт",
+    "table.actions": "Дії",
   },
   ru: {
     "sidebar.dashboard": "Дашборд",
@@ -943,6 +961,15 @@ const app: Record<string, Record<string, string>> = {
     "activityLog.deleteMessage": "Запись будет удалена навсегда.",
     "activityLog.deleted": "Запись удалена",
     "activityLog.deleteFailed": "Не удалось удалить запись.",
+    // Table column headers
+    "table.rateBudget": "Ставка / Бюджет",
+    "table.project": "Проект",
+    "table.status": "Статус",
+    "table.tags": "Теги",
+    "table.number": "Номер",
+    "table.due": "Срок",
+    "table.contact": "Контакт",
+    "table.actions": "Действия",
   },
 };
 

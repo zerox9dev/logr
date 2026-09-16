@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NewProjectDialog } from "@/components/dashboard/new-project-dialog";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
@@ -32,6 +34,7 @@ const STATUS_CLASS: Record<ProjectStatus, string> = {
 export function ProjectsList() {
   const { projects, loading, getClientById } = useAppData();
   const t = useT();
+  const router = useRouter();
   const [dialog, setDialog] = useState<null | "project" | "client">(null);
   const [rateProject, setRateProject] = useState<Project | undefined>(undefined);
 
@@ -43,49 +46,73 @@ export function ProjectsList() {
           <Button size="sm" onClick={() => setDialog("project")}>{t("new.newProject")}</Button>
         </div>
 
-        {loading ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("common.loading")}</p>
-        ) : projects.length === 0 ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("projects.noProjects")}</p>
-        ) : (
-          <div className="flex flex-col gap-px">
-            {projects.map((p) => {
-              const client = getClientById(p.client_id);
-              const fixed = p.billing_type === "fixed";
-              return (
-                <Link
-                  key={p.id}
-                  href={`/app/projects/${p.id}`}
-                  className="flex w-full flex-wrap items-center gap-3 border-b border-line py-2.5 text-left transition-colors last:border-0 hover:bg-wash"
-                >
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="truncate text-md font-semibold text-heading">{p.name}</span>
-                      <span className={`shrink-0 border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[p.status]}`}>{t(STATUS_LABEL_KEYS[p.status])}</span>
-                    </div>
-                    <span className="truncate text-md-minus text-muted-foreground">
-                      {client?.name ?? "—"} · {fixed ? t("projects.fixed") : t("projects.hourly")}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={`${t("rates.ratePrefix")}${p.name}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setRateProject(p);
-                    }}
-                    className="shrink-0 bg-page px-[11px] py-1 text-sm font-semibold text-dark-1 transition-colors tnum hover:bg-wash"
+        <Table className="min-w-[640px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-md-minus text-muted-foreground">{t("projects.name")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("projects.client")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("projects.billing")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.rateBudget")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.status")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading || projects.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={5} className="py-8 text-center text-base text-muted-foreground">
+                  {loading ? t("common.loading") : t("projects.noProjects")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              projects.map((p) => {
+                const client = getClientById(p.client_id);
+                const fixed = p.billing_type === "fixed";
+                return (
+                  <TableRow
+                    key={p.id}
+                    onClick={() => router.push(`/app/projects/${p.id}`)}
+                    className="cursor-pointer border-line hover:bg-wash"
                   >
-                    {fixed
-                      ? fmtMoney(p.fixed_budget ?? 0)
-                      : `${p.rate ? `$${p.rate}` : "—"}${t("unit.perHr")}`}
-                  </button>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                    <TableCell className="py-2.5">
+                      <Link
+                        href={`/app/projects/${p.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-md font-semibold text-heading"
+                      >
+                        {p.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground">{client?.name ?? "—"}</TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground">
+                      {fixed ? t("projects.fixed") : t("projects.hourly")}
+                    </TableCell>
+                    <TableCell className="py-2.5 text-right">
+                      <button
+                        type="button"
+                        aria-label={`${t("rates.ratePrefix")}${p.name}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setRateProject(p);
+                        }}
+                        className="bg-page px-[11px] py-1 text-sm font-semibold text-dark-1 transition-colors tnum hover:bg-wash"
+                      >
+                        {fixed
+                          ? fmtMoney(p.fixed_budget ?? 0)
+                          : `${p.rate ? `$${p.rate}` : "—"}${t("unit.perHr")}`}
+                      </button>
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <span className={`border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[p.status]}`}>
+                        {t(STATUS_LABEL_KEYS[p.status])}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <NewProjectDialog open={dialog === "project"} onClose={() => setDialog(null)} onNeedClient={() => setDialog("client")} />

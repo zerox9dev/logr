@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { EntryForm, valuesOf } from "@/components/shared/session-entry-form";
@@ -101,7 +102,7 @@ export function SessionsList() {
 
   return (
     <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col overflow-x-auto border border-line bg-card p-6">
+      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-widget font-semibold text-heading">{t("sidebar.sessions")}</h1>
           <div className="flex items-center gap-2">
@@ -165,50 +166,76 @@ export function SessionsList() {
           </div>
         )}
 
-        {/* The row keeps the dialog's fixed columns, so it scrolls sideways
-            rather than squeezing the whole page on narrow viewports. */}
-        <div className="flex min-w-[660px] flex-col gap-px">
-          {loading && <span className="py-6 text-center text-base text-muted-foreground">{t("common.loading")}</span>}
-          {!loading && filteredRows.length === 0 && <span className="py-6 text-center text-base text-muted-foreground">{t("sessions.noEntries")}</span>}
-          {filteredRows.slice(0, 50).map((s) => {
-            const project = getProjectById(s.project_id);
-            const paid = s.payment_status === "paid";
-            const amount = (s.duration_seconds / 3600) * (s.rate || 0);
-            return (
-              <div key={s.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
-                <span className="w-[88px] shrink-0 text-md-minus text-muted-foreground tnum">
-                  {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <div className="flex min-w-0 items-center gap-1.5">
-                    <span className="truncate text-md font-medium text-heading">{s.name}</span>
-                    {(s.tags ?? []).map((tag) => (
-                      <span key={tag} className="shrink-0 border border-line px-1.5 py-px text-xs text-muted-foreground">{tag}</span>
-                    ))}
-                  </div>
-                  <span className="truncate text-md-minus text-muted-foreground">{project?.name ?? t("sessions.noProject")}</span>
-                </div>
-                <span className="w-[88px] shrink-0 text-right text-md text-tertiary tnum">{fmtDuration(s.duration_seconds, { hr: t("unit.hr"), min: t("unit.min") })}</span>
-                <span className={`w-[72px] shrink-0 text-right text-md font-semibold tnum ${amount > 0 ? "text-money" : "text-muted-foreground"}`}>
-                  {amount > 0 ? fmtMoney(amount) : "—"}
-                </span>
-                <button
-                  onClick={() => togglePaid(s.id, paid)}
-                  className={`w-[84px] shrink-0 border px-2 py-1 text-sm font-medium transition-colors ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
-                >
-                  {paid ? t("sessions.paid") : t("sessions.markPaid")}
-                </button>
-                <button onClick={() => setEditing(s)} className="shrink-0 px-2 py-1 text-md font-medium text-tertiary hover:text-ink transition-colors">{t("sessions.edit")}</button>
-                <button onClick={() => remove(s.id, s.name)} className="shrink-0 px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">{t("sessions.delete")}</button>
-              </div>
-            );
-          })}
-          {filteredRows.length > 50 && (
-            <span className="py-6 text-center text-md text-muted-foreground">
-              {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(filteredRows.length))}
-            </span>
-          )}
-        </div>
+        <Table className="min-w-[860px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-md-minus text-muted-foreground">{t("sessions.date")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("sessions.task")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.project")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("reports.sessionDuration")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("reports.sessionAmount")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.status")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading || filteredRows.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={7} className="py-6 text-center text-base text-muted-foreground">
+                  {loading ? t("common.loading") : t("sessions.noEntries")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredRows.slice(0, 50).map((s) => {
+                const project = getProjectById(s.project_id);
+                const paid = s.payment_status === "paid";
+                const amount = (s.duration_seconds / 3600) * (s.rate || 0);
+                return (
+                  <TableRow key={s.id} className="border-line hover:bg-transparent">
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground tnum">
+                      {new Date(s.started_at).toLocaleDateString(lang, { month: "short", day: "numeric" })}
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-md font-medium text-heading">{s.name}</span>
+                        {(s.tags ?? []).map((tag) => (
+                          <span key={tag} className="border border-line px-1.5 py-px text-xs text-muted-foreground">{tag}</span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground">{project?.name ?? t("sessions.noProject")}</TableCell>
+                    <TableCell className="py-2.5 text-right text-md text-tertiary tnum">
+                      {fmtDuration(s.duration_seconds, { hr: t("unit.hr"), min: t("unit.min") })}
+                    </TableCell>
+                    <TableCell className={`py-2.5 text-right text-md font-semibold tnum ${amount > 0 ? "text-money" : "text-muted-foreground"}`}>
+                      {amount > 0 ? fmtMoney(amount) : "—"}
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <button
+                        onClick={() => togglePaid(s.id, paid)}
+                        className={`border px-2 py-1 text-sm font-medium transition-colors ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
+                      >
+                        {paid ? t("sessions.paid") : t("sessions.markPaid")}
+                      </button>
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button onClick={() => setEditing(s)} className="px-2 py-1 text-md font-medium text-tertiary hover:text-ink transition-colors">{t("sessions.edit")}</button>
+                        <button onClick={() => remove(s.id, s.name)} className="px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">{t("sessions.delete")}</button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+
+        {filteredRows.length > 50 && (
+          <span className="py-6 text-center text-md text-muted-foreground">
+            {t("sessions.showingFirst").replace("{n}", "50").replace("{total}", String(filteredRows.length))}
+          </span>
+        )}
       </div>
     </div>
   );

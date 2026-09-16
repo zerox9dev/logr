@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -13,6 +15,7 @@ import { useT } from "@/i18n";
 export function ClientsList() {
   const { clients, loading } = useAppData();
   const t = useT();
+  const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
@@ -23,35 +26,56 @@ export function ClientsList() {
           <Button size="sm" onClick={() => setCreateOpen(true)}>{t("new.newClient")}</Button>
         </div>
 
-        {loading ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("common.loading")}</p>
-        ) : clients.length === 0 ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("clients.noClients")}</p>
-        ) : (
-          <div className="flex flex-col gap-px">
-            {clients.map((c) => (
-              <Link
-                key={c.id}
-                href={`/app/clients/${c.id}`}
-                className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 transition-colors last:border-0 hover:bg-wash"
-              >
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-md font-semibold text-heading">{c.name}</span>
-                  <span className="truncate text-md-minus text-muted-foreground">
-                    {[c.company, c.email].filter(Boolean).join(" · ") || "—"}
-                  </span>
-                </div>
-                {c.tags.length > 0 && (
-                  <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                    {c.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-        )}
+        <Table className="min-w-[560px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-md-minus text-muted-foreground">{t("clients.name")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("clients.company")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("clients.email")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.tags")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading || clients.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={4} className="py-8 text-center text-base text-muted-foreground">
+                  {loading ? t("common.loading") : t("clients.noClients")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              clients.map((c) => (
+                <TableRow
+                  key={c.id}
+                  onClick={() => router.push(`/app/clients/${c.id}`)}
+                  className="cursor-pointer border-line hover:bg-wash"
+                >
+                  <TableCell className="py-2.5">
+                    <Link
+                      href={`/app/clients/${c.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-md font-semibold text-heading"
+                    >
+                      {c.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="py-2.5 text-md-minus text-muted-foreground">{c.company || "—"}</TableCell>
+                  <TableCell className="py-2.5 text-md-minus text-muted-foreground">{c.email || "—"}</TableCell>
+                  <TableCell className="py-2.5">
+                    {c.tags.length > 0 ? (
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
+                        {c.tags.map((tag) => (
+                          <Badge key={tag} variant="secondary">{tag}</Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="block text-right text-md-minus text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <NewClientDialog open={createOpen} onClose={() => setCreateOpen(false)} />

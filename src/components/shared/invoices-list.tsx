@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { CreateInvoiceDialog } from "@/components/dashboard/create-invoice-dialog";
@@ -35,6 +37,7 @@ export function InvoicesList() {
   const { confirm } = useConfirm();
   const t = useT();
   const { lang } = useLang();
+  const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -105,47 +108,79 @@ export function InvoicesList() {
           <Button size="sm" onClick={() => setCreateOpen(true)}>{t("invoice.new")}</Button>
         </div>
 
-        {loading ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("common.loading")}</p>
-        ) : invoices.length === 0 ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("invoice.empty")}</p>
-        ) : (
-          <div className="flex flex-col gap-px">
-            {invoices.map((inv) => {
-              const client = getClientById(inv.client_id);
-              const disabled = busy === inv.id;
-              return (
-                <Link
-                  key={inv.id}
-                  href={`/app/invoices/${inv.id}`}
-                  className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 transition-colors last:border-0 hover:bg-wash"
-                >
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="text-md font-semibold text-heading tnum">{inv.invoice_number}</span>
-                      <span className={`shrink-0 border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[inv.status]}`}>{t(STATUS_LABEL_KEYS[inv.status])}</span>
-                    </div>
-                    <span className="truncate text-md-minus text-muted-foreground">
-                      {client?.name ?? "—"} · {new Date(inv.created_at).toLocaleDateString(lang, { month: "short", day: "numeric", year: "numeric" })}
-                      {inv.due_date ? ` · ${t("invoice.due").replace("{date}", new Date(inv.due_date).toLocaleDateString(lang, { month: "short", day: "numeric" }))}` : ""}
-                    </span>
-                  </div>
-                  <span className="w-[96px] shrink-0 text-right text-md font-semibold text-money tnum">{fmtMoney(inv.total, inv.currency)}</span>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(inv); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.share")}</button>
-                    {inv.status === "draft" && (
-                      <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "sent"); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.markSent")}</button>
-                    )}
-                    {inv.status !== "paid" && (
-                      <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "paid"); }} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
-                    )}
-                    <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove(inv); }} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        <Table className="min-w-[860px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.number")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("invoice.client")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("invoice.issued")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.due")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("invoice.total")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.status")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading || invoices.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={7} className="py-8 text-center text-base text-muted-foreground">
+                  {loading ? t("common.loading") : t("invoice.empty")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              invoices.map((inv) => {
+                const client = getClientById(inv.client_id);
+                const disabled = busy === inv.id;
+                return (
+                  <TableRow
+                    key={inv.id}
+                    onClick={() => router.push(`/app/invoices/${inv.id}`)}
+                    className="cursor-pointer border-line hover:bg-wash"
+                  >
+                    <TableCell className="py-2.5">
+                      <Link
+                        href={`/app/invoices/${inv.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-md font-semibold text-heading tnum"
+                      >
+                        {inv.invoice_number}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground">{client?.name ?? "—"}</TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground tnum">
+                      {new Date(inv.created_at).toLocaleDateString(lang, { month: "short", day: "numeric", year: "numeric" })}
+                    </TableCell>
+                    <TableCell className="py-2.5 text-md-minus text-muted-foreground tnum">
+                      {inv.due_date
+                        ? new Date(inv.due_date).toLocaleDateString(lang, { month: "short", day: "numeric" })
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="py-2.5 text-right text-md font-semibold text-money tnum">
+                      {fmtMoney(inv.total, inv.currency)}
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <span className={`border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[inv.status]}`}>
+                        {t(STATUS_LABEL_KEYS[inv.status])}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(inv); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.share")}</button>
+                        {inv.status === "draft" && (
+                          <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "sent"); }} className="px-2 py-1 text-md-minus font-medium text-tertiary hover:text-ink disabled:opacity-50 transition-colors">{t("invoice.markSent")}</button>
+                        )}
+                        {inv.status !== "paid" && (
+                          <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "paid"); }} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
+                        )}
+                        <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove(inv); }} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <CreateInvoiceDialog open={createOpen} onClose={() => setCreateOpen(false)} />

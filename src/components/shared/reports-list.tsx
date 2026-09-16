@@ -3,6 +3,7 @@
 import { useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -72,33 +73,44 @@ export function ReportsList() {
         </div>
         <p className="mb-4 text-md-minus text-muted-foreground">{t("reports.shareHintClient")}</p>
 
-        {loading ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("common.loading")}</p>
-        ) : clients.length === 0 ? (
-          <p className="py-8 text-center text-base text-muted-foreground">{t("clients.noClients")}</p>
-        ) : (
-          <div className="flex flex-col gap-px">
-            {clients.map((c) => (
-              <div key={c.id} className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 last:border-0">
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-md font-semibold text-heading">{c.name}</span>
-                  <span className="truncate text-md-minus text-muted-foreground">
+        <Table className="min-w-[480px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-md-minus text-muted-foreground">{t("projects.client")}</TableHead>
+              <TableHead className="text-md-minus text-muted-foreground">{t("table.contact")}</TableHead>
+              <TableHead className="text-right text-md-minus text-muted-foreground">{t("table.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading || clients.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={3} className="py-8 text-center text-base text-muted-foreground">
+                  {loading ? t("common.loading") : t("clients.noClients")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              clients.map((c) => (
+                <TableRow key={c.id} className="border-line hover:bg-transparent">
+                  <TableCell className="py-2.5 text-md font-semibold text-heading">{c.name}</TableCell>
+                  <TableCell className="py-2.5 text-md-minus text-muted-foreground">
                     {[c.company, c.email].filter(Boolean).join(" · ") || "—"}
-                  </span>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={busy === c.id}
-                  aria-label={t("billable.shareReport").replace("{name}", c.name)}
-                  onClick={() => share(c.id, c.name)}
-                >
-                  {t("reports.copyLink")}
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
+                  </TableCell>
+                  <TableCell className="py-2.5 text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busy === c.id}
+                      aria-label={t("billable.shareReport").replace("{name}", c.name)}
+                      onClick={() => share(c.id, c.name)}
+                    >
+                      {t("reports.copyLink")}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
