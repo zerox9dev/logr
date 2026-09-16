@@ -203,9 +203,15 @@ export function useData() {
     return created;
   }, [userId]);
 
+  const deleteActivity = useCallback(async (id: string) => {
+    await activitiesApi.delete(id);
+    setActivities((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
   // ── Lookups ──
   const getProjectById = useCallback((id: string | null) => projects.find((p) => p.id === id), [projects]);
   const getClientById = useCallback((id: string | null) => clients.find((c) => c.id === id), [clients]);
+  const getActivitiesByClient = useCallback((id: string | null) => activities.filter((a) => a.client_id === id), [activities]);
 
   // ── Timer (persisted to localStorage so it survives reloads) ──
   const timer = useTimer();
@@ -217,7 +223,7 @@ export function useData() {
     projects, addProject, updateProject, deleteProject, getProjectById,
     sessions, addSession, addSessionsBulk, updateSession, deleteSession,
     invoices, addInvoice, updateInvoice, updateInvoiceWithItems, deleteInvoice, getInvoiceItems, billedSessionIds,
-    activities, addActivity,
+    activities, addActivity, deleteActivity, getActivitiesByClient,
     ...timer,
   };
 }

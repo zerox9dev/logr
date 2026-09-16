@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
@@ -8,7 +9,7 @@ import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 
 /** Clients page body: name, company, email and tags, plus the "New client"
- *  entry point. Read-only — no edit/delete UI exists for clients yet. */
+ *  entry point. Each row links to that client's detail page. */
 export function ClientsList() {
   const { clients, loading } = useAppData();
   const t = useT();
@@ -29,7 +30,11 @@ export function ClientsList() {
         ) : (
           <div className="flex flex-col gap-px">
             {clients.map((c) => (
-              <div key={c.id} className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 last:border-0">
+              <Link
+                key={c.id}
+                href={`/app/clients/${c.id}`}
+                className="flex flex-wrap items-center gap-3 border-b border-line py-2.5 transition-colors last:border-0 hover:bg-wash"
+              >
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-md font-semibold text-heading">{c.name}</span>
                   <span className="truncate text-md-minus text-muted-foreground">
@@ -43,7 +48,7 @@ export function ClientsList() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         )}
