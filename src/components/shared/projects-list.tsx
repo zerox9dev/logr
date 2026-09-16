@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { NewProjectDialog } from "@/components/dashboard/new-project-dialog";
 import { NewClientDialog } from "@/components/dashboard/new-client-dialog";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
+import { JiraAvatar } from "@/components/shared/jira-avatar";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import { fmtMoney } from "@/lib/format";
@@ -77,8 +78,9 @@ export function ProjectsList() {
                       <Link
                         href={`/app/projects/${p.id}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-md font-semibold text-heading"
+                        className="flex items-center gap-2 text-md font-semibold text-heading"
                       >
+                        <JiraAvatar url={p.jira_avatar_url} alt="" className="size-5" />
                         {p.name}
                       </Link>
                     </TableCell>

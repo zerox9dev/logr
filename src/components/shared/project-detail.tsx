@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RatesDialog } from "@/components/dashboard/rates-dialog";
+import { JiraAvatar } from "@/components/shared/jira-avatar";
 import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import { fmtDuration, fmtDurationFull, fmtMoney } from "@/lib/format";
@@ -79,6 +80,7 @@ export function ProjectDetail({ id }: { id: string }) {
         </Link>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
+            <JiraAvatar url={project.jira_avatar_url} alt="" className="size-6" />
             <h1 className="min-w-0 truncate text-widget font-semibold text-heading">{project.name}</h1>
             <span className={`shrink-0 border px-1.5 py-px text-xs font-medium ${STATUS_CLASS[project.status]}`}>
               {t(STATUS_LABEL_KEYS[project.status])}

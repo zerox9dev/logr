@@ -22,6 +22,9 @@ export interface JiraWorklogEntry {
 export interface JiraProjectOption {
   key: string;
   name: string;
+  /** Jira's own avatar URL for the project. Needs the Jira access token to
+   *  fetch, so it is only ever loaded through /api/jira/avatar. */
+  avatarUrl: string | null;
 }
 
 export interface JiraSyncSummary {

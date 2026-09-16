@@ -7,13 +7,14 @@ import { Folder, CircleDot, ChevronDown } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
 import { SessionEditDialog } from "@/components/shared/session-edit-dialog";
+import { JiraAvatar } from "@/components/shared/jira-avatar";
 import { useT } from "@/i18n";
 
 function ProjectRow({
-  pct, name, time, active, open, hasTasks, onToggle,
+  pct, name, time, active, open, hasTasks, avatarUrl, onToggle,
 }: {
   pct: string; name: string; time: string; active?: boolean;
-  open: boolean; hasTasks: boolean; onToggle: () => void;
+  open: boolean; hasTasks: boolean; avatarUrl: string | null; onToggle: () => void;
 }) {
   return (
     <div className="flex w-full items-center gap-3.5">
@@ -26,7 +27,11 @@ function ProjectRow({
         aria-expanded={hasTasks ? open : undefined}
         className={`flex min-w-0 max-w-[260px] items-center gap-2 py-1.5 pl-2.5 pr-3 transition-colors ${active ? "bg-purple-soft" : "bg-wash"}`}
       >
-        <Folder className={`size-4 shrink-0 ${active ? "text-black" : "text-dark-2"}`} />
+        <JiraAvatar
+          url={avatarUrl}
+          alt=""
+          fallback={<Folder className={`size-4 shrink-0 ${active ? "text-black" : "text-dark-2"}`} />}
+        />
         <span className="line-clamp-1 min-w-0 text-base font-semibold text-heading">{name}</span>
         {hasTasks && (
           <ChevronDown className={`size-4 shrink-0 text-dark-2 transition-transform ${open ? "" : "-rotate-90"}`} />
@@ -52,7 +57,7 @@ function TaskRow({ name, time, onClick }: { name: string; time: string; onClick:
 
 export function ProjectsTasks() {
   const { metrics } = useDashboard();
-  const { setTimerRunning, setTimerStartedAt, setTimerSeconds } = useAppData();
+  const { setTimerRunning, setTimerStartedAt, setTimerSeconds, getProjectById } = useAppData();
   const t = useT();
   const router = useRouter();
   const { rows, empty } = metrics.projects;
@@ -108,6 +113,7 @@ export function ProjectsTasks() {
               active={i === 0}
               open={open}
               hasTasks={p.tasks.length > 0}
+              avatarUrl={getProjectById(p.id)?.jira_avatar_url ?? null}
               onToggle={() => toggle(p.id)}
             />
             {open && p.tasks.map((t) => (

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { ClientPicker } from "@/components/shared/client-picker";
 import { ProjectPicker } from "@/components/shared/project-picker";
+import { JiraAvatar } from "@/components/shared/jira-avatar";
 import { useAppData } from "@/contexts/data-context";
 import { useT, useLang } from "@/i18n";
 import { jiraApi } from "@/actions";
@@ -45,9 +46,24 @@ function MappingRow({
 
   return (
     <div className="grid grid-cols-1 items-center gap-2 border-b border-line py-3 last:border-b-0 sm:grid-cols-3">
-      <div className="min-w-0">
-        <span className="block truncate text-md text-ink">{option.name}</span>
-        <span className="block text-md-minus text-muted-foreground">{option.key}</span>
+      <div className="flex min-w-0 items-center gap-2">
+        <JiraAvatar
+          url={option.avatarUrl}
+          alt=""
+          className="size-6"
+          fallback={
+            <span
+              aria-hidden="true"
+              className="flex size-6 shrink-0 items-center justify-center rounded-[3px] bg-wash text-xs font-semibold text-muted-foreground"
+            >
+              {option.key.slice(0, 1)}
+            </span>
+          }
+        />
+        <span className="min-w-0">
+          <span className="block truncate text-md text-ink">{option.name}</span>
+          <span className="block text-md-minus text-muted-foreground">{option.key}</span>
+        </span>
       </div>
       <div className="flex min-w-0 items-center gap-1">
         <ClientPicker
@@ -151,6 +167,7 @@ export function IntegrationsPanel() {
       const saved = await jiraApi.saveMapping({
         jira_project_key: option.key,
         jira_project_name: option.name,
+        jira_project_avatar_url: option.avatarUrl,
         client_id: next.client_id,
         project_id: next.project_id,
       });
@@ -195,7 +212,11 @@ export function IntegrationsPanel() {
   // existing mapping stays editable instead of vanishing with the API call.
   const options: JiraProjectOption[] = jiraProjects.length
     ? jiraProjects
-    : mappings.map((m) => ({ key: m.jira_project_key, name: m.jira_project_name ?? m.jira_project_key }));
+    : mappings.map((m) => ({
+        key: m.jira_project_key,
+        name: m.jira_project_name ?? m.jira_project_key,
+        avatarUrl: m.jira_project_avatar_url,
+      }));
 
   const lastSynced = connection?.lastSyncedAt
     ? new Date(connection.lastSyncedAt).toLocaleString(lang)

@@ -146,6 +146,7 @@ export function toProjectRow(r: RecordModel): Project {
     rate: num(r.rate),
     fixed_budget: num(r.fixed_budget),
     status: (str(r.status) ?? "active") as ProjectStatus,
+    jira_avatar_url: str(r.jira_avatar_url),
     created_at: createdAt(r),
   };
 }
@@ -160,6 +161,7 @@ export function fromProject(data: ProjectInsert | ProjectUpdate): Record<string,
     rate: data.rate,
     fixed_budget: data.fixed_budget,
     status: data.status,
+    jira_avatar_url: data.jira_avatar_url,
   });
 }
 
@@ -226,6 +228,7 @@ export function toJiraProjectMappingRow(r: RecordModel): JiraProjectMapping {
     user_id: r.user as string,
     jira_project_key: (str(r.jira_project_key) ?? ""),
     jira_project_name: str(r.jira_project_name),
+    jira_project_avatar_url: str(r.jira_project_avatar_url),
     client_id: str(r.client),
     project_id: str(r.project),
   };
@@ -235,6 +238,7 @@ export function fromJiraProjectMapping(data: JiraProjectMappingInput): Record<st
   return defined({
     jira_project_key: data.jira_project_key,
     jira_project_name: data.jira_project_name ?? "",
+    jira_project_avatar_url: data.jira_project_avatar_url ?? "",
     client: data.client_id ?? "",
     project: data.project_id ?? "",
   });

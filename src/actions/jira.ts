@@ -3,18 +3,13 @@
 import type PocketBase from "pocketbase";
 import { getAuthedPb } from "@/lib/pocketbase-server";
 import { filterValue } from "@/lib/pocketbase";
-import {
-  TOKEN_EXPIRY_BUFFER_MS,
-  atlassianCredentials,
-  jiraApiBase,
-  refreshTokens,
-} from "@/lib/atlassian-oauth";
+import { atlassianCredentials, jiraApiBase } from "@/lib/atlassian-oauth";
+import { findJiraConnection, validAccessToken } from "@/lib/jira-server";
 import {
   fromJiraProjectMapping,
   fromProject,
   fromSession,
   toClientRow,
-  toJiraConnectionRow,
   toJiraProjectMappingRow,
   toProjectRow,
   toUserSettingsRow,
@@ -28,7 +23,6 @@ import {
   type JiraWorklogEntry,
 } from "@/domain/jira-sync";
 import type {
-  JiraConnection,
   JiraConnectionSummary,
   JiraProjectMapping,
   JiraProjectMappingInput,
@@ -51,37 +45,6 @@ function chunk<T>(items: T[], size: number): T[][] {
   const out: T[][] = [];
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
   return out;
-}
-
-async function findConnection(pb: PocketBase, userId: string): Promise<JiraConnection | null> {
-  try {
-    const record = await pb
-      .collection("jira_connections")
-      .getFirstListItem(`user = "${filterValue(userId)}"`);
-    return toJiraConnectionRow(record);
-  } catch {
-    return null;
-  }
-}
-
-/** Current access token, refreshed in place when it is at or near expiry.
- *  Atlassian rotates the refresh token on every use, so both are rewritten. */
-async function validAccessToken(pb: PocketBase, connection: JiraConnection): Promise<string> {
-  const expiresAt = connection.token_expires_at ? Date.parse(connection.token_expires_at) : 0;
-  if (expiresAt - TOKEN_EXPIRY_BUFFER_MS > Date.now()) return connection.access_token;
-
-  const credentials = atlassianCredentials();
-  if (!credentials) throw new Error("Jira integration is not configured");
-
-  const tokens = await refreshTokens(credentials, connection.refresh_token);
-  if (!tokens) throw new Error("Jira session expired — reconnect the integration");
-
-  await pb.collection("jira_connections").update(connection.id, {
-    access_token: tokens.accessToken,
-    refresh_token: tokens.refreshToken,
-    token_expires_at: tokens.expiresAt,
-  });
-  return tokens.accessToken;
 }
 
 async function jiraFetch(
@@ -111,13 +74,24 @@ function asArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
 
+/** Jira returns one URL per avatar size; 48x48 is the largest offered and the
+ *  only one that still looks sharp on a retina display at our render size. */
+function avatarUrlOf(project: Record<string, unknown>): string | null {
+  const urls = asRecord(project.avatarUrls);
+  for (const size of ["48x48", "32x32", "24x24", "16x16"]) {
+    const url = urls[size];
+    if (typeof url === "string" && url) return url;
+  }
+  return null;
+}
+
 // ── Connection ──
 
 /** Sanitized view for client code: the stored tokens are deliberately absent
  *  and must never be built into anything a `"use client"` component receives. */
 export async function getConnection(): Promise<JiraConnectionSummary | null> {
   const { pb, userId } = await getAuthedPb();
-  const connection = await findConnection(pb, userId);
+  const connection = await findJiraConnection(pb, userId);
   if (!connection) return null;
   return {
     connected: true,
@@ -134,7 +108,7 @@ export async function isConfigured(): Promise<boolean> {
 
 export async function disconnect(): Promise<void> {
   const { pb, userId } = await getAuthedPb();
-  const connection = await findConnection(pb, userId);
+  const connection = await findJiraConnection(pb, userId);
   if (connection) await pb.collection("jira_connections").delete(connection.id);
 }
 
@@ -143,7 +117,7 @@ export async function disconnect(): Promise<void> {
 /** Live project list from Jira, for the mapping UI. */
 export async function listJiraProjects(): Promise<JiraProjectOption[]> {
   const { pb, userId } = await getAuthedPb();
-  const connection = await findConnection(pb, userId);
+  const connection = await findJiraConnection(pb, userId);
   if (!connection) throw new Error("Jira is not connected");
   const token = await validAccessToken(pb, connection);
   const base = jiraApiBase(connection.cloud_id);
@@ -163,12 +137,43 @@ export async function listJiraProjects(): Promise<JiraProjectOption[]> {
       options.push({
         key: project.key,
         name: typeof project.name === "string" ? project.name : project.key,
+        avatarUrl: avatarUrlOf(project),
       });
     }
     if (page.isLast !== false) break;
     startAt += PROJECT_PAGE_SIZE;
   }
+
+  await cacheAvatarUrls(pb, userId, options);
   return options;
+}
+
+/** Writes the avatar URL of each listed Jira project onto the mapping that
+ *  already exists for it, so the mapping table and the synced logr projects
+ *  keep an avatar even when Jira cannot be reached. */
+async function cacheAvatarUrls(
+  pb: PocketBase,
+  userId: string,
+  options: JiraProjectOption[],
+): Promise<void> {
+  const byKey = new Map(options.map((option) => [option.key, option.avatarUrl]));
+  const mappings = await pb
+    .collection("jira_project_mappings")
+    .getFullList({ filter: `user = "${filterValue(userId)}"` })
+    .catch(() => []);
+
+  await Promise.allSettled(
+    mappings.flatMap((record) => {
+      const key = typeof record.jira_project_key === "string" ? record.jira_project_key : "";
+      const next = byKey.get(key) ?? null;
+      if (!next || record.jira_project_avatar_url === next) return [];
+      return [
+        pb
+          .collection("jira_project_mappings")
+          .update(record.id, { jira_project_avatar_url: next }),
+      ];
+    }),
+  );
 }
 
 export async function listMappings(): Promise<JiraProjectMapping[]> {
@@ -201,7 +206,15 @@ export async function saveMapping(data: JiraProjectMappingInput): Promise<JiraPr
   const record = existing
     ? await pb.collection("jira_project_mappings").update(existing.id, payload)
     : await pb.collection("jira_project_mappings").create(payload);
-  return toJiraProjectMappingRow(record);
+
+  const mapping = toJiraProjectMappingRow(record);
+  if (mapping.project_id && mapping.jira_project_avatar_url) {
+    await pb
+      .collection("projects")
+      .update(mapping.project_id, { jira_avatar_url: mapping.jira_project_avatar_url })
+      .catch(() => null);
+  }
+  return mapping;
 }
 
 // ── Sync ──
@@ -314,6 +327,7 @@ async function resolveMappingProjects(
       continue;
     }
     const name = mapping.jira_project_name?.trim() || mapping.jira_project_key;
+    const avatar = mapping.jira_project_avatar_url;
     let project = findProjectByName(projects, mapping.client_id, name);
     if (!project) {
       const record = await pb.collection("projects").create({
@@ -325,11 +339,15 @@ async function resolveMappingProjects(
           rate: null,
           fixed_budget: null,
           status: "active",
+          jira_avatar_url: avatar,
         }),
         user: userId,
       });
       project = toProjectRow(record);
       projects.push(project);
+    } else if (avatar && project.jira_avatar_url !== avatar) {
+      await pb.collection("projects").update(project.id, { jira_avatar_url: avatar });
+      project.jira_avatar_url = avatar;
     }
     resolved.push({ ...mapping, project_id: project.id });
   }
@@ -342,7 +360,7 @@ async function resolveMappingProjects(
  *  in Jira after import is not re-applied. */
 export async function triggerSync(): Promise<JiraSyncSummary> {
   const { pb, userId } = await getAuthedPb();
-  const connection = await findConnection(pb, userId);
+  const connection = await findJiraConnection(pb, userId);
   if (!connection) throw new Error("Jira is not connected");
 
   const token = await validAccessToken(pb, connection);

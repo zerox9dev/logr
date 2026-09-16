@@ -54,6 +54,9 @@ export interface Project {
   rate: number | null;
   fixed_budget: number | null;
   status: ProjectStatus;
+  /** Jira project avatar this project was synced from, served through
+   *  /api/jira/avatar. Null for projects that never came from Jira. */
+  jira_avatar_url: string | null;
   created_at: string;
 }
 
@@ -132,11 +135,15 @@ export interface JiraProjectMapping {
   user_id: string;
   jira_project_key: string;
   jira_project_name: string | null;
+  jira_project_avatar_url: string | null;
   client_id: string | null;
   project_id: string | null;
 }
 
-export type JiraProjectMappingInput = Omit<JiraProjectMapping, "id" | "user_id">;
+export type JiraProjectMappingInput = Omit<
+  JiraProjectMapping,
+  "id" | "user_id" | "jira_project_avatar_url"
+> & { jira_project_avatar_url?: string | null };
 
 export interface Activity {
   id: string;
@@ -161,7 +168,9 @@ export type ClientInsert =
   };
 export type ClientUpdate = Partial<Omit<Client, "id" | "user_id" | "created_at" | "updated_at">>;
 
-export type ProjectInsert = Omit<Project, "id" | "created_at">;
+export type ProjectInsert = Omit<Project, "id" | "created_at" | "jira_avatar_url"> & {
+  jira_avatar_url?: string | null;
+};
 export type ProjectUpdate = Partial<Omit<Project, "id" | "user_id" | "created_at">>;
 
 export type SessionInsert = Omit<Session, "id" | "created_at" | "jira_worklog_id"> & {
