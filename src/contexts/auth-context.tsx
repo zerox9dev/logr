@@ -9,6 +9,10 @@ interface AuthState {
   user: PbUser | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  /** Seeds the signed-in user after a sign-in/sign-up Server Action. This
+   *  provider sits in the root layout, so a client-side transition into /app
+   *  never remounts it and its one-shot mount effect never re-runs. */
+  setUser: (user: PbUser | null) => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -31,11 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await signOutAction();
     setUser(null);
-    router.refresh();
+    router.replace("/login");
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signOut, setUser }}>
       {children}
     </AuthContext.Provider>
   );

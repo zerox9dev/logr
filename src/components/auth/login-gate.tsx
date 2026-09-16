@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInAction, signUpAction, requestPasswordResetAction } from "@/actions/auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,10 @@ const MIN_PASSWORD_LENGTH = 8;
 interface FormState {
   error?: string;
   sent?: boolean;
+  /** Set once auth succeeded; an effect does the redirect. Navigating from
+   *  inside the `useActionState` action instead scopes the router update into
+   *  that action's transition, which then never commits. */
+  authed?: boolean;
 }
 
 interface LoginGateProps {
@@ -23,6 +28,7 @@ interface LoginGateProps {
 /** Sign-in gate shown at `/login` when not authenticated. Monochrome, square. */
 export function LoginGate({ next }: LoginGateProps = {}) {
   const router = useRouter();
+  const { setUser } = useAuth();
   const t = useT();
   const [mode, setMode] = useState<"signIn" | "signUp" | "forgot">("signIn");
 
@@ -33,12 +39,10 @@ export function LoginGate({ next }: LoginGateProps = {}) {
       if (!EMAIL_RE.test(email)) return { error: t("login.emailInvalid") };
       if (!password) return { error: t("login.passwordRequired") };
 
-      const { error } = await signInAction(email, password);
+      const { error, user } = await signInAction(email, password);
       if (error) return { error };
-
-      router.replace(next ?? "/app");
-      router.refresh();
-      return {};
+      if (user) setUser(user);
+      return { authed: true };
     },
     {},
   );
@@ -52,13 +56,11 @@ export function LoginGate({ next }: LoginGateProps = {}) {
       if (password.length < MIN_PASSWORD_LENGTH) return { error: t("signup.tooShort") };
       if (password !== passwordConfirm) return { error: t("signup.mismatch") };
 
-      const { error, emailTaken } = await signUpAction(email, password, passwordConfirm);
+      const { error, emailTaken, user } = await signUpAction(email, password, passwordConfirm);
       if (emailTaken) return { error: t("signup.emailTaken") };
       if (error) return { error };
-
-      router.replace(next ?? "/app");
-      router.refresh();
-      return {};
+      if (user) setUser(user);
+      return { authed: true };
     },
     {},
   );
@@ -74,6 +76,16 @@ export function LoginGate({ next }: LoginGateProps = {}) {
     },
     {},
   );
+
+  const authed = Boolean(signInState.authed || signUpState.authed);
+
+  useEffect(() => {
+    if (authed) router.replace(next ?? "/app");
+  }, [authed, next, router]);
+
+  // Keep the forms locked while the post-auth redirect is in flight.
+  const busySignIn = signingIn || authed;
+  const busySignUp = signingUp || authed;
 
   const error =
     mode === "signIn" ? signInState.error : mode === "signUp" ? signUpState.error : resetState.error;
@@ -134,24 +146,24 @@ export function LoginGate({ next }: LoginGateProps = {}) {
               type="email"
               autoComplete="email"
               placeholder={t("login.emailPlaceholder")}
-              disabled={signingUp}
+              disabled={busySignUp}
             />
             <Input
               name="password"
               type="password"
               autoComplete="new-password"
               placeholder={t("signup.passwordPlaceholder")}
-              disabled={signingUp}
+              disabled={busySignUp}
             />
             <Input
               name="passwordConfirm"
               type="password"
               autoComplete="new-password"
               placeholder={t("signup.confirmPlaceholder")}
-              disabled={signingUp}
+              disabled={busySignUp}
             />
-            <Button type="submit" disabled={signingUp} className="w-full">
-              {signingUp ? t("signup.creating") : t("signup.submit")}
+            <Button type="submit" disabled={busySignUp} className="w-full">
+              {busySignUp ? t("signup.creating") : t("signup.submit")}
             </Button>
             <button
               type="button"
@@ -168,17 +180,17 @@ export function LoginGate({ next }: LoginGateProps = {}) {
               type="email"
               autoComplete="email"
               placeholder={t("login.emailPlaceholder")}
-              disabled={signingIn}
+              disabled={busySignIn}
             />
             <Input
               name="password"
               type="password"
               autoComplete="current-password"
               placeholder={t("login.passwordPlaceholder")}
-              disabled={signingIn}
+              disabled={busySignIn}
             />
-            <Button type="submit" disabled={signingIn} className="w-full">
-              {signingIn ? t("login.signingIn") : t("login.signIn")}
+            <Button type="submit" disabled={busySignIn} className="w-full">
+              {busySignIn ? t("login.signingIn") : t("login.signIn")}
             </Button>
             <div className="mt-1 flex flex-col gap-1">
               <button

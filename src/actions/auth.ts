@@ -1,11 +1,17 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { PB_AUTH_COOKIE, createPb, type PbUser } from "@/lib/pocketbase";
+import { PB_AUTH_COOKIE, createPb, toPbUser, type PbUser } from "@/lib/pocketbase";
 import { getCurrentUser } from "@/lib/pocketbase-server";
 
 export interface ActionResult {
   error?: string;
+}
+
+/** Sign-in/sign-up result. `user` lets the client seed its auth context from
+ *  the same round-trip instead of firing a second Server Action. */
+export interface AuthResult extends ActionResult {
+  user?: PbUser;
 }
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
@@ -35,15 +41,17 @@ async function writeSessionCookie(value: string) {
   });
 }
 
-export async function signInAction(email: string, password: string): Promise<ActionResult> {
+export async function signInAction(email: string, password: string): Promise<AuthResult> {
   const pb = createPb();
   try {
     await pb.collection("users").authWithPassword(email.trim(), password);
   } catch (err) {
     return { error: message(err, "Invalid email or password.") };
   }
+  const user = toPbUser(pb.authStore.record as Record<string, unknown> | null);
+  if (!user) return { error: "Signed in, but the account could not be read." };
   await writeSessionCookie(cookieValue(pb.authStore.exportToCookie({ httpOnly: true }, PB_AUTH_COOKIE)));
-  return {};
+  return { user };
 }
 
 /** True when PocketBase rejected `users.create` because the email is taken. */
@@ -53,7 +61,7 @@ function isDuplicateEmail(err: unknown): boolean {
   return code === "validation_not_unique" || code === "validation_invalid_email";
 }
 
-export interface SignUpResult extends ActionResult {
+export interface SignUpResult extends AuthResult {
   /** Lets the client show a localized message instead of the English fallback. */
   emailTaken?: boolean;
 }
@@ -78,8 +86,10 @@ export async function signUpAction(
   } catch (err) {
     return { error: message(err, "Account created, but sign-in failed. Try signing in.") };
   }
+  const user = toPbUser(pb.authStore.record as Record<string, unknown> | null);
+  if (!user) return { error: "Account created, but sign-in failed. Try signing in." };
   await writeSessionCookie(cookieValue(pb.authStore.exportToCookie({ httpOnly: true }, PB_AUTH_COOKIE)));
-  return {};
+  return { user };
 }
 
 export async function signOutAction(): Promise<ActionResult> {

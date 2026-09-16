@@ -7,6 +7,7 @@ const app: Record<string, Record<string, string>> = {
     // Sidebar
     "sidebar.dashboard": "Dashboard",
     "sidebar.projects": "Projects",
+    "sidebar.sessions": "Sessions",
     "sidebar.clients": "Clients",
     "sidebar.invoices": "Invoices",
     "sidebar.reports": "Reports",
@@ -21,6 +22,7 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Search...",
     "common.noData": "No data yet.",
     "common.loading": "Loading...",
+    "common.comingSoon": "Coming soon",
     "common.all": "All",
     "common.viewAll": "View all",
     // Dashboard
@@ -287,6 +289,7 @@ const app: Record<string, Record<string, string>> = {
   uk: {
     "sidebar.dashboard": "Дашборд",
     "sidebar.projects": "Проєкти",
+    "sidebar.sessions": "Сесії",
     "sidebar.clients": "Клієнти",
     "sidebar.invoices": "Рахунки",
     "sidebar.reports": "Звіти",
@@ -300,6 +303,7 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Пошук...",
     "common.noData": "Даних поки немає.",
     "common.loading": "Завантаження...",
+    "common.comingSoon": "Незабаром",
     "common.all": "Всі",
     "common.viewAll": "Переглянути все",
     "dash.greeting": "З поверненням",
@@ -554,6 +558,7 @@ const app: Record<string, Record<string, string>> = {
   ru: {
     "sidebar.dashboard": "Дашборд",
     "sidebar.projects": "Проекты",
+    "sidebar.sessions": "Сессии",
     "sidebar.clients": "Клиенты",
     "sidebar.invoices": "Счета",
     "sidebar.reports": "Отчёты",
@@ -567,6 +572,7 @@ const app: Record<string, Record<string, string>> = {
     "common.search": "Поиск...",
     "common.noData": "Данных пока нет.",
     "common.loading": "Загрузка...",
+    "common.comingSoon": "Скоро будет",
     "common.all": "Все",
     "common.viewAll": "Показать все",
     "dash.greeting": "С возвращением",
