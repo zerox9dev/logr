@@ -9,9 +9,6 @@ import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import type { BillingType } from "@/types/database";
 
-const seg = (active: boolean) =>
-  `px-4 py-2 text-md font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
-
 /** New project — client + billing + rate. With no clients on record it becomes
  *  a prompt that hands control back to the caller's "new client" flow. */
 export function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolean; onClose: () => void; onNeedClient: () => void }) {
@@ -93,9 +90,9 @@ export function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolea
         </Field>
         <div className="flex items-end gap-3">
           <Field label={t("new.billing")}>
-            <div className="flex items-start bg-wash p-1">
-              <button type="button" className={seg(billing === "hourly")} onClick={() => setBilling("hourly")}>{t("new.hourly")}</button>
-              <button type="button" className={seg(billing === "fixed")} onClick={() => setBilling("fixed")}>{t("new.fixed")}</button>
+            <div className="flex items-start gap-0.5 rounded-sm bg-wash p-1">
+              <Button type="button" variant={billing === "hourly" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("new.hourly")}</Button>
+              <Button type="button" variant={billing === "fixed" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("new.fixed")}</Button>
             </div>
           </Field>
           <Field label={billing === "hourly" ? t("new.rateHr") : t("new.budget")}>

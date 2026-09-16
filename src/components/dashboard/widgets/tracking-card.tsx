@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -129,35 +132,33 @@ export function TrackingCard() {
             {fmtClock(timerSeconds)}
           </span>
           <span className="sr-only">{timerRunning ? t("track.timerRunning") : t("track.timerStopped")}</span>
-          <button
+          <Button
             type="button"
+            variant={idle ? "chip-muted" : "chip"}
+            size="lg"
             onClick={() => setRatesOpen(true)}
             aria-label={t("rates.editAria")}
             title={t("rates.editAria")}
-            className={`app-press app-focus flex min-h-9 items-center rounded-xs bg-page px-3 text-sm font-semibold tnum hover:bg-track ${idle ? "text-placeholder" : "text-dark-1"}`}
+            className="text-sm font-semibold tnum"
           >
             {rate === 0 ? "—" : `$${Math.round(rate * 100) / 100}`}{t("unit.perHr")}
-          </button>
+          </Button>
           <span className={`text-base font-semibold tnum ${idle ? "text-placeholder" : "text-dark-1"}`}>
             {fmtMoney(earned)} {t("track.earned")}
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <button
+          <Button
+            variant={timerRunning ? "danger" : "success"}
+            size="xl"
             onClick={timerRunning ? stop : start}
-            className={`app-press app-focus rounded-sm px-[30px] py-[11px] text-base font-semibold text-card shadow-xs hover:opacity-90 ${
-              timerRunning ? "bg-error-soft" : "bg-money"
-            }`}
           >
             {timerRunning ? t("track.stop") : t("track.start")}
-          </button>
-          <button
-            onClick={() => setManualOpen(true)}
-            className="app-press app-focus flex h-[40px] items-center justify-center rounded-sm bg-card px-[22px] text-md font-medium text-ink shadow-sm hover:bg-wash"
-          >
+          </Button>
+          <Button variant="surface" size="xl" onClick={() => setManualOpen(true)}>
             {t("track.manual")}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -167,22 +168,26 @@ export function TrackingCard() {
           onChange={setProjectId}
           projects={projects}
           trigger={
-            <button
+            <Button
+              variant="accent"
+              size="lg"
               aria-label={`${t("track.selectProject")}: ${projectName}`}
-              className="app-press app-focus flex min-h-9 max-w-[220px] items-center gap-2 rounded-sm bg-purple-soft py-1.5 pl-2.5 pr-3 hover:bg-purple-soft/70"
+              className="max-w-[220px] gap-2"
             >
               <span aria-hidden="true" className="h-3 w-4 shrink-0 rounded-xs bg-black" />
-              <span className="line-clamp-1 min-w-0 text-md font-semibold text-heading">{projectName}</span>
-            </button>
+              <span className="line-clamp-1 min-w-0 text-md font-semibold">{projectName}</span>
+            </Button>
           }
         />
         <span aria-hidden="true" className="text-base text-muted-foreground">›</span>
-        <input
+        <Input
+          variant="ghost"
+          inputSize="lg"
           value={timerDescription}
           onChange={(e) => setTimerDescription(e.target.value)}
           placeholder={t("track.workingPlaceholder")}
           aria-label={t("track.workingPlaceholder")}
-          className="app-focus min-h-9 min-w-[120px] flex-1 rounded-sm bg-transparent px-1 text-base font-medium text-heading placeholder:font-normal placeholder:text-muted-foreground"
+          className="min-w-[120px] flex-1"
         />
       </div>
 
@@ -192,22 +197,25 @@ export function TrackingCard() {
         <div className="app-pop-in flex flex-wrap items-center gap-2 text-md">
           <span aria-hidden="true">✨</span>
           <span className="text-muted-foreground">{t("track.suggestLabel")}:</span>
-          <button
+          <Button
             type="button"
+            variant="accent"
+            size="lg"
             onClick={() => { setProjectId(suggestion.projectId); dismiss(); }}
             aria-label={t("track.suggestApply")}
-            className="app-press app-focus flex min-h-9 items-center rounded-xs bg-purple-soft px-2.5 font-semibold text-heading hover:bg-purple-soft/70"
+            className="font-semibold"
           >
             {suggestion.projectName}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost-muted"
+            size="icon-lg"
             onClick={dismiss}
             aria-label={t("track.suggestDismiss")}
-            className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-muted-foreground hover:bg-wash hover:text-ink"
           >
-            ✕
-          </button>
+            <X />
+          </Button>
         </div>
       )}
 

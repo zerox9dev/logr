@@ -1,7 +1,8 @@
 import { useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Popover from "@radix-ui/react-popover";
-import { Calendar } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT, useLang } from "@/i18n";
 import type { Period } from "@/domain/dashboard-metrics";
@@ -64,17 +65,21 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
       }}
     >
       <Popover.Trigger asChild>
-        <button
+        <Button
           type="button"
-          disabled={disabled}
+          variant="ghost"
+          size="lg"
+          // `aria-disabled` rather than `disabled`: the "All" period has no date
+          // to pick, but the label is still the page heading and must not grey
+          // out. Opening is already blocked in the Root's onOpenChange guard.
           aria-disabled={disabled}
           aria-label={t("ctx.pickDate")}
           title={t("ctx.pickDate")}
-          className="app-press app-focus flex min-h-9 items-center gap-2 rounded-sm px-1 text-widget font-semibold text-ink tnum disabled:cursor-default"
+          className="text-widget font-semibold tnum"
         >
           {label}
-          {!disabled && <Calendar className="size-4 text-tertiary" aria-hidden="true" />}
-        </button>
+          {!disabled && <Calendar aria-hidden="true" />}
+        </Button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
@@ -83,25 +88,27 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
           className="app-portal z-50 rounded-md bg-card p-3 shadow-md"
         >
           <div className="mb-2 flex items-center justify-between">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-lg"
               aria-label={t("ctx.prevMonth")}
               onClick={() => setViewMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
-              className="app-press app-focus flex size-9 items-center justify-center rounded-sm text-xl leading-none text-heading hover:bg-wash"
             >
-              ‹
-            </button>
+              <ChevronLeft />
+            </Button>
             <span className="text-base font-semibold text-heading">
               {viewMonth.toLocaleDateString(lang, { month: "long", year: "numeric" })}
             </span>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-lg"
               aria-label={t("ctx.nextMonth")}
               onClick={() => setViewMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
-              className="app-press app-focus flex size-9 items-center justify-center rounded-sm text-xl leading-none text-heading hover:bg-wash"
             >
-              ›
-            </button>
+              <ChevronRight />
+            </Button>
           </div>
 
           <div className="grid grid-cols-7 gap-0.5">
@@ -115,25 +122,21 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
               const selected = sameDay(d, refDate);
               const isToday = sameDay(d, today);
               return (
-                <button
+                <Button
                   key={d.toISOString()}
                   type="button"
+                  // `outline` is what marks today: it is the only variant that
+                  // draws the hairline ring the design uses for that day.
+                  variant={selected ? "default" : isToday ? "outline" : inMonth ? "ghost" : "ghost-muted"}
+                  size="icon-lg"
                   aria-label={d.toLocaleDateString(lang, {
                     weekday: "long", year: "numeric", month: "long", day: "numeric",
                   })}
                   onClick={() => handleSelect(d)}
-                  className={[
-                    "app-press app-focus flex size-9 items-center justify-center rounded-sm text-base tnum",
-                    selected
-                      ? "bg-ink text-card"
-                      : inMonth
-                        ? "text-heading hover:bg-wash"
-                        : "text-muted-foreground hover:bg-wash",
-                    !selected && isToday ? "border border-line" : "",
-                  ].join(" ")}
+                  className="text-base tnum"
                 >
                   {d.getDate()}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -150,9 +153,6 @@ export function ContextHeader() {
   const { period, setPeriod, metrics, pageDate, goToToday, canPageBack, canPageForward } = useDashboard();
   const t = useT();
 
-  const stepButton =
-    "app-press app-focus flex size-9 shrink-0 items-center justify-center rounded-sm bg-card text-lg leading-none text-tertiary shadow-xs hover:bg-wash disabled:text-gray-300 disabled:shadow-none disabled:hover:bg-card";
-
   return (
     <div className="mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-md bg-card px-5 py-3 shadow-sm lg:mx-2">
       <div className="flex items-center gap-3">
@@ -160,22 +160,24 @@ export function ContextHeader() {
           <DatePicker disabled={period === "All"} label={metrics.header.dateLabel} />
         </h1>
         <div className="flex items-center gap-1.5">
-          <button
+          <Button
+            variant="surface"
+            size="icon-lg"
             onClick={() => pageDate(-1)}
             disabled={!canPageBack}
             aria-label={t("ctx.prevPeriod")}
-            className={stepButton}
           >
-            ‹
-          </button>
-          <button
+            <ChevronLeft />
+          </Button>
+          <Button
+            variant="surface"
+            size="icon-lg"
             onClick={() => pageDate(1)}
             disabled={!canPageForward}
             aria-label={t("ctx.nextPeriod")}
-            className={stepButton}
           >
-            ›
-          </button>
+            <ChevronRight />
+          </Button>
         </div>
       </div>
 
@@ -184,14 +186,16 @@ export function ContextHeader() {
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
           <Tabs.List className="flex items-center rounded-sm bg-faint p-0.5 shadow-xs">
             {VIEWS.map((v) => (
-              <Tabs.Trigger
-                key={v}
-                value={v}
-                // "Today" tab also resets to the current day (even on re-click).
-                onClick={v === "Day" ? goToToday : undefined}
-                className="app-press app-focus flex h-9 items-center justify-center rounded-xs px-4 text-md-minus font-medium text-tertiary hover:text-ink data-[state=active]:bg-ink data-[state=active]:font-semibold data-[state=active]:text-card data-[state=active]:shadow-xs"
-              >
-                {t(VIEW_KEYS[v])}
+              <Tabs.Trigger key={v} value={v} asChild>
+                <Button
+                  variant={period === v ? "default" : "ghost-muted"}
+                  size="lg"
+                  // "Today" tab also resets to the current day (even on re-click).
+                  onClick={v === "Day" ? goToToday : undefined}
+                  className="px-4 text-md-minus"
+                >
+                  {t(VIEW_KEYS[v])}
+                </Button>
               </Tabs.Trigger>
             ))}
           </Tabs.List>

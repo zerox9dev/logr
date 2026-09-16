@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
@@ -97,15 +98,12 @@ export function SessionEditDialog({
       />
       {target && (
         <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
-          <button
-            onClick={togglePaid}
-            className={`border px-3 py-1.5 text-sm font-medium transition-colors ${paid ? "border-money/30 bg-brand-faint text-money" : "border-line text-tertiary hover:bg-wash"}`}
-          >
+          <Button variant={paid ? "success-soft" : "outline"} size="sm" onClick={togglePaid}>
             {paid ? t("sessions.paid") : t("sessions.markPaid")}
-          </button>
-          <button onClick={remove} className="px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">
+          </Button>
+          <Button variant="destructive" size="sm" onClick={remove}>
             {t("sessions.delete")}
-          </button>
+          </Button>
         </div>
       )}
       {rows.length > 1 && (

@@ -3,6 +3,8 @@
  *  Left-column card: border #ececec, p-24, gap-16. */
 import { useRouter } from "next/navigation";
 import { Share2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
@@ -34,19 +36,19 @@ function ClientRow({
     <div className="group flex w-full items-center gap-2.5">
       <span className="size-2 shrink-0 rounded-full" style={{ background: dot }} />
       <span className="line-clamp-1 min-w-0 flex-1 text-base font-medium text-heading">{name}</span>
-      {rate && (
-        <span className="shrink-0 rounded-xs bg-page px-2 py-0.5 text-sm-minus font-semibold text-brand-ink tnum">{rate}</span>
-      )}
+      {rate && <Badge variant="chip" className="shrink-0">{rate}</Badge>}
       {!internal && id && onShare && shareLabel && (
-        <button
+        <Button
           type="button"
+          variant="ghost-muted"
+          size="icon-lg"
           onClick={onShare}
           title={shareLabel}
           aria-label={shareLabel}
-          className="app-press app-focus flex size-9 shrink-0 items-center justify-center rounded-xs text-muted-foreground opacity-40 shadow-xs hover:bg-wash hover:text-ink hover:opacity-100 focus-visible:opacity-100"
+          className="shrink-0"
         >
-          <Share2 className="size-3" />
-        </button>
+          <Share2 />
+        </Button>
       )}
       <span className="line-clamp-1 w-[86px] shrink-0 text-right text-base text-tertiary tnum sm:w-[90px]">{time}</span>
       <span className={`line-clamp-1 w-[64px] shrink-0 text-right text-base font-semibold tnum sm:w-[74px] ${internal ? "text-heading" : "text-brand-ink"}`}>
@@ -99,7 +101,15 @@ export function BillableHours() {
     <div className="flex flex-col gap-4 rounded-md bg-card p-6 shadow-sm">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
-        <button onClick={() => router.push("/app/sessions")} aria-label={t("billable.manageSessions")} className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-md-minus font-bold text-muted-foreground hover:bg-wash hover:text-ink">•••</button>
+        <Button
+          variant="ghost-muted"
+          size="icon-lg"
+          onClick={() => router.push("/app/sessions")}
+          aria-label={t("billable.manageSessions")}
+          className="text-md-minus font-bold"
+        >
+          •••
+        </Button>
       </div>
 
       {/* Billable / Non-billable totals */}

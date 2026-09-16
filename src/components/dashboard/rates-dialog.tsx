@@ -7,9 +7,6 @@ import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import type { BillingType, Project } from "@/types/database";
 
-const seg = (active: boolean) =>
-  `px-3 py-1.5 text-md-minus font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
-
 /** Rate editor for the currently-selected project (billing + rate / budget).
  *  When no project is selected, edits the user's default hourly rate.
  *  Mounted fresh per open (no reset effect). */
@@ -56,9 +53,9 @@ function RatesForm({ project, onClose }: { project: Project | undefined; onClose
         <>
           <div className="flex flex-col gap-1.5">
             <span className="text-md-minus text-muted-foreground">{t("rates.billing")}</span>
-            <div className="flex w-fit items-start bg-wash p-1">
-              <button type="button" className={seg(!fixed)} onClick={() => setBilling("hourly")}>{t("rates.hourly")}</button>
-              <button type="button" className={seg(fixed)} onClick={() => setBilling("fixed")}>{t("rates.fixed")}</button>
+            <div className="flex w-fit items-start gap-0.5 rounded-sm bg-wash p-1">
+              <Button type="button" variant={!fixed ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("rates.hourly")}</Button>
+              <Button type="button" variant={fixed ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("rates.fixed")}</Button>
             </div>
           </div>
           <label className="flex flex-col gap-1.5">

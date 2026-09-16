@@ -16,9 +16,6 @@ const SALARY_PERIOD_LABEL_KEYS: Record<SalaryPeriod, string> = {
   annual: "client.salaryPeriod.annual",
 };
 
-const seg = (active: boolean) =>
-  `px-3 py-1.5 text-md-minus font-medium ${active ? "bg-card text-heading shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)]" : "text-dark-3"}`;
-
 /** Contact fields plus the engagement type: a "client" is invoiced per session
  *  rate, an "employer" pays a salary that sessions derive an implied rate from.
  *  Mounted fresh per open so the edit case pre-fills without a reset effect. */
@@ -86,13 +83,13 @@ function ClientForm({ client, onClose }: { client?: Client; onClose: () => void 
 
       <div className="flex flex-col gap-1.5">
         <span className="text-md-minus text-muted-foreground">{t("client.typeLabel")}</span>
-        <div className="flex w-fit items-start bg-wash p-1">
-          <button type="button" className={seg(!isEmployer)} onClick={() => setClientType("client")}>
+        <div className="flex w-fit items-start gap-0.5 rounded-sm bg-wash p-1">
+          <Button type="button" variant={!isEmployer ? "surface" : "ghost-muted"} size="sm" onClick={() => setClientType("client")}>
             {t("client.type.client")}
-          </button>
-          <button type="button" className={seg(isEmployer)} onClick={() => setClientType("employer")}>
+          </Button>
+          <Button type="button" variant={isEmployer ? "surface" : "ghost-muted"} size="sm" onClick={() => setClientType("employer")}>
             {t("client.type.employer")}
-          </button>
+          </Button>
         </div>
       </div>
 

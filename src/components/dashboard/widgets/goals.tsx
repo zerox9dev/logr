@@ -2,6 +2,7 @@
  *  current week + current/longest streak.
  *  Right-column card: border #ececec, p-24, gap-8. */
 import { useState, type FormEvent } from "react";
+import { Pencil } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -84,15 +85,16 @@ export function Goals() {
     <div className="flex flex-col gap-2 rounded-md bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("goals.title")}</span>
-        <button
+        <Button
           type="button"
+          variant="ghost-muted"
+          size="icon-lg"
           onClick={() => setGoalOpen(true)}
           aria-label={t("goals.editGoal")}
           title={t("goals.editGoal")}
-          className="app-press app-focus flex size-9 items-center justify-center rounded-xs text-sm text-tertiary hover:bg-wash hover:text-ink"
         >
-          ✎
-        </button>
+          <Pencil />
+        </Button>
       </div>
 
       <div className="flex w-full flex-col gap-2">

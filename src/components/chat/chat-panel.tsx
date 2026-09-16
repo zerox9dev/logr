@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type Anthropic from "@anthropic-ai/sdk";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 
@@ -136,17 +138,19 @@ export function ChatPanel() {
   return (
     <>
       {/* Floating launcher */}
-      <button
+      <Button
         type="button"
+        variant="success"
+        size="fab"
         onClick={() => setOpen((v) => !v)}
         aria-label={t("chat.open")}
-        className="fixed bottom-5 right-5 z-40 flex size-12 items-center justify-center rounded-full bg-money text-xl text-card shadow-lg transition-opacity hover:opacity-90"
+        className="fixed bottom-5 right-5 z-40"
       >
         {open ? "✕" : "✨"}
-      </button>
+      </Button>
 
       {open && (
-        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col border border-line bg-card shadow-xl">
+        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col rounded-md bg-card shadow-lg">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <span className="text-md font-semibold text-heading">{t("chat.title")}</span>
           </div>
@@ -165,8 +169,8 @@ export function ChatPanel() {
                   key={i}
                   className={
                     line.kind === "user"
-                      ? "ml-auto w-fit max-w-[85%] bg-brand-soft px-3 py-2 text-md text-heading"
-                      : "mr-auto w-fit max-w-[85%] whitespace-pre-wrap bg-purple-soft px-3 py-2 text-md text-heading"
+                      ? "ml-auto w-fit max-w-[85%] rounded-md bg-brand-soft px-3 py-2 text-md text-heading"
+                      : "mr-auto w-fit max-w-[85%] whitespace-pre-wrap rounded-md bg-purple-soft px-3 py-2 text-md text-heading"
                   }
                 >
                   {line.text}
@@ -175,7 +179,7 @@ export function ChatPanel() {
             )}
 
             {pending && (
-              <div className="border border-line bg-background p-3 text-md">
+              <div className="rounded-md border border-line bg-background p-3 text-md">
                 <p className="mb-2 font-semibold text-heading">{t("chat.confirmTitle")}</p>
                 <ul className="mb-3 space-y-1 text-muted-foreground">
                   {pending.map((p) => (
@@ -183,20 +187,12 @@ export function ChatPanel() {
                   ))}
                 </ul>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => resolveConfirm(true)}
-                    className="bg-red-600 px-3 py-1.5 text-sm font-semibold text-card hover:bg-red-700"
-                  >
+                  <Button type="button" variant="danger" size="sm" onClick={() => resolveConfirm(true)}>
                     {t("chat.confirm")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => resolveConfirm(false)}
-                    className="border border-gray-300 px-3 py-1.5 text-sm font-medium text-ink"
-                  >
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => resolveConfirm(false)}>
                     {t("chat.cancel")}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -206,22 +202,24 @@ export function ChatPanel() {
           </div>
 
           <div className="flex items-center gap-2 border-t border-line p-3">
-            <input
+            <Input
+              variant="ghost"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send()}
               placeholder={t("chat.placeholder")}
               disabled={loading || pending !== null}
-              className="min-w-0 flex-1 bg-transparent text-md text-heading placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+              className="min-w-0 flex-1"
             />
-            <button
+            <Button
               type="button"
+              variant="success"
+              size="sm"
               onClick={send}
               disabled={loading || pending !== null || !input.trim()}
-              className="bg-money px-3 py-1.5 text-sm font-semibold text-card transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {t("chat.send")}
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as RadixDialog from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SessionEditDialog } from "@/components/shared/session-edit-dialog";
 import { useAppData } from "@/contexts/data-context";
@@ -99,11 +100,11 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     <>
       <RadixDialog.Root open={open} onOpenChange={(o) => { if (!o) close(); }}>
         <RadixDialog.Portal>
-          <RadixDialog.Overlay className="fixed inset-0 z-40 bg-black/35" />
+          <RadixDialog.Overlay className="app-portal fixed inset-0 z-40 bg-black/35" />
           <RadixDialog.Content
             aria-label={t("cmd.search")}
             onKeyDown={onKeyDown}
-            className="fixed left-1/2 top-[18vh] z-50 w-full max-w-[560px] -translate-x-1/2 border border-line bg-card shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)] focus:outline-none"
+            className="app-portal fixed left-1/2 top-[18vh] z-50 w-full max-w-[560px] -translate-x-1/2 rounded-lg bg-card shadow-lg focus:outline-none"
           >
             <RadixDialog.Title className="sr-only">{t("cmd.search")}</RadixDialog.Title>
             <div className="border-b border-line p-3">
@@ -112,7 +113,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("cmd.searchPlaceholder")}
-                className="h-10 border-0 px-1 text-base focus-visible:border-0"
+                variant="ghost"
+                inputSize="lg"
               />
             </div>
 
@@ -130,18 +132,20 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                         {header === "Projects" ? t("cmd.groupProjects") : t("cmd.groupSessions")}
                       </div>
                     )}
-                    <button
+                    <Button
                       type="button"
+                      variant={i === activeIndex ? "secondary" : "ghost"}
+                      size="lg"
                       data-index={i}
                       onMouseEnter={() => setActive(i)}
                       onClick={() => activate(r)}
-                      className={`flex w-full items-baseline gap-2 px-3 py-2 text-left ${i === activeIndex ? "bg-wash" : ""}`}
+                      className="w-full justify-start"
                     >
                       <span className="truncate text-md font-medium text-heading">{r.label}</span>
                       {r.kind === "session" && (
                         <span className="truncate text-md-minus text-muted-foreground">{r.sub}</span>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 );
               })}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useT } from "@/i18n";
 
@@ -34,18 +35,18 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex items-center gap-2 bg-card px-4 py-3 shadow-xs">
-      {/* `!` beats the Button primitive's own focus-visible outline, which is
-          --ring at 50% and all but invisible on this white header. */}
-      <SidebarTrigger className="app-press app-focus! size-9 rounded-sm" aria-label={t("nav.toggleSidebar")} />
-      <button
+      <SidebarTrigger size="icon-lg" aria-label={t("nav.toggleSidebar")} />
+      <Button
+        variant="chip"
+        size="lg"
         aria-label={t("nav.search")}
         onClick={() => setPaletteOpen(true)}
-        className="app-press app-focus ml-auto flex min-h-9 items-center gap-5 rounded-sm bg-page px-2.5 text-tertiary hover:bg-track"
+        className="ml-auto gap-5"
       >
-        <Search className="size-4 sm:hidden" aria-hidden="true" />
+        <Search className="sm:hidden" aria-hidden="true" />
         <span className="hidden text-md-minus sm:inline">{t("nav.search")}</span>
         <span className="hidden text-sm font-medium sm:inline tnum">{shortcutHint}</span>
-      </button>
+      </Button>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </header>
   );
