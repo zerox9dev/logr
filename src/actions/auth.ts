@@ -1,9 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { PB_AUTH_COOKIE, createPb, toPbUser, type PbUser } from "@/lib/pocketbase";
 import { getCurrentUser } from "@/lib/pocketbase-server";
-import { cookieValue, setSessionCookie } from "@/lib/session-cookie";
+import { cookieValue, isSecureRequest, setSessionCookie } from "@/lib/session-cookie";
 
 export interface ActionResult {
   error?: string;
@@ -24,7 +24,7 @@ function message(err: unknown, fallback: string): string {
 }
 
 async function writeSessionCookie(value: string) {
-  setSessionCookie(await cookies(), value);
+  setSessionCookie(await cookies(), value, isSecureRequest(await headers()));
 }
 
 export async function signInAction(email: string, password: string): Promise<AuthResult> {

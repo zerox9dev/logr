@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { PB_AUTH_COOKIE, createPb } from "@/lib/pocketbase";
-import { cookieValue, setSessionCookie } from "@/lib/session-cookie";
+import { cookieValue, requestIsSecure, setSessionCookie } from "@/lib/session-cookie";
 import {
   GOOGLE_PROVIDER,
   OAUTH_STATE_COOKIE,
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
   setSessionCookie(
     response.cookies,
     cookieValue(pb.authStore.exportToCookie({ httpOnly: true }, PB_AUTH_COOKIE)),
+    requestIsSecure(request),
   );
   response.cookies.delete(OAUTH_STATE_COOKIE);
   return response;
