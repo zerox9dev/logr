@@ -4,7 +4,8 @@ import { PB_AUTH_COOKIE } from "@/lib/pocketbase";
 /** Fallback lifetime, used only when the token carries no readable `exp`. */
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
-/** Seconds until the PocketBase token inside the cookie expires.
+/** Seconds until the PocketBase token inside the cookie expires — 0 for a
+ *  token already past it, which clears the cookie instead of keeping it.
  *  The cookie must not outlive the token: a cookie that is still present while
  *  its token has expired makes every request anonymous again with no way for
  *  the app to tell a dropped session from a stale one. */
@@ -18,7 +19,7 @@ function tokenMaxAge(value: string): number {
     ) as { exp?: number };
     if (typeof exp !== "number") return SESSION_MAX_AGE;
     const seconds = Math.floor(exp - Date.now() / 1000);
-    return seconds > 0 ? seconds : SESSION_MAX_AGE;
+    return Math.max(0, seconds);
   } catch {
     return SESSION_MAX_AGE;
   }
@@ -46,12 +47,17 @@ function options(secure: boolean, maxAge: number): SessionCookieOptions {
   return { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge };
 }
 
-/** True when the browser reached us over HTTPS, honouring a terminating proxy. */
+/** True when the browser reached us over HTTPS, honouring a terminating proxy.
+ *  After a proxy's own hint, the browser's `Origin` (sent with every Server
+ *  Action POST) is the best witness: it is the scheme the user actually typed,
+ *  which is exactly what decides whether a `Secure` cookie will be kept. */
 export function isSecureRequest(headers: {
   get(name: string): string | null;
 }): boolean {
   const forwarded = headers.get("x-forwarded-proto");
   if (forwarded) return forwarded.split(",")[0].trim() === "https";
+  const origin = headers.get("origin");
+  if (origin && origin !== "null") return origin.startsWith("https://");
   const appUrl = process.env.APP_URL;
   if (appUrl) return appUrl.startsWith("https://");
   // Scheme unknown: keep the safe production default rather than silently

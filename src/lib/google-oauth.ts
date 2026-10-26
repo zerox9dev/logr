@@ -42,10 +42,13 @@ export function parseOAuthState(raw: string | undefined): OAuthStatePayload | nu
 }
 
 /** Only same-origin paths survive the round-trip, so a crafted `?next=` on the
- *  sign-in link cannot turn the callback into an open redirect. */
+ *  sign-in link cannot turn the callback into an open redirect. /login itself
+ *  is refused too: a signed-in visitor is sent on to `next`, and `next=/login`
+ *  would bounce them back to the same check forever. */
 export function safeNext(value: string | null | undefined): string | undefined {
   if (!value || !value.startsWith("/")) return undefined;
   if (value.startsWith("//") || value.startsWith("/\\")) return undefined;
+  if (/^\/login(?:[/?#]|$)/.test(value)) return undefined;
   return value;
 }
 
