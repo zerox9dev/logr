@@ -42,10 +42,10 @@ export function ProjectsList() {
   const [rateProject, setRateProject] = useState<Project | undefined>(undefined);
 
   return (
-    <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-widget font-semibold text-heading">{t("sidebar.projects")}</h1>
+          <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-heading">{t("sidebar.projects")}</h1>
           <Button size="sm" onClick={() => setDialog("project")}>{t("new.newProject")}</Button>
         </div>
 
@@ -106,7 +106,7 @@ export function ProjectsList() {
                           e.stopPropagation();
                           setRateProject(p);
                         }}
-                        className="bg-page px-[11px] py-1 text-sm font-semibold text-dark-1 transition-colors tnum hover:bg-wash"
+                        className="rounded-[5px] bg-wash px-2 py-0.5 text-sm font-semibold text-dark-1 transition-colors tnum hover:bg-track"
                       >
                         {fixed
                           ? fmtMoney(p.fixed_budget ?? 0)

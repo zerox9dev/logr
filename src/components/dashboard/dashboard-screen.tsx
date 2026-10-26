@@ -4,7 +4,6 @@ import { useAppData } from "@/contexts/data-context";
 import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { ContextHeader } from "@/components/layout/context-header";
-import { TrackingCard } from "@/components/dashboard/widgets/tracking-card";
 import { Timeline } from "@/components/dashboard/widgets/timeline";
 import { ProjectsTasks } from "@/components/dashboard/widgets/projects-tasks";
 import { BillableHours } from "@/components/dashboard/widgets/billable-hours";
@@ -12,11 +11,11 @@ import { DailySummary } from "@/components/dashboard/widgets/daily-summary";
 import { ActivityHeatmap } from "@/components/dashboard/widgets/activity-heatmap";
 import { Goals } from "@/components/dashboard/widgets/goals";
 
-/** Dashboard page content: the widget grid. The sidebar shell, providers and
- *  header live in src/app/app/app-shell.tsx.
+/** Overview page content: the widget grid. The timer lives in the title bar
+ *  (src/components/layout/app-header.tsx); the shell in src/app/app/app-shell.tsx.
  *
- *  Grid (Figma 296:1196 / 310:3, 1400px frame): 688px / 440px, 8px gap.
- *  Left  (688px): Tracking -> Timeline -> Projects&tasks -> Billable hours.
+ *  Grid (Figma 296:1196 / 310:3, 1400px frame): 688px / 440px, hairline-split.
+ *  Left  (688px): Timeline -> Projects&tasks -> Billable hours.
  *  Right (440px): Daily Summary -> Activity -> Goals.
  *
  *  Both the filled and the zero-data design render this same grid - each
@@ -48,26 +47,27 @@ export function DashboardScreen() {
   }
 
   return (
-    <div className="flex-1 overflow-x-hidden bg-page pb-2">
+    <div className="flex-1 overflow-x-hidden bg-page">
       <div className="mx-auto">
         <ContextHeader />
 
-        {/* DOM order is the mobile design (296:1805): tracker → timeline →
+        {/* DOM order is the mobile design (296:1805): timeline →
             summary/activity/goals → projects → billable. Explicit lg placement
             pulls the last group back under the left column. */}
-        <div className="grid grid-cols-1 items-start gap-2 px-4 lg:grid-cols-[688fr_440fr] lg:px-2">
-          <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-1">
-            <TrackingCard />
+        {/* Flat panels split by hairlines, no gutters: the right column is
+            its own strip with a rule down its left edge. */}
+        <div className="grid grid-cols-1 border-b border-line lg:grid-cols-[688fr_440fr]">
+          <div className="flex flex-col divide-y divide-line border-b border-line lg:col-start-1 lg:row-start-1">
             <Timeline />
           </div>
 
-          <div className="flex flex-col gap-2 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className="flex flex-col divide-y divide-line border-b border-line lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:border-b-0 lg:border-l">
             <DailySummary />
             <ActivityHeatmap />
             <Goals />
           </div>
 
-          <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-2">
+          <div className="flex flex-col divide-y divide-line max-lg:border-b max-lg:border-line lg:col-start-1 lg:row-start-2">
             <ProjectsTasks />
             <BillableHours />
           </div>

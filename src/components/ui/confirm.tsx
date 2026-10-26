@@ -46,11 +46,11 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       {children}
       <AlertDialog.Root open={state.open} onOpenChange={(o) => { if (!o) handleClose(false); }}>
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="app-portal fixed inset-0 z-40 bg-black/35" />
-          <AlertDialog.Content className="app-portal fixed left-1/2 top-1/2 z-50 w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-card p-6 shadow-dropdown focus:outline-none">
-            <AlertDialog.Title className="text-base font-semibold text-heading">{state.options.title}</AlertDialog.Title>
+          <AlertDialog.Overlay className="app-portal fixed inset-0 z-40 bg-(--cal-overlay)" />
+          <AlertDialog.Content className="app-portal fixed left-1/2 top-1/2 z-50 w-full max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-(--cal-raised-line) bg-popover p-5 shadow-dropdown focus:outline-none">
+            <AlertDialog.Title className="text-[15px] font-semibold text-heading">{state.options.title}</AlertDialog.Title>
             <AlertDialog.Description className="mt-2 text-md text-tertiary">{state.options.message}</AlertDialog.Description>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-5 flex justify-end gap-2">
               <AlertDialog.Cancel asChild>
                 <Button variant="outline" size="lg">{t("confirm.cancel")}</Button>
               </AlertDialog.Cancel>

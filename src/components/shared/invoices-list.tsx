@@ -28,7 +28,7 @@ const STATUS_CLASS: Record<InvoiceStatus, string> = {
   draft: "border-line text-muted-foreground",
   sent: "border-brand/30 bg-brand-soft text-brand",
   paid: "border-money/30 bg-brand-faint text-money",
-  overdue: "border-red-300 bg-red-50 text-red-600",
+  overdue: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
 /** Invoices page body: status, client, due date, share / mark sent / mark paid
@@ -103,10 +103,10 @@ export function InvoicesList() {
   };
 
   return (
-    <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-widget font-semibold text-heading">{t("sidebar.invoices")}</h1>
+          <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-heading">{t("sidebar.invoices")}</h1>
           <Button size="sm" onClick={() => setCreateOpen(true)}>{t("invoice.new")}</Button>
         </div>
 
@@ -181,7 +181,7 @@ export function InvoicesList() {
                         {inv.status !== "paid" && (
                           <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStatus(inv, "paid"); }} className="px-2 py-1 text-md-minus font-medium text-money hover:opacity-80 disabled:opacity-50 transition-colors">{t("invoice.markPaid")}</button>
                         )}
-                        <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove(inv); }} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-red-600 disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
+                        <button type="button" disabled={disabled} onClick={(e) => { e.preventDefault(); e.stopPropagation(); remove(inv); }} className="px-2 py-1 text-md-minus font-medium text-muted-foreground hover:text-destructive disabled:opacity-50 transition-colors">{t("invoice.delete")}</button>
                       </div>
                     </TableCell>
                   </TableRow>

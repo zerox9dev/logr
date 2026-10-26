@@ -11,7 +11,7 @@ export function ClientPicker({
   trigger: React.ReactNode;
 }) {
   const t = useT();
-  const item = "cursor-pointer truncate px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
+  const item = "flex min-h-7 cursor-pointer items-center truncate rounded-md px-2 py-1 text-[13px] text-ink outline-none data-[highlighted]:bg-wash";
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
@@ -19,7 +19,7 @@ export function ClientPicker({
         <DropdownMenu.Content
           align="start"
           sideOffset={6}
-          className="z-[60] max-h-[240px] min-w-[220px] max-w-[320px] overflow-auto border border-line bg-card py-1 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.12)]"
+          className="app-portal z-[60] max-h-[240px] min-w-[220px] max-w-[320px] overflow-auto rounded-lg border border-(--cal-raised-line) bg-popover p-1 shadow-dropdown"
         >
           {clients.map((c) => (
             <DropdownMenu.Item key={c.id} className={item} onSelect={() => onChange(c.id)}>

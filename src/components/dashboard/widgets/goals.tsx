@@ -1,6 +1,6 @@
 /** Goals — Figma 310:1849. Weekly goal progress + a Mon–Sun bar chart of the
  *  current week + current/longest streak.
- *  Right-column card: border #ececec, p-24, gap-8. */
+ *  Right-column panel: hairline-split, px-24 py-20, gap-8. */
 import { useState, type FormEvent } from "react";
 import { Pencil } from "lucide-react";
 import { useDashboard } from "@/contexts/dashboard-context";
@@ -82,7 +82,7 @@ export function Goals() {
   const [goalOpen, setGoalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 bg-card px-6 py-5">
       <div className="flex items-center justify-between">
         <span className="text-summary font-semibold tracking-[-0.2px] text-ink">{t("goals.title")}</span>
         <Button

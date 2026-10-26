@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { postsByDate } from "@/data/posts";
+import { Band, Crumbs, CtaBand, PageHero } from "@/components/marketing/primitives";
 
 export const metadata: Metadata = {
   title: "Blog — Logr",
@@ -56,84 +57,46 @@ export default function BlogIndexPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      {/* Breadcrumb */}
-      <nav className="text-md text-tertiary flex items-center gap-2">
-        <Link href="/" className="hover:text-ink">Home</Link>
-        <span>›</span>
-        <span className="text-ink">Blog</span>
-      </nav>
+      <PageHero
+        above={<Crumbs items={[{ label: "Home", href: "/" }, { label: "Blog" }]} />}
+        eyebrow="Guides for freelancers & small agencies"
+        title="The Logr blog"
+      >
+        No growth-hacking fluff — just the things that decide whether freelance work is profitable: what to
+        charge, which hours are actually billable, how to turn tracked time into a paid invoice, and how to keep
+        your client data on infrastructure you own.
+      </PageHero>
 
-      {/* Hero card */}
-      <div className="bg-card border border-line p-8 sm:p-12 flex flex-col gap-6">
-        <div className="inline-flex gap-2 items-center">
-          <svg viewBox="0 0 8 8" className="size-2 shrink-0">
-            <circle cx="4" cy="4" r="4" fill="#18181b" />
-          </svg>
-          <span className="text-md-minus font-medium text-dark-1">
-            Guides for freelancers &amp; small agencies
-          </span>
-        </div>
-
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-heading leading-[1.1] tracking-[-0.5px]">
-          The Logr blog
-        </h1>
-
-        <p className="text-base text-ink leading-relaxed max-w-[640px]">
-          No growth-hacking fluff — just the things that decide whether freelance work is
-          profitable: what to charge, which hours are actually billable, how to turn tracked
-          time into a paid invoice, and how to keep your client data on infrastructure you
-          own.
-        </p>
-      </div>
-
-      {/* Post list */}
-      <div className="flex flex-col gap-4">
+      <Band className="flex flex-col">
         {postsByDate.map((p) => (
           <Link
             key={p.slug}
             href={`/blog/${p.slug}`}
-            className="bg-card border border-line p-8 flex flex-col gap-3 hover:border-line-2 transition-colors"
+            className="group grid gap-3 border-b border-heading/8 px-6 py-8 transition-colors last:border-b-0 hover:bg-heading/[0.02] md:grid-cols-[220px_1fr_auto] md:gap-10 md:px-10"
           >
-            <div className="flex items-center gap-3 text-md-minus text-tertiary">
-              <span className="font-medium text-dark-1">{p.category}</span>
-              <span>·</span>
-              <time dateTime={p.date}>{DATE_FORMAT.format(new Date(p.date))}</time>
-              <span>·</span>
-              <span>{p.readingMinutes} min read</span>
+            <div className="flex flex-col gap-1.5">
+              <span className="font-mono text-[11px] font-medium tracking-[0.08em] text-coral uppercase">
+                {p.category}
+              </span>
+              <span className="text-[13px] text-heading/45">
+                <time dateTime={p.date}>{DATE_FORMAT.format(new Date(p.date))}</time> · {p.readingMinutes} min read
+              </span>
             </div>
-            <h2 className="text-lg font-semibold text-heading leading-snug">{p.title}</h2>
-            <p className="text-md text-ink leading-relaxed">{p.description}</p>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-[22px] leading-[1.25] font-semibold tracking-[-0.025em]">{p.title}</h2>
+              <p className="max-w-[620px] text-[15px] leading-[1.55] text-heading/60">{p.description}</p>
+            </div>
+            <span
+              aria-hidden="true"
+              className="hidden size-9 items-center justify-center self-center rounded-full bg-heading/5 text-heading/50 transition-[background-color,color,translate] duration-200 group-hover:translate-x-0.5 group-hover:bg-heading group-hover:text-white md:flex"
+            >
+              →
+            </span>
           </Link>
         ))}
-      </div>
+      </Band>
 
-      {/* CTA */}
-      <div className="bg-card border border-line p-8 sm:p-12 flex flex-col sm:flex-row gap-5 items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <span className="text-lg font-semibold text-heading">
-            Track it, bill it, get paid
-          </span>
-          <span className="text-md text-tertiary">
-            Free forever on logr.work, or self-host in minutes.
-          </span>
-        </div>
-        <div className="flex gap-3 flex-wrap shrink-0">
-          <Link
-            href="/login"
-            className="bg-ink text-white px-6 py-3 text-base font-semibold whitespace-nowrap"
-          >
-            Start tracking — free
-          </Link>
-          <a
-            href="https://github.com/zerox9dev/logr"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border border-line-2 bg-card px-6 py-3 text-base font-medium text-heading whitespace-nowrap"
-          >
-            View on GitHub
-          </a>
-        </div>
-      </div>
+      <CtaBand title="Track it, bill it, get paid" />
     </>
   );
 }

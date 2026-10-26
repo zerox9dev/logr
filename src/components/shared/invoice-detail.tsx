@@ -26,7 +26,7 @@ const STATUS_CLASS: Record<InvoiceStatus, string> = {
   draft: "border-line text-muted-foreground",
   sent: "border-brand/30 bg-brand-soft text-brand",
   paid: "border-money/30 bg-brand-faint text-money",
-  overdue: "border-red-300 bg-red-50 text-red-600",
+  overdue: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
 /** Invoice detail: the shared-invoice layout backed by live data, plus the
@@ -55,8 +55,8 @@ export function InvoiceDetail({ id }: { id: string }) {
 
   if (loading || !invoice) {
     return (
-      <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-        <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+        <div className="flex min-w-0 flex-col bg-card px-6 py-5">
           <p className="py-8 text-center text-base text-muted-foreground">
             {loading ? t("common.loading") : t("invoiceDetail.notFound")}
           </p>
@@ -135,8 +135,8 @@ export function InvoiceDetail({ id }: { id: string }) {
   };
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col gap-7 border border-line bg-card p-6">
+    <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col gap-7 bg-card px-6 py-5">
         <div className="flex flex-col gap-4">
           <Link href="/app/invoices" className="text-md-minus text-muted-foreground transition-colors hover:text-ink">
             ← {t("sidebar.invoices")}

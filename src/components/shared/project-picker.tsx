@@ -1,5 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useT } from "@/i18n";
+import { projectToneStyle } from "@/lib/project-tone";
 import type { Project } from "@/types/database";
 
 /** Project picker — Radix DropdownMenu listing all projects (+ "No project"). */
@@ -11,7 +12,7 @@ export function ProjectPicker({
   trigger: React.ReactNode;
 }) {
   const t = useT();
-  const item = "app-motion flex min-h-9 cursor-pointer items-center truncate rounded-xs px-3 py-2 text-md text-ink outline-none data-[highlighted]:bg-wash";
+  const item = "flex min-h-7 cursor-pointer items-center truncate rounded-md px-2 py-1 text-[13px] text-ink outline-none data-[highlighted]:bg-wash";
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
@@ -19,14 +20,15 @@ export function ProjectPicker({
         <DropdownMenu.Content
           align="start"
           sideOffset={6}
-          className="app-portal z-50 max-h-[260px] min-w-[200px] max-w-[280px] overflow-auto rounded-md bg-card p-1 shadow-dropdown"
+          className="app-portal z-50 max-h-[260px] min-w-[200px] max-w-[280px] overflow-auto rounded-lg border border-(--cal-raised-line) bg-popover p-1 shadow-dropdown"
         >
           <DropdownMenu.Item className={item} onSelect={() => onChange(null)}>
             {t("track.noProject")}
           </DropdownMenu.Item>
           {projects.map((p) => (
-            <DropdownMenu.Item key={p.id} className={item} onSelect={() => onChange(p.id)}>
-              {p.name}
+            <DropdownMenu.Item key={p.id} className={`${item} gap-2`} onSelect={() => onChange(p.id)}>
+              <span aria-hidden="true" style={projectToneStyle(p.id)} className="size-2 shrink-0 rounded-full bg-(--bar)" />
+              <span className="truncate">{p.name}</span>
             </DropdownMenu.Item>
           ))}
           {projects.length === 0 && (

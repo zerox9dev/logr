@@ -140,7 +140,7 @@ export function ChatPanel() {
       {/* Floating launcher */}
       <Button
         type="button"
-        variant="success"
+        variant="default"
         size="fab"
         onClick={() => setOpen((v) => !v)}
         aria-label={t("chat.open")}
@@ -150,7 +150,7 @@ export function ChatPanel() {
       </Button>
 
       {open && (
-        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col rounded-md bg-card shadow-dropdown">
+        <div className="fixed bottom-20 right-5 z-40 flex h-[min(560px,75vh)] w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-xl border border-(--cal-raised-line) bg-popover shadow-dropdown">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <span className="text-md font-semibold text-heading">{t("chat.title")}</span>
           </div>
@@ -169,8 +169,8 @@ export function ChatPanel() {
                   key={i}
                   className={
                     line.kind === "user"
-                      ? "ml-auto w-fit max-w-[85%] rounded-md bg-brand-soft px-3 py-2 text-md text-heading"
-                      : "mr-auto w-fit max-w-[85%] whitespace-pre-wrap rounded-md bg-purple-soft px-3 py-2 text-md text-heading"
+                      ? "ml-auto w-fit max-w-[85%] rounded-lg bg-wash px-3 py-2 text-md text-heading"
+                      : "mr-auto w-fit max-w-[85%] whitespace-pre-wrap rounded-lg px-0.5 py-1 text-md text-ink"
                   }
                 >
                   {line.text}
@@ -198,7 +198,7 @@ export function ChatPanel() {
             )}
 
             {loading && <p className="text-md text-muted-foreground">{t("chat.thinking")}</p>}
-            {notice && <p className="text-md text-red-600">{notice}</p>}
+            {notice && <p className="text-md text-destructive">{notice}</p>}
           </div>
 
           <div className="flex items-center gap-2 border-t border-line p-3">

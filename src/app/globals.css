@@ -50,6 +50,17 @@
   --color-error-soft: #e98e8e;
   --color-placeholder: #a1a1aa;
 
+  /* Marketing site (time.fyi canon). Ink is `heading` (#141414) at opacity
+     steps — /60 body, /45 labels, /8 hairlines, /6 soft fills — so only the
+     accent and the panel tints need names of their own. */
+  --color-coral: #e8604c;
+  --color-tint-peach: #fdf0e8;
+  --color-tint-mint: #eef6f1;
+  --color-tint-lilac: #f3effb;
+  --color-tint-sky: #eef3fb;
+  --color-tint-cream: #fbf4e3;
+  --color-keycap-pressed: #f1ede6;
+
   --color-hm-0: #f4f4f5;
   --color-hm-1: #d4d4d8;
   --color-hm-2: #a1a1aa;
@@ -121,22 +132,17 @@
 }
 
 @layer base {
-  /* Square everywhere — logr's brand identity on the marketing site, /login and
-     the public /share pages. The /app redesign is the one exception: `.app-shell`
-     wraps every /app route, and `.app-portal` marks the Radix portals that render
-     outside that subtree. Inside either, `rounded-*` behaves normally. */
-  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *)),
-  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *))::before,
-  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *))::after {
+  /* Square everywhere — /login and the public /share pages. Two exceptions:
+     `.app-shell` wraps every /app route (with `.app-portal` marking the Radix
+     portals rendered outside it), and `.marketing` wraps the marketing site,
+     which follows the time.fyi canon of pills and soft rounded surfaces. Inside
+     any of them, `rounded-*` behaves normally. */
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *, .marketing, .marketing *)),
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *, .marketing, .marketing *))::before,
+  *:where(:not(.app-shell, .app-shell *, .app-portal, .app-portal *, .marketing, .marketing *))::after {
     border-radius: 0 !important;
   }
-  /* Pre-redesign card rounding, still used by the pages the redesign has not
-     reached. This has to sit in the same layer as the reset above: for
-     !important declarations the cascade prefers earlier layers, so a
-     utility-layer rule would never win. */
-  .card-radius {
-    border-radius: var(--radius-md) !important;
-  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -297,4 +303,192 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #232326;
   --sidebar-ring: #3f3f42;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   /app canon (time.fyi's calendar app). One palette, `--cal-*`,
+   in a light and a dark theme; every logr and shadcn token is
+   re-pointed at it inside `.app-shell` and its portals, so the
+   marketing site keeps its own values and the app follows the
+   theme. `.app-chrome` is the quieter surface behind the sidebar.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --cal-bg: #ffffff;
+  --cal-text: #37352f;
+  --cal-title: #37352f;
+  --cal-muted: #6f6e69;
+  --cal-faint: #73726d;
+  --cal-line: #e6e5e2;
+  --cal-line-soft: #f1f0ee;
+  --cal-hover: #f2f2f0;
+  --cal-selected: #e8e7e4;
+  --cal-active: #e3e2e0;
+  --cal-chrome: #f8f8f6;
+  --cal-chrome-line: #e6e5e2;
+  --cal-chrome-hover: #efefec;
+  --cal-chrome-selected: #e8e7e4;
+  --cal-chrome-active: #e1e0dd;
+  --cal-accent: #eb5757;
+  --cal-accent-strong: #c4403b;
+  --cal-yes: #448361;
+  --cal-popover: #ffffff;
+  --cal-raised-line: #37352f24;
+  --cal-raised-shadow: 0 0 0 1px #37352f1f, 0 2px 4px #0f0f0f0f, 0 12px 24px -6px #0f0f0f24, 0 32px 48px -16px #0f0f0f1f;
+  --cal-segment-shadow: 0 1px 2px #00000014;
+  --cal-overlay: #0f0f0f59;
+  --cal-violet-soft: #ebe4fb;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --cal-bg: #191919;
+  --cal-text: #d4d4d4;
+  --cal-title: #e6e6e6;
+  --cal-muted: #9b9b9b;
+  --cal-faint: #8a8a8a;
+  --cal-line: #2f2f2f;
+  --cal-line-soft: #252525;
+  --cal-hover: #232323;
+  --cal-selected: #2c2c2c;
+  --cal-active: #373737;
+  --cal-chrome: #202020;
+  --cal-chrome-line: #2f2f2f;
+  --cal-chrome-hover: #292929;
+  --cal-chrome-selected: #303030;
+  --cal-chrome-active: #3a3a3a;
+  --cal-accent: #eb5757;
+  --cal-accent-strong: #c4403b;
+  --cal-yes: #529e72;
+  --cal-popover: #2b2b2b;
+  --cal-raised-line: #ffffff12;
+  --cal-raised-shadow: 0 0 0 1px #0000000f, 0 1px 1px -0.5px #0000000f, 0 3px 3px -1.5px #0000000f, 0 6px 6px -3px #0000000f, 0 12px 12px -6px #0000000f, 0 24px 24px -12px #0000000f;
+  --cal-segment-shadow: inset 0 1px 0 #ffffff12, 0 1px 2px #0000004d;
+  --cal-overlay: #00000080;
+  --cal-violet-soft: #2e2840;
+}
+
+/* `.app-chrome` is listed so the derived tokens re-resolve against its own
+   `--cal-*` values — a custom property is computed where it is declared. */
+.app-shell,
+.app-portal,
+.app-chrome {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sans);
+
+  /* logr tokens */
+  --color-ink: var(--cal-text);
+  --color-heading: var(--cal-title);
+  --color-tertiary: var(--cal-muted);
+  --color-dark-1: var(--cal-text);
+  --color-dark-2: var(--cal-text);
+  --color-dark-3: var(--cal-muted);
+  --color-gray-400: var(--cal-faint);
+  --color-gray-300: var(--cal-active);
+  --color-page: var(--cal-bg);
+  --color-wash: var(--cal-hover);
+  --color-icon-tile: var(--cal-hover);
+  --color-line: var(--cal-line);
+  --color-line-2: var(--cal-line);
+  --color-track: var(--cal-selected);
+  --color-grid: var(--cal-line-soft);
+  --color-timeline: var(--cal-title);
+  --color-timeline-track: var(--cal-hover);
+  --color-money: var(--cal-yes);
+  --color-brand: var(--cal-yes);
+  --color-brand-ink: var(--cal-title);
+  --color-brand-soft: color-mix(in srgb, var(--cal-yes) 16%, var(--cal-bg));
+  --color-brand-faint: color-mix(in srgb, var(--cal-yes) 8%, var(--cal-bg));
+  --color-faint: var(--cal-chrome);
+  --color-purple-soft: var(--cal-violet-soft);
+  --color-error-soft: var(--cal-accent);
+  --color-placeholder: var(--cal-faint);
+  --color-hm-0: var(--cal-hover);
+  --color-hm-1: color-mix(in srgb, var(--cal-accent) 28%, var(--cal-bg));
+  --color-hm-2: color-mix(in srgb, var(--cal-accent) 52%, var(--cal-bg));
+  --color-hm-3: color-mix(in srgb, var(--cal-accent) 78%, var(--cal-bg));
+  --color-hm-4: var(--cal-accent-strong);
+
+  /* denser type: the calendar app reads at 13px */
+  --text-xs: 10.5px;
+  --text-sm-minus: 11px;
+  --text-sm: 11.5px;
+  --text-md-minus: 12.5px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+  --text-widget: 15px;
+  --text-summary: 15px;
+  --text-3xl: 18px;
+  --text-4xl: 20px;
+  --text-5xl: 22px;
+  --text-hero: 44px;
+
+  /* shadcn semantic tokens */
+  --background: var(--cal-bg);
+  --foreground: var(--cal-text);
+  --card: var(--cal-bg);
+  --card-foreground: var(--cal-text);
+  --popover: var(--cal-popover);
+  --popover-foreground: var(--cal-text);
+  --primary: var(--cal-accent-strong);
+  --primary-foreground: #ffffff;
+  --secondary: var(--cal-hover);
+  --secondary-foreground: var(--cal-title);
+  --muted: var(--cal-hover);
+  --muted-foreground: var(--cal-muted);
+  --accent: var(--cal-hover);
+  --accent-foreground: var(--cal-title);
+  --destructive: var(--cal-accent-strong);
+  --border: var(--cal-line);
+  --input: var(--cal-line);
+  --ring: var(--cal-faint);
+  --chart-1: var(--cal-selected);
+  --chart-2: color-mix(in srgb, var(--cal-accent) 35%, var(--cal-bg));
+  --chart-3: color-mix(in srgb, var(--cal-accent) 60%, var(--cal-bg));
+  --chart-4: var(--cal-accent);
+  --chart-5: var(--cal-accent-strong);
+  --sidebar: var(--cal-chrome);
+  --sidebar-foreground: var(--cal-text);
+  --sidebar-primary: var(--cal-title);
+  --sidebar-primary-foreground: var(--cal-bg);
+  --sidebar-accent: var(--cal-chrome-selected);
+  --sidebar-accent-foreground: var(--cal-title);
+  --sidebar-border: var(--cal-chrome-line);
+  --sidebar-ring: var(--cal-faint);
+
+  /* elevation: one raised shadow for every floating surface */
+  --shadow-dropdown: var(--cal-raised-shadow);
+  --shadow-elevation-low: var(--cal-raised-shadow);
+  --shadow-rested: none;
+  --shadow-hover: none;
+  --shadow-solid-rested: none;
+  --shadow-solid-hover: none;
+  --shadow-switch-thumb: var(--cal-segment-shadow);
+}
+
+.app-shell ::selection,
+.app-portal ::selection {
+  background: color-mix(in srgb, var(--cal-accent) 30%, transparent);
+}
+
+/* The quieter surface behind the sidebar and other chrome. */
+.app-chrome {
+  --cal-bg: var(--cal-chrome);
+  --cal-line: var(--cal-chrome-line);
+  --cal-hover: var(--cal-chrome-hover);
+  --cal-selected: var(--cal-chrome-selected);
+  --cal-active: var(--cal-chrome-active);
+  background: var(--cal-bg);
+}
+
+/* data-theme is only ever set while /app is mounted. */
+:root[data-theme] body {
+  background: var(--cal-bg);
+}
+
+/* Thin, quiet scrollbars for scrolling panes inside the app. */
+.cal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cal-active) transparent;
 }

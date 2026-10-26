@@ -1,6 +1,6 @@
 /** Projects & tasks — Figma 310:1434 (filled) / 310:1377 (empty).
  *  Accent = TIME (bold black time values).
- *  Left-column card: border #ececec, p-24, gap-16. */
+ *  Left-column panel: hairline-split, px-24 py-20, gap-16. */
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Folder, CircleDot, ChevronDown, FolderKanban } from "lucide-react";
@@ -82,7 +82,7 @@ export function ProjectsTasks() {
     });
 
   return (
-    <div className="flex flex-col gap-4 rounded-md border border-line bg-card p-6">
+    <div className="flex flex-col gap-4 bg-card px-6 py-5">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("projects.title")}</span>
         <Button

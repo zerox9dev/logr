@@ -61,7 +61,7 @@ function EmptyState({
       {media && <div className={cn(emptyStateMediaVariants({ size }))}>{media}</div>}
       {/* The gap above the action is owned by whichever text block is last, so
           the spacing does not change when the description is omitted. */}
-      <p className={cn("mt-6 text-center text-xl font-semibold text-heading", !description && action && "mb-8")}>
+      <p className={cn("mt-5 text-center text-[16px] font-semibold text-heading", !description && action && "mb-8")}>
         {headline}
       </p>
       {description && (

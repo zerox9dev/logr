@@ -93,8 +93,8 @@ export function ClientDetail({ id }: { id: string }) {
 
   if (loading || !client) {
     return (
-      <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-        <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+        <div className="flex min-w-0 flex-col bg-card px-6 py-5">
           <p className="py-8 text-center text-base text-muted-foreground">
             {loading ? t("common.loading") : t("clientDetail.notFound")}
           </p>
@@ -114,14 +114,14 @@ export function ClientDetail({ id }: { id: string }) {
   const impliedRate = impliedHourlyRate(client, settings?.weekly_goal_hours ?? null);
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <Link href="/app/clients" className="text-md-minus text-muted-foreground transition-colors hover:text-ink">
           ← {t("sidebar.clients")}
         </Link>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2.5">
-            <h1 className="text-widget font-semibold text-heading">{client.name}</h1>
+            <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-heading">{client.name}</h1>
             {isEmployer && <Badge variant="secondary">{t("client.type.employer")}</Badge>}
           </div>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>{t("client.edit")}</Button>
@@ -153,7 +153,7 @@ export function ClientDetail({ id }: { id: string }) {
         )}
       </div>
 
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("sidebar.projects")}</h2>
         {clientProjects.length === 0 ? (
           <EmptyState size="compact" icon={FolderOpen} headline={t("clientDetail.noProjects")} />
@@ -178,7 +178,7 @@ export function ClientDetail({ id }: { id: string }) {
       {/* Employers are paid a salary, not invoiced — the section would only
           ever be empty for them. */}
       {!isEmployer && (
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("sidebar.invoices")}</h2>
         {clientInvoices.length === 0 ? (
           <EmptyState size="compact" icon={FileText} headline={t("clientDetail.noInvoices")} />
@@ -202,7 +202,7 @@ export function ClientDetail({ id }: { id: string }) {
       </div>
       )}
 
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("activityLog.title")}</h2>
 
         <form onSubmit={submit} className="mb-4 flex flex-wrap items-end gap-3">
@@ -245,7 +245,7 @@ export function ClientDetail({ id }: { id: string }) {
                   type="button"
                   disabled={busy === a.id}
                   onClick={() => remove(a.id)}
-                  className="shrink-0 px-2 py-1 text-md-minus font-medium text-muted-foreground transition-colors hover:text-red-600 disabled:opacity-50"
+                  className="shrink-0 px-2 py-1 text-md-minus font-medium text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
                 >
                   {t("activityLog.delete")}
                 </button>

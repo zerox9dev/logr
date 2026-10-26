@@ -39,8 +39,8 @@ export function ProjectDetail({ id }: { id: string }) {
 
   if (loading || !project) {
     return (
-      <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-        <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+      <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+        <div className="flex min-w-0 flex-col bg-card px-6 py-5">
           <p className="py-8 text-center text-base text-muted-foreground">
             {loading ? t("common.loading") : t("projectDetail.notFound")}
           </p>
@@ -75,8 +75,8 @@ export function ProjectDetail({ id }: { id: string }) {
   );
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <Link href="/app/projects" className="text-md-minus text-muted-foreground transition-colors hover:text-ink">
           ← {t("sidebar.projects")}
         </Link>
@@ -111,13 +111,13 @@ export function ProjectDetail({ id }: { id: string }) {
         </p>
       </div>
 
-      <div className="card-radius flex min-w-0 flex-wrap gap-3 border border-line bg-card p-6">
+      <div className="flex min-w-0 flex-wrap gap-3 bg-card px-6 py-5">
         {stat(t("projectDetail.totalTracked"), fmtDurationFull(totalSeconds, units), "text-heading")}
         {stat(t("projectDetail.billed"), fmtMoney(billed), "text-money")}
         {stat(t("projectDetail.unbilled"), fmtMoney(unbilled), "text-heading")}
       </div>
 
-      <div className="card-radius flex min-w-0 flex-col overflow-x-auto border border-line bg-card p-6">
+      <div className="flex min-w-0 flex-col overflow-x-auto bg-card px-6 py-5">
         <h2 className="mb-4 text-base font-semibold text-heading">{t("projectDetail.sessionHistory")}</h2>
         {rows.length === 0 ? (
           <EmptyState size="compact" icon={Timer} headline={t("projectDetail.noSessions")} />

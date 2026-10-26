@@ -83,11 +83,11 @@ function ClientForm({ client, onClose }: { client?: Client; onClose: () => void 
       </FormField>
 
       <FormField label={t("client.typeLabel")}>
-        <div className="flex w-fit items-start gap-0.5 rounded-sm bg-wash p-1">
-          <Button type="button" variant={!isEmployer ? "surface" : "ghost-muted"} size="sm" onClick={() => setClientType("client")}>
+        <div className="flex w-fit items-start gap-0.5 rounded-md bg-wash p-0.5">
+          <Button type="button" variant={!isEmployer ? "segment" : "ghost-muted"} size="sm" onClick={() => setClientType("client")}>
             {t("client.type.client")}
           </Button>
-          <Button type="button" variant={isEmployer ? "surface" : "ghost-muted"} size="sm" onClick={() => setClientType("employer")}>
+          <Button type="button" variant={isEmployer ? "segment" : "ghost-muted"} size="sm" onClick={() => setClientType("employer")}>
             {t("client.type.employer")}
           </Button>
         </div>

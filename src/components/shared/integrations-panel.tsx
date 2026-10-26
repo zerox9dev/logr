@@ -223,8 +223,8 @@ export function IntegrationsPanel() {
     : t("integrations.never");
 
   return (
-    <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <h1 className="mb-1 text-widget font-semibold text-heading">{t("integrations.title")}</h1>
         <p className="mb-4 text-base text-muted-foreground">{t("integrations.jiraDesc")}</p>
 

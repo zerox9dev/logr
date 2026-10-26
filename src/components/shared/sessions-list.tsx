@@ -104,10 +104,10 @@ export function SessionsList() {
   const chip = "flex items-center gap-1.5 border border-line bg-card px-2 py-1 text-md-minus text-tertiary";
 
   return (
-    <div className="min-w-0 flex-1 overflow-x-hidden bg-page px-4 py-4 lg:px-2">
-      <div className="card-radius flex min-w-0 flex-col border border-line bg-card p-6">
+    <div className="min-w-0 flex-1 overflow-x-hidden bg-page divide-y divide-line">
+      <div className="flex min-w-0 flex-col bg-card px-6 py-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-widget font-semibold text-heading">{t("sidebar.sessions")}</h1>
+          <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-heading">{t("sidebar.sessions")}</h1>
           <div className="flex items-center gap-2">
             <Input
               type="search"
@@ -231,7 +231,7 @@ export function SessionsList() {
                     <TableCell className="py-2.5">
                       <div className="flex items-center justify-end gap-1.5">
                         <button onClick={() => setEditing(s)} className="px-2 py-1 text-md font-medium text-tertiary hover:text-ink transition-colors">{t("sessions.edit")}</button>
-                        <button onClick={() => remove(s.id, s.name)} className="px-2 py-1 text-md font-medium text-muted-foreground hover:text-red-600 transition-colors">{t("sessions.delete")}</button>
+                        <button onClick={() => remove(s.id, s.name)} className="px-2 py-1 text-md font-medium text-muted-foreground hover:text-destructive transition-colors">{t("sessions.delete")}</button>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppData } from "@/contexts/data-context";
 import { suggestFromHistory, type ProjectSuggestion } from "@/domain/suggest-session";
 
-// Inline project suggestion for the tracking card. Debounces the description,
+// Inline project suggestion for the title-bar timer. Debounces the description,
 // tries the local history heuristic first, and only calls the LLM route when
 // that's inconclusive. Returns the suggested project (when it differs from the
 // current selection) plus a one-call dismiss.

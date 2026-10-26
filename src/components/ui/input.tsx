@@ -3,17 +3,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const inputVariants = cva(
-  "w-full rounded-[10px] text-ink placeholder:text-muted-foreground transition-all focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+  "w-full rounded-md text-ink placeholder:text-placeholder transition-colors focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "border border-line bg-card px-3 shadow-rested hover:border-gray-300 focus-visible:border-ink focus-visible:shadow-focused",
+          "border border-line bg-card px-2.5 hover:border-gray-300 focus-visible:border-tertiary",
         ghost: "border-0 bg-transparent px-1",
       },
       inputSize: {
-        default: "h-9 text-md",
-        lg: "h-10 text-base font-medium placeholder:font-normal",
+        default: "h-8 text-[13px]",
+        lg: "h-9 text-[14px] font-medium placeholder:font-normal",
       },
     },
     defaultVariants: {

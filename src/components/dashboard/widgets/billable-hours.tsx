@@ -1,6 +1,6 @@
 /** Billable hours — Figma 310:1613 (filled) / 310:1672 (empty). Amounts are
  *  monochrome in the current design — green is reserved for the Start action.
- *  Left-column card: border #ececec, p-24, gap-16. */
+ *  Left-column panel: hairline-split, px-24 py-20, gap-16. */
 import { useRouter } from "next/navigation";
 import { Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -98,7 +98,7 @@ export function BillableHours() {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-md border border-line bg-card p-6">
+    <div className="flex flex-col gap-4 bg-card px-6 py-5">
       <div className="flex w-full items-center justify-between">
         <span className="text-widget font-semibold text-heading">{t("billable.title")}</span>
         <Button

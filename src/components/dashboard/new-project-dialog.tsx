@@ -83,9 +83,9 @@ export function NewProjectDialog({ open, onClose, onNeedClient }: { open: boolea
         </FormField>
         <div className="flex items-end gap-3">
           <FormField label={t("new.billing")}>
-            <div className="flex items-start gap-0.5 rounded-sm bg-wash p-1">
-              <Button type="button" variant={billing === "hourly" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("new.hourly")}</Button>
-              <Button type="button" variant={billing === "fixed" ? "surface" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("new.fixed")}</Button>
+            <div className="flex items-start gap-0.5 rounded-md bg-wash p-0.5">
+              <Button type="button" variant={billing === "hourly" ? "segment" : "ghost-muted"} size="sm" onClick={() => setBilling("hourly")}>{t("new.hourly")}</Button>
+              <Button type="button" variant={billing === "fixed" ? "segment" : "ghost-muted"} size="sm" onClick={() => setBilling("fixed")}>{t("new.fixed")}</Button>
             </div>
           </FormField>
           <FormField label={billing === "hourly" ? t("new.rateHr") : t("new.budget")}>

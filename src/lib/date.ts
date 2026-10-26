@@ -32,10 +32,19 @@ export function addDays(d: Date, n: number): Date {
   return x;
 }
 
+/** Local time of `d` as "HH:MM" (for <input type="time">). */
+export function timeStr(d: Date): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
 /** Current local time as an "HH:MM" string (for <input type="time"> defaults). */
 export function nowTimeStr(): string {
-  const n = new Date();
-  return `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")}`;
+  return timeStr(new Date());
+}
+
+/** Local calendar date of `d` as "YYYY-MM-DD" (for <input type="date">). */
+export function localDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function sameDay(a: Date, b: Date): boolean {

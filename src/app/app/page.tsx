@@ -1,5 +1,5 @@
-import { DashboardScreen } from "@/components/dashboard/dashboard-screen";
+import { CalendarScreen } from "@/components/calendar/calendar-screen";
 
 export default function AppPage() {
-  return <DashboardScreen />;
+  return <CalendarScreen />;
 }

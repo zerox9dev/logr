@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const dialogVariants = cva(
-  "app-portal app-enter fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-card shadow-dropdown focus:outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+  "app-portal app-enter fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-xl border border-(--cal-raised-line) bg-popover shadow-dropdown focus:outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
   {
     variants: {
       size: {
@@ -35,10 +35,10 @@ export function Dialog({ open, onClose, title, size, className, children }: Dial
   return (
     <RadixDialog.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="app-portal fixed inset-0 z-40 bg-black/35 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
+        <RadixDialog.Overlay className="app-portal fixed inset-0 z-40 bg-(--cal-overlay) data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
         <RadixDialog.Content className={cn(dialogVariants({ size, className }))}>
-          <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <RadixDialog.Title className="text-base font-semibold text-heading">{title}</RadixDialog.Title>
+          <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+            <RadixDialog.Title className="text-[15px] font-semibold text-heading">{title}</RadixDialog.Title>
             <RadixDialog.Close asChild>
               <Button variant="ghost" size="icon" aria-label="Close">
                 <X />

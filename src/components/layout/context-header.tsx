@@ -3,6 +3,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import * as Popover from "@radix-ui/react-popover";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { segmentedList, segmentedTab } from "@/components/ui/segmented";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT, useLang } from "@/i18n";
 import type { Period } from "@/domain/dashboard-metrics";
@@ -75,7 +76,7 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
           aria-disabled={disabled}
           aria-label={t("ctx.pickDate")}
           title={t("ctx.pickDate")}
-          className="text-widget font-semibold tnum"
+          className="px-1.5 text-[18px] font-semibold tracking-[-0.01em] tnum"
         >
           {label}
           {!disabled && <Calendar aria-hidden="true" />}
@@ -85,7 +86,7 @@ function DatePicker({ disabled = false, label }: { disabled?: boolean; label: st
         <Popover.Content
           align="end"
           sideOffset={8}
-          className="app-portal z-50 rounded-md bg-card p-3 shadow-dropdown"
+          className="app-portal z-50 rounded-lg border border-(--cal-raised-line) bg-popover p-3 shadow-dropdown"
         >
           <div className="mb-2 flex items-center justify-between">
             <Button
@@ -154,15 +155,15 @@ export function ContextHeader() {
   const t = useT();
 
   return (
-    <div className="mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-card px-5 py-3 lg:mx-2">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card px-6 py-3">
       <div className="flex items-center gap-3">
         <h1 className="min-w-0">
           <DatePicker disabled={period === "All"} label={metrics.header.dateLabel} />
         </h1>
         <div className="flex items-center gap-1.5">
           <Button
-            variant="surface"
-            size="icon-lg"
+            variant="outline"
+            size="icon"
             onClick={() => pageDate(-1)}
             disabled={!canPageBack}
             aria-label={t("ctx.prevPeriod")}
@@ -170,8 +171,8 @@ export function ContextHeader() {
             <ChevronLeft />
           </Button>
           <Button
-            variant="surface"
-            size="icon-lg"
+            variant="outline"
+            size="icon"
             onClick={() => pageDate(1)}
             disabled={!canPageForward}
             aria-label={t("ctx.nextPeriod")}
@@ -184,18 +185,16 @@ export function ContextHeader() {
       <div className="flex min-w-0 items-center overflow-x-auto">
         {/* Segmented Today / Week / Month / All tabs */}
         <Tabs.Root value={period} onValueChange={(v) => setPeriod(v as Period)}>
-          <Tabs.List className="flex items-center rounded-md bg-faint p-0.5 shadow-rested">
+          <Tabs.List className={segmentedList}>
             {VIEWS.map((v) => (
-              <Tabs.Trigger key={v} value={v} asChild>
-                <Button
-                  variant={period === v ? "default" : "ghost-muted"}
-                  size="lg"
-                  // "Today" tab also resets to the current day (even on re-click).
-                  onClick={v === "Day" ? goToToday : undefined}
-                  className="px-4 text-md-minus"
-                >
-                  {t(VIEW_KEYS[v])}
-                </Button>
+              <Tabs.Trigger
+                key={v}
+                value={v}
+                // "Today" tab also resets to the current day (even on re-click).
+                onClick={v === "Day" ? goToToday : undefined}
+                className={segmentedTab}
+              >
+                {t(VIEW_KEYS[v])}
               </Tabs.Trigger>
             ))}
           </Tabs.List>

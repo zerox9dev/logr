@@ -1,7 +1,7 @@
 /** Timeline — Figma 310:3340 (filled) / 310:3419 (empty). A single 10px strip
  *  covering 09:00–20:00 with one segment per session, a 6-tick hour axis, and a
  *  Focus / Meetings / Breaks legend carrying each lane's total.
- *  Left-column card: border #ececec, p-24, gap-8. */
+ *  Left-column panel: hairline-split, px-24 py-20, gap-8. */
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useT } from "@/i18n";
 import type { TimelineCategory } from "@/domain/dashboard-metrics";
@@ -32,7 +32,7 @@ export function Timeline() {
   const { segments, ticks, legend, empty, outsideRangeCount } = metrics.timeline;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-line bg-card p-6">
+    <div className="flex flex-col gap-2 bg-card px-6 py-5">
       <span className="text-widget font-semibold text-heading">{t("timeline.title")}</span>
 
       <div className={`relative h-2.5 w-full overflow-hidden rounded-xs ${empty ? "bg-track" : "bg-grid"}`}>

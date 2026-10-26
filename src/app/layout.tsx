@@ -4,6 +4,7 @@ import { Inter, Calistoga } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { THEME_SCRIPT } from "@/lib/theme-script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,7 +46,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${calistoga.variable}`}>
+    // suppressHydrationWarning: THEME_SCRIPT sets data-theme on <html> before hydration.
+    <html lang="en" className={`${inter.variable} ${calistoga.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>
         <Providers>{children}</Providers>
         <SpeedInsights />
