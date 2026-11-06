@@ -28,6 +28,11 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # One run at a time, and never cancel a run mid-push: a cancelled run could
+    # leave :main on an older commit than the newest push.
+    concurrency:
+      group: images-main
+      cancel-in-progress: false
     permissions:
       contents: read
       packages: write
@@ -63,9 +68,11 @@ jobs:
             -t ghcr.io/zerox9dev/logr:main \
             ghcr.io/zerox9dev/logr:${{ env.TAG }}
       # Ten versions is ten deploys to roll back to; older ones are rebuilt
-      # from their commit.
+      # from their commit. Non-fatal: the image is already pushed, and a 403
+      # on a personal-account package must not turn the whole run red.
       - name: Keep the last ten versions
         uses: actions/delete-package-versions@v5
+        continue-on-error: true
         with:
           package-name: logr
           package-type: container
