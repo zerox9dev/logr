@@ -1,0 +1,14 @@
+# =============================================================================
+# Builds the logr app image from this checkout instead of pulling it from GHCR.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+#
+# Use it for local development on your own changes. The image keeps the name
+# from docker-compose.yml, so the rest of the stack is unchanged.
+# =============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
