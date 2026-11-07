@@ -8,8 +8,12 @@
 # applied automatically from `pb_migrations/` on boot; the admin UI is
 # published on the host at http://localhost:8090/_/.
 #
+# The app image is built by CI and pushed to GHCR on every push to main; this
+# file only pulls it, so nothing is built on the server. To build from your own
+# checkout, add docker-compose.build.yml (see the README).
+#
 #   cp .env.example .env
-#   docker compose up -d --build
+#   docker compose up -d
 #   open http://localhost:3000
 #
 # The bundled PocketBase is meant for local dev and small self-hosts. Its data
@@ -19,9 +23,8 @@
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/zerox9dev/logr:main
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       pocketbase:

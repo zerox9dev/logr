@@ -84,8 +84,10 @@ logr is a Next.js app backed by PocketBase. `docker compose up` runs both: the a
 ```bash
 git clone https://github.com/zerox9dev/logr.git && cd logr
 cp .env.example .env
-docker compose up -d --build
+docker compose up -d
 ```
+
+The app image is built by CI and pulled from `ghcr.io/zerox9dev/logr:main`. To build it from your own checkout, run `docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build`.
 
 `.env` needs no edits to run locally; the keys are optional:
 
