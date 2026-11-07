@@ -67,6 +67,27 @@ jobs:
           docker buildx imagetools create --prefer-index=false \
             -t ghcr.io/zerox9dev/logr:main \
             ghcr.io/zerox9dev/logr:${{ env.TAG }}
+      # PocketBase changes only with pocketbase/Dockerfile, so its tag is the
+      # version and is pushed once: an existing tag is never rebuilt, which keeps
+      # the running database on exactly the image it was started with.
+      - name: PocketBase version
+        id: pb
+        run: |
+          v=$(sed -n 's/^ARG PB_VERSION=//p' pocketbase/Dockerfile)
+          echo "image=ghcr.io/zerox9dev/logr-pocketbase:$v" >> "$GITHUB_OUTPUT"
+          if docker buildx imagetools inspect "ghcr.io/zerox9dev/logr-pocketbase:$v" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: docker/build-push-action@v6
+        if: steps.pb.outputs.exists != 'true'
+        with:
+          context: pocketbase
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.pb.outputs.image }}
+          labels: org.opencontainers.image.source=https://github.com/zerox9dev/logr
       # Ten versions is ten deploys to roll back to; older ones are rebuilt
       # from their commit. Non-fatal: the image is already pushed, and a 403
       # on a personal-account package must not turn the whole run red.
